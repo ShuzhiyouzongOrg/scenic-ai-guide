@@ -31,7 +31,7 @@
               <TransitionGroup name="msg" tag="div">
                 <div v-for="(m, i) in messages" :key="i" class="msg-row" :class="m.role">
                   <div class="bubble">
-                    <p class="bubble-text">{{ m.content }}</p>
+                    <p class="bubble-text">{{ displayMessage(m) }}</p>
                     <div v-if="m.role === 'assistant' && m.meta" class="bubble-meta">
                       <ElTag v-if="m.meta.label" size="small" type="info" effect="plain">{{
                         m.meta.label
@@ -207,6 +207,7 @@
   import { Delete, Microphone } from '@element-plus/icons-vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import DigitalHumanAvatar from '@/components/digital-human/DigitalHumanAvatar.vue'
+  import { formatGuideAnswer } from '@/utils/guide-answer'
   import {
     askQuestion,
     clearChatHistory,
@@ -268,6 +269,10 @@
       .map((source) => source.sectionTitle || source.documentName)
       .filter(Boolean)
       .join(sourceSeparator.value)
+  }
+
+  function displayMessage(message: UiMessage) {
+    return message.role === 'assistant' ? formatGuideAnswer(message.content) : message.content
   }
 
   const spots = ref<ScenicSpot[]>([])
@@ -345,7 +350,7 @@
 
   function speak(answer: ChatAnswer) {
     const emotion = answer.digitalHuman?.ttsEmotion || 'neutral'
-    avatarRef.value?.speak(answer.answer, emotion)
+    avatarRef.value?.speak(formatGuideAnswer(answer.answer), emotion)
   }
 
   // ---- 问答 ----

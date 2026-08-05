@@ -23,6 +23,25 @@ function nowMs() {
   return Date.now();
 }
 
+function maxTokensForMode(mode) {
+  if (mode === "route") return 1600;
+  if (mode === "explain") return 1000;
+  return 700;
+}
+
+export function normalizeAssistantText(value) {
+  return String(value || "")
+    .replace(/```(?:[\w-]+)?\s*([\s\S]*?)```/g, "$1")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/\[([^\]]+)\]\([^\s)]+(?:\s+[^)]*)?\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^\s*[-*+]\s+/gm, "• ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function knownSpotNames() {
   const knowledge = loadKnowledge();
   return (knowledge?.spots || []).flatMap((spot) => spot.aliases || [spot.name]);
@@ -247,8 +266,14 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
   const messages = buildMessages({ mode, question: trimmed, results, history, locale: responseLocale });
 
   const llmStart = nowMs();
-  const completion = await llmComplete({ messages, meta, signal });
+  const completion = await llmComplete({
+    messages,
+    meta,
+    maxTokens: maxTokensForMode(mode),
+    signal
+  });
   const llmMs = nowMs() - llmStart;
+  const answerText = normalizeAssistantText(completion.text);
 
   const label = qualityLabel({ scenario, mode, emotion });
   const emotionLabel = emotionTag({ scenario, label, emotion });
@@ -257,7 +282,7 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
     : [];
 
   const answerPayload = {
-    answer: completion.text,
+    answer: answerText,
     mode,
     locale: responseLocale,
     scenario,
@@ -281,7 +306,7 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
   };
 
   // AI2-12: cache confident factual/route answers for reuse.
-  if ((scenario === "grounded") && completion.text) {
+  if ((scenario === "grounded") && answerText) {
     setCachedAnswer(cacheQuestion, mode, answerPayload);
   }
 
@@ -289,7 +314,7 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
     appendMessage(sessionId, { role: "user", content: trimmed, emotionLabel: emotion });
     appendMessage(sessionId, {
       role: "assistant",
-      content: completion.text,
+      content: answerText,
       intentLabel: label,
       emotionLabel,
       latencyMs: nowMs() - started
@@ -361,7 +386,12 @@ export async function* answerQuestionStream({ question, sessionId = "", mode: ex
   });
 
   let full = "";
-  for await (const delta of llmStream({ messages, meta, signal })) {
+  for await (const delta of llmStream({
+    messages,
+    meta,
+    maxTokens: maxTokensForMode(mode),
+    signal
+  })) {
     full += delta;
     yield delta;
   }
