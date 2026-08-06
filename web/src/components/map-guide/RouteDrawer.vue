@@ -137,7 +137,7 @@
     color: inherit;
     text-align: left;
     cursor: pointer;
-    background: #fff;
+    background: rgb(255 255 252 / 80%);
     border: 1px solid #e2e6df;
     border-radius: 12px;
     transition:
@@ -147,13 +147,13 @@
   }
 
   .route-card:hover {
-    background: #fdfdf9;
+    background: rgb(253 253 249 / 90%);
     border-color: #bbc9c0;
     transform: translateY(-1px);
   }
 
   .route-card.selected {
-    background: #f3f7f2;
+    background: rgb(243 247 242 / 88%);
     border-color: #4f7b71;
   }
 
