@@ -651,7 +651,7 @@
     flex-direction: column;
     height: calc(100vh - 118px);
     min-height: 650px;
-    padding: 8px;
+    padding: 4px;
     overflow: hidden;
     color: #304840;
   }
