@@ -39,10 +39,7 @@ test('every official route node resolves against the complete scenic spot invent
     .flatMap((route) => route.nodes)
   const unmatched = officialNodes.filter(
     (node) =>
-      !matchSpot(
-        { id: node.sourcePointId || node.spotId, name: node.name },
-        bootstrap.spots
-      ).spot
+      !matchSpot({ id: node.sourcePointId || node.spotId, name: node.name }, bootstrap.spots).spot
   )
 
   assert.equal(officialNodes.length, 70)
