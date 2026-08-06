@@ -2,6 +2,15 @@ import type { CoordinateBounds, GuideCoordinate } from './coordinate'
 import type { GuideRoute } from './guide-route'
 import type { ScenicCategory, ScenicSpot } from './scenic-spot'
 
+export type ScenicAreaId = 'lingshan' | 'nianhuawan'
+
+export interface ScenicAreaSummary {
+  id: ScenicAreaId
+  name: string
+  shortName: string
+  sourceProject: string
+}
+
 export interface HandDrawnTile {
   id: string
   index: number
@@ -44,6 +53,7 @@ export interface PanoramaHotspot {
 
 export interface PanoramaRecord {
   panoramaId: string
+  sourcePanoId?: string
   spotId?: string
   title: string
   description?: string
@@ -63,6 +73,7 @@ export interface MapGuideConfig {
   rotationDegrees: number
   minZoom: number
   maxZoom: number
+  highDpiMaxZoom?: number
   initialZoom: number
   tileLayer: HandDrawnLayerConfig
 }
@@ -70,6 +81,7 @@ export interface MapGuideConfig {
 export interface MapGuideBootstrap {
   version: string
   generatedAt: string
+  area: ScenicAreaSummary
   config: MapGuideConfig
   categories: ScenicCategory[]
   spots: ScenicSpot[]

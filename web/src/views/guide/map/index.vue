@@ -12,6 +12,7 @@
   import MapLoadingProgress from '@/components/map-guide/MapLoadingProgress.vue'
   import MapDigitalHuman from '@/components/map-guide/MapDigitalHuman.vue'
   import PanoramaViewer from '@/components/map-guide/PanoramaViewer.vue'
+  import ScenicAreaSwitcher from '@/components/map-guide/ScenicAreaSwitcher.vue'
   import { fetchMapGuideBootstrap } from '@/api/map-guide'
   import { narrateRouteNode, narrateSpot } from '@/api/guide'
   import { useHandDrawnTiles } from '@/composables/map-guide/useHandDrawnTiles'
@@ -31,11 +32,18 @@
     NarrationSegment,
     PanoramaRecord,
     PersistedMapGuideState,
+    ScenicAreaId,
     ScenicSpot
   } from '@/types/map-guide'
   import { transformCoordinate } from '@/utils/map-guide/coordinate'
   import { resolvePanoramaForTarget } from '@/utils/map-guide/panorama'
   import { resolveRouteNodeCoordinate } from '@/utils/map-guide/route-geometry'
+  import {
+    ACTIVE_SCENIC_AREA_STORAGE_KEY,
+    clearedScenicAreaInteractionState,
+    normalizeScenicAreaId,
+    scenicAreaStateStorageKey
+  } from '@/utils/map-guide/scenic-area'
   import { matchSpot } from '@/utils/map-guide/spot-mapping'
 
   defineOptions({ name: 'GuideMap' })
@@ -60,9 +68,12 @@
   const mapRef = ref<ScenicMapExpose>()
   const digitalHumanRef = ref<MapDigitalHumanExpose>()
   const avatarHandle = computed(() => digitalHumanRef.value?.handle)
-  const abortController = new AbortController()
+  const activeAreaId = ref<ScenicAreaId>(
+    normalizeScenicAreaId(localStorage.getItem(ACTIVE_SCENIC_AREA_STORAGE_KEY))
+  )
   const bootstrap = ref<MapGuideBootstrap>()
   const loading = ref(true)
+  const areaSwitching = ref(false)
   const loadError = ref('')
   const query = ref('')
   const selectedCategoryIds = ref<string[]>(['36'])
@@ -85,6 +96,7 @@
   const beforePanoramaAvatarState = ref<AvatarDisplayState>('idle')
   let subtitleTimer: number | undefined
   let subtitleElapsedMs = 0
+  let loadAbortController: AbortController | undefined
 
   const tileLoader = useHandDrawnTiles({ concurrency: 4, retries: 2, timeoutMs: 12000 })
   const { safeArea, update: updateSafeArea } = useMapSafeArea()
@@ -109,6 +121,9 @@
   )
   const selectedRoute = computed(() => routeState.selectedRoute.value)
   const selectedPanorama = computed(() => activePanorama.value || bootstrap.value?.panoramas[0])
+  const activeAreaName = computed(() =>
+    t(activeAreaId.value === 'lingshan' ? 'app.mapGuideAreaLingshan' : 'app.mapGuideAreaNianhuawan')
+  )
   const loadedTileIds = computed(() =>
     Object.entries(tileLoader.statuses.value)
       .filter(([, status]) => status.state === 'loaded')
@@ -120,7 +135,8 @@
     return allSpots.filter((spot) => {
       const categoryMatches =
         selectedCategoryIds.value.length === 0 ||
-        selectedCategoryIds.value.includes(spot.categoryId)
+        selectedCategoryIds.value.includes(spot.categoryId) ||
+        spot.categoryIds?.some((categoryId) => selectedCategoryIds.value.includes(categoryId))
       const queryMatches =
         !normalizedQuery ||
         [spot.name, spot.categoryName, ...spot.aliases]
@@ -182,8 +198,16 @@
 
   async function resolveSpotNarration(spot: ScenicSpot): Promise<NarrationContent> {
     const projectText = spot.detail?.trim() || spot.description?.trim()
-    if (projectText && projectText !== '景区导览点位') {
+    if (projectText && projectText !== '景区导览点位' && projectText !== '拈花湾景区导览点位') {
       return buildContent(`project-${spot.id}`, spot.name, projectText, 'project-script')
+    }
+    if (activeAreaId.value === 'nianhuawan') {
+      return buildContent(
+        `fallback-${spot.id}`,
+        spot.name,
+        t('app.mapGuideSpotFallbackNarration', { name: spot.name }),
+        'fallback-text'
+      )
     }
     const result = await narrateSpot({ spotId: spot.targetSpotId || spot.id, spotName: spot.name })
     return buildContent(`ai-${spot.id}-${Date.now()}`, spot.name, result.narration, 'ai-generated')
@@ -236,6 +260,15 @@
         node.narrationText,
         'official-script'
       )
+    } else if (activeAreaId.value === 'nianhuawan') {
+      content = buildContent(
+        `route-fallback-${node.id}`,
+        node.name,
+        spot?.detail ||
+          spot?.description ||
+          t('app.mapGuideRouteNodeFallback', { name: node.name, order: node.order }),
+        'fallback-text'
+      )
     } else {
       try {
         const result = await narrateRouteNode({
@@ -265,10 +298,13 @@
 
   function startWelcomeNarration() {
     void avatarHandle.value?.enableAudio()
+    const areaName = bootstrap.value?.area.name || t('app.mapGuideAreaLingshan')
     const content = buildContent(
-      'map-guide-welcome',
-      t('app.mapGuideTitle'),
-      t('app.mapGuideWelcomeNarration'),
+      `map-guide-welcome-${activeAreaId.value}`,
+      areaName,
+      activeAreaId.value === 'nianhuawan'
+        ? t('app.mapGuideWelcomeNarrationNianhuawan')
+        : t('app.mapGuideWelcomeNarration'),
       'project-script'
     )
     void beginNarration(content)
@@ -397,7 +433,7 @@
 
   function updateResponsiveSafeArea() {
     updateSafeArea({
-      top: 26,
+      top: 68,
       left: panelCollapsed.value || isMobile.value ? 22 : 350,
       right: 70,
       bottom: spotCardVisible.value ? (isMobile.value ? 210 : 180) : isMobile.value ? 100 : 70
@@ -425,16 +461,19 @@
       favoriteRouteIds: [],
       layerMode: handDrawnVisible.value ? 'hand-drawn' : 'base'
     }
-    localStorage.setItem('map-guide:state:v1', JSON.stringify(state))
+    localStorage.setItem(scenicAreaStateStorageKey(activeAreaId.value), JSON.stringify(state))
   }
 
   function restorePageState() {
     try {
-      const state = JSON.parse(
-        localStorage.getItem('map-guide:state:v1') || 'null'
-      ) as PersistedMapGuideState | null
+      const areaState = localStorage.getItem(scenicAreaStateStorageKey(activeAreaId.value))
+      const legacyState =
+        activeAreaId.value === 'lingshan' ? localStorage.getItem('map-guide:state:v1') : null
+      const state = JSON.parse(areaState || legacyState || 'null') as PersistedMapGuideState | null
       if (!state || state.version !== 1) return
-      selectedSpotId.value = state.selectedSpotId
+      selectedSpotId.value = bootstrap.value?.spots.some((spot) => spot.id === state.selectedSpotId)
+        ? state.selectedSpotId
+        : undefined
       handDrawnVisible.value = state.layerMode !== 'base'
       routeState.selectedRouteId.value = undefined
       routePlayback.clear()
@@ -477,24 +516,79 @@
     }, 250)
   }
 
-  async function loadData() {
+  function resetAreaInteractionState() {
+    const cleared = clearedScenicAreaInteractionState()
+    routeState.selectedRouteId.value = cleared.selectedRouteId
+    routeDetailOpen.value = cleared.routeDetailOpen
+    routeDrawerOpen.value = cleared.routeDrawerOpen
+    routePlayback.clear()
+    selectedSpotId.value = cleared.selectedSpotId
+    selectedCategoryIds.value = cleared.selectedCategoryIds
+    query.value = cleared.query
+    panoramaOpen.value = cleared.panoramaOpen
+    activePanorama.value = undefined
+    activePanoramaSpot.value = undefined
+    activeNarration.value = undefined
+    activeSegments.value = []
+    avatarDisplayState.value = cleared.avatarDisplayState
+    handDrawnVisible.value = cleared.handDrawnVisible
+  }
+
+  async function switchScenicArea(areaId: ScenicAreaId) {
+    if (areaId === activeAreaId.value || areaSwitching.value) return
+    persistPageState()
+    await narration.stop()
+    tileLoader.cancel()
+    resetAreaInteractionState()
+    activeAreaId.value = areaId
+    localStorage.setItem(ACTIVE_SCENIC_AREA_STORAGE_KEY, areaId)
+    await loadData(areaId)
+  }
+
+  async function loadData(areaId: ScenicAreaId = activeAreaId.value) {
+    loadAbortController?.abort()
+    const controller = new AbortController()
+    loadAbortController = controller
     loading.value = true
+    areaSwitching.value = Boolean(bootstrap.value && bootstrap.value.area.id !== areaId)
     loadError.value = ''
     try {
-      bootstrap.value = await fetchMapGuideBootstrap(abortController.signal)
-      await tileLoader.preload(bootstrap.value.config.tileLayer.tiles)
-      if (tileLoader.allFailed.value) handDrawnVisible.value = false
+      const nextBootstrap = await fetchMapGuideBootstrap(areaId, controller.signal)
+      if (controller.signal.aborted) return
+      bootstrap.value = nextBootstrap
+      activeAreaId.value = nextBootstrap.area.id
+      await nextTick()
       restorePageState()
+      void tileLoader.preload(nextBootstrap.config.tileLayer.tiles).then(() => {
+        if (tileLoader.allFailed.value) handDrawnVisible.value = false
+      })
     } catch (error) {
-      if (!abortController.signal.aborted) {
-        loadError.value = error instanceof Error ? error.message : String(error)
+      if (!controller.signal.aborted) {
+        if (bootstrap.value && bootstrap.value.area.id !== areaId) {
+          activeAreaId.value = bootstrap.value.area.id
+          localStorage.setItem(ACTIVE_SCENIC_AREA_STORAGE_KEY, activeAreaId.value)
+          ElMessage.warning(t('app.mapGuideLoadFailure'))
+          restorePageState()
+        } else {
+          loadError.value = error instanceof Error ? error.message : String(error)
+        }
       }
     } finally {
-      loading.value = false
+      if (loadAbortController === controller) {
+        loading.value = false
+        areaSwitching.value = false
+      }
     }
   }
 
   watch([panelCollapsed, isMobile, spotCardVisible], updateResponsiveSafeArea, { immediate: true })
+  watch(
+    isMobile,
+    (mobile) => {
+      if (mobile) panelCollapsed.value = true
+    },
+    { immediate: true }
+  )
   watch(avatarDisplayState, () => void nextTick(() => mapRef.value?.invalidateSize()))
   watch(
     () => narration.snapshot.value.state,
@@ -513,7 +607,7 @@
 
   onMounted(() => void loadData())
   onBeforeUnmount(() => {
-    abortController.abort()
+    loadAbortController?.abort()
     if (subtitleTimer !== undefined) window.clearInterval(subtitleTimer)
     persistPageState()
   })
@@ -523,19 +617,34 @@
   <div class="map-guide-page">
     <section
       class="map-guide-workspace"
-      :class="{ 'narration-open': avatarDisplayState === 'speaking' }"
+      :class="{
+        'narration-open': avatarDisplayState === 'speaking',
+        'route-detail-open': routeDetailOpen,
+        'route-drawer-open': routeDrawerOpen
+      }"
     >
       <main class="map-guide-stage">
+        <ScenicAreaSwitcher
+          v-if="!panoramaOpen"
+          :model-value="activeAreaId"
+          :loading="areaSwitching"
+          @update:model-value="switchScenicArea"
+        />
+        <div v-if="areaSwitching" class="map-guide-area-switching" role="status">
+          <span />
+          <p>{{ $t('app.mapGuideAreaSwitching', { name: activeAreaName }) }}</p>
+        </div>
         <div v-if="loading && !bootstrap" class="map-guide-state"
           ><span /><p>{{ $t('app.mapGuideTitle') }}</p></div
         >
         <div v-else-if="loadError || !bootstrap" class="map-guide-state error"
           ><ArtSvgIcon icon="ri:map-2-line" /><h2>{{ $t('app.mapGuideLoadFailure') }}</h2
           ><p>{{ loadError }}</p
-          ><button type="button" @click="loadData">{{ $t('app.mapGuideRetry') }}</button></div
+          ><button type="button" @click="loadData()">{{ $t('app.mapGuideRetry') }}</button></div
         >
         <template v-else>
           <ScenicMap
+            :key="bootstrap.area.id"
             v-show="!panoramaOpen"
             ref="mapRef"
             :config="bootstrap.config"
@@ -574,7 +683,7 @@
             @retry="retryFailedTiles"
           />
           <MapControlGroup
-            v-if="!panoramaOpen"
+            v-if="!panoramaOpen && (!isMobile || (!routeDrawerOpen && !routeDetailOpen))"
             :hand-drawn-visible="handDrawnVisible"
             :panorama-available="bootstrap.panoramas.length > 0"
             :route-active="Boolean(selectedRoute)"
@@ -630,7 +739,9 @@
       </main>
 
       <MapDigitalHuman
+        v-show="!isMobile || !routeDrawerOpen"
         ref="digitalHumanRef"
+        :style="isMobile && routeDetailOpen ? { bottom: '362px' } : undefined"
         :display-state="avatarDisplayState"
         :narration-state="narration.snapshot.value.state"
         :segments="activeSegments"
@@ -686,6 +797,36 @@
     overflow: hidden;
   }
 
+  .map-guide-area-switching {
+    position: absolute;
+    inset: 0;
+    z-index: 445;
+    display: grid;
+    gap: 9px;
+    place-content: center;
+    justify-items: center;
+    color: #3f6058;
+    pointer-events: auto;
+    background: rgb(237 241 234 / 72%);
+    backdrop-filter: blur(2px);
+    animation: map-area-fade 220ms ease-out;
+  }
+
+  .map-guide-area-switching span {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #c9d4ca;
+    border-top-color: #39766c;
+    border-radius: 50%;
+    animation: map-spin 0.8s linear infinite;
+  }
+
+  .map-guide-area-switching p {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
   .map-guide-state {
     position: absolute;
     inset: 0;
@@ -735,6 +876,12 @@
     }
   }
 
+  @keyframes map-area-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
   @media (width <= 1100px) {
     .map-guide-workspace.narration-open {
       grid-template-columns: minmax(0, 1fr) min(340px, 31vw);
@@ -759,7 +906,9 @@
 
   @media (prefers-reduced-motion: reduce) {
     .map-guide-workspace,
-    .map-guide-state > span {
+    .map-guide-state > span,
+    .map-guide-area-switching,
+    .map-guide-area-switching span {
       transition: none;
       animation: none;
     }

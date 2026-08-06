@@ -51,6 +51,12 @@
   let resizeObserver: ResizeObserver | undefined
   let minimumScenicZoom = props.config.minZoom
 
+  function effectiveMaxZoom(): number {
+    return window.devicePixelRatio > 1.25 && props.config.highDpiMaxZoom
+      ? Math.min(props.config.maxZoom, props.config.highDpiMaxZoom)
+      : props.config.maxZoom
+  }
+
   function currentRotation(): number {
     return props.handDrawnVisible ? props.config.rotationDegrees : 0
   }
@@ -89,7 +95,7 @@
         center: toLatLng(props.config.center),
         zoom: props.config.initialZoom,
         minZoom: props.config.minZoom,
-        maxZoom: props.config.maxZoom,
+        maxZoom: effectiveMaxZoom(),
         maxBoundsViscosity: 1,
         zoomControl: false,
         attributionControl: true,
@@ -101,7 +107,7 @@
         import.meta.env.VITE_MAP_TILE_ATTRIBUTION || '&copy; OpenStreetMap contributors'
       baseLayer = L.tileLayer(tileUrl, {
         attribution,
-        maxZoom: props.config.maxZoom,
+        maxZoom: effectiveMaxZoom(),
         crossOrigin: true,
         updateWhenIdle: true
       })
@@ -135,7 +141,7 @@
     map.setMaxBounds(bounds)
     minimumScenicZoom = Math.max(
       props.config.minZoom,
-      map.getBoundsZoom(bounds, false, L.point(34, 34))
+      map.getBoundsZoom(bounds, true, L.point(34, 34))
     )
     map.setMinZoom(minimumScenicZoom)
     if (reset || map.getZoom() < minimumScenicZoom) {
@@ -174,7 +180,7 @@
   ) {
     const map = mapInstance.value
     if (!map) return
-    const targetZoom = Math.min(zoom, props.config.maxZoom)
+    const targetZoom = Math.min(zoom, effectiveMaxZoom())
     const displayCoordinate = props.handDrawnVisible
       ? toScenicDisplayCoordinate(
           coordinate,
@@ -220,7 +226,7 @@
     if (points.length > 1)
       mapInstance.value?.fitBounds(L.latLngBounds(points), {
         ...paddingOptions(),
-        maxZoom: 18,
+        maxZoom: Math.min(18, effectiveMaxZoom()),
         animate: true,
         duration: 0.42
       })
@@ -293,7 +299,14 @@
   }
 
   function restoreView(state?: { center: GuideCoordinate; zoom: number }) {
-    if (state) mapInstance.value?.setView(toLatLng(state.center), state.zoom, { animate: false })
+    const map = mapInstance.value
+    if (!state || !map) return
+    const zoom = Math.max(
+      props.handDrawnVisible ? minimumScenicZoom : props.config.minZoom,
+      Math.min(state.zoom, effectiveMaxZoom())
+    )
+    map.setView(toLatLng(state.center), zoom, { animate: false })
+    if (props.handDrawnVisible) map.panInsideBounds(scenicBounds(), { animate: false })
   }
 
   watch(

@@ -134,11 +134,11 @@
     min-height: 32px;
     padding: 0 10px;
     color: #4c665f;
+    white-space: nowrap;
     cursor: pointer;
     background: #f0f3ee;
     border: 0;
     border-radius: 8px;
-    white-space: nowrap;
   }
 
   .scenic-spot-card__actions button.primary {
