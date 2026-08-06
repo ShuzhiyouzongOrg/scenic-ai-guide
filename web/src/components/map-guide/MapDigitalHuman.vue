@@ -167,6 +167,18 @@
     border-radius: 50%;
   }
 
+  .state-idle .map-digital-human__engine :deep(.dh-host),
+  .state-compact .map-digital-human__engine :deep(.dh-host),
+  .state-idle .map-digital-human__engine :deep(.dh-avatar),
+  .state-compact .map-digital-human__engine :deep(.dh-avatar),
+  .state-idle .map-digital-human__engine :deep(.dh-stage),
+  .state-compact .map-digital-human__engine :deep(.dh-stage),
+  .state-idle .map-digital-human__engine :deep(.dh-loading),
+  .state-compact .map-digital-human__engine :deep(.dh-loading) {
+    background: #fff;
+    border-radius: 50%;
+  }
+
   .state-speaking .map-digital-human__engine {
     top: 14px;
     right: 14px;
