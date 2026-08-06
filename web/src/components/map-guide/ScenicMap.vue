@@ -39,7 +39,6 @@
     ready: []
     selectSpot: [spot: ScenicSpot]
     selectRouteNode: [node: GuideRouteNode, index: number]
-    userInteraction: []
     locationError: [error: GeolocationPositionError]
     mapError: [error: Error]
   }>()
@@ -107,7 +106,6 @@
         updateWhenIdle: true
       })
       L.control.zoom({ position: 'bottomright' }).addTo(map)
-      map.on('dragstart zoomstart', () => emit('userInteraction'))
       mapInstance.value = map
       applyMapMode(true)
       resizeObserver = new ResizeObserver(() => {

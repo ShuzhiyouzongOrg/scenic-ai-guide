@@ -83,7 +83,6 @@
   const narrationProgress = ref(0)
   const panoramaMapState = ref<{ center: GuideCoordinate; zoom: number }>()
   const beforePanoramaAvatarState = ref<AvatarDisplayState>('idle')
-  const userInteractedAt = ref(0)
   let subtitleTimer: number | undefined
   let subtitleElapsedMs = 0
 
@@ -94,9 +93,6 @@
   const routePlayback = useRoutePlayback({
     pauseBetweenNodesMs: 3500,
     onNodeChange: async (node) => {
-      if (routePlayback.followNarration.value && Date.now() - userInteractedAt.value > 1000) {
-        focusRouteNode(node)
-      }
       await startRouteNodeNarration(node)
     }
   })
@@ -382,11 +378,6 @@
     startWelcomeNarration()
   }
 
-  function onUserInteraction() {
-    userInteractedAt.value = Date.now()
-    if (routePlayback.followNarration.value) routePlayback.followNarration.value = false
-  }
-
   function closeNarration() {
     void narration.stop()
     avatarDisplayState.value = 'idle'
@@ -561,7 +552,6 @@
             :safe-area="safeArea"
             @select-spot="focusSpot"
             @select-route-node="selectRouteNode"
-            @user-interaction="onUserInteraction"
             @location-error="ElMessage.warning($t('app.mapGuideLocationDenied'))"
             @map-error="ElMessage.error($t('app.mapGuideMapInitializationFailure'))"
           />
@@ -620,14 +610,12 @@
             :route="selectedRoute"
             :current-index="routePlayback.nodeIndex.value"
             :playing="routePlayback.playing.value"
-            :follow-narration="routePlayback.followNarration.value"
             :panorama-available="bootstrap.panoramas.length > 0"
             @select-node="selectRouteNode"
             @start="startRoutePlayback"
             @pause="routePlayback.pause()"
             @next="routePlayback.next()"
             @panorama="openPanorama"
-            @update:follow-narration="routePlayback.followNarration.value = $event"
             @close="routeDetailOpen = false"
             @clear="clearRoute"
           />

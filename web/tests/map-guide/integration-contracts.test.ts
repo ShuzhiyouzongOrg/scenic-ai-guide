@@ -55,13 +55,11 @@ test('clearing route playback removes route and transient playback state', async
   assert.ok(playback)
   await playback.selectRoute(route)
   playback.autoPlay.value = true
-  playback.followNarration.value = true
   playback.start()
   playback.clear()
   assert.equal(playback.route.value, undefined)
   assert.equal(playback.playing.value, false)
   assert.equal(playback.autoPlay.value, false)
-  assert.equal(playback.followNarration.value, false)
   assert.equal(playback.nodeIndex.value, 0)
   scope.stop()
 })

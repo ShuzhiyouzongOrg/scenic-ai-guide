@@ -10,7 +10,6 @@ export function useRoutePlayback(options?: {
   const nodeIndex = ref(0)
   const playing = ref(false)
   const autoPlay = ref(false)
-  const followNarration = ref(false)
   let nextTimer: number | undefined
 
   const currentNode = computed(() => route.value?.nodes[nodeIndex.value])
@@ -18,8 +17,7 @@ export function useRoutePlayback(options?: {
     routeId: route.value?.id,
     nodeIndex: nodeIndex.value,
     playing: playing.value,
-    autoPlay: autoPlay.value,
-    followNarration: followNarration.value
+    autoPlay: autoPlay.value
   }))
 
   function clearNextTimer() {
@@ -79,7 +77,6 @@ export function useRoutePlayback(options?: {
     nodeIndex.value = 0
     playing.value = false
     autoPlay.value = false
-    followNarration.value = false
   }
 
   onScopeDispose(clearNextTimer)
@@ -90,7 +87,6 @@ export function useRoutePlayback(options?: {
     nodeIndex,
     playing,
     autoPlay,
-    followNarration,
     snapshot,
     selectRoute,
     goTo,

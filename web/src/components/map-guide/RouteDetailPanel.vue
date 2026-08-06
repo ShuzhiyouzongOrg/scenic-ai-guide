@@ -5,7 +5,6 @@
     route: GuideRoute
     currentIndex: number
     playing: boolean
-    followNarration: boolean
     panoramaAvailable: boolean
   }>()
   const emit = defineEmits<{
@@ -14,7 +13,6 @@
     pause: []
     next: []
     panorama: [node: GuideRouteNode | undefined]
-    'update:followNarration': [value: boolean]
     close: []
     clear: []
   }>()
@@ -70,14 +68,6 @@
       </div>
 
       <div class="route-detail-panel__secondary-actions">
-        <label>
-          <input
-            :checked="followNarration"
-            type="checkbox"
-            @change="emit('update:followNarration', ($event.target as HTMLInputElement).checked)"
-          />
-          {{ $t('app.mapGuideFollow') }}
-        </label>
         <button class="clear-route" type="button" @click="emit('clear')">
           <ArtSvgIcon icon="ri:delete-bin-line" />{{ $t('app.mapGuideClearRoute') }}
         </button>
@@ -201,6 +191,10 @@
     align-items: center;
   }
 
+  .route-detail-panel__secondary-actions {
+    justify-content: flex-end;
+  }
+
   footer button {
     display: inline-flex;
     gap: 5px;
@@ -221,14 +215,6 @@
     background: #39776d;
   }
 
-  footer label {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    font-size: 11px;
-    white-space: nowrap;
-  }
-
   footer .clear-route {
     color: #765741;
     background: #f5efe8;
@@ -243,10 +229,6 @@
     footer {
       flex-direction: column;
       align-items: stretch;
-    }
-
-    .route-detail-panel__secondary-actions {
-      justify-content: space-between;
     }
   }
 
