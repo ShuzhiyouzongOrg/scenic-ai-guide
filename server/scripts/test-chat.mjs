@@ -4,7 +4,7 @@
 import assert from "node:assert";
 
 process.env.LLM_PROVIDER = "mock";
-const { answerQuestion } = await import("../src/services/chat.mjs");
+const { answerQuestion, hasRouteStructure } = await import("../src/services/chat.mjs");
 const { generateSpotNarration, generateAccompanyNarration } = await import("../src/services/narration.mjs");
 const { clearFaqCache } = await import("../src/services/faqCache.mjs");
 const { buildTextDocumentChunks } = await import("../src/services/knowledgeBuild.mjs");
@@ -91,7 +91,26 @@ await record("route mode returns numbered steps", async () => {
   const r = await answerQuestion({ question: "帮我推荐一条经典游览路线" });
   assert.equal(r.mode, "route");
   assert.equal(r.label, "路线推荐", `label=${r.label}`);
-  assert.ok(/1\.|1、/.test(r.answer), `expected numbered steps: ${r.answer}`);
+  assert.ok(hasRouteStructure(r.answer), `expected numbered steps: ${r.answer}`);
+});
+
+await record("route answers bypass shared FAQ cache", async () => {
+  clearFaqCache();
+  const first = await answerQuestion({ question: "推荐一条经典路线" });
+  const second = await answerQuestion({ question: "推荐一条经典路线" });
+  assert.equal(first.cached, false);
+  assert.equal(second.cached, false);
+  assert.equal(first.provider, "mock");
+  assert.equal(first.model, "lingshan-mock-1");
+  assert.ok(hasRouteStructure(first.answer), `first route=${first.answer}`);
+  assert.ok(hasRouteStructure(second.answer), `second route=${second.answer}`);
+});
+
+await record("route structure rejects unrelated factual answers", async () => {
+  assert.equal(
+    hasRouteStructure("拈花湾禅意小镇开放时间为每日9:00至21:30，冬季闭园时间提前。"),
+    false
+  );
 });
 
 await record("out-of-scope redirects back to Lingshan", async () => {

@@ -12,6 +12,7 @@ import { getCachedAnswer, setCachedAnswer } from "./faqCache.mjs";
 import { appendMessage, getHistory, getLastSpotName } from "./conversation.mjs";
 import { mapAnswerToDigitalHumanState } from "./digitalHuman.mjs";
 import { normalizeLocale } from "./language.mjs";
+import { composeMockAnswer } from "./mockComposer.mjs";
 
 const FOLLOW_UP_PRONOUNS = [
   "它", "他", "她", "这里", "那里", "这个", "那个", "这座", "那座",
@@ -40,6 +41,17 @@ export function normalizeAssistantText(value) {
     .replace(/^\s*[-*+]\s+/gm, "• ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+export function hasRouteStructure(value) {
+  const text = normalizeAssistantText(value);
+  const numberedSteps = text.match(/(?:^|\s)\d{1,2}[.、.)）]\s*(?=\S)/g) || [];
+  return numberedSteps.length >= 2;
+}
+
+function isUsableAnswer(value, requireRouteStructure = false) {
+  const text = normalizeAssistantText(value);
+  return Boolean(text) && (!requireRouteStructure || hasRouteStructure(text));
 }
 
 function fallbackAssistantText({ mode, results, locale }) {
@@ -217,8 +229,9 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
   const responseLocale = normalizeLocale(locale, trimmed);
   const cacheQuestion = `${responseLocale}::${trimmed}`;
 
-  // AI2-12: fast path for cached high-frequency questions.
-  const cached = getCachedAnswer(cacheQuestion, mode);
+  // Route recommendations depend on the current request and must not reuse a
+  // global FAQ answer that may have been generated from another session.
+  const cached = mode === "route" ? null : getCachedAnswer(cacheQuestion, mode);
   if (cached) {
     const normalizedCachedAnswer = normalizeAssistantText(cached.answer);
     if (!normalizedCachedAnswer) {
@@ -279,15 +292,18 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
     extras: { sensitiveCategory, otherPlace, anchoredSpot, locale: responseLocale }
   });
 
-  const history = Array.isArray(clientHistory) && clientHistory.length
-    ? clientHistory
-    : getHistory(sessionId);
+  const history = mode === "route"
+    ? []
+    : Array.isArray(clientHistory) && clientHistory.length
+      ? clientHistory
+      : getHistory(sessionId);
 
   // Real providers answer from messages; mock answers from meta. For refusal
   // scenarios we still call the provider so behavior is uniform (the mock
   // composes the refusal; the real model follows the system prompt).
   const results = scenario === "grounded" ? retrieval.results : [];
   const messages = buildMessages({ mode, question: trimmed, results, history, locale: responseLocale });
+  const requireRouteStructure = mode === "route" && scenario === "grounded";
 
   const llmStart = nowMs();
   let completion = await llmComplete({
@@ -297,7 +313,7 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
     signal
   });
   let answerText = normalizeAssistantText(completion.text);
-  if (!answerText) {
+  if (!isUsableAnswer(answerText, requireRouteStructure)) {
     completion = await llmComplete({
       messages: [
         ...messages,
@@ -313,8 +329,13 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
     answerText = normalizeAssistantText(completion.text);
   }
   const llmMs = nowMs() - llmStart;
-  if (!answerText) {
-    answerText = fallbackAssistantText({ mode, results, locale: responseLocale });
+  if (!isUsableAnswer(answerText, requireRouteStructure)) {
+    const groundedRouteFallback = requireRouteStructure
+      ? normalizeAssistantText(composeMockAnswer(meta))
+      : "";
+    answerText = isUsableAnswer(groundedRouteFallback, requireRouteStructure)
+      ? groundedRouteFallback
+      : fallbackAssistantText({ mode, results, locale: responseLocale });
   }
 
   const label = qualityLabel({ scenario, mode, emotion });
@@ -347,8 +368,9 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
     digitalHuman: mapAnswerToDigitalHumanState({ label, emotion: emotionLabel, scenario })
   };
 
-  // AI2-12: cache confident factual/route answers for reuse.
-  if ((scenario === "grounded") && answerText) {
+  // AI2-12: cache stable factual answers for reuse. Route recommendations stay
+  // request-scoped so conversation history cannot poison later sessions.
+  if (mode !== "route" && scenario === "grounded" && answerText) {
     setCachedAnswer(cacheQuestion, mode, answerPayload);
   }
 

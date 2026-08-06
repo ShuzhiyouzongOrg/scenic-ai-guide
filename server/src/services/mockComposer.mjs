@@ -204,7 +204,18 @@ function composeRoute(meta) {
   const results = meta.results || [];
   const routeChunk = results.find((item) => /路线|贴士|时间|推荐/.test(item.title)) || results[0];
   const source = routeChunk ? routeChunk.content : "";
-  const sentences = splitSentences(source).slice(0, 6);
+  const routeLine = String(source)
+    .split(/\r?\n/)
+    .find((line) => /(?:路线规划|路線規劃|route|경로|ルート)\s*[:：]/i.test(line));
+  const routeNodes = routeLine
+    ? routeLine
+        .replace(/^.*?(?:路线规划|路線規劃|route|경로|ルート)\s*[:：]\s*/i, "")
+        .split(/[→➜➡]/)
+        .map((node) => clean(node))
+        .filter(Boolean)
+        .slice(0, 10)
+    : [];
+  const sentences = routeNodes.length >= 2 ? routeNodes : splitSentences(source).slice(0, 6);
 
   const steps = sentences.length > 0
     ? sentences.map((sentence, index) => `${index + 1}. ${trimTo(sentence, 60)}`)
