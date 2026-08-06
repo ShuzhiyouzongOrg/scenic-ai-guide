@@ -23,6 +23,16 @@ export const guideRoutes: AppRouteRecord = {
         keepAlive: false,
         fixedTab: true
       }
+    },
+    {
+      path: 'map',
+      name: 'GuideMap',
+      component: '/guide/map/index',
+      meta: {
+        title: 'app.navGuideMap',
+        icon: 'ri:road-map-line',
+        keepAlive: false
+      }
     }
   ]
 }

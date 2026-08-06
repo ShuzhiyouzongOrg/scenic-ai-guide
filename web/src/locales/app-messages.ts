@@ -24,6 +24,247 @@ const catalog = {
     'AI 數位人導覽',
     'AI デジタルヒューマンガイド'
   ],
+  navGuideMap: [
+    '景区地图导览',
+    'Scenic Map Guide',
+    '관광지 지도 안내',
+    '景區地圖導覽',
+    '観光地マップガイド'
+  ],
+  mapGuideTitle: [
+    '景区地图导览',
+    'Scenic Map Guide',
+    '관광지 지도 안내',
+    '景區地圖導覽',
+    '観光地マップガイド'
+  ],
+  mapGuideSubtitle: [
+    '手绘园区地图、路线与数字人讲解',
+    'Hand-drawn park map, routes and digital-human narration',
+    '손그림 지도, 경로 및 디지털 휴먼 해설',
+    '手繪園區地圖、路線與數位人講解',
+    '手描き園内マップ、ルート、デジタルヒューマン解説'
+  ],
+  mapGuideSearchPlaceholder: [
+    '搜索景点或设施',
+    'Search spots or facilities',
+    '명소 또는 시설 검색',
+    '搜尋景點或設施',
+    'スポットまたは施設を検索'
+  ],
+  mapGuideCategories: ['分类', 'Categories', '카테고리', '分類', 'カテゴリー'],
+  mapGuideSpots: [
+    '景点与设施',
+    'Spots & facilities',
+    '명소 및 시설',
+    '景點與設施',
+    'スポットと施設'
+  ],
+  mapGuideRoutes: ['游览路线', 'Guide routes', '관람 경로', '遊覽路線', '見学ルート'],
+  mapGuideRouteOfficial: ['官方推荐', 'Official', '공식 추천', '官方推薦', '公式おすすめ'],
+  mapGuideOfficialRouteHint: [
+    '景区发布的游览路线与建议顺序',
+    'Official scenic routes and suggested stop order',
+    '관광지 공식 관람 경로와 권장 순서',
+    '景區發布的遊覽路線與建議順序',
+    '景区公式ルートと推奨見学順序'
+  ],
+  mapGuideAreaSelect: [
+    '选择景区',
+    'Select scenic area',
+    '관광지 선택',
+    '選擇景區',
+    '観光地を選択'
+  ],
+  mapGuideAreaLingshan: ['灵山胜境', 'Lingshan', '링산 명승지', '靈山勝境', '霊山勝境'],
+  mapGuideAreaNianhuawan: ['拈花湾', 'Nianhuawan', '녠화완', '拈花灣', '拈花湾'],
+  mapGuideAreaSwitching: [
+    '正在切换至{name}',
+    'Switching to {name}',
+    '{name}(으)로 전환 중',
+    '正在切換至{name}',
+    '{name}に切り替えています'
+  ],
+  mapGuideCollapseRouteDetails: [
+    '收起路线详情',
+    'Hide route details',
+    '경로 상세 접기',
+    '收起路線詳情',
+    'ルート詳細を閉じる'
+  ],
+  mapGuideClearRoute: ['清除路线', 'Clear route', '경로 지우기', '清除路線', 'ルートを消去'],
+  mapGuideOriginalAudio: ['原声', 'Original audio', '원음', '原聲', 'オリジナル音声'],
+  mapGuideWelcomeNarration: [
+    '欢迎来到灵山胜境地图导览。您可以选择景点、查看官方路线，或让我为您逐站讲解。',
+    'Welcome to the Lingshan scenic map. Choose a place, browse an official route, or let me guide you stop by stop.',
+    '링산 관광 지도에 오신 것을 환영합니다. 명소나 공식 경로를 선택하면 지점별로 안내해 드립니다.',
+    '歡迎來到靈山勝境地圖導覽。您可以選擇景點、查看官方路線，或讓我為您逐站講解。',
+    '霊山勝境マップガイドへようこそ。スポットや公式ルートを選ぶと、各地点をご案内します。'
+  ],
+  mapGuideWelcomeNarrationNianhuawan: [
+    '欢迎来到拈花湾地图导览。您可以选择景点、查看官方路线，或让我为您逐站讲解。',
+    'Welcome to the Nianhuawan map. Choose a place, browse an official route, or let me guide you stop by stop.',
+    '녠화완 지도 안내에 오신 것을 환영합니다. 명소나 공식 경로를 선택하면 지점별로 안내해 드립니다.',
+    '歡迎來到拈花灣地圖導覽。您可以選擇景點、查看官方路線，或讓我為您逐站講解。',
+    '拈花湾マップガイドへようこそ。スポットや公式ルートを選ぶと、各地点をご案内します。'
+  ],
+  mapGuideRouteNodeFallback: [
+    '{name} 是本路线的第 {order} 站。',
+    '{name} is stop {order} on this route.',
+    '{name}은(는) 이 경로의 {order}번째 지점입니다.',
+    '{name} 是本路線的第 {order} 站。',
+    '{name}はこのルートの{order}番目のスポットです。'
+  ],
+  mapGuideSpotFallbackNarration: [
+    '这里是{name}。您可以查看周边设施和官方游览路线，也可以选择景区提供的原声讲解。',
+    'This is {name}. You can explore nearby facilities, official routes, and available original audio.',
+    '여기는 {name}입니다. 주변 시설과 공식 경로를 확인하고 제공되는 원음 해설을 선택할 수 있습니다.',
+    '這裡是{name}。您可以查看周邊設施和官方遊覽路線，也可以選擇景區提供的原聲講解。',
+    'こちらは{name}です。周辺施設、公式ルート、提供されているオリジナル音声を確認できます。'
+  ],
+  mapGuideMapInitializationFailure: [
+    '地图初始化失败，请重试或检查底图配置。',
+    'The map could not be initialized. Retry or check the base-map configuration.',
+    '지도를 초기화할 수 없습니다. 다시 시도하거나 기본 지도 설정을 확인하세요.',
+    '地圖初始化失敗，請重試或檢查底圖設定。',
+    '地図を初期化できません。再試行するかベースマップ設定を確認してください。'
+  ],
+  mapGuideGuideName: [
+    '云觉 · 景区讲解员',
+    'Yunjue · Scenic guide',
+    '윈쥐에 · 관광 해설사',
+    '雲覺 · 景區講解員',
+    'ユンジュエ · 観光ガイド'
+  ],
+  mapGuideHandDrawn: ['手绘地图', 'Hand-drawn map', '손그림 지도', '手繪地圖', '手描きマップ'],
+  mapGuideBaseMap: ['普通底图', 'Base map', '기본 지도', '普通底圖', 'ベースマップ'],
+  mapGuideLocate: ['我的位置', 'My location', '내 위치', '我的位置', '現在地'],
+  mapGuideReset: ['复位', 'Reset view', '보기 초기화', '復位', '表示をリセット'],
+  mapGuidePanorama: ['全景导览', 'Panorama', '파노라마', '全景導覽', 'パノラマ'],
+  mapGuideLayers: ['图层', 'Layers', '레이어', '圖層', 'レイヤー'],
+  mapGuideNoSpots: [
+    '没有匹配的点位',
+    'No matching places',
+    '일치하는 장소 없음',
+    '沒有符合的點位',
+    '該当する場所がありません'
+  ],
+  mapGuideNoRoutes: [
+    '暂无该类路线',
+    'No routes in this category',
+    '해당 경로 없음',
+    '暫無此類路線',
+    'このカテゴリーのルートはありません'
+  ],
+  mapGuideViewDetails: ['查看详情', 'View details', '상세 보기', '查看詳情', '詳細を見る'],
+  mapGuideStartNarration: [
+    '数字人讲解',
+    'Avatar narration',
+    '디지털 휴먼 해설',
+    '數位人講解',
+    'デジタルヒューマン解説'
+  ],
+  mapGuideClickNarration: [
+    '点击开始讲解',
+    'Tap to start narration',
+    '눌러서 해설 시작',
+    '點擊開始講解',
+    'クリックして解説を開始'
+  ],
+  mapGuideNarrating: ['正在讲解', 'Narrating', '해설 중', '正在講解', '解説中'],
+  mapGuidePause: ['暂停', 'Pause', '일시정지', '暫停', '一時停止'],
+  mapGuideResume: ['继续', 'Resume', '계속', '繼續', '再開'],
+  mapGuideStop: ['结束', 'Stop', '종료', '結束', '終了'],
+  mapGuideFollow: ['跟随讲解', 'Follow narration', '해설 따라가기', '跟隨講解', '解説に追従'],
+  mapGuideNextStop: ['下一站', 'Next stop', '다음 장소', '下一站', '次のスポット'],
+  mapGuideRouteSchematic: [
+    '游览示意路线',
+    'Illustrative route',
+    '관람 예시 경로',
+    '遊覽示意路線',
+    '見学イメージルート'
+  ],
+  mapGuideExternalNavigation: [
+    '外部地图导航',
+    'Open external navigation',
+    '외부 지도 길찾기',
+    '外部地圖導航',
+    '外部地図で案内'
+  ],
+  mapGuideFootprint: ['加入足迹', 'Add footprint', '방문 기록 추가', '加入足跡', '足跡に追加'],
+  mapGuideTileProgress: [
+    '手绘图层加载 {progress}%',
+    'Loading artwork {progress}%',
+    '손그림 로딩 {progress}%',
+    '手繪圖層載入 {progress}%',
+    '手描きレイヤー読込 {progress}%'
+  ],
+  mapGuideTileFailure: [
+    '部分手绘图块加载失败',
+    'Some artwork tiles failed',
+    '일부 타일 로딩 실패',
+    '部分手繪圖塊載入失敗',
+    '一部タイルの読込に失敗しました'
+  ],
+  mapGuideRetry: ['重试', 'Retry', '다시 시도', '重試', '再試行'],
+  mapGuideDataFallback: [
+    '正在使用本地导览快照',
+    'Using the local guide snapshot',
+    '로컬 안내 스냅샷 사용 중',
+    '正在使用本地導覽快照',
+    'ローカルガイドを使用中'
+  ],
+  mapGuideLoadFailure: [
+    '地图导览加载失败',
+    'Map guide failed to load',
+    '지도 안내 로딩 실패',
+    '地圖導覽載入失敗',
+    'マップガイドを読み込めません'
+  ],
+  mapGuideLocationDenied: [
+    '无法获取位置，已返回园区中心',
+    'Location unavailable; returned to park center',
+    '위치를 확인할 수 없어 공원 중심으로 이동했습니다',
+    '無法取得位置，已返回園區中心',
+    '位置を取得できないため園内中心に戻りました'
+  ],
+  mapGuideAvatarUnavailable: [
+    '数字人暂不可用，已切换文字或普通音频',
+    'Avatar unavailable; using audio or text',
+    '디지털 휴먼을 사용할 수 없어 음성 또는 텍스트로 전환했습니다',
+    '數位人暫不可用，已切換文字或普通音頻',
+    'デジタルヒューマンを利用できないため音声またはテキストに切替えました'
+  ],
+  mapGuidePanoramaLoading: [
+    '正在加载全景',
+    'Loading panorama',
+    '파노라마 로딩 중',
+    '正在載入全景',
+    'パノラマを読み込み中'
+  ],
+  mapGuidePanoramaFailure: [
+    '全景暂时无法加载',
+    'Panorama is temporarily unavailable',
+    '파노라마를 불러올 수 없습니다',
+    '全景暫時無法載入',
+    'パノラマを読み込めません'
+  ],
+  mapGuidePanoramaExternal: [
+    '在新窗口打开',
+    'Open in a new window',
+    '새 창에서 열기',
+    '在新視窗開啟',
+    '新しいウィンドウで開く'
+  ],
+  mapGuidePanoramaBack: ['返回地图', 'Back to map', '지도로 돌아가기', '返回地圖', '地図に戻る'],
+  mapGuideGyroscope: [
+    '启用陀螺仪',
+    'Enable gyroscope',
+    '자이로 사용',
+    '啟用陀螺儀',
+    'ジャイロを有効化'
+  ],
+  mapGuideFullscreen: ['全屏', 'Fullscreen', '전체 화면', '全螢幕', '全画面'],
   navKnowledge: ['知识库管理', 'Knowledge Base', '지식 베이스', '知識庫管理', 'ナレッジベース'],
   navDocuments: ['知识文档', 'Documents', '지식 문서', '知識文件', 'ナレッジ文書'],
   navSpots: ['景点管理', 'Attractions', '관광지 관리', '景點管理', '観光スポット'],
