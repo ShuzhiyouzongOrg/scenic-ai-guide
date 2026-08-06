@@ -78,7 +78,6 @@
   const avatarReady = ref(false)
   const avatarFailed = ref(false)
   const activeNarration = ref<NarrationContent>()
-  const activeNarrationTitle = ref('')
   const activeSegments = ref<NarrationSegment[]>([])
   const subtitleSegmentIndex = ref(0)
   const narrationProgress = ref(0)
@@ -194,13 +193,8 @@
     return buildContent(`ai-${spot.id}-${Date.now()}`, spot.name, result.narration, 'ai-generated')
   }
 
-  async function beginNarration(
-    content: NarrationContent,
-    title: string,
-    preferOfficialAudio = false
-  ) {
+  async function beginNarration(content: NarrationContent, preferOfficialAudio = false) {
     activeNarration.value = content
-    activeNarrationTitle.value = title
     activeSegments.value = content.segments
     subtitleSegmentIndex.value = 0
     narrationProgress.value = 0
@@ -223,14 +217,14 @@
     void avatarHandle.value?.enableAudio()
     selectedSpotId.value = spot.id
     const content = await resolveSpotNarration(spot)
-    void beginNarration(content, spot.name)
+    void beginNarration(content)
   }
 
   function startOriginalNarration(spot: ScenicSpot) {
     if (!spot.narration) return
     void avatarHandle.value?.enableAudio()
     selectedSpotId.value = spot.id
-    void beginNarration(spot.narration, spot.name, true)
+    void beginNarration(spot.narration, true)
   }
 
   async function startRouteNodeNarration(node: GuideRouteNode) {
@@ -270,7 +264,7 @@
         )
       }
     }
-    void beginNarration(content, node.name)
+    void beginNarration(content)
   }
 
   function startWelcomeNarration() {
@@ -281,7 +275,7 @@
       t('app.mapGuideWelcomeNarration'),
       'project-script'
     )
-    void beginNarration(content, t('app.mapGuideTitle'))
+    void beginNarration(content)
   }
 
   function focusSpot(spot: ScenicSpot) {
@@ -651,7 +645,6 @@
         ref="digitalHumanRef"
         :display-state="avatarDisplayState"
         :narration-state="narration.snapshot.value.state"
-        :title="activeNarrationTitle"
         :segments="activeSegments"
         :segment-index="subtitleSegmentIndex"
         :fallback-text="narrationText"

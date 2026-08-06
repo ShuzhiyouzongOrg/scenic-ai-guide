@@ -1,16 +1,13 @@
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
-  import { useI18n } from 'vue-i18n'
+  import { ref } from 'vue'
   import DigitalHumanAvatar from '@/components/digital-human/DigitalHumanAvatar.vue'
   import DigitalHumanNarrationDock from './DigitalHumanNarrationDock.vue'
   import type { AvatarDisplayState, NarrationSegment, NarrationState } from '@/types/map-guide'
   import type { AvatarNarrationHandle } from '@/composables/map-guide/avatar-narration-adapter'
 
-  const props = defineProps<{
+  defineProps<{
     displayState: AvatarDisplayState
     narrationState: NarrationState
-    title?: string
-    guideName?: string
     segments: NarrationSegment[]
     segmentIndex: number
     fallbackText?: string
@@ -29,8 +26,6 @@
   }>()
 
   const avatarRef = ref<InstanceType<typeof DigitalHumanAvatar>>()
-  const { t } = useI18n()
-  const guideName = computed(() => props.guideName || t('app.mapGuideGuideName'))
 
   function enableAvatarAudio() {
     return avatarRef.value?.enableAudio()
@@ -70,12 +65,12 @@
       @error="emit('error', $event)"
     />
     <button
-      v-if="displayState === 'idle'"
-      class="map-digital-human__idle"
+      v-if="displayState !== 'speaking'"
+      class="map-digital-human__trigger"
       type="button"
       :aria-label="$t('app.mapGuideClickNarration')"
       :title="$t('app.mapGuideClickNarration')"
-      @click="startNarration"
+      @click="displayState === 'idle' ? startNarration() : expandNarration()"
     />
 
     <div v-else class="map-digital-human__active-shell">
@@ -91,17 +86,6 @@
         @stop="emit('stop')"
         @compact="emit('compact')"
       />
-      <button
-        v-if="displayState === 'compact'"
-        class="map-digital-human__compact-label"
-        type="button"
-        @click="expandNarration"
-      >
-        <span
-          ><strong>{{ title || guideName }}</strong
-          ><small><i />{{ $t('app.mapGuideNarrating') }}</small></span
-        >
-      </button>
     </div>
   </aside>
 </template>
@@ -130,7 +114,7 @@
     overflow: hidden;
   }
 
-  .map-digital-human__idle {
+  .map-digital-human__trigger {
     display: block;
     width: 104px;
     height: 104px;
@@ -145,12 +129,12 @@
       box-shadow 180ms ease-out;
   }
 
-  .map-digital-human__idle:hover {
+  .map-digital-human__trigger:hover {
     box-shadow: 0 13px 30px rgb(25 50 42 / 24%);
     transform: translateY(-2px);
   }
 
-  .map-digital-human__idle:focus-visible {
+  .map-digital-human__trigger:focus-visible {
     outline: 3px solid rgb(57 120 109 / 42%);
     outline-offset: 3px;
   }
@@ -174,7 +158,8 @@
     display: none;
   }
 
-  .state-idle .map-digital-human__engine {
+  .state-idle .map-digital-human__engine,
+  .state-compact .map-digital-human__engine {
     inset: 7px;
     width: 90px;
     height: 90px;
@@ -192,112 +177,10 @@
     border-radius: 14px;
   }
 
-  .state-compact .map-digital-human__engine {
-    top: 0;
-    left: 0;
-    width: 78px;
-    height: 82px;
-    border-radius: 42px;
-  }
-
-  .map-digital-human__compact strong,
-  .map-digital-human__compact small {
-    display: block;
-  }
-
   .map-digital-human__active-shell {
     position: relative;
     width: 100%;
     height: 100%;
-  }
-
-  .state-compact .map-digital-human__active-shell {
-    width: 250px;
-    height: 82px;
-    overflow: hidden;
-    background: #29483f;
-    border: 1px solid rgb(255 255 255 / 12%);
-    border-radius: 46px 12px 12px 46px;
-    box-shadow: 0 10px 28px rgb(20 38 33 / 24%);
-  }
-
-  .state-compact .map-digital-human__dock {
-    padding: 0;
-    background: transparent;
-  }
-
-  .state-compact .map-digital-human__dock :deep(.digital-human-dock__compact),
-  .state-compact .map-digital-human__dock :deep(.narration-subtitle),
-  .state-compact .map-digital-human__dock :deep(.digital-human-dock__progress),
-  .state-compact .map-digital-human__dock :deep(footer) {
-    display: none;
-  }
-
-  .state-compact .map-digital-human__dock :deep(.digital-human-dock__avatar) {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 78px;
-    min-height: 0;
-    margin: 0;
-    border-radius: 42px;
-  }
-
-  .map-digital-human__compact-label {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: grid;
-    grid-template-columns: 78px 1fr;
-    align-items: center;
-    width: 100%;
-    padding: 7px 12px 7px 7px;
-    text-align: left;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-  }
-
-  .map-digital-human__compact-label > span {
-    grid-column: 2;
-    min-width: 0;
-  }
-
-  .map-digital-human__compact-label strong,
-  .map-digital-human__compact-label small {
-    display: block;
-  }
-
-  .map-digital-human__compact-label strong {
-    overflow: hidden;
-    font-size: 12px;
-    color: #fff;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .map-digital-human__compact-label small {
-    margin-top: 5px;
-    font-size: 10px;
-    color: #d4bb8a;
-  }
-
-  .map-digital-human__compact-label small i {
-    display: inline-block;
-    width: 5px;
-    height: 13px;
-    margin-right: 5px;
-    vertical-align: middle;
-    background: #d4ae69;
-    border-radius: 3px;
-    animation: audio-wave 900ms ease-in-out infinite alternate;
-  }
-
-  @keyframes audio-wave {
-    to {
-      height: 5px;
-    }
   }
 
   @media (width <= 760px) {
@@ -325,12 +208,13 @@
       height: 120px;
     }
 
-    .map-digital-human__idle {
+    .map-digital-human__trigger {
       width: 92px;
       height: 92px;
     }
 
-    .state-idle .map-digital-human__engine {
+    .state-idle .map-digital-human__engine,
+    .state-compact .map-digital-human__engine {
       inset: 6px;
       width: 80px;
       height: 80px;
@@ -339,8 +223,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .map-digital-human,
-    .map-digital-human__idle,
-    .map-digital-human__compact-label small i {
+    .map-digital-human__trigger {
       transition: none;
       animation: none;
     }
