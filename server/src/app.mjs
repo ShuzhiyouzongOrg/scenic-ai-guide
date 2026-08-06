@@ -38,6 +38,13 @@ import { schema } from "./db/schema.mjs";
 import { getDb } from "./db/database.mjs";
 import { listAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser } from "./services/userAdmin.mjs";
 import { generateDemoData } from "./services/demoData.mjs";
+import {
+  getMapGuideBootstrap,
+  getMapGuidePanoramas,
+  getMapGuideRoutes,
+  getMapGuideSpots,
+  normalizeMapGuideArea
+} from "./services/mapGuide.mjs";
 
 // The API server persists to a SQLite file. Test / eval scripts import the
 // services directly (not this module) and leave SQLITE_PATH unset, so they run
@@ -143,6 +150,26 @@ async function route(req, res, url) {
 
   if (url.pathname === "/api/scenic-spots" && req.method === "GET") {
     ok(res, listManagedScenicSpots());
+    return;
+  }
+
+  if (url.pathname === "/api/map-guide/bootstrap" && req.method === "GET") {
+    ok(res, getMapGuideBootstrap(normalizeMapGuideArea(url.searchParams.get("area"))));
+    return;
+  }
+
+  if (url.pathname === "/api/map-guide/spots" && req.method === "GET") {
+    ok(res, getMapGuideSpots(normalizeMapGuideArea(url.searchParams.get("area"))));
+    return;
+  }
+
+  if (url.pathname === "/api/map-guide/routes" && req.method === "GET") {
+    ok(res, getMapGuideRoutes(normalizeMapGuideArea(url.searchParams.get("area"))));
+    return;
+  }
+
+  if (url.pathname === "/api/map-guide/panoramas" && req.method === "GET") {
+    ok(res, getMapGuidePanoramas(normalizeMapGuideArea(url.searchParams.get("area"))));
     return;
   }
 

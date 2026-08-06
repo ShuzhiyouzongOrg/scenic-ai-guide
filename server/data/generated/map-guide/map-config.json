@@ -1,0 +1,389 @@
+{
+  "center": {
+    "latitude": 31.426019,
+    "longitude": 120.099528,
+    "coordinateSystem": "GCJ02"
+  },
+  "visitorCenter": {
+    "latitude": 31.42189,
+    "longitude": 120.10072,
+    "coordinateSystem": "GCJ02"
+  },
+  "rotationDegrees": 30,
+  "minZoom": 15,
+  "maxZoom": 19,
+  "initialZoom": 15,
+  "tileLayer": {
+    "enabled": true,
+    "rows": 4,
+    "columns": 4,
+    "concurrency": 4,
+    "retries": 2,
+    "bounds": {
+      "southwest": {
+        "latitude": 31.418236,
+        "longitude": 120.089882,
+        "coordinateSystem": "GCJ02"
+      },
+      "northeast": {
+        "latitude": 31.433837,
+        "longitude": 120.109759,
+        "coordinateSystem": "GCJ02"
+      }
+    },
+    "tiles": [
+      {
+        "id": "01",
+        "index": 0,
+        "row": 0,
+        "column": 0,
+        "url": "/map-guide/tiles/01.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 35188,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42993675,
+            "longitude": 120.089882,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.433837,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "02",
+        "index": 1,
+        "row": 0,
+        "column": 1,
+        "url": "/map-guide/tiles/02.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 296792,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42993675,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.433837,
+            "longitude": 120.0998205,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "03",
+        "index": 2,
+        "row": 0,
+        "column": 2,
+        "url": "/map-guide/tiles/03.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 63170,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42993675,
+            "longitude": 120.09982049999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.433837,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "04",
+        "index": 3,
+        "row": 0,
+        "column": 3,
+        "url": "/map-guide/tiles/04.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 28408,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42993675,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.433837,
+            "longitude": 120.109759,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "05",
+        "index": 4,
+        "row": 1,
+        "column": 0,
+        "url": "/map-guide/tiles/05.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 64360,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.4260365,
+            "longitude": 120.089882,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42993675,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "06",
+        "index": 5,
+        "row": 1,
+        "column": 1,
+        "url": "/map-guide/tiles/06.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 773660,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.4260365,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42993675,
+            "longitude": 120.0998205,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "07",
+        "index": 6,
+        "row": 1,
+        "column": 2,
+        "url": "/map-guide/tiles/07.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 853352,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.4260365,
+            "longitude": 120.09982049999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42993675,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "08",
+        "index": 7,
+        "row": 1,
+        "column": 3,
+        "url": "/map-guide/tiles/08.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 240132,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.4260365,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42993675,
+            "longitude": 120.109759,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "09",
+        "index": 8,
+        "row": 2,
+        "column": 0,
+        "url": "/map-guide/tiles/09.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 36218,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42213625,
+            "longitude": 120.089882,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.426036500000002,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "10",
+        "index": 9,
+        "row": 2,
+        "column": 1,
+        "url": "/map-guide/tiles/10.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 749194,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42213625,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.426036500000002,
+            "longitude": 120.0998205,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "11",
+        "index": 10,
+        "row": 2,
+        "column": 2,
+        "url": "/map-guide/tiles/11.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 1010874,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42213625,
+            "longitude": 120.09982049999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.426036500000002,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "12",
+        "index": 11,
+        "row": 2,
+        "column": 3,
+        "url": "/map-guide/tiles/12.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 127360,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.42213625,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.426036500000002,
+            "longitude": 120.109759,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "13",
+        "index": 12,
+        "row": 3,
+        "column": 0,
+        "url": "/map-guide/tiles/13.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 15862,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.418236,
+            "longitude": 120.089882,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42213625,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "14",
+        "index": 13,
+        "row": 3,
+        "column": 1,
+        "url": "/map-guide/tiles/14.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 24354,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.418236,
+            "longitude": 120.09485125,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42213625,
+            "longitude": 120.0998205,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "15",
+        "index": 14,
+        "row": 3,
+        "column": 2,
+        "url": "/map-guide/tiles/15.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 366166,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.418236,
+            "longitude": 120.09982049999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42213625,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "16",
+        "index": 15,
+        "row": 3,
+        "column": 3,
+        "url": "/map-guide/tiles/16.webp",
+        "width": 2559,
+        "height": 2362,
+        "sizeBytes": 87630,
+        "bounds": {
+          "southwest": {
+            "latitude": 31.418236,
+            "longitude": 120.10478975,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.42213625,
+            "longitude": 120.109759,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,4022 @@
+[
+  {
+    "id": "official-123",
+    "name": "祈福禅悟线",
+    "source": "official",
+    "sourceProject": "lingshan-miniapp-rebuild",
+    "description": "祈愿增福、身心平和的官方推荐路线",
+    "durationMinutes": 180,
+    "distanceMeters": 3000,
+    "tags": [
+      "官方推荐",
+      "祈愿增福",
+      "身心平和"
+    ],
+    "sourceCoverUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614839944553123841.png",
+    "polyline": [
+      {
+        "latitude": 31.42426260251391,
+        "longitude": 120.10055959224701,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42487142397901,
+        "longitude": 120.10099947452545,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425535172054378,
+        "longitude": 120.10046303272247,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42549855158949,
+        "longitude": 120.0997120141983,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42566334370848,
+        "longitude": 120.09921312332153,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42639574900144,
+        "longitude": 120.09874641895294,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42654222937353,
+        "longitude": 120.09893417358398,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427036598940063,
+        "longitude": 120.09852111339569,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427238008016193,
+        "longitude": 120.09904146194458,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427389064539394,
+        "longitude": 120.09919166564941,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427526388440192,
+        "longitude": 120.09910047054291,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427274627801737,
+        "longitude": 120.09868741035461,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42743941665969,
+        "longitude": 120.09848356246948,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427805613084967,
+        "longitude": 120.09795784950256,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428318285398213,
+        "longitude": 120.09779691696167,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42866159137084,
+        "longitude": 120.09760916233063,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428620394720493,
+        "longitude": 120.09753406047821,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429764739386865,
+        "longitude": 120.09674549102783,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42964572819232,
+        "longitude": 120.09645581245422,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430103462729107,
+        "longitude": 120.09617149829865,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430410143618527,
+        "longitude": 120.09635925292969,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430254514635823,
+        "longitude": 120.096954703331,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429984451964522,
+        "longitude": 120.09712100028992,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429805935534407,
+        "longitude": 120.09683132171631,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428917925677382,
+        "longitude": 120.0974589586258,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42890419350016,
+        "longitude": 120.09764671325684,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428766871617256,
+        "longitude": 120.09780764579773,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42897285436618,
+        "longitude": 120.09827971458435,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42616687296189,
+        "longitude": 120.10025382041931,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426258423444743,
+        "longitude": 120.10069906711578,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426368283906175,
+        "longitude": 120.10094046592712,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42658342693698,
+        "longitude": 120.10254979133606,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426816879454524,
+        "longitude": 120.10253369808197,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426793991978485,
+        "longitude": 120.10210454463959,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427791880744824,
+        "longitude": 120.1019811630249,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428016175381863,
+        "longitude": 120.103440284729,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426890119340236,
+        "longitude": 120.10416984558105,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426029547070012,
+        "longitude": 120.10420739650726,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426079899920385,
+        "longitude": 120.10451316833496,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425910531134377,
+        "longitude": 120.104700922966,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425365802424174,
+        "longitude": 120.10482966899872,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425443620865394,
+        "longitude": 120.10427713394165,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42519185463481,
+        "longitude": 120.10408937931061,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42502248424481,
+        "longitude": 120.10404109954834,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42466085455042,
+        "longitude": 120.10402500629425,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4245647249732,
+        "longitude": 120.1041430234909,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424395353450517,
+        "longitude": 120.10415375232697,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424312956382927,
+        "longitude": 120.10409474372864,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424326689232547,
+        "longitude": 120.10377287864685,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424171050152367,
+        "longitude": 120.1037085056305,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424042876598254,
+        "longitude": 120.10374069213867,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423946746282766,
+        "longitude": 120.10344564914703,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423868926459683,
+        "longitude": 120.10320961475372,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424459439973663,
+        "longitude": 120.10307013988495,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "official-123-01",
+        "order": 1,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42426260251391,
+        "longitude": 120.10055959224701,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162176445321217.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948190940266188801.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-123-02",
+        "order": 2,
+        "spotId": "LS-007",
+        "sourcePointId": "747",
+        "name": "降魔浮雕",
+        "latitude": 31.42549855158949,
+        "longitude": 120.0997120141983,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162393450221570.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948267651511046145.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-123-03",
+        "order": 3,
+        "spotId": "lingshan-643",
+        "sourcePointId": "643",
+        "name": "天下第一掌",
+        "latitude": 31.427036598940063,
+        "longitude": 120.09852111339569,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162614678786049.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948195590574919682.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-123-04",
+        "order": 4,
+        "spotId": "LS-009",
+        "sourcePointId": "640",
+        "name": "百子戏弥勒",
+        "latitude": 31.427238008016193,
+        "longitude": 120.09904146194458,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162709545553921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948296932534472706.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-123-05",
+        "order": 5,
+        "spotId": "LS-010",
+        "sourcePointId": "748",
+        "name": "祥符禅寺",
+        "latitude": 31.427805613084967,
+        "longitude": 120.09795784950256,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162821328457730.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2023/1/1612649569183801346.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-123-06",
+        "order": 6,
+        "spotId": "lingshan-1000",
+        "sourcePointId": "1000",
+        "name": "涅槃堂",
+        "latitude": 31.430103462729107,
+        "longitude": 120.09617149829865,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614160440188948481.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-123-07",
+        "order": 7,
+        "spotId": "lingshan-999",
+        "sourcePointId": "999",
+        "name": "六十米平台",
+        "latitude": 31.430410143618527,
+        "longitude": 120.09635925292969,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614160052139823105.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-123-08",
+        "order": 8,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427791880744824,
+        "longitude": 120.1019811630249,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615163008914001921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948191279723794433.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-123-09",
+        "order": 9,
+        "spotId": "LS-015",
+        "sourcePointId": "648",
+        "name": "曼飞龙塔",
+        "latitude": 31.426079899920385,
+        "longitude": 120.10451316833496,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162410051784706.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948194612693913601.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-123-10",
+        "order": 10,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424459439973663,
+        "longitude": 120.10307013988495,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162297577328642.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613143753946767361.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": true,
+    "isPreciseNavigation": false,
+    "geometryKind": "official-path",
+    "version": "source-2023-07-22 11:52:36"
+  },
+  {
+    "id": "official-124",
+    "name": "文化体验线",
+    "source": "official",
+    "sourceProject": "lingshan-miniapp-rebuild",
+    "description": "深度探索灵山佛教文化与建筑艺术",
+    "durationMinutes": 300,
+    "distanceMeters": 5000,
+    "tags": [
+      "官方推荐",
+      "佛教文化",
+      "深度探索",
+      "洗涤心灵"
+    ],
+    "sourceCoverUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614841968329969665.jpg",
+    "polyline": [
+      {
+        "latitude": 31.4213191470889,
+        "longitude": 120.10257124900818,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.421424435579063,
+        "longitude": 120.1027911901474,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.421799810973425,
+        "longitude": 120.10250151157379,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.422330827257927,
+        "longitude": 120.10216355323792,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42247731397973,
+        "longitude": 120.10195970535278,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.422797752955784,
+        "longitude": 120.10176658630371,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4227657090795,
+        "longitude": 120.10190069675446,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42299917110148,
+        "longitude": 120.10250151157379,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42346609341935,
+        "longitude": 120.10232985019684,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423708708986588,
+        "longitude": 120.10323643684387,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424537259341644,
+        "longitude": 120.10305941104889,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423955901586766,
+        "longitude": 120.10317742824554,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4239330133775,
+        "longitude": 120.1034563779831,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42398336735366,
+        "longitude": 120.10370314121246,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424203093478596,
+        "longitude": 120.10371387004852,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42435873254053,
+        "longitude": 120.10385870933533,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424299223531296,
+        "longitude": 120.10408937931061,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424555569763573,
+        "longitude": 120.104159116745,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42463796661799,
+        "longitude": 120.10403037071228,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424995018747342,
+        "longitude": 120.10402500629425,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425201009782302,
+        "longitude": 120.10409474372864,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425443620865394,
+        "longitude": 120.10428786277771,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42538411254461,
+        "longitude": 120.10481894016266,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425905953595375,
+        "longitude": 120.10473847389221,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426057012264483,
+        "longitude": 120.1045024394989,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426034124602985,
+        "longitude": 120.10420739650726,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42686723188209,
+        "longitude": 120.10418593883514,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42738448707255,
+        "longitude": 120.10510861873627,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428391524111166,
+        "longitude": 120.10447025299072,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428579198052056,
+        "longitude": 120.10462582111359,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429142217620722,
+        "longitude": 120.10462045669556,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428574620643328,
+        "longitude": 120.10457754135132,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428377791856846,
+        "longitude": 120.10447561740875,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427375332138233,
+        "longitude": 120.10506570339203,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426803146969572,
+        "longitude": 120.10413765907288,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426610891969215,
+        "longitude": 120.10276973247528,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42682603444337,
+        "longitude": 120.10269463062286,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42678483698651,
+        "longitude": 120.10209381580353,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427796458191768,
+        "longitude": 120.10201334953308,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428428143725597,
+        "longitude": 120.10206699371338,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427997865356307,
+        "longitude": 120.10337054729462,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42778730329765,
+        "longitude": 120.10251224040985,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42659715945409,
+        "longitude": 120.10271072387695,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426491876771443,
+        "longitude": 120.10188460350037,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426194338116137,
+        "longitude": 120.10193824768066,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426134830271774,
+        "longitude": 120.10175585746765,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42587848835668,
+        "longitude": 120.10158956050873,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42557637019994,
+        "longitude": 120.1015841960907,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42518727706072,
+        "longitude": 120.1008278131485,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424560147298656,
+        "longitude": 120.10092437267303,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424148162030555,
+        "longitude": 120.09998559951782,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42446401761821,
+        "longitude": 120.09934186935425,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424262602583756,
+        "longitude": 120.0989019870758,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424532681735624,
+        "longitude": 120.0987035036087,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424377042997317,
+        "longitude": 120.09819388389587,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42363546663783,
+        "longitude": 120.09750723838806,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423905547569664,
+        "longitude": 120.09711027145386,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424262602583756,
+        "longitude": 120.09732484817505,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424386198224347,
+        "longitude": 120.09711563587189,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424537259341644,
+        "longitude": 120.09724974632263,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424404508675792,
+        "longitude": 120.09739458560944,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424688320215616,
+        "longitude": 120.09781837463379,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4255122842655,
+        "longitude": 120.09870886802673,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42572285185204,
+        "longitude": 120.09910583496094,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426047857060862,
+        "longitude": 120.09899318218231,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426391171486102,
+        "longitude": 120.09871423244476,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42652391933953,
+        "longitude": 120.09892880916595,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427050331390813,
+        "longitude": 120.0985586643219,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427219698118062,
+        "longitude": 120.09901463985443,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427320402513562,
+        "longitude": 120.09921848773956,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427508078598372,
+        "longitude": 120.09909510612488,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427224275592945,
+        "longitude": 120.0985050201416,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42753096590009,
+        "longitude": 120.09833335876465,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427796458191768,
+        "longitude": 120.09793102741241,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428318285677594,
+        "longitude": 120.09781837463379,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42866159137084,
+        "longitude": 120.09759306907654,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4286799009874,
+        "longitude": 120.09744822978973,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429819667579547,
+        "longitude": 120.09675621986389,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430400988979645,
+        "longitude": 120.09637534618378,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430433030211844,
+        "longitude": 120.09676158428192,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "official-124-01",
+        "order": 1,
+        "spotId": "LS-001",
+        "sourcePointId": "641",
+        "name": "灵山大照壁",
+        "latitude": 31.4213191470889,
+        "longitude": 120.10257124900818,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161352029704194.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948258924812783618.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-02",
+        "order": 2,
+        "spotId": "LS-002",
+        "sourcePointId": "644",
+        "name": "五明桥",
+        "latitude": 31.421799810973425,
+        "longitude": 120.10250151157379,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161513959198721.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1950429565611118593.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-03",
+        "order": 3,
+        "spotId": "lingshan-745",
+        "sourcePointId": "745",
+        "name": "胜境门楼",
+        "latitude": 31.422330827257927,
+        "longitude": 120.10216355323792,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161619982815234.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613155961838718978.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-04",
+        "order": 4,
+        "spotId": "lingshan-646",
+        "sourcePointId": "646",
+        "name": "洗心池",
+        "latitude": 31.42247731397973,
+        "longitude": 120.10195970535278,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161718738210818.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1600381847490207745.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-05",
+        "order": 5,
+        "spotId": "LS-003",
+        "sourcePointId": "642",
+        "name": "佛足坛",
+        "latitude": 31.422797752955784,
+        "longitude": 120.10176658630371,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161804964204545.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1600374765262163969.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-06",
+        "order": 6,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424537259341644,
+        "longitude": 120.10305941104889,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162297577328642.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613143753946767361.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-07",
+        "order": 7,
+        "spotId": "LS-015",
+        "sourcePointId": "648",
+        "name": "曼飞龙塔",
+        "latitude": 31.425905953595375,
+        "longitude": 120.10473847389221,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162410051784706.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948194612693913601.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-08",
+        "order": 8,
+        "spotId": "lingshan-958",
+        "sourcePointId": "958",
+        "name": "灵山精舍",
+        "latitude": 31.429142217620722,
+        "longitude": 120.10462045669556,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162714327060482.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613136386844729345.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-09",
+        "order": 9,
+        "spotId": "lingshan-756",
+        "sourcePointId": "756",
+        "name": "梵宫广场",
+        "latitude": 31.42682603444337,
+        "longitude": 120.10269463062286,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162538120663042.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/9/1965688488044220417.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-10",
+        "order": 10,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427796458191768,
+        "longitude": 120.10201334953308,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615163008914001921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948191279723794433.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-11",
+        "order": 11,
+        "spotId": "lingshan-959",
+        "sourcePointId": "959",
+        "name": "珍宝馆",
+        "latitude": 31.428428143725597,
+        "longitude": 120.10206699371338,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162819658616834.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613138306712948738.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-12",
+        "order": 12,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42518727706072,
+        "longitude": 120.1008278131485,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162176445321217.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948190940266188801.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-13",
+        "order": 13,
+        "spotId": "lingshan-757",
+        "sourcePointId": "757",
+        "name": "三圣殿",
+        "latitude": 31.423905547569664,
+        "longitude": 120.09711027145386,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162039266922498.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613147978823049218.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-14",
+        "order": 14,
+        "spotId": "LS-008",
+        "sourcePointId": "639",
+        "name": "阿育王柱",
+        "latitude": 31.426047857060862,
+        "longitude": 120.09899318218231,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162474845392898.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948283246490652674.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-15",
+        "order": 15,
+        "spotId": "lingshan-643",
+        "sourcePointId": "643",
+        "name": "天下第一掌",
+        "latitude": 31.427050331390813,
+        "longitude": 120.0985586643219,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162614678786049.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948195590574919682.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-16",
+        "order": 16,
+        "spotId": "LS-009",
+        "sourcePointId": "640",
+        "name": "百子戏弥勒",
+        "latitude": 31.427219698118062,
+        "longitude": 120.09901463985443,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162709545553921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948296932534472706.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-17",
+        "order": 17,
+        "spotId": "LS-010",
+        "sourcePointId": "748",
+        "name": "祥符禅寺",
+        "latitude": 31.427796458191768,
+        "longitude": 120.09793102741241,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162821328457730.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2023/1/1612649569183801346.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-18",
+        "order": 18,
+        "spotId": "lingshan-749",
+        "sourcePointId": "749",
+        "name": "杏坛广场",
+        "latitude": 31.4286799009874,
+        "longitude": 120.09744822978973,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162907248267265.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1616054402360774657.png",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-124-19",
+        "order": 19,
+        "spotId": "LS-012",
+        "sourcePointId": "960",
+        "name": "佛教文化博览馆",
+        "latitude": 31.429819667579547,
+        "longitude": 120.09675621986389,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615163236056535041.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948279956029804546.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-20",
+        "order": 20,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430400988979645,
+        "longitude": 120.09637534618378,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613193214531162113.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615607855634419713.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-124-21",
+        "order": 21,
+        "spotId": "lingshan-752",
+        "sourcePointId": "752",
+        "name": "随喜堂",
+        "latitude": 31.430433030211844,
+        "longitude": 120.09676158428192,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615163348476973058.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604658988299014145.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": true,
+    "isPreciseNavigation": false,
+    "geometryKind": "official-path",
+    "version": "source-2023-07-22 11:53:24"
+  },
+  {
+    "id": "official-125",
+    "name": "亲子喜乐线",
+    "source": "official",
+    "sourceProject": "lingshan-miniapp-rebuild",
+    "description": "适合亲子家庭共同体验的寓教于乐路线",
+    "durationMinutes": 240,
+    "distanceMeters": 4000,
+    "tags": [
+      "官方推荐",
+      "家庭出游",
+      "情感交流",
+      "寓教于乐"
+    ],
+    "sourceCoverUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614838840067051522.jpg",
+    "polyline": [
+      {
+        "latitude": 31.42304952568381,
+        "longitude": 120.10135889053345,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423328763659637,
+        "longitude": 120.10118186473846,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424271757891827,
+        "longitude": 120.10053813457489,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424125273693605,
+        "longitude": 120.0998729467392,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4246013455932,
+        "longitude": 120.09935796260834,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425059104755903,
+        "longitude": 120.09930968284607,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42542073291449,
+        "longitude": 120.09962618350983,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42571369647608,
+        "longitude": 120.09916484355927,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42596088376929,
+        "longitude": 120.09938478469849,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426057011985105,
+        "longitude": 120.09965300559998,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426661244228008,
+        "longitude": 120.0992614030838,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426514764041812,
+        "longitude": 120.0989556312561,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427041176144495,
+        "longitude": 120.0985586643219,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427201387936968,
+        "longitude": 120.09897708892822,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427306669822972,
+        "longitude": 120.09920239448547,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42748519101168,
+        "longitude": 120.09906828403473,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427210542888258,
+        "longitude": 120.09847819805145,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427389064259987,
+        "longitude": 120.09842455387115,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42865701396613,
+        "longitude": 120.09758234024048,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42860208565106,
+        "longitude": 120.09751260280609,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429764739945625,
+        "longitude": 120.0967401266098,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42965030610752,
+        "longitude": 120.09642362594604,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42988375098911,
+        "longitude": 120.09629487991333,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430391834898604,
+        "longitude": 120.09634852409363,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430185855267155,
+        "longitude": 120.0969386100769,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429984452523282,
+        "longitude": 120.0970995426178,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429824245486248,
+        "longitude": 120.09680986404419,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428913348285196,
+        "longitude": 120.09745359420776,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429128485476348,
+        "longitude": 120.0979632139206,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42890419405892,
+        "longitude": 120.09807586669922,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428977431755467,
+        "longitude": 120.09831726551056,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426176027734815,
+        "longitude": 120.10023772716522,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426377438659433,
+        "longitude": 120.10092437267303,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426574271645038,
+        "longitude": 120.10256052017212,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426821456669643,
+        "longitude": 120.10254442691803,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426789414203235,
+        "longitude": 120.10209918022156,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427833077479825,
+        "longitude": 120.10199725627899,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4280024427932,
+        "longitude": 120.10344564914703,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426867231602706,
+        "longitude": 120.10418593883514,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42608905470181,
+        "longitude": 120.10419130325317,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425750316856952,
+        "longitude": 120.10428786277771,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425434465601874,
+        "longitude": 120.10427713394165,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425278828360284,
+        "longitude": 120.10416448116302,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425141501167865,
+        "longitude": 120.10405719280243,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424642544009362,
+        "longitude": 120.10402500629425,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424555569554038,
+        "longitude": 120.10414838790894,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42441366369062,
+        "longitude": 120.10416448116302,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424390775628012,
+        "longitude": 120.10409474372864,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424312956173367,
+        "longitude": 120.10411083698273,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42431753406953,
+        "longitude": 120.10383725166321,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424280913129163,
+        "longitude": 120.10374069213867,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42418478309262,
+        "longitude": 120.1036924123764,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4240428766681,
+        "longitude": 120.10372459888458,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42389181475442,
+        "longitude": 120.10319888591766,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424441129637735,
+        "longitude": 120.10308086872101,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "official-125-01",
+        "order": 1,
+        "spotId": "LS-004",
+        "sourcePointId": "645",
+        "name": "五智门",
+        "latitude": 31.42304952568381,
+        "longitude": 120.10135889053345,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161942306689025.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613145383127687169.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-02",
+        "order": 2,
+        "spotId": "LS-005",
+        "sourcePointId": "746",
+        "name": "菩提大道",
+        "latitude": 31.423328763659637,
+        "longitude": 120.10118186473846,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162086234738689.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948252190803185666.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-03",
+        "order": 3,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.424271757891827,
+        "longitude": 120.10053813457489,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162176445321217.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948190940266188801.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-04",
+        "order": 4,
+        "spotId": "LS-007",
+        "sourcePointId": "747",
+        "name": "降魔浮雕",
+        "latitude": 31.42542073291449,
+        "longitude": 120.09962618350983,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162393450221570.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948267651511046145.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-05",
+        "order": 5,
+        "spotId": "LS-008",
+        "sourcePointId": "639",
+        "name": "阿育王柱",
+        "latitude": 31.42596088376929,
+        "longitude": 120.09938478469849,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162474845392898.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948283246490652674.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-06",
+        "order": 6,
+        "spotId": "lingshan-643",
+        "sourcePointId": "643",
+        "name": "天下第一掌",
+        "latitude": 31.427041176144495,
+        "longitude": 120.0985586643219,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162614678786049.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948195590574919682.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-125-07",
+        "order": 7,
+        "spotId": "LS-009",
+        "sourcePointId": "640",
+        "name": "百子戏弥勒",
+        "latitude": 31.427201387936968,
+        "longitude": 120.09897708892822,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162709545553921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948296932534472706.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-08",
+        "order": 8,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430391834898604,
+        "longitude": 120.09634852409363,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613193214531162113.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615607855634419713.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-09",
+        "order": 9,
+        "spotId": "lingshan-756",
+        "sourcePointId": "756",
+        "name": "梵宫广场",
+        "latitude": 31.426821456669643,
+        "longitude": 120.10254442691803,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162538120663042.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/9/1965688488044220417.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-125-10",
+        "order": 10,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427833077479825,
+        "longitude": 120.10199725627899,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615163008914001921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948191279723794433.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-125-11",
+        "order": 11,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424441129637735,
+        "longitude": 120.10308086872101,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162297577328642.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613143753946767361.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": true,
+    "isPreciseNavigation": false,
+    "geometryKind": "official-path",
+    "version": "source-2023-07-22 11:56:13"
+  },
+  {
+    "id": "official-127",
+    "name": "舌尖上的灵山",
+    "source": "official",
+    "sourceProject": "lingshan-miniapp-rebuild",
+    "description": "串联景区特色餐饮与素食文化体验",
+    "durationMinutes": 240,
+    "distanceMeters": 4000,
+    "tags": [
+      "官方推荐"
+    ],
+    "sourceCoverUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614883642569609218.jpg",
+    "polyline": [
+      {
+        "latitude": 31.424285490677633,
+        "longitude": 120.10067760944366,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42486684638927,
+        "longitude": 120.10101556777954,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42554432716836,
+        "longitude": 120.10048449039459,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42552601693948,
+        "longitude": 120.09973883628845,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42591510853346,
+        "longitude": 120.09978175163269,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426546806881493,
+        "longitude": 120.09933650493622,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426414059060455,
+        "longitude": 120.09908437728882,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426922161772243,
+        "longitude": 120.09878396987915,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42866159137084,
+        "longitude": 120.09757697582245,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428748562017667,
+        "longitude": 120.09779155254364,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42888588392739,
+        "longitude": 120.09767889976501,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428954544806817,
+        "longitude": 120.09744822978973,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429828822275223,
+        "longitude": 120.0968474149704,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42997987462442,
+        "longitude": 120.09711027145386,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430140081395507,
+        "longitude": 120.09701371192932,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429824244927488,
+        "longitude": 120.09632170200348,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42964572819232,
+        "longitude": 120.09643971920013,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429764739386865,
+        "longitude": 120.09674549102783,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42888588392739,
+        "longitude": 120.09734094142914,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42915594976309,
+        "longitude": 120.09795784950256,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428917925677382,
+        "longitude": 120.0981080532074,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428977431755467,
+        "longitude": 120.09831190109253,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426743639511585,
+        "longitude": 120.09983539581299,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426176028014197,
+        "longitude": 120.10025918483734,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426258423444743,
+        "longitude": 120.10071516036987,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426382016454813,
+        "longitude": 120.10097801685333,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426569694417832,
+        "longitude": 120.10256588459015,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426830611937437,
+        "longitude": 120.10255515575409,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426793991978485,
+        "longitude": 120.10209918022156,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427833077759203,
+        "longitude": 120.10199189186096,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428029907689158,
+        "longitude": 120.10342419147491,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42687180937417,
+        "longitude": 120.10416984558105,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427370754670754,
+        "longitude": 120.10506570339203,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42840067894628,
+        "longitude": 120.1044487953186,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428560888415824,
+        "longitude": 120.10459363460541,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42912390809444,
+        "longitude": 120.10459899902344,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42851969172123,
+        "longitude": 120.10464191436768,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42839610152885,
+        "longitude": 120.1045024394989,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427361599735086,
+        "longitude": 120.10505497455597,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42686723188209,
+        "longitude": 120.10416984558105,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426052434732632,
+        "longitude": 120.1041966676712,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425654188466407,
+        "longitude": 120.1043039560318,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42542988817933,
+        "longitude": 120.10426640510559,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425274250930133,
+        "longitude": 120.10417520999908,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425168966762147,
+        "longitude": 120.10407328605652,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424972130826642,
+        "longitude": 120.10401427745819,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42465169942003,
+        "longitude": 120.10402500629425,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4245647249732,
+        "longitude": 120.104159116745,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424404508675792,
+        "longitude": 120.1041430234909,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424381620610948,
+        "longitude": 120.10408937931061,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424322111616217,
+        "longitude": 120.10411083698273,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424299223531296,
+        "longitude": 120.10404646396637,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424331266848643,
+        "longitude": 120.10385870933533,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424308378765936,
+        "longitude": 120.10376751422882,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42423513686373,
+        "longitude": 120.10371387004852,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424056609487415,
+        "longitude": 120.10372459888458,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423923858106217,
+        "longitude": 120.10341882705688,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423694976046463,
+        "longitude": 120.10346174240112,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42362631131566,
+        "longitude": 120.1028448343277,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42344320511675,
+        "longitude": 120.10232985019684,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42296254964627,
+        "longitude": 120.10253369808197,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42319601117822,
+        "longitude": 120.10290920734406,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423099880029575,
+        "longitude": 120.10297894477844,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42315481212658,
+        "longitude": 120.10322570800781,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "official-127-01",
+        "order": 1,
+        "spotId": "lingshan-632",
+        "sourcePointId": "632",
+        "name": "彩虹·小食令",
+        "latitude": 31.424285490677633,
+        "longitude": 120.10067760944366,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604661495981101058.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-02",
+        "order": 2,
+        "spotId": "lingshan-775",
+        "sourcePointId": "775",
+        "name": "清凉·小食令",
+        "latitude": 31.426922161772243,
+        "longitude": 120.09878396987915,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604662168284520449.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-03",
+        "order": 3,
+        "spotId": "lingshan-653",
+        "sourcePointId": "653",
+        "name": "如愿食令",
+        "latitude": 31.42888588392739,
+        "longitude": 120.09767889976501,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614600862233219073.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-04",
+        "order": 4,
+        "spotId": "lingshan-776",
+        "sourcePointId": "776",
+        "name": "山边·小食令",
+        "latitude": 31.430140081395507,
+        "longitude": 120.09701371192932,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604662303405592578.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-05",
+        "order": 5,
+        "spotId": "lingshan-635",
+        "sourcePointId": "635",
+        "name": "蔬食馆",
+        "latitude": 31.426743639511585,
+        "longitude": 120.09983539581299,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604661842875207681.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-06",
+        "order": 6,
+        "spotId": "lingshan-778",
+        "sourcePointId": "778",
+        "name": "灵山五观堂",
+        "latitude": 31.427833077759203,
+        "longitude": 120.10199189186096,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2024/5/1795634711404175361.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-07",
+        "order": 7,
+        "spotId": "lingshan-779",
+        "sourcePointId": "779",
+        "name": "灵山精舍",
+        "latitude": 31.42912390809444,
+        "longitude": 120.10459899902344,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614581922199195650.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-127-08",
+        "order": 8,
+        "spotId": "lingshan-777",
+        "sourcePointId": "777",
+        "name": "吉祥食集",
+        "latitude": 31.42315481212658,
+        "longitude": 120.10322570800781,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604662458997493762.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": true,
+    "isPreciseNavigation": false,
+    "geometryKind": "official-path",
+    "version": "source-2023-01-16 15:46:32"
+  },
+  {
+    "id": "official-128",
+    "name": "文博探索之旅",
+    "source": "official",
+    "sourceProject": "lingshan-miniapp-rebuild",
+    "description": "从艺术、文化和非遗角度探索灵山",
+    "durationMinutes": 180,
+    "distanceMeters": 3000,
+    "tags": [
+      "官方推荐",
+      "赏艺术",
+      "品文化",
+      "看非遗"
+    ],
+    "sourceCoverUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1614902346871164930.png",
+    "polyline": [
+      {
+        "latitude": 31.42984255431701,
+        "longitude": 120.09677231311798,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428940812634963,
+        "longitude": 120.09739995002747,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4286799009874,
+        "longitude": 120.09680449962616,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42892250306934,
+        "longitude": 120.09730339050293,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428615817313776,
+        "longitude": 120.09753942489624,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42641863657465,
+        "longitude": 120.09907901287079,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426514764321194,
+        "longitude": 120.09933650493622,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426015814469775,
+        "longitude": 120.09973883628845,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426189760591,
+        "longitude": 120.10025918483734,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426249268400476,
+        "longitude": 120.10069370269775,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42637286142261,
+        "longitude": 120.10095119476318,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426588004442902,
+        "longitude": 120.10254979133606,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426816879454524,
+        "longitude": 120.10252833366394,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426793991978485,
+        "longitude": 120.10210990905762,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427796458191768,
+        "longitude": 120.10197579860687,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428020752817865,
+        "longitude": 120.103440284729,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426890119340236,
+        "longitude": 120.10416984558105,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42608447745089,
+        "longitude": 120.1041966676712,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42575489454325,
+        "longitude": 120.10429859161377,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425402422801174,
+        "longitude": 120.10426104068756,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425265095789793,
+        "longitude": 120.10414838790894,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425155234035856,
+        "longitude": 120.10407328605652,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425036216990538,
+        "longitude": 120.10403037071228,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42464254414905,
+        "longitude": 120.10404646396637,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424546414553056,
+        "longitude": 120.10416448116302,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424413663900154,
+        "longitude": 120.104159116745,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424386198224347,
+        "longitude": 120.10409474372864,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424326689232547,
+        "longitude": 120.10411620140076,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424322111616217,
+        "longitude": 120.10387480258942,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424303801148717,
+        "longitude": 120.10376751422882,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42421224875756,
+        "longitude": 120.10369777679443,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424033721337686,
+        "longitude": 120.10373532772064,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423900969924073,
+        "longitude": 120.10318279266357,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42445028478869,
+        "longitude": 120.10308086872101,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "official-128-01",
+        "order": 1,
+        "spotId": "lingshan-751",
+        "sourcePointId": "751",
+        "name": "佛教文化博览馆",
+        "latitude": 31.42984255431701,
+        "longitude": 120.09677231311798,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613164909366026242.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-128-02",
+        "order": 2,
+        "spotId": "lingshan-750",
+        "sourcePointId": "750",
+        "name": "无尽意斋",
+        "latitude": 31.4286799009874,
+        "longitude": 120.09680449962616,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613165085040254977.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-128-03",
+        "order": 3,
+        "spotId": "lingshan-633",
+        "sourcePointId": "633",
+        "name": "灵山博物馆——灵山梵宫",
+        "latitude": 31.427796458191768,
+        "longitude": 120.10197579860687,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613165255513546754.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-128-04",
+        "order": 4,
+        "spotId": "lingshan-962",
+        "sourcePointId": "962",
+        "name": "灵山博物馆——五印坛城",
+        "latitude": 31.42445028478869,
+        "longitude": 120.10308086872101,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 5,
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613149341711802369.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": true,
+    "isPreciseNavigation": false,
+    "geometryKind": "official-path",
+    "version": "source-2023-07-22 11:56:58"
+  },
+  {
+    "id": "official-129",
+    "name": "清净自在线（建议全程电瓶车）",
+    "source": "official",
+    "sourceProject": "lingshan-miniapp-rebuild",
+    "description": "建议乘坐电瓶车的轻松错峰游览路线",
+    "durationMinutes": 120,
+    "distanceMeters": 3000,
+    "tags": [
+      "官方推荐",
+      "错峰出游",
+      "喜舍得乐",
+      "皆大欢喜"
+    ],
+    "sourceCoverUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/8/1697147804837957634.jpg",
+    "polyline": [
+      {
+        "latitude": 31.42139025494347,
+        "longitude": 120.10250687599182,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42190754034506,
+        "longitude": 120.10238885879517,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42238820121398,
+        "longitude": 120.10205626487732,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.422598775745605,
+        "longitude": 120.1018899679184,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42274526204887,
+        "longitude": 120.10165393352509,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424269621597468,
+        "longitude": 120.10055959224701,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42470907195618,
+        "longitude": 120.10096192359924,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425185140892005,
+        "longitude": 120.1008653640747,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425537613520618,
+        "longitude": 120.10035037994385,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425482682819393,
+        "longitude": 120.09978175163269,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426004523181913,
+        "longitude": 120.09974956512451,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426855940696765,
+        "longitude": 120.09911119937897,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4267140383145,
+        "longitude": 120.09886980056763,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428526710660748,
+        "longitude": 120.09761989116669,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428673187983247,
+        "longitude": 120.09781837463379,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42878304561544,
+        "longitude": 120.09767889976501,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429011915269047,
+        "longitude": 120.097496509552,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428975296162,
+        "longitude": 120.09738385677338,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429867882821462,
+        "longitude": 120.09676694869995,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430403430738266,
+        "longitude": 120.09637534618378,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430549904849396,
+        "longitude": 120.09671866893768,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430215760448935,
+        "longitude": 120.09691178798676,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429867882821462,
+        "longitude": 120.09626269340515,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42966190203888,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429776335862844,
+        "longitude": 120.09666502475739,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42861825911891,
+        "longitude": 120.09745359420776,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.428993605717316,
+        "longitude": 120.09824752807617,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426183046849772,
+        "longitude": 120.10018944740295,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42623797714073,
+        "longitude": 120.10067760944366,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426366147694512,
+        "longitude": 120.10094046592712,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426508050603275,
+        "longitude": 120.10214745998383,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427510519873575,
+        "longitude": 120.10197579860687,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427551717011564,
+        "longitude": 120.10225474834442,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427913335557218,
+        "longitude": 120.10221183300018,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4280918555909,
+        "longitude": 120.10323107242584,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427757702430046,
+        "longitude": 120.10256052017212,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426576713223945,
+        "longitude": 120.10267853736877,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426521783131427,
+        "longitude": 120.10186314582825,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426306639959183,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42617846932408,
+        "longitude": 120.10191679000854,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42610522888251,
+        "longitude": 120.10171830654144,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42586719705228,
+        "longitude": 120.10154664516449,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42554676863437,
+        "longitude": 120.10160565376282,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425052391143296,
+        "longitude": 120.10058104991913,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425327045622893,
+        "longitude": 120.10037183761597,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425345355855693,
+        "longitude": 120.09974956512451,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42557423390039,
+        "longitude": 120.0996208190918,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4257619134802,
+        "longitude": 120.09980857372284,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42599079057801,
+        "longitude": 120.09966909885406,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42587177459319,
+        "longitude": 120.09940087795258,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427052772677925,
+        "longitude": 120.0985586643219,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427263336665476,
+        "longitude": 120.0991541147232,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42754256209358,
+        "longitude": 120.09914875030518,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427533407174707,
+        "longitude": 120.09933650493622,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426494318073082,
+        "longitude": 120.10004997253418,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42695664548294,
+        "longitude": 120.1014769077301,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426508050603275,
+        "longitude": 120.10173439979553,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426801010767807,
+        "longitude": 120.10420739650726,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426009100716104,
+        "longitude": 120.10422348976135,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42605029851377,
+        "longitude": 120.10449707508087,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42586719705228,
+        "longitude": 120.10473310947418,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42536366618966,
+        "longitude": 120.10484039783478,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425432329578474,
+        "longitude": 120.10429859161377,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.425249226945244,
+        "longitude": 120.10419130325317,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424928796380716,
+        "longitude": 120.1042127609253,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42484182222581,
+        "longitude": 120.10410010814667,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424667873604186,
+        "longitude": 120.10417520999908,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424493924642395,
+        "longitude": 120.10433614253998,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42397665350249,
+        "longitude": 120.10435223579407,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423843902029923,
+        "longitude": 120.10423421859741,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423660796260208,
+        "longitude": 120.10329008102417,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42465414078706,
+        "longitude": 120.10312378406525,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423642485663578,
+        "longitude": 120.10317742824554,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.4234227582251,
+        "longitude": 120.10235667228699,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.422910058796685,
+        "longitude": 120.10254442691803,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42313436511094,
+        "longitude": 120.10293066501617,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423010767820475,
+        "longitude": 120.10333299636841,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "official-129-01",
+        "order": 1,
+        "spotId": "LS-001",
+        "sourcePointId": "641",
+        "name": "灵山大照壁",
+        "latitude": 31.42139025494347,
+        "longitude": 120.10250687599182,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161352029704194.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948258924812783618.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-02",
+        "order": 2,
+        "spotId": "LS-002",
+        "sourcePointId": "644",
+        "name": "五明桥",
+        "latitude": 31.42190754034506,
+        "longitude": 120.10238885879517,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161513959198721.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1950429565611118593.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-03",
+        "order": 3,
+        "spotId": "lingshan-745",
+        "sourcePointId": "745",
+        "name": "胜境门楼",
+        "latitude": 31.42238820121398,
+        "longitude": 120.10205626487732,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161619982815234.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613155961838718978.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-129-04",
+        "order": 4,
+        "spotId": "lingshan-646",
+        "sourcePointId": "646",
+        "name": "洗心池",
+        "latitude": 31.422598775745605,
+        "longitude": 120.1018899679184,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161718738210818.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1600381847490207745.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-129-05",
+        "order": 5,
+        "spotId": "LS-003",
+        "sourcePointId": "642",
+        "name": "佛足坛",
+        "latitude": 31.42274526204887,
+        "longitude": 120.10165393352509,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161804964204545.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1600374765262163969.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-06",
+        "order": 6,
+        "spotId": "lingshan-749",
+        "sourcePointId": "749",
+        "name": "杏坛广场",
+        "latitude": 31.42878304561544,
+        "longitude": 120.09767889976501,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162907248267265.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1616054402360774657.png",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-129-07",
+        "order": 7,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430403430738266,
+        "longitude": 120.09637534618378,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613193214531162113.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615607855634419713.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-08",
+        "order": 8,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427913335557218,
+        "longitude": 120.10221183300018,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615163008914001921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948191279723794433.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-09",
+        "order": 9,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.425052391143296,
+        "longitude": 120.10058104991913,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162176445321217.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948190940266188801.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-10",
+        "order": 10,
+        "spotId": "LS-007",
+        "sourcePointId": "747",
+        "name": "降魔浮雕",
+        "latitude": 31.42557423390039,
+        "longitude": 120.0996208190918,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162393450221570.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948267651511046145.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-11",
+        "order": 11,
+        "spotId": "LS-008",
+        "sourcePointId": "639",
+        "name": "阿育王柱",
+        "latitude": 31.42587177459319,
+        "longitude": 120.09940087795258,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162474845392898.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948283246490652674.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-12",
+        "order": 12,
+        "spotId": "lingshan-643",
+        "sourcePointId": "643",
+        "name": "天下第一掌",
+        "latitude": 31.427052772677925,
+        "longitude": 120.0985586643219,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162614678786049.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948195590574919682.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      },
+      {
+        "id": "official-129-13",
+        "order": 13,
+        "spotId": "LS-009",
+        "sourcePointId": "640",
+        "name": "百子戏弥勒",
+        "latitude": 31.427263336665476,
+        "longitude": 120.0991541147232,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162709545553921.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948296932534472706.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-14",
+        "order": 14,
+        "spotId": "LS-015",
+        "sourcePointId": "648",
+        "name": "曼飞龙塔",
+        "latitude": 31.42605029851377,
+        "longitude": 120.10449707508087,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162410051784706.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2025/7/1948194612693913601.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-15",
+        "order": 15,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.42465414078706,
+        "longitude": 120.10312378406525,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615162297577328642.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1613143753946767361.jpg",
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "official-129-16",
+        "order": 16,
+        "spotId": "lingshan-758",
+        "sourcePointId": "758",
+        "name": "灵山假日广场",
+        "latitude": 31.423010767820475,
+        "longitude": 120.10333299636841,
+        "coordinateSystem": "GCJ02",
+        "coordinateSource": "official-route-anchor",
+        "stayMinutes": 3,
+        "sourceAudioUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/poi_point_file/2023/1/1615161908073287682.mp3",
+        "sourceImageUrl": "https://ymtx-prod.obs.cn-east-3.myhuaweicloud.com/navigation/point/2022/12/1604660021997817858.jpg",
+        "categoryId": "36",
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": true,
+    "isPreciseNavigation": false,
+    "geometryKind": "official-path",
+    "version": "source-2023-08-31 15:22:28"
+  },
+  {
+    "id": "curated-quick_30",
+    "name": "30分钟核心打卡路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 45,
+    "tags": [
+      "项目精选",
+      "short",
+      "photo",
+      "landmark"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-quick_30-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-quick_30-02",
+        "order": 2,
+        "spotId": "LS-001",
+        "name": "灵山大照壁",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 10,
+        "manualReview": true
+      },
+      {
+        "id": "curated-quick_30-03",
+        "order": 3,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-quick_30-04",
+        "order": 4,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  },
+  {
+    "id": "curated-one_hour_core",
+    "name": "1小时速览路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 98,
+    "tags": [
+      "项目精选",
+      "short",
+      "landmark",
+      "classic"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.423084010748784,
+        "longitude": 120.10140180587769,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-one_hour_core-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-one_hour_core-02",
+        "order": 2,
+        "spotId": "LS-001",
+        "name": "灵山大照壁",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 10,
+        "manualReview": true
+      },
+      {
+        "id": "curated-one_hour_core-03",
+        "order": 3,
+        "spotId": "LS-004",
+        "sourcePointId": "645",
+        "name": "五智门",
+        "latitude": 31.423084010748784,
+        "longitude": 120.10140180587769,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 8,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-one_hour_core-04",
+        "order": 4,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-one_hour_core-05",
+        "order": 5,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-one_hour_core-06",
+        "order": 6,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  },
+  {
+    "id": "curated-classic_150",
+    "name": "2-3小时经典路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 185,
+    "tags": [
+      "项目精选",
+      "classic",
+      "show",
+      "buddhist",
+      "art"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.421834296567773,
+        "longitude": 120.1022332906723,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42324880697117,
+        "longitude": 120.10112285614014,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-classic_150-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-classic_150-02",
+        "order": 2,
+        "spotId": "LS-001",
+        "name": "灵山大照壁",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 10,
+        "manualReview": true
+      },
+      {
+        "id": "curated-classic_150-03",
+        "order": 3,
+        "spotId": "LS-002",
+        "sourcePointId": "644",
+        "name": "五明桥",
+        "latitude": 31.421834296567773,
+        "longitude": 120.1022332906723,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 8,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-classic_150-04",
+        "order": 4,
+        "spotId": "LS-005",
+        "sourcePointId": "746",
+        "name": "菩提大道",
+        "latitude": 31.42324880697117,
+        "longitude": 120.10112285614014,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 12,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-classic_150-05",
+        "order": 5,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-classic_150-06",
+        "order": 6,
+        "spotId": "LS-010",
+        "sourcePointId": "748",
+        "name": "祥符禅寺",
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 30,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-classic_150-07",
+        "order": 7,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-classic_150-08",
+        "order": 8,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-classic_150-09",
+        "order": 9,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  },
+  {
+    "id": "curated-culture_half_day",
+    "name": "半日深度文化路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 210,
+    "tags": [
+      "项目精选",
+      "history",
+      "culture",
+      "buddhist",
+      "deep"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429904501579866,
+        "longitude": 120.0966864824295,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42876839760332,
+        "longitude": 120.09675085544586,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-culture_half_day-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-culture_half_day-02",
+        "order": 2,
+        "spotId": "LS-001",
+        "name": "灵山大照壁",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 10,
+        "manualReview": true
+      },
+      {
+        "id": "curated-culture_half_day-03",
+        "order": 3,
+        "spotId": "LS-010",
+        "sourcePointId": "748",
+        "name": "祥符禅寺",
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 30,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-culture_half_day-04",
+        "order": 4,
+        "spotId": "LS-012",
+        "sourcePointId": "960",
+        "name": "佛教文化博览馆",
+        "latitude": 31.429904501579866,
+        "longitude": 120.0966864824295,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-culture_half_day-05",
+        "order": 5,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-culture_half_day-06",
+        "order": 6,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-culture_half_day-07",
+        "order": 7,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-culture_half_day-08",
+        "order": 8,
+        "spotId": "LS-016",
+        "sourcePointId": "957",
+        "name": "无尽意斋",
+        "latitude": 31.42876839760332,
+        "longitude": 120.09675085544586,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 20,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-culture_half_day-09",
+        "order": 9,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  },
+  {
+    "id": "curated-family_light",
+    "name": "亲子轻松路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 117,
+    "tags": [
+      "项目精选",
+      "family",
+      "easy",
+      "show",
+      "indoor"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427302092631514,
+        "longitude": 120.09888589382172,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-family_light-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-family_light-02",
+        "order": 2,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-family_light-03",
+        "order": 3,
+        "spotId": "LS-009",
+        "sourcePointId": "640",
+        "name": "百子戏弥勒",
+        "latitude": 31.427302092631514,
+        "longitude": 120.09888589382172,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 12,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-family_light-04",
+        "order": 4,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-family_light-05",
+        "order": 5,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-family_light-06",
+        "order": 6,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  },
+  {
+    "id": "curated-buddhist_culture",
+    "name": "佛教文化深度路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 168,
+    "tags": [
+      "项目精选",
+      "buddhist",
+      "culture",
+      "history",
+      "deep"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.422763572820685,
+        "longitude": 120.10163247585297,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.423084010748784,
+        "longitude": 120.10140180587769,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.429904501579866,
+        "longitude": 120.0966864824295,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426082341232764,
+        "longitude": 120.1046633720398,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-buddhist_culture-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-buddhist_culture-02",
+        "order": 2,
+        "spotId": "LS-003",
+        "sourcePointId": "642",
+        "name": "佛足坛",
+        "latitude": 31.422763572820685,
+        "longitude": 120.10163247585297,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 10,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-03",
+        "order": 3,
+        "spotId": "LS-004",
+        "sourcePointId": "645",
+        "name": "五智门",
+        "latitude": 31.423084010748784,
+        "longitude": 120.10140180587769,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 8,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-04",
+        "order": 4,
+        "spotId": "LS-010",
+        "sourcePointId": "748",
+        "name": "祥符禅寺",
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 30,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-05",
+        "order": 5,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-06",
+        "order": 6,
+        "spotId": "LS-012",
+        "sourcePointId": "960",
+        "name": "佛教文化博览馆",
+        "latitude": 31.429904501579866,
+        "longitude": 120.0966864824295,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-07",
+        "order": 7,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-08",
+        "order": 8,
+        "spotId": "LS-015",
+        "sourcePointId": "648",
+        "name": "曼飞龙塔",
+        "latitude": 31.426082341232764,
+        "longitude": 120.1046633720398,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 15,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-buddhist_culture-09",
+        "order": 9,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  },
+  {
+    "id": "curated-photo_checkin",
+    "name": "拍照打卡路线",
+    "source": "curated",
+    "sourceProject": "scenic-ai-guide",
+    "description": "项目既有策划路线",
+    "durationMinutes": 191,
+    "tags": [
+      "项目精选",
+      "photo",
+      "landmark",
+      "nature"
+    ],
+    "polyline": [
+      {
+        "latitude": 31.423084010748784,
+        "longitude": 120.10140180587769,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426256287230583,
+        "longitude": 120.09925067424774,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02"
+      },
+      {
+        "latitude": 31.426082341232764,
+        "longitude": 120.1046633720398,
+        "coordinateSystem": "GCJ02"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "curated-photo_checkin-01",
+        "order": 1,
+        "spotId": "curated-gate_south",
+        "name": "南门入园",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      },
+      {
+        "id": "curated-photo_checkin-02",
+        "order": 2,
+        "spotId": "LS-001",
+        "name": "灵山大照壁",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 10,
+        "manualReview": true
+      },
+      {
+        "id": "curated-photo_checkin-03",
+        "order": 3,
+        "spotId": "LS-004",
+        "sourcePointId": "645",
+        "name": "五智门",
+        "latitude": 31.423084010748784,
+        "longitude": 120.10140180587769,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 8,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-04",
+        "order": 4,
+        "spotId": "LS-006",
+        "sourcePointId": "627",
+        "name": "九龙灌浴",
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-05",
+        "order": 5,
+        "spotId": "LS-008",
+        "sourcePointId": "639",
+        "name": "阿育王柱",
+        "latitude": 31.426256287230583,
+        "longitude": 120.09925067424774,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 8,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-06",
+        "order": 6,
+        "spotId": "LS-011",
+        "sourcePointId": "630",
+        "name": "灵山大佛",
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-07",
+        "order": 7,
+        "spotId": "LS-013",
+        "sourcePointId": "961",
+        "name": "灵山梵宫",
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 45,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-08",
+        "order": 8,
+        "spotId": "LS-014",
+        "sourcePointId": "956",
+        "name": "五印坛城",
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 25,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-09",
+        "order": 9,
+        "spotId": "LS-015",
+        "sourcePointId": "648",
+        "name": "曼飞龙塔",
+        "latitude": 31.426082341232764,
+        "longitude": 120.1046633720398,
+        "coordinateSystem": "GCJ02",
+        "stayMinutes": 15,
+        "categoryId": "36",
+        "manualReview": false
+      },
+      {
+        "id": "curated-photo_checkin-10",
+        "order": 10,
+        "spotId": "curated-exit",
+        "name": "出口",
+        "coordinateSystem": "UNKNOWN",
+        "stayMinutes": 5,
+        "manualReview": true
+      }
+    ],
+    "isEditable": false,
+    "isOfficial": false,
+    "isPreciseNavigation": false,
+    "geometryKind": "schematic",
+    "version": "target-inventory-2026-08-04"
+  }
+]
