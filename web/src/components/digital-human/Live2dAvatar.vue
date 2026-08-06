@@ -12,7 +12,7 @@
 
       <!-- 降级 / 加载态 -->
       <div v-if="!isRendering" class="l2d-fallback">
-        <ElIcon class="l2d-fallback-icon" :size="46"><Avatar /></ElIcon>
+        <img class="l2d-fallback-portrait" :src="fallbackPortraitUrl" alt="" aria-hidden="true" />
         <p class="l2d-fallback-name">{{ config?.name || $t('app.avatarGuideName') }}</p>
         <p class="l2d-fallback-tip">{{ fallbackTip }}</p>
       </div>
@@ -40,7 +40,7 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
   import { useI18n } from 'vue-i18n'
-  import { Avatar, Microphone } from '@element-plus/icons-vue'
+  import { Microphone } from '@element-plus/icons-vue'
   import { useLive2dAvatar } from '@/composables/useLive2dAvatar'
   import type { DigitalHumanConfig } from '@/api/digital-human'
 
@@ -59,6 +59,10 @@
   const live2d = useLive2dAvatar()
 
   const isRendering = computed(() => ['ready', 'speaking'].includes(live2d.status.value))
+  const fallbackPortraitUrl = computed(() => {
+    const modelId = config.value?.modelId || 'Haru'
+    return `/live2d/characters/${encodeURIComponent(modelId)}/${encodeURIComponent(modelId)}.png`
+  })
 
   const statusText = computed(() => {
     switch (live2d.status.value) {
@@ -112,17 +116,37 @@
   async function speak(text: string, emotion?: string): Promise<boolean> {
     return live2d.speak(text, { emotion })
   }
+  async function speakAudio(url: string): Promise<boolean> {
+    return live2d.speakAudio(url)
+  }
   function enableAudio() {
     return live2d.enableAudio()
   }
   function interrupt() {
     return live2d.interrupt()
   }
+  function pause() {
+    return live2d.pause()
+  }
+  function resume() {
+    return live2d.resume()
+  }
+  function getStatus() {
+    return live2d.status.value
+  }
+  function getSubtitle() {
+    return ''
+  }
 
   defineExpose({
     speak,
+    speakAudio,
     enableAudio,
+    pause,
+    resume,
     interrupt,
+    getStatus,
+    getSubtitle,
     status: live2d.status,
     audioReady: live2d.audioReady,
     config
@@ -166,9 +190,12 @@
     text-align: center;
   }
 
-  .l2d-fallback-icon {
-    margin-bottom: 12px;
-    color: #d4af37;
+  .l2d-fallback-portrait {
+    width: min(72%, 220px);
+    max-height: calc(100% - 70px);
+    margin-bottom: 8px;
+    object-fit: contain;
+    object-position: center bottom;
   }
 
   .l2d-fallback-name {

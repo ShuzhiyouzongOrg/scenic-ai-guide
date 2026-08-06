@@ -80,7 +80,10 @@ export function useLive2dAvatar() {
 
       // 加载模型
       const model = options.modelId || 'Haru'
-      const link = `${BASE}live2d/characters/${model}/${model}.model3.json`.replace(/([^:])\/{2,}/g, '$1/')
+      const link = `${BASE}live2d/characters/${model}/${model}.model3.json`.replace(
+        /([^:])\/{2,}/g,
+        '$1/'
+      )
       Live2dManager.getInstance().changeCharacter({ resource_id: model, name: model, link })
 
       const ok = await waitReady()
@@ -110,7 +113,8 @@ export function useLive2dAvatar() {
   }
 
   /** 驱动数字人说话：后端 TTS 取音频 -> 入队 -> AnalyserNode 驱动口型 */
-  async function speak(text: string, _opts: { emotion?: string } = {}): Promise<boolean> {
+  async function speak(text: string, opts: { emotion?: string } = {}): Promise<boolean> {
+    void opts
     const content = String(text || '').trim()
     if (!content || status.value === 'error' || status.value === 'idle') return false
     try {
@@ -121,7 +125,9 @@ export function useLive2dAvatar() {
 
       status.value = 'speaking'
       // 恢复可能被挂起的音频上下文（首帧前尽力，失败则等用户手势）
-      await Live2dManager.getInstance().resume().catch(() => {})
+      await Live2dManager.getInstance()
+        .resume()
+        .catch(() => {})
 
       // 顺序拉取音频片段入队（按句播报，口型连贯）
       for (const url of urls) {
@@ -134,6 +140,20 @@ export function useLive2dAvatar() {
       errorMessage.value = normalizeError(err)
       return false
     }
+  }
+
+  async function speakAudio(url: string): Promise<boolean> {
+    if (!url || status.value === 'error' || status.value === 'idle') return false
+    const buffer = await fetchAudio(url)
+    if (!buffer) return false
+    await interrupt()
+    status.value = 'speaking'
+    await Live2dManager.getInstance()
+      .resume()
+      .catch(() => undefined)
+    Live2dManager.getInstance().pushAudioQueue(buffer)
+    watchSpeakingEnd()
+    return true
   }
 
   async function fetchAudio(url: string): Promise<ArrayBuffer | null> {
@@ -167,6 +187,14 @@ export function useLive2dAvatar() {
     } catch {
       /* 仍被拦截，等待下一次用户手势 */
     }
+  }
+
+  async function pause(): Promise<void> {
+    await Live2dManager.getInstance().pauseAudio()
+  }
+
+  async function resume(): Promise<void> {
+    await Live2dManager.getInstance().resume()
   }
 
   /** 打断当前播报 */
@@ -207,7 +235,21 @@ export function useLive2dAvatar() {
     }
   }
 
-  return { status, errorMessage, audioReady, hasCredentials, start, speak, enableAudio, interrupt, destroy, onResize }
+  return {
+    status,
+    errorMessage,
+    audioReady,
+    hasCredentials,
+    start,
+    speak,
+    speakAudio,
+    enableAudio,
+    pause,
+    resume,
+    interrupt,
+    destroy,
+    onResize
+  }
 }
 
 function normalizeError(err: unknown): string {

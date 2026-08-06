@@ -7,7 +7,10 @@
  */
 import { ref, shallowRef } from 'vue'
 // SDK 以预编译 ESM 形式提供，附带 index.d.ts 类型声明
-import AvatarPlatform, { SDKEvents, PlayerEvents } from '@/vm-sdk/avatar-sdk-web_3.1.1.1011/index.js'
+import AvatarPlatform, {
+  SDKEvents,
+  PlayerEvents
+} from '@/vm-sdk/avatar-sdk-web_3.1.1.1011/index.js'
 
 export type AvatarStatus = 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
 
@@ -22,6 +25,10 @@ export interface AvatarStartOptions {
 
 /** 情感风格 -> 讯飞超拟人音色情感系数（仅超拟人音色支持） */
 const EMOTION_CODE: Record<string, number> = {
+  friendly: 10,
+  solemn: 13,
+  enthusiastic: 14,
+  storytelling: 10,
   neutral: 10, // 亲切温柔（导游默认）
   warm: 10,
   gentle: 10,
@@ -39,13 +46,14 @@ export function useXfAvatar() {
   const errorMessage = ref('')
   // 浏览器自动播放策略会拦截未经用户手势的音频：audioReady 为 false 时需用户手势解锁
   const audioReady = ref(false)
+  const subtitle = ref('')
   const platform = shallowRef<InstanceType<typeof AvatarPlatform> | null>(null)
 
   const env = import.meta.env
   const apiInfo = {
-    appId: env.VITE_XF_AVATAR_APPID,
-    apiKey: env.VITE_XF_AVATAR_APIKEY,
-    apiSecret: env.VITE_XF_AVATAR_APISECRET,
+    appId: env.VITE_XF_AVATAR_APPID || env.XFYUN_APP_ID,
+    apiKey: env.VITE_XF_AVATAR_APIKEY || env.XFYUN_API_KEY,
+    apiSecret: env.VITE_XF_AVATAR_APISECRET || env.XFYUN_API_SECRET,
     serverUrl: env.VITE_XF_AVATAR_SERVERURL || 'wss://avatar.cn-huadong-1.xf-yun.com/v1/interact'
   } as Record<string, string>
 
@@ -55,7 +63,8 @@ export function useXfAvatar() {
     const params: Record<string, unknown> = {
       stream: { protocol: 'xrtc', fps: 25, bitrate: 1000000, alpha: 0 },
       avatar: {
-        avatar_id: avatarId || env.VITE_XF_AVATAR_ID || 'cnr5dg8n2000000003',
+        avatar_id:
+          avatarId || env.VITE_XF_AVATAR_ID || env.DEFAULT_AVATAR_ID || 'cnr5dg8n2000000003',
         width: 1080,
         height: 960,
         mask_region: '[0,0,1080,1080]',
@@ -65,14 +74,14 @@ export function useXfAvatar() {
         audio_format: 1
       },
       tts: {
-        vcn: vcn || env.VITE_XF_AVATAR_VCN || 'x5_lingxiaoyue_flow',
+        vcn: vcn || env.VITE_XF_AVATAR_VCN || env.DEFAULT_AVATAR_VCN || 'x5_lingxiaoyue_flow',
         speed: 50,
         pitch: 50,
         volume: 100,
         emotion: 10
       },
       avatar_dispatch: { interactive_mode: 1 },
-      subtitle: { subtitle: 0 }
+      subtitle: { subtitle: 1 }
     }
     // 可选背景（交互平台素材管理中的 res_key）
     if (env.VITE_XF_AVATAR_RESKEY) {
@@ -101,6 +110,15 @@ export function useXfAvatar() {
 
       ap.on(SDKEvents.frame_stop, () => {
         if (status.value === 'speaking') status.value = 'ready'
+      })
+      ap.on(SDKEvents.subtitle_info, (payload: unknown) => {
+        const value = payload as {
+          text?: string
+          content?: string
+          data?: { text?: string; content?: string }
+        }
+        subtitle.value =
+          value.text || value.content || value.data?.text || value.data?.content || subtitle.value
       })
       ap.on(SDKEvents.error, (err: unknown) => {
         status.value = 'error'
@@ -159,6 +177,60 @@ export function useXfAvatar() {
   }
 
   /** 在用户手势中调用以解锁音频（解除静音并恢复播放） */
+  async function decodeAudioToPcm16(url: string): Promise<ArrayBuffer> {
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`Official audio failed to load (${response.status})`)
+    const sourceBuffer = await response.arrayBuffer()
+    const audioContext = new AudioContext()
+    try {
+      const decoded = await audioContext.decodeAudioData(sourceBuffer.slice(0))
+      const sampleRate = 16000
+      const frameCount = Math.ceil(decoded.duration * sampleRate)
+      const offline = new OfflineAudioContext(1, frameCount, sampleRate)
+      const source = offline.createBufferSource()
+      source.buffer = decoded
+      source.connect(offline.destination)
+      source.start()
+      const rendered = await offline.startRendering()
+      const samples = rendered.getChannelData(0)
+      const pcm = new ArrayBuffer(samples.length * 2)
+      const view = new DataView(pcm)
+      for (let index = 0; index < samples.length; index += 1) {
+        const sample = Math.max(-1, Math.min(1, samples[index]))
+        view.setInt16(index * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true)
+      }
+      return pcm
+    } finally {
+      await audioContext.close()
+    }
+  }
+
+  /** Stream licensed external audio as 16 kHz PCM so the SDK can drive lip movement. */
+  async function speakAudio(url: string): Promise<boolean> {
+    const ap = platform.value
+    if (!ap || !url || status.value === 'error' || status.value === 'idle') return false
+    try {
+      const pcm = await decodeAudioToPcm16(url)
+      status.value = 'speaking'
+      const chunkBytes = 6400
+      const extend = {
+        nlp: false,
+        audio: { encoding: 'raw', channels: 1, bit_depth: 16, sample_rate: 16000 },
+        avatar_dispatch: { audio_mode: 0 }
+      }
+      for (let offset = 0; offset < pcm.byteLength; offset += chunkBytes) {
+        const chunk = pcm.slice(offset, Math.min(offset + chunkBytes, pcm.byteLength))
+        await ap.writeAudio(chunk, offset === 0 ? (0 as never) : (1 as never), extend as never)
+      }
+      await ap.writeAudio(new ArrayBuffer(0), 2 as never, extend as never)
+      return true
+    } catch (err) {
+      errorMessage.value = normalizeError(err)
+      if (status.value === 'speaking') status.value = 'ready'
+      return false
+    }
+  }
+
   async function enableAudio(): Promise<void> {
     const player = platform.value?.player
     if (!player) return
@@ -192,7 +264,19 @@ export function useXfAvatar() {
     status.value = 'idle'
   }
 
-  return { status, errorMessage, audioReady, hasCredentials, start, speak, enableAudio, interrupt, destroy }
+  return {
+    status,
+    errorMessage,
+    audioReady,
+    subtitle,
+    hasCredentials,
+    start,
+    speak,
+    speakAudio,
+    enableAudio,
+    interrupt,
+    destroy
+  }
 }
 
 function normalizeError(err: unknown): string {

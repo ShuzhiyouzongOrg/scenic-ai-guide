@@ -112,6 +112,10 @@
     return avatar.speak(text, { emotion })
   }
 
+  async function speakAudio(url: string): Promise<boolean> {
+    return avatar.speakAudio(url)
+  }
+
   /** 在用户手势中解锁音频 */
   function enableAudio() {
     return avatar.enableAudio()
@@ -120,12 +124,22 @@
   function interrupt() {
     return avatar.interrupt()
   }
+  function getStatus() {
+    return avatar.status.value
+  }
+  function getSubtitle() {
+    return avatar.subtitle.value
+  }
 
   defineExpose({
     speak,
+    speakAudio,
     enableAudio,
     interrupt,
+    getStatus,
+    getSubtitle,
     status: avatar.status,
+    subtitle: avatar.subtitle,
     audioReady: avatar.audioReady,
     config
   })

@@ -108,7 +108,7 @@ export class Live2dManager {
       }
       const rms = Math.sqrt(sum / this._timeDomain.length);
       // 人声 RMS 通常在 0.03~0.2，放大到接近满开合并限幅
-      let target = Math.min(1, rms * 3.2);
+      const target = Math.min(1, rms * 3.2);
       // attack 快、release 慢：张嘴迅速跟随，闭嘴平滑过渡
       if (target > this._lipValue) {
         this._lipValue = this._lipValue * 0.4 + target * 0.6;
@@ -144,6 +144,13 @@ export class Live2dManager {
     public resume(): Promise<void> {
       if (this._audioContext.state === 'suspended') {
         return this._audioContext.resume();
+      }
+      return Promise.resolve();
+    }
+
+    public pauseAudio(): Promise<void> {
+      if (this._audioContext.state === 'running') {
+        return this._audioContext.suspend();
       }
       return Promise.resolve();
     }

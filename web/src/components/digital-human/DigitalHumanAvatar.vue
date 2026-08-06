@@ -21,7 +21,7 @@
         v-else-if="engine === 'live2d'"
         key="live2d"
         ref="childRef"
-        :config="config"
+        :config="effectiveConfig"
         @ready="onReady"
         @error="onError"
       />
@@ -42,9 +42,22 @@
   import { computed, onMounted, ref } from 'vue'
   import XfAvatar from './XfAvatar.vue'
   import Live2dAvatar from './Live2dAvatar.vue'
-  import { fetchActiveDigitalHuman, type DigitalHumanConfig } from '@/api/digital-human'
+  import {
+    fetchActiveDigitalHuman,
+    type DigitalHumanConfig,
+    type DigitalHumanEngine
+  } from '@/api/digital-human'
 
   defineOptions({ name: 'DigitalHumanAvatar' })
+
+  const props = withDefaults(
+    defineProps<{
+      preferLocalFallback?: boolean
+      fallbackModelId?: string
+      engineOverride?: DigitalHumanEngine
+    }>(),
+    { preferLocalFallback: false, fallbackModelId: 'Kei' }
+  )
 
   const emit = defineEmits<{
     (e: 'ready', config: DigitalHumanConfig | null): void
@@ -54,26 +67,58 @@
 
   interface AvatarChild {
     speak: (text: string, emotion?: string) => Promise<boolean>
+    speakAudio?: (url: string) => Promise<boolean>
     enableAudio: () => void | Promise<void>
     interrupt: () => void | Promise<void>
+    pause?: () => void | Promise<void>
+    resume?: () => void | Promise<void>
+    getStatus?: () => 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
+    getSubtitle?: () => string
   }
 
   const config = ref<DigitalHumanConfig | null>(null)
   const loaded = ref(false)
   const childRef = ref<AvatarChild | null>(null)
+  const forceLocalFallback = ref(false)
 
-  const engine = computed(() => config.value?.engine || 'xfyun')
+  const engine = computed(() =>
+    forceLocalFallback.value ? 'live2d' : props.engineOverride || config.value?.engine || 'xfyun'
+  )
+  const effectiveConfig = computed<DigitalHumanConfig | null>(() => {
+    if (!forceLocalFallback.value) return config.value
+    return {
+      id: config.value?.id || 'map-local-fallback',
+      name: config.value?.name || 'Scenic guide',
+      engine: 'live2d',
+      avatarId: config.value?.avatarId || '',
+      vcn: config.value?.vcn || '',
+      modelId: props.fallbackModelId,
+      welcomeText: config.value?.welcomeText || '',
+      speechRate: config.value?.speechRate || 50,
+      emotionStyle: config.value?.emotionStyle || 'neutral',
+      serviceStatus: 'online',
+      enabled: true,
+      assetAvailable: true
+    }
+  })
 
   function onReady() {
     emit('ready', config.value)
   }
   function onError(message: string) {
+    if (props.preferLocalFallback && !forceLocalFallback.value) {
+      forceLocalFallback.value = true
+      return
+    }
     emit('error', message)
   }
 
   // ---- 转发给当前引擎 ----
   async function speak(text: string, emotion?: string): Promise<boolean> {
     return (await childRef.value?.speak(text, emotion)) ?? false
+  }
+  async function speakAudio(url: string): Promise<boolean> {
+    return (await childRef.value?.speakAudio?.(url)) ?? false
   }
   function enableAudio() {
     return childRef.value?.enableAudio()
@@ -82,7 +127,33 @@
     return childRef.value?.interrupt()
   }
 
-  defineExpose({ speak, enableAudio, interrupt, config })
+  function pause() {
+    return childRef.value?.pause?.() ?? childRef.value?.interrupt()
+  }
+
+  function resume() {
+    return childRef.value?.resume?.()
+  }
+
+  function getStatus() {
+    return childRef.value?.getStatus?.() || 'idle'
+  }
+
+  function getSubtitle() {
+    return childRef.value?.getSubtitle?.() || ''
+  }
+
+  defineExpose({
+    speak,
+    speakAudio,
+    enableAudio,
+    pause,
+    resume,
+    interrupt,
+    getStatus,
+    getSubtitle,
+    config
+  })
 
   onMounted(async () => {
     try {
@@ -90,6 +161,12 @@
     } catch {
       config.value = null
     } finally {
+      if (
+        props.preferLocalFallback &&
+        (!config.value || config.value.serviceStatus !== 'online' || !config.value.assetAvailable)
+      ) {
+        forceLocalFallback.value = true
+      }
       loaded.value = true
     }
   })
@@ -115,8 +192,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: rgb(255 255 255 / 80%);
     font-size: 13px;
+    color: rgb(255 255 255 / 80%);
   }
 
   .dh-spinner {

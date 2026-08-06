@@ -19,6 +19,7 @@ export default ({ mode }: { mode: string }) => {
   console.log(`🚀 VERSION = ${VITE_VERSION}`)
 
   return defineConfig({
+    envPrefix: ['VITE_', 'XFYUN_', 'DEFAULT_AVATAR_'],
     define: {
       __APP_VERSION__: JSON.stringify(VITE_VERSION)
     },
@@ -128,7 +129,7 @@ export default ({ mode }: { mode: string }) => {
         // sass variable and mixin
         scss: {
           additionalData: `
-            @use "@styles/core/el-light.scss" as *; 
+            @use "@styles/core/el-light.scss" as *;
             @use "@styles/core/mixin.scss" as *;
           `
         }
