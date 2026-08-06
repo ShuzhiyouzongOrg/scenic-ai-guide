@@ -42,6 +42,24 @@ export function normalizeAssistantText(value) {
     .trim();
 }
 
+function fallbackAssistantText({ mode, results, locale }) {
+  if (mode === "route" && results.length > 0) {
+    const routeContent = normalizeAssistantText(results[0].content);
+    if (routeContent) {
+      if (locale === "en") return `Here is a recommended scenic route:\n\n${routeContent}`;
+      if (locale === "ko") return `추천 관광 경로입니다.\n\n${routeContent}`;
+      if (locale === "ja") return `おすすめの観光ルートです。\n\n${routeContent}`;
+      if (locale === "zh-TW") return `為您推薦以下景區路線：\n\n${routeContent}`;
+      return `为您推荐以下景区路线：\n\n${routeContent}`;
+    }
+  }
+  if (locale === "en") return "The complete answer could not be generated. Please try again.";
+  if (locale === "ko") return "전체 답변을 생성하지 못했습니다. 다시 시도해 주세요.";
+  if (locale === "ja") return "完全な回答を生成できませんでした。もう一度お試しください。";
+  if (locale === "zh-TW") return "暫時未能生成完整回答，請再試一次。";
+  return "暂时未能生成完整回答，请再试一次。";
+}
+
 function knownSpotNames() {
   const knowledge = loadKnowledge();
   return (knowledge?.spots || []).flatMap((spot) => spot.aliases || [spot.name]);
@@ -202,21 +220,27 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
   // AI2-12: fast path for cached high-frequency questions.
   const cached = getCachedAnswer(cacheQuestion, mode);
   if (cached) {
-    if (sessionId) {
-      appendMessage(sessionId, { role: "user", content: trimmed, emotionLabel: emotion });
-      appendMessage(sessionId, {
-        role: "assistant",
-        content: cached.answer,
-        intentLabel: cached.label,
-        emotionLabel: cached.emotion,
-        latencyMs: nowMs() - started
-      });
+    const normalizedCachedAnswer = normalizeAssistantText(cached.answer);
+    if (!normalizedCachedAnswer) {
+      // Ignore an incompatible legacy cache entry and regenerate the answer.
+    } else {
+      const normalizedCached = { ...cached, answer: normalizedCachedAnswer };
+      if (sessionId) {
+        appendMessage(sessionId, { role: "user", content: trimmed, emotionLabel: emotion });
+        appendMessage(sessionId, {
+          role: "assistant",
+          content: normalizedCached.answer,
+          intentLabel: normalizedCached.label,
+          emotionLabel: normalizedCached.emotion,
+          latencyMs: nowMs() - started
+        });
+      }
+      return {
+        ...normalizedCached,
+        cached: true,
+        latency: { totalMs: nowMs() - started, retrievalMs: 0, llmMs: 0, cached: true }
+      };
     }
-    return {
-      ...cached,
-      cached: true,
-      latency: { totalMs: nowMs() - started, retrievalMs: 0, llmMs: 0, cached: true }
-    };
   }
 
   // AI2-07: re-anchor pronoun follow-ups to the last discussed spot.
@@ -266,14 +290,32 @@ export async function answerQuestion({ question, sessionId = "", mode: explicitM
   const messages = buildMessages({ mode, question: trimmed, results, history, locale: responseLocale });
 
   const llmStart = nowMs();
-  const completion = await llmComplete({
+  let completion = await llmComplete({
     messages,
     meta,
     maxTokens: maxTokensForMode(mode),
     signal
   });
+  let answerText = normalizeAssistantText(completion.text);
+  if (!answerText) {
+    completion = await llmComplete({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: "请重新完整回答。只输出纯文本，不要使用 Markdown，不要省略路线节点。"
+        }
+      ],
+      meta,
+      maxTokens: maxTokensForMode(mode),
+      signal
+    });
+    answerText = normalizeAssistantText(completion.text);
+  }
   const llmMs = nowMs() - llmStart;
-  const answerText = normalizeAssistantText(completion.text);
+  if (!answerText) {
+    answerText = fallbackAssistantText({ mode, results, locale: responseLocale });
+  }
 
   const label = qualityLabel({ scenario, mode, emotion });
   const emotionLabel = emotionTag({ scenario, label, emotion });
