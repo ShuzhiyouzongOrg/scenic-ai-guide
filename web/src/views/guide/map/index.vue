@@ -81,7 +81,6 @@
   const narrationProgress = ref(0)
   const panoramaMapState = ref<{ center: GuideCoordinate; zoom: number }>()
   const beforePanoramaAvatarState = ref<AvatarDisplayState>('idle')
-  const footprintIds = ref<string[]>(readStringList('map-guide:footprints:v1'))
   const userInteractedAt = ref(0)
   let subtitleTimer: number | undefined
   let subtitleElapsedMs = 0
@@ -145,17 +144,6 @@
         selectedSpot.value?.narration?.sourceAssetUrl || selectedSpot.value?.narration?.audioUrl
       )
   )
-
-  function readStringList(key: string): string[] {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(key) || '[]')
-      return Array.isArray(parsed)
-        ? parsed.filter((item): item is string => typeof item === 'string')
-        : []
-    } catch {
-      return []
-    }
-  }
 
   function splitNarration(text: string, emotion: NarrationEmotion = 'neutral'): NarrationSegment[] {
     const sentences = text.match(/[^。！？!?]+[。！？!?]?/g) || [text]
@@ -344,13 +332,6 @@
     persistPageState()
   }
 
-  function toggleFootprint(spot: ScenicSpot) {
-    footprintIds.value = footprintIds.value.includes(spot.id)
-      ? footprintIds.value.filter((id) => id !== spot.id)
-      : [...footprintIds.value, spot.id]
-    localStorage.setItem('map-guide:footprints:v1', JSON.stringify(footprintIds.value))
-  }
-
   function openExternalNavigation(spot: ScenicSpot) {
     const coordinate = transformCoordinate(
       {
@@ -432,7 +413,6 @@
       center: view?.center,
       zoom: view?.zoom,
       selectedSpotId: selectedSpotId.value,
-      footprintSpotIds: footprintIds.value,
       favoriteRouteIds: [],
       layerMode: handDrawnVisible.value ? 'hand-drawn' : 'base'
     }
@@ -447,7 +427,6 @@
       if (!state || state.version !== 1) return
       selectedSpotId.value = state.selectedSpotId
       handDrawnVisible.value = state.layerMode !== 'base'
-      footprintIds.value = state.footprintSpotIds || []
       routeState.selectedRouteId.value = undefined
       routePlayback.clear()
       if (state.center && state.zoom !== undefined) {
@@ -601,7 +580,6 @@
           <ScenicSpotCard
             v-if="selectedSpot && spotCardVisible"
             :spot="selectedSpot"
-            :footprinted="footprintIds.includes(selectedSpot.id)"
             :panorama-available="bootstrap.panoramas.length > 0"
             :original-audio-available="originalAudioAvailable"
             @close="selectedSpotId = undefined"
@@ -609,7 +587,6 @@
             @narrate-original="startOriginalNarration"
             @panorama="openPanorama"
             @navigate="openExternalNavigation"
-            @footprint="toggleFootprint"
           />
           <RouteDrawer
             :open="routeDrawerOpen"
