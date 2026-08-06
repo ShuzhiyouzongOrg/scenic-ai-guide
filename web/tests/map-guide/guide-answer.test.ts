@@ -12,9 +12,7 @@ test('guide answers remove Markdown syntax without rendering HTML', () => {
 
   assert.equal(
     formatGuideAnswer(answer),
-    ['推荐路线', '1. 南门入园：从正门进入。', '• 参观 灵山大佛', '请按现场指引游览'].join(
-      '\n'
-    )
+    ['推荐路线', '1. 南门入园：从正门进入。', '• 参观 灵山大佛', '请按现场指引游览'].join('\n')
   )
 })
 
