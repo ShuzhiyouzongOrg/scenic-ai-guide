@@ -770,6 +770,10 @@
     .map-guide-workspace.narration-open {
       display: block;
     }
+
+    .map-guide-stage {
+      height: 100%;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
