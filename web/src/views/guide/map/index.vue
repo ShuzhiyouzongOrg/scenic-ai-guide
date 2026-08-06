@@ -34,7 +34,9 @@
     ScenicSpot
   } from '@/types/map-guide'
   import { transformCoordinate } from '@/utils/map-guide/coordinate'
+  import { resolvePanoramaForTarget } from '@/utils/map-guide/panorama'
   import { resolveRouteNodeCoordinate } from '@/utils/map-guide/route-geometry'
+  import { matchSpot } from '@/utils/map-guide/spot-mapping'
 
   defineOptions({ name: 'GuideMap' })
 
@@ -71,6 +73,7 @@
   const handDrawnVisible = ref(true)
   const panoramaOpen = ref(false)
   const activePanorama = ref<PanoramaRecord>()
+  const activePanoramaSpot = ref<ScenicSpot>()
   const avatarDisplayState = ref<AvatarDisplayState>('idle')
   const avatarReady = ref(false)
   const avatarFailed = ref(false)
@@ -345,12 +348,24 @@
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
-  function openPanorama() {
-    const panorama = bootstrap.value?.panoramas[0]
+  function openPanorama(target?: ScenicSpot | GuideRouteNode) {
+    const allSpots = bootstrap.value?.spots || []
+    const spot = target
+      ? 'media' in target
+        ? target
+        : matchSpot({ id: target.sourcePointId || target.spotId, name: target.name }, allSpots).spot
+      : undefined
+    const panorama = resolvePanoramaForTarget(bootstrap.value?.panoramas || [], {
+      spotId: spot?.id || (target && 'spotId' in target ? target.spotId : undefined),
+      name: spot?.name || target?.name,
+      panoramaIds: spot?.panoramaIds,
+      vrUrl: target && 'vrUrl' in target ? target.vrUrl : undefined
+    })
     if (!panorama) return
     panoramaMapState.value = mapRef.value?.getViewState()
     beforePanoramaAvatarState.value = avatarDisplayState.value
     activePanorama.value = panorama
+    activePanoramaSpot.value = spot
     panoramaOpen.value = true
     if (avatarDisplayState.value !== 'idle') avatarDisplayState.value = 'compact'
   }
@@ -361,7 +376,16 @@
     void nextTick(() => {
       mapRef.value?.invalidateSize()
       mapRef.value?.restoreView(panoramaMapState.value)
+      activePanoramaSpot.value = undefined
     })
+  }
+
+  function startPanoramaNarration() {
+    if (activePanoramaSpot.value) {
+      void startSpotNarration(activePanoramaSpot.value)
+      return
+    }
+    startWelcomeNarration()
   }
 
   function onUserInteraction() {
@@ -618,7 +642,7 @@
             :panorama="selectedPanorama"
             :open="panoramaOpen"
             @close="closePanorama"
-            @narrate="selectedSpot ? startSpotNarration(selectedSpot) : startWelcomeNarration()"
+            @narrate="startPanoramaNarration"
           />
         </template>
       </main>
