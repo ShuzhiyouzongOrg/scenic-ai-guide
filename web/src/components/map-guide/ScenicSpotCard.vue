@@ -61,7 +61,7 @@
     min-height: 142px;
     overflow: hidden;
     color: #324942;
-    background: rgb(255 255 251 / 97%);
+    background: rgb(255 255 251 / 80%);
     border: 1px solid rgb(57 92 82 / 16%);
     border-radius: 15px;
     box-shadow: 0 12px 30px rgb(28 49 42 / 18%);
