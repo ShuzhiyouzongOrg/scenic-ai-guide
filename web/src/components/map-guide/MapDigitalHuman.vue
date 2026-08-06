@@ -168,7 +168,9 @@
   }
 
   .state-idle .map-digital-human__engine :deep(.dh-badge),
-  .state-compact .map-digital-human__engine :deep(.dh-badge) {
+  .state-compact .map-digital-human__engine :deep(.dh-badge),
+  .state-idle .map-digital-human__engine :deep(.dh-audio-mask),
+  .state-compact .map-digital-human__engine :deep(.dh-audio-mask) {
     display: none;
   }
 
