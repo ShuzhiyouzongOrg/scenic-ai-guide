@@ -1,0 +1,65 @@
+[
+  {
+    "routeId": "nianhuawan-official-81",
+    "routeName": "经典线路",
+    "nodeCount": 3,
+    "authoredPathVertexCount": 18,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 3,
+    "manualReviewNodeCount": 0
+  },
+  {
+    "routeId": "nianhuawan-official-84",
+    "routeName": "拈花水游",
+    "nodeCount": 5,
+    "authoredPathVertexCount": 32,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 5,
+    "manualReviewNodeCount": 0
+  },
+  {
+    "routeId": "nianhuawan-official-85",
+    "routeName": "拈花华服游",
+    "nodeCount": 4,
+    "authoredPathVertexCount": 21,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 4,
+    "manualReviewNodeCount": 0
+  },
+  {
+    "routeId": "nianhuawan-official-86",
+    "routeName": "拈花禅游",
+    "nodeCount": 6,
+    "authoredPathVertexCount": 19,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 6,
+    "manualReviewNodeCount": 0
+  },
+  {
+    "routeId": "nianhuawan-official-101",
+    "routeName": "鹿鸣谷线路",
+    "nodeCount": 4,
+    "authoredPathVertexCount": 11,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 4,
+    "manualReviewNodeCount": 0
+  },
+  {
+    "routeId": "nianhuawan-official-102",
+    "routeName": "国风之旅",
+    "nodeCount": 8,
+    "authoredPathVertexCount": 26,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 8,
+    "manualReviewNodeCount": 0
+  },
+  {
+    "routeId": "nianhuawan-official-103",
+    "routeName": "不慌不忙 好好生活",
+    "nodeCount": 10,
+    "authoredPathVertexCount": 58,
+    "geometryKind": "official-path",
+    "matchedNodeCount": 10,
+    "manualReviewNodeCount": 0
+  }
+]

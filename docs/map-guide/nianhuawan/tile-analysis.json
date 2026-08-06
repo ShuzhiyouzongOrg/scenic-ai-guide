@@ -1,0 +1,29 @@
+{
+  "order": "row-major; rows north-to-south; columns west-to-east",
+  "flipRequired": false,
+  "rotationDegrees": 0,
+  "rows": 4,
+  "columns": 4,
+  "tileWidths": [
+    1771
+  ],
+  "tileHeights": [
+    2048
+  ],
+  "totalSizeBytes": 11208770,
+  "bounds": {
+    "southwest": {
+      "latitude": 31.407641,
+      "longitude": 120.063915,
+      "coordinateSystem": "GCJ02"
+    },
+    "northeast": {
+      "latitude": 31.431446,
+      "longitude": 120.088033,
+      "coordinateSystem": "GCJ02"
+    }
+  },
+  "seamStrategy": "Shared geographic edges plus the existing 1.2px DOM seam buffer; no CSS sharpening.",
+  "maxZoom": 19,
+  "upgradeRecommendation": "Generate a true multiresolution XYZ pyramid or source-authored @2x tiles before enabling zoom levels above the source maximum."
+}

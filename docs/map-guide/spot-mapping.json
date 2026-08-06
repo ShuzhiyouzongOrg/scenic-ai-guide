@@ -1,0 +1,363 @@
+[
+  {
+    "sourcePointId": "972",
+    "sourcePointName": "七佛通偈",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "639",
+    "sourcePointName": "阿育王柱",
+    "targetSpotId": "LS-008",
+    "targetSpotName": "阿育王柱",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "747",
+    "sourcePointName": "降魔浮雕",
+    "targetSpotId": "LS-007",
+    "targetSpotName": "降魔浮雕",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "1111",
+    "sourcePointName": "照心林",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "627",
+    "sourcePointName": "九龙灌浴",
+    "targetSpotId": "LS-006",
+    "targetSpotName": "九龙灌浴",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "640",
+    "sourcePointName": "百子戏弥勒",
+    "targetSpotId": "LS-009",
+    "targetSpotName": "百子戏弥勒",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "643",
+    "sourcePointName": "天下第一掌",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "976",
+    "sourcePointName": "滴水观音",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "977",
+    "sourcePointName": "青史永表",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "748",
+    "sourcePointName": "祥符禅寺",
+    "targetSpotId": "LS-010",
+    "targetSpotName": "祥符禅寺",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "973",
+    "sourcePointName": "钟楼",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "975",
+    "sourcePointName": "鼓楼",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "1110",
+    "sourcePointName": "十方林",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "980",
+    "sourcePointName": "观音殿",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "979",
+    "sourcePointName": "地藏殿",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "961",
+    "sourcePointName": "灵山梵宫",
+    "targetSpotId": "LS-013",
+    "targetSpotName": "灵山梵宫",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "1115",
+    "sourcePointName": "大雄宝殿",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "756",
+    "sourcePointName": "梵宫广场",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "746",
+    "sourcePointName": "菩提大道",
+    "targetSpotId": "LS-005",
+    "targetSpotName": "菩提大道",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "647",
+    "sourcePointName": "转经廊",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "959",
+    "sourcePointName": "珍宝馆",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "757",
+    "sourcePointName": "三圣殿",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "749",
+    "sourcePointName": "杏坛广场",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "956",
+    "sourcePointName": "五印坛城",
+    "targetSpotId": "LS-014",
+    "targetSpotName": "五印坛城",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "645",
+    "sourcePointName": "五智门",
+    "targetSpotId": "LS-004",
+    "targetSpotName": "五智门",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "760",
+    "sourcePointName": "八角井",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "761",
+    "sourcePointName": "六角井",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "974",
+    "sourcePointName": "佛学图书馆",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "957",
+    "sourcePointName": "无尽意斋",
+    "targetSpotId": "LS-016",
+    "targetSpotName": "无尽意斋",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "759",
+    "sourcePointName": "香积厨",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "642",
+    "sourcePointName": "佛足坛",
+    "targetSpotId": "LS-003",
+    "targetSpotName": "佛足坛",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "646",
+    "sourcePointName": "洗心池",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "745",
+    "sourcePointName": "胜境门楼",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "758",
+    "sourcePointName": "灵山假日广场",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "648",
+    "sourcePointName": "曼飞龙塔",
+    "targetSpotId": "LS-015",
+    "targetSpotName": "曼飞龙塔",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "978",
+    "sourcePointName": "佛前半亩茶",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "960",
+    "sourcePointName": "佛教文化博览馆",
+    "targetSpotId": "LS-012",
+    "targetSpotName": "佛教文化博览馆",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "644",
+    "sourcePointName": "五明桥",
+    "targetSpotId": "LS-002",
+    "targetSpotName": "五明桥",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "753",
+    "sourcePointName": "万佛殿",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "752",
+    "sourcePointName": "随喜堂",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "630",
+    "sourcePointName": "灵山大佛",
+    "targetSpotId": "LS-011",
+    "targetSpotName": "灵山大佛",
+    "matchMethod": "exact-name",
+    "confidence": 0.99,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "641",
+    "sourcePointName": "大照壁",
+    "targetSpotId": "LS-001",
+    "targetSpotName": "灵山大照壁",
+    "matchMethod": "alias",
+    "confidence": 0.96,
+    "manualReview": false
+  },
+  {
+    "sourcePointId": "971",
+    "sourcePointName": "三叠泉",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "1000",
+    "sourcePointName": "涅槃堂",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "999",
+    "sourcePointName": "六十米平台",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "633",
+    "sourcePointName": "灵山博物馆——灵山梵宫",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  },
+  {
+    "sourcePointId": "962",
+    "sourcePointName": "灵山博物馆——五印坛城",
+    "matchMethod": "unmatched",
+    "confidence": 0,
+    "manualReview": true
+  }
+]

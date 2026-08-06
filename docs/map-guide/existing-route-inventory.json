@@ -1,0 +1,153 @@
+[
+  {
+    "routeId": "quick_30",
+    "routeName": "30分钟核心打卡路线",
+    "source": "curated",
+    "nodeCount": 4,
+    "nodeNames": [
+      "南门入园",
+      "灵山大照壁",
+      "九龙灌浴",
+      "出口"
+    ],
+    "durationMinutes": 45,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  },
+  {
+    "routeId": "one_hour_core",
+    "routeName": "1小时速览路线",
+    "source": "curated",
+    "nodeCount": 6,
+    "nodeNames": [
+      "南门入园",
+      "灵山大照壁",
+      "五智门",
+      "九龙灌浴",
+      "灵山大佛",
+      "出口"
+    ],
+    "durationMinutes": 98,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  },
+  {
+    "routeId": "classic_150",
+    "routeName": "2-3小时经典路线",
+    "source": "curated",
+    "nodeCount": 9,
+    "nodeNames": [
+      "南门入园",
+      "灵山大照壁",
+      "五明桥",
+      "菩提大道",
+      "九龙灌浴",
+      "祥符禅寺",
+      "灵山大佛",
+      "灵山梵宫",
+      "出口"
+    ],
+    "durationMinutes": 185,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  },
+  {
+    "routeId": "culture_half_day",
+    "routeName": "半日深度文化路线",
+    "source": "curated",
+    "nodeCount": 9,
+    "nodeNames": [
+      "南门入园",
+      "灵山大照壁",
+      "祥符禅寺",
+      "佛教文化博览馆",
+      "灵山大佛",
+      "灵山梵宫",
+      "五印坛城",
+      "无尽意斋",
+      "出口"
+    ],
+    "durationMinutes": 210,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  },
+  {
+    "routeId": "family_light",
+    "routeName": "亲子轻松路线",
+    "source": "curated",
+    "nodeCount": 6,
+    "nodeNames": [
+      "南门入园",
+      "九龙灌浴",
+      "百子戏弥勒",
+      "灵山梵宫",
+      "五印坛城",
+      "出口"
+    ],
+    "durationMinutes": 117,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  },
+  {
+    "routeId": "buddhist_culture",
+    "routeName": "佛教文化深度路线",
+    "source": "curated",
+    "nodeCount": 9,
+    "nodeNames": [
+      "南门入园",
+      "佛足坛",
+      "五智门",
+      "祥符禅寺",
+      "灵山大佛",
+      "佛教文化博览馆",
+      "五印坛城",
+      "曼飞龙塔",
+      "出口"
+    ],
+    "durationMinutes": 168,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  },
+  {
+    "routeId": "photo_checkin",
+    "routeName": "拍照打卡路线",
+    "source": "curated",
+    "nodeCount": 10,
+    "nodeNames": [
+      "南门入园",
+      "灵山大照壁",
+      "五智门",
+      "九龙灌浴",
+      "阿育王柱",
+      "灵山大佛",
+      "灵山梵宫",
+      "五印坛城",
+      "曼飞龙塔",
+      "出口"
+    ],
+    "durationMinutes": 191,
+    "existingNarration": true,
+    "hasCoordinates": false,
+    "hasPanorama": false,
+    "duplicateOfficialRouteId": null,
+    "recommendation": "retain"
+  }
+]

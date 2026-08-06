@@ -1,0 +1,65 @@
+{
+  "order": "row-major; rows north-to-south; columns west-to-east",
+  "flipRequired": false,
+  "rotationDegrees": 30,
+  "displayLogic": "Match the source WeChat map rotate property; rotate the complete mosaic and every point once in Web Mercator space.",
+  "dragConstraint": "The Web map uses the rotated scenic bounds as maxBounds and hides the ordinary base map unless the artwork fails or the user selects fallback mode.",
+  "rows": 4,
+  "columns": 4,
+  "tilePixels": {
+    "width": 2559,
+    "height": 2362
+  },
+  "mosaicPixels": {
+    "width": 10236,
+    "height": 9448
+  },
+  "totalSizeBytes": 4772720,
+  "bounds": {
+    "southwest": {
+      "latitude": 31.418236,
+      "longitude": 120.089882,
+      "coordinateSystem": "GCJ02"
+    },
+    "northeast": {
+      "latitude": 31.433837,
+      "longitude": 120.109759,
+      "coordinateSystem": "GCJ02"
+    }
+  },
+  "latitudeStep": 0.00390025,
+  "longitudeStep": 0.00496925,
+  "zoom19": {
+    "cssMosaicPixels": {
+      "width": 7410.68,
+      "height": 6816.34
+    },
+    "nativeScaleDpr1": 0.72398,
+    "nativeScaleDpr2": 1.44796,
+    "acceptance": "pass; keep maxZoom at 19"
+  },
+  "viewportFitScale": [
+    {
+      "viewport": "1920x1080",
+      "dpr": 1,
+      "nativeScale": 0.1143
+    },
+    {
+      "viewport": "1920x1080",
+      "dpr": 2,
+      "nativeScale": 0.2286
+    },
+    {
+      "viewport": "1366x768",
+      "dpr": 1,
+      "nativeScale": 0.0813
+    },
+    {
+      "viewport": "768x1024",
+      "dpr": 2,
+      "nativeScale": 0.1501
+    }
+  ],
+  "seamAudit": "Quarter-scale mosaic inspection found no visible order, flip, overlap, or alignment defects; DOM overlays use a one-pixel seam buffer.",
+  "futureUpgrade": "For zoom 20+, generate a real multiresolution XYZ pyramid or true @2x exports from source artwork."
+}

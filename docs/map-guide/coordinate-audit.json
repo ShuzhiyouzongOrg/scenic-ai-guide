@@ -1,0 +1,138 @@
+{
+  "detectedCoordinateSystem": "GCJ02",
+  "evidence": [
+    "来源小程序定位请求显式指定 gcj02",
+    "来源步行路线使用腾讯地图坐标体系",
+    "三个核心锚点转换到 WGS84 后与 OSM/Wikidata 误差小于 20 米"
+  ],
+  "conversionPolicy": "保留原始 GCJ02，仅在 Leaflet/OSM 渲染边界统一转换一次到 WGS84。",
+  "anchors": [
+    {
+      "id": "627",
+      "name": "九龙灌浴",
+      "source": {
+        "latitude": 31.42486928773325,
+        "longitude": 120.10011434555054,
+        "coordinateSystem": "GCJ02"
+      },
+      "converted": {
+        "latitude": 31.426653860488404,
+        "longitude": 120.09520053306562,
+        "coordinateSystem": "WGS84"
+      },
+      "reference": {
+        "latitude": 31.42662,
+        "longitude": 120.09524,
+        "coordinateSystem": "WGS84"
+      },
+      "errorMeters": 5.31,
+      "status": "verified",
+      "note": "OpenStreetMap/Mapcarta anchor"
+    },
+    {
+      "id": "956",
+      "name": "五印坛城",
+      "source": {
+        "latitude": 31.424786891082086,
+        "longitude": 120.10302722454071,
+        "coordinateSystem": "GCJ02"
+      },
+      "converted": {
+        "latitude": 31.426571273439006,
+        "longitude": 120.09811574936327,
+        "coordinateSystem": "WGS84"
+      },
+      "reference": {
+        "latitude": 31.42664,
+        "longitude": 120.09813,
+        "coordinateSystem": "WGS84"
+      },
+      "errorMeters": 7.76,
+      "status": "verified",
+      "note": "OpenStreetMap/Mapcarta anchor"
+    },
+    {
+      "id": "630",
+      "name": "灵山大佛",
+      "source": {
+        "latitude": 31.430293575004736,
+        "longitude": 120.09638607501984,
+        "coordinateSystem": "GCJ02"
+      },
+      "converted": {
+        "latitude": 31.432077664666608,
+        "longitude": 120.09146943293919,
+        "coordinateSystem": "WGS84"
+      },
+      "reference": {
+        "latitude": 31.43205,
+        "longitude": 120.09151,
+        "coordinateSystem": "WGS84"
+      },
+      "errorMeters": 4.93,
+      "status": "verified",
+      "note": "OpenStreetMap/Wikidata anchor"
+    },
+    {
+      "id": "748",
+      "name": "祥符禅寺",
+      "source": {
+        "latitude": 31.427533407174707,
+        "longitude": 120.09830117225647,
+        "coordinateSystem": "GCJ02"
+      },
+      "converted": {
+        "latitude": 31.429317656651115,
+        "longitude": 120.09338589169577,
+        "coordinateSystem": "WGS84"
+      },
+      "reference": {
+        "latitude": 31.42986,
+        "longitude": 120.09309,
+        "coordinateSystem": "WGS84"
+      },
+      "errorMeters": 66.52,
+      "status": "manual-review",
+      "note": "Building centroid; source point may be an entrance"
+    },
+    {
+      "id": "961",
+      "name": "灵山梵宫",
+      "source": {
+        "latitude": 31.427920049174553,
+        "longitude": 120.10190606117249,
+        "coordinateSystem": "GCJ02"
+      },
+      "converted": {
+        "latitude": 31.429703711163047,
+        "longitude": 120.09699335875416,
+        "coordinateSystem": "WGS84"
+      },
+      "reference": {
+        "latitude": 31.43065,
+        "longitude": 120.09756,
+        "coordinateSystem": "WGS84"
+      },
+      "errorMeters": 118.16,
+      "status": "manual-review",
+      "note": "Building centroid; source point may be an entrance"
+    },
+    {
+      "id": "806",
+      "name": "游客中心（配置与点位差异）",
+      "source": {
+        "latitude": 31.420378564768065,
+        "longitude": 120.10361731052399,
+        "coordinateSystem": "GCJ02"
+      },
+      "reference": {
+        "latitude": 31.42189,
+        "longitude": 120.10072,
+        "coordinateSystem": "GCJ02"
+      },
+      "errorMeters": 322.22,
+      "status": "manual-review",
+      "note": "来源 map.visitorCenter 与来源点位坐标不一致，均保留待景区确认。"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "sourceCoordinateSystem": "GCJ02",
+  "targetCoordinateSystem": "GCJ02",
+  "conversionApplied": false,
+  "evidence": [
+    "Source mini-program uses Tencent walking directions and Chinese web-map coordinates.",
+    "No coordinate conversion is applied; a second conversion would introduce drift."
+  ],
+  "scenicBounds": {
+    "southwest": {
+      "latitude": 31.407641,
+      "longitude": 120.063915
+    },
+    "northeast": {
+      "latitude": 31.431446,
+      "longitude": 120.088033
+    }
+  },
+  "anchors": [
+    {
+      "name": "游客中心",
+      "sourcePointId": "527",
+      "original": {
+        "latitude": 31.41371212246866,
+        "longitude": 120.0723534822464
+      },
+      "converted": {
+        "latitude": 31.41371212246866,
+        "longitude": 120.0723534822464
+      },
+      "status": "manual-map-verification-required"
+    },
+    {
+      "name": "景区入口",
+      "sourcePointId": "201",
+      "original": {
+        "latitude": 31.4136,
+        "longitude": 120.0726
+      },
+      "converted": {
+        "latitude": 31.4136,
+        "longitude": 120.0726
+      },
+      "status": "manual-map-verification-required"
+    },
+    {
+      "name": "拈花塔",
+      "sourcePointId": "169",
+      "original": {
+        "latitude": 31.4172,
+        "longitude": 120.0737
+      },
+      "converted": {
+        "latitude": 31.4172,
+        "longitude": 120.0737
+      },
+      "status": "manual-map-verification-required"
+    },
+    {
+      "name": "五灯湖广场",
+      "sourcePointId": "175",
+      "original": {
+        "latitude": 31.4185,
+        "longitude": 120.0755
+      },
+      "converted": {
+        "latitude": 31.4185,
+        "longitude": 120.0755
+      },
+      "status": "manual-map-verification-required"
+    },
+    {
+      "name": "微笑广场",
+      "sourcePointId": "162",
+      "original": {
+        "latitude": 31.422,
+        "longitude": 120.077
+      },
+      "converted": {
+        "latitude": 31.422,
+        "longitude": 120.077
+      },
+      "status": "manual-map-verification-required"
+    }
+  ]
+}
