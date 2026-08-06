@@ -1,0 +1,102 @@
+[
+    {
+        "code":  "36",
+        "name":  "景点",
+        "short":  "景",
+        "color":  "#F6AB00",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835009660026882.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556834869561884673.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556834869561884673.png",
+        "common":  true
+    },
+    {
+        "code":  "65",
+        "name":  "打卡优选",
+        "short":  "打",
+        "color":  "#8DCB76",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/12/1873647162765582337.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636302675368689665.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636302697728524290.png",
+        "common":  false
+    },
+    {
+        "code":  "37",
+        "name":  "交通",
+        "short":  "交",
+        "color":  "#78CB8A",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835400653045762.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835438464696322.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835438464696322.png",
+        "common":  true
+    },
+    {
+        "code":  "55",
+        "name":  "餐饮",
+        "short":  "餐",
+        "color":  "#F0A34B",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835585189838850.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835549320151042.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835549320151042.png",
+        "common":  true
+    },
+    {
+        "code":  "41",
+        "name":  "卫生间",
+        "short":  "卫",
+        "color":  "#EE9689",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835890996543490.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835931320582146.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835931320582146.png",
+        "common":  true
+    },
+    {
+        "code":  "44",
+        "name":  "住宿",
+        "short":  "住",
+        "color":  "#77A4C8",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837521293148162.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837550443560962.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837550443560962.png",
+        "common":  false
+    },
+    {
+        "code":  "46",
+        "name":  "商铺",
+        "short":  "商",
+        "color":  "#B38AC5",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837302660857858.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837340044689409.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837340044689409.png",
+        "common":  false
+    },
+    {
+        "code":  "47",
+        "name":  "售票处",
+        "short":  "售",
+        "color":  "#75B9AC",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837421917503490.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837382897893377.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837382897893377.png",
+        "common":  false
+    },
+    {
+        "code":  "48",
+        "name":  "停车场",
+        "short":  "停",
+        "color":  "#F6AB00",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837207244636162.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837161581248513.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837161581248513.png",
+        "common":  true
+    },
+    {
+        "code":  "53",
+        "name":  "游客服务中心",
+        "short":  "游",
+        "color":  "#8DCB76",
+        "markerIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837057998716929.png",
+        "checkedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837098679271426.png",
+        "uncheckedIcon":  "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837098679271426.png",
+        "common":  false
+    }
+]

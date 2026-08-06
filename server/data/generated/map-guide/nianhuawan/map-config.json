@@ -1,0 +1,406 @@
+{
+  "center": {
+    "latitude": 31.417917,
+    "longitude": 120.076796,
+    "coordinateSystem": "GCJ02"
+  },
+  "visitorCenter": {
+    "latitude": 31.41388,
+    "longitude": 120.07297,
+    "coordinateSystem": "GCJ02"
+  },
+  "rotationDegrees": 0,
+  "minZoom": 15,
+  "maxZoom": 19,
+  "highDpiMaxZoom": 18,
+  "initialZoom": 15,
+  "tileLayer": {
+    "enabled": true,
+    "rows": 4,
+    "columns": 4,
+    "concurrency": 4,
+    "retries": 2,
+    "bounds": {
+      "southwest": {
+        "latitude": 31.407641,
+        "longitude": 120.063915,
+        "coordinateSystem": "GCJ02"
+      },
+      "northeast": {
+        "latitude": 31.431446,
+        "longitude": 120.088033,
+        "coordinateSystem": "GCJ02"
+      }
+    },
+    "tiles": [
+      {
+        "id": "01",
+        "index": 0,
+        "row": 0,
+        "column": 0,
+        "url": "/map-guide/areas/nianhuawan/tiles/01.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 201625,
+        "sha256": "cc7a876f8240384fdabf4c9859aa12a6cd893f382d5ff0fb993c79f36a4dd8b9",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.063915,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.431446,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "02",
+        "index": 1,
+        "row": 0,
+        "column": 1,
+        "url": "/map-guide/areas/nianhuawan/tiles/02.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 623706,
+        "sha256": "7ad784483c4cd1722288abf6414132563fd2fd7d9011cbfca151356c06c3f4c8",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.431446,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "03",
+        "index": 2,
+        "row": 0,
+        "column": 2,
+        "url": "/map-guide/areas/nianhuawan/tiles/03.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 1282498,
+        "sha256": "87bd60b6d60bffbfd3923d0dd538b622f0dfabf0c6e04b33f7b443a046073d1e",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.431446,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "04",
+        "index": 3,
+        "row": 0,
+        "column": 3,
+        "url": "/map-guide/areas/nianhuawan/tiles/04.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 569945,
+        "sha256": "e758cfca9b9118fb31e459b139df7558635b7ac400cf2c499af3873cf1ed73d5",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.431446,
+            "longitude": 120.088033,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "05",
+        "index": 4,
+        "row": 1,
+        "column": 0,
+        "url": "/map-guide/areas/nianhuawan/tiles/05.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 397762,
+        "sha256": "56a9777fb58d137ca3ef8954ae473464c8f0c0e69227a03fc3946ea862dc579f",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.063915,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "06",
+        "index": 5,
+        "row": 1,
+        "column": 1,
+        "url": "/map-guide/areas/nianhuawan/tiles/06.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 1190417,
+        "sha256": "4257d2e184ab5d65961062852eec8736103794377c79452430791061dcd54ad1",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "07",
+        "index": 6,
+        "row": 1,
+        "column": 2,
+        "url": "/map-guide/areas/nianhuawan/tiles/07.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 1612513,
+        "sha256": "23870650378aa76a9489b33fffab3ab857dff0f572d3e761baec4fdd7d48631f",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "08",
+        "index": 7,
+        "row": 1,
+        "column": 3,
+        "url": "/map-guide/areas/nianhuawan/tiles/08.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 369585,
+        "sha256": "268cadaa41e8d4d9042593bb228a519756de7bf16cf5365b730162bf88036a92",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.425494750000002,
+            "longitude": 120.088033,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "09",
+        "index": 8,
+        "row": 2,
+        "column": 0,
+        "url": "/map-guide/areas/nianhuawan/tiles/09.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 850386,
+        "sha256": "47e22c1f9a065c126dd2c6116ad03ef329f623115fc2378c6f4504b615416d39",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.41359225,
+            "longitude": 120.063915,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "10",
+        "index": 9,
+        "row": 2,
+        "column": 1,
+        "url": "/map-guide/areas/nianhuawan/tiles/10.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 1659083,
+        "sha256": "c38042163dab6732f52299464dd6e35ca91d976758d299f84619c77dd9507e16",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.41359225,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "11",
+        "index": 10,
+        "row": 2,
+        "column": 2,
+        "url": "/map-guide/areas/nianhuawan/tiles/11.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 1255019,
+        "sha256": "8b5279de0c6e470b4698ee536addeee6dddc5bb4073bc8b20da57fcd80d0752c",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.41359225,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "12",
+        "index": 11,
+        "row": 2,
+        "column": 3,
+        "url": "/map-guide/areas/nianhuawan/tiles/12.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 84667,
+        "sha256": "56aa9bfac7ce84f50db4f69c6979740a3493b674f9d7f95b9dd7f81128fe4468",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.41359225,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.419543500000003,
+            "longitude": 120.088033,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "13",
+        "index": 12,
+        "row": 3,
+        "column": 0,
+        "url": "/map-guide/areas/nianhuawan/tiles/13.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 135827,
+        "sha256": "20bf6d028465efe2e2a4c7c21729618e3e8a8c7b3cca25c462f6600c8ebd4d84",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.407641,
+            "longitude": 120.063915,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.41359225,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "14",
+        "index": 13,
+        "row": 3,
+        "column": 1,
+        "url": "/map-guide/areas/nianhuawan/tiles/14.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 786379,
+        "sha256": "77a1ff5a567308eab4d475607e6323ba296dfc8244bb8a6ef8b3aeac41e2bb86",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.407641,
+            "longitude": 120.06994449999999,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.41359225,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "15",
+        "index": 14,
+        "row": 3,
+        "column": 2,
+        "url": "/map-guide/areas/nianhuawan/tiles/15.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 175180,
+        "sha256": "99e97875190c238c8d87589982c72441873db15adf9672bf790d85f01faaef29",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.407641,
+            "longitude": 120.075974,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.41359225,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      },
+      {
+        "id": "16",
+        "index": 15,
+        "row": 3,
+        "column": 3,
+        "url": "/map-guide/areas/nianhuawan/tiles/16.png",
+        "width": 1771,
+        "height": 2048,
+        "sizeBytes": 14178,
+        "sha256": "a7f424b8f3fc0d87dcd3a0c199c0c3e90794c83cd549bdc215413b8e6966e75e",
+        "bounds": {
+          "southwest": {
+            "latitude": 31.407641,
+            "longitude": 120.0820035,
+            "coordinateSystem": "GCJ02"
+          },
+          "northeast": {
+            "latitude": 31.41359225,
+            "longitude": 120.088033,
+            "coordinateSystem": "GCJ02"
+          }
+        }
+      }
+    ]
+  }
+}

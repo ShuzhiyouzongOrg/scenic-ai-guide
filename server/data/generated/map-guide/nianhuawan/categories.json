@@ -1,0 +1,92 @@
+[
+  {
+    "id": "36",
+    "name": "景点",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835009660026882.png",
+    "color": "#F6AB00",
+    "kind": "scenic",
+    "sourceCategoryId": "36",
+    "sortOrder": 0
+  },
+  {
+    "id": "65",
+    "name": "打卡优选",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/12/1873647162765582337.png",
+    "color": "#8DCB76",
+    "kind": "facility",
+    "sourceCategoryId": "65",
+    "sortOrder": 1
+  },
+  {
+    "id": "37",
+    "name": "交通",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835400653045762.png",
+    "color": "#78CB8A",
+    "kind": "facility",
+    "sourceCategoryId": "37",
+    "sortOrder": 2
+  },
+  {
+    "id": "55",
+    "name": "餐饮",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835585189838850.png",
+    "color": "#F0A34B",
+    "kind": "facility",
+    "sourceCategoryId": "55",
+    "sortOrder": 3
+  },
+  {
+    "id": "41",
+    "name": "卫生间",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556835890996543490.png",
+    "color": "#EE9689",
+    "kind": "facility",
+    "sourceCategoryId": "41",
+    "sortOrder": 4
+  },
+  {
+    "id": "44",
+    "name": "住宿",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837521293148162.png",
+    "color": "#77A4C8",
+    "kind": "facility",
+    "sourceCategoryId": "44",
+    "sortOrder": 5
+  },
+  {
+    "id": "46",
+    "name": "商铺",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837302660857858.png",
+    "color": "#B38AC5",
+    "kind": "facility",
+    "sourceCategoryId": "46",
+    "sortOrder": 6
+  },
+  {
+    "id": "47",
+    "name": "售票处",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837421917503490.png",
+    "color": "#75B9AC",
+    "kind": "facility",
+    "sourceCategoryId": "47",
+    "sortOrder": 7
+  },
+  {
+    "id": "48",
+    "name": "停车场",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837207244636162.png",
+    "color": "#F6AB00",
+    "kind": "facility",
+    "sourceCategoryId": "48",
+    "sortOrder": 8
+  },
+  {
+    "id": "53",
+    "name": "游客服务中心",
+    "sourceIconUrl": "https://nhm-cdn.nianhuawan.com/navigation/dictionary/2022/8/1556837057998716929.png",
+    "color": "#8DCB76",
+    "kind": "facility",
+    "sourceCategoryId": "53",
+    "sortOrder": 9
+  }
+]

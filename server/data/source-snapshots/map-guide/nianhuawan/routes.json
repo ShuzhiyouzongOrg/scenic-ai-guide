@@ -1,0 +1,1430 @@
+[
+    {
+        "id":  "81",
+        "name":  "经典线路",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "2",
+        "browseTime":  "3",
+        "tags":  [
+
+                 ],
+        "pointCount":  3,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585640636620802.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "667",
+                                "pictureName":  "WechatIMG674 1.jpeg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585640636620802.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.41415620044199,
+                               "longitude":  120.07262170314789
+                           },
+                           {
+                               "latitude":  31.41432101235085,
+                               "longitude":  120.07267534732819
+                           },
+                           {
+                               "latitude":  31.414380527691218,
+                               "longitude":  120.07262170314789
+                           },
+                           {
+                               "latitude":  31.414362215282818,
+                               "longitude":  120.07252514362335
+                           },
+                           {
+                               "latitude":  31.41446522253359,
+                               "longitude":  120.07238566875458
+                           },
+                           {
+                               "latitude":  31.414552206346134,
+                               "longitude":  120.07245540618896
+                           },
+                           {
+                               "latitude":  31.414769665524688,
+                               "longitude":  120.07240176200867
+                           },
+                           {
+                               "latitude":  31.415035193943371,
+                               "longitude":  120.07283091545105
+                           },
+                           {
+                               "latitude":  31.41723721962633,
+                               "longitude":  120.0738126039505
+                           },
+                           {
+                               "latitude":  31.417594300001376,
+                               "longitude":  120.07398426532745
+                           },
+                           {
+                               "latitude":  31.4177636838065,
+                               "longitude":  120.07430076599121
+                           },
+                           {
+                               "latitude":  31.418276411298294,
+                               "longitude":  120.07552921772003
+                           },
+                           {
+                               "latitude":  31.418500728694646,
+                               "longitude":  120.07550239562988
+                           },
+                           {
+                               "latitude":  31.418715889774841,
+                               "longitude":  120.07556140422821
+                           },
+                           {
+                               "latitude":  31.420016001544852,
+                               "longitude":  120.0756311416626
+                           },
+                           {
+                               "latitude":  31.419942756290386,
+                               "longitude":  120.0760281085968
+                           },
+                           {
+                               "latitude":  31.421430539302598,
+                               "longitude":  120.07674157619476
+                           },
+                           {
+                               "latitude":  31.420785073263445,
+                               "longitude":  120.07887661457062
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "164",
+                           "name":  "涧水禅音",
+                           "latitude":  31.41415620044199,
+                           "longitude":  120.07262170314789,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526080082824531970.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  9368
+                       },
+                       {
+                           "pointBaseId":  "169",
+                           "name":  "拈花塔",
+                           "latitude":  31.417594300001376,
+                           "longitude":  120.07398426532745,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1630862342871252994.jpg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779399959023618.mp3",
+                           "audioDuration":  49,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  145947
+                       },
+                       {
+                           "pointBaseId":  "175",
+                           "name":  "五灯湖广场",
+                           "latitude":  31.418500728694646,
+                           "longitude":  120.07550239562988,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1563067801724715009.png",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779624220069889.mp3",
+                           "audioDuration":  59,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  41290
+                       }
+                   ]
+    },
+    {
+        "id":  "84",
+        "name":  "拈花水游",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "6",
+        "browseTime":  "3",
+        "tags":  [
+
+                 ],
+        "pointCount":  5,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585560575746050.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "666",
+                                "pictureName":  "5f524e82a4ea22125cb01310cb11238.jpg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585560575746050.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.413883802346763,
+                               "longitude":  120.07296502590179
+                           },
+                           {
+                               "latitude":  31.41442859774628,
+                               "longitude":  120.07317960262299
+                           },
+                           {
+                               "latitude":  31.4146666586082,
+                               "longitude":  120.07307231426239
+                           },
+                           {
+                               "latitude":  31.414858938094149,
+                               "longitude":  120.07312059402466
+                           },
+                           {
+                               "latitude":  31.414934476355796,
+                               "longitude":  120.07287383079529
+                           },
+                           {
+                               "latitude":  31.415035193943371,
+                               "longitude":  120.07283091545105
+                           },
+                           {
+                               "latitude":  31.415332768002248,
+                               "longitude":  120.07297039031982
+                           },
+                           {
+                               "latitude":  31.41543806321236,
+                               "longitude":  120.07264316082001
+                           },
+                           {
+                               "latitude":  31.41595080341607,
+                               "longitude":  120.07280945777893
+                           },
+                           {
+                               "latitude":  31.41631246669559,
+                               "longitude":  120.07294893264771
+                           },
+                           {
+                               "latitude":  31.4162941546643,
+                               "longitude":  120.07338345050812
+                           },
+                           {
+                               "latitude":  31.41723721962633,
+                               "longitude":  120.0738126039505
+                           },
+                           {
+                               "latitude":  31.417594300001376,
+                               "longitude":  120.07398426532745
+                           },
+                           {
+                               "latitude":  31.4177636838065,
+                               "longitude":  120.07430076599121
+                           },
+                           {
+                               "latitude":  31.4181940088547,
+                               "longitude":  120.07529854774475
+                           },
+                           {
+                               "latitude":  31.418606020348744,
+                               "longitude":  120.07509469985962
+                           },
+                           {
+                               "latitude":  31.418596864557433,
+                               "longitude":  120.07494449615479
+                           },
+                           {
+                               "latitude":  31.418912738841403,
+                               "longitude":  120.07477819919586
+                           },
+                           {
+                               "latitude":  31.419205722733562,
+                               "longitude":  120.0751268863678
+                           },
+                           {
+                               "latitude":  31.420112135854559,
+                               "longitude":  120.07544338703156
+                           },
+                           {
+                               "latitude":  31.420290670739728,
+                               "longitude":  120.07563650608063
+                           },
+                           {
+                               "latitude":  31.420514983318835,
+                               "longitude":  120.07517516613007
+                           },
+                           {
+                               "latitude":  31.420698095230605,
+                               "longitude":  120.07490694522858
+                           },
+                           {
+                               "latitude":  31.420812539993896,
+                               "longitude":  120.07517516613007
+                           },
+                           {
+                               "latitude":  31.421435117060064,
+                               "longitude":  120.07535755634308
+                           },
+                           {
+                               "latitude":  31.421796759193576,
+                               "longitude":  120.07565259933472
+                           },
+                           {
+                               "latitude":  31.421430539302598,
+                               "longitude":  120.07674157619476
+                           },
+                           {
+                               "latitude":  31.419942756290386,
+                               "longitude":  120.0760281085968
+                           },
+                           {
+                               "latitude":  31.419677241763402,
+                               "longitude":  120.07599592208862
+                           },
+                           {
+                               "latitude":  31.418761668664388,
+                               "longitude":  120.07602274417877
+                           },
+                           {
+                               "latitude":  31.418500728694646,
+                               "longitude":  120.07550239562988
+                           },
+                           {
+                               "latitude":  31.418276411298294,
+                               "longitude":  120.07552921772003
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "201",
+                           "name":  "景区入口",
+                           "latitude":  31.413883802346763,
+                           "longitude":  120.07296502590179,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1717793795949395970.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  211294
+                       },
+                       {
+                           "pointBaseId":  "658",
+                           "name":  "香月花街",
+                           "latitude":  31.415035193943371,
+                           "longitude":  120.07283091545105,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789726585122817.png",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789772923793409.mp3",
+                           "audioDuration":  43,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  74461
+                       },
+                       {
+                           "pointBaseId":  "211",
+                           "name":  "码头",
+                           "latitude":  31.41631246669559,
+                           "longitude":  120.07294893264771,
+                           "description":  "拈花湾推荐路线点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561971218337693697.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  103256
+                       },
+                       {
+                           "pointBaseId":  "177",
+                           "name":  "云树帆影",
+                           "latitude":  31.420812539993896,
+                           "longitude":  120.07517516613007,
+                           "description":  "拈花湾推荐路线点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/1/1615301014245015553.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  12384
+                       },
+                       {
+                           "pointBaseId":  "212",
+                           "name":  "拈花禅食馆",
+                           "latitude":  31.418276411298294,
+                           "longitude":  120.07552921772003,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561972558114197506.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  9246
+                       }
+                   ]
+    },
+    {
+        "id":  "85",
+        "name":  "拈花华服游",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "3",
+        "browseTime":  "2",
+        "tags":  [
+
+                 ],
+        "pointCount":  4,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585437504212993.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "665",
+                                "pictureName":  "拈花华服详情页.jpg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585437504212993.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.413883802346763,
+                               "longitude":  120.07296502590179
+                           },
+                           {
+                               "latitude":  31.41415620044199,
+                               "longitude":  120.07262170314789
+                           },
+                           {
+                               "latitude":  31.41432101235085,
+                               "longitude":  120.07267534732819
+                           },
+                           {
+                               "latitude":  31.414362215282818,
+                               "longitude":  120.07252514362335
+                           },
+                           {
+                               "latitude":  31.41446522253359,
+                               "longitude":  120.07238566875458
+                           },
+                           {
+                               "latitude":  31.414552206346134,
+                               "longitude":  120.07245540618896
+                           },
+                           {
+                               "latitude":  31.414769665524688,
+                               "longitude":  120.07240176200867
+                           },
+                           {
+                               "latitude":  31.414934476355796,
+                               "longitude":  120.07287383079529
+                           },
+                           {
+                               "latitude":  31.415035193943371,
+                               "longitude":  120.07283091545105
+                           },
+                           {
+                               "latitude":  31.415332768002248,
+                               "longitude":  120.07297039031982
+                           },
+                           {
+                               "latitude":  31.4162941546643,
+                               "longitude":  120.07338345050812
+                           },
+                           {
+                               "latitude":  31.41723721962633,
+                               "longitude":  120.0738126039505
+                           },
+                           {
+                               "latitude":  31.417594300001376,
+                               "longitude":  120.07398426532745
+                           },
+                           {
+                               "latitude":  31.4177636838065,
+                               "longitude":  120.07430076599121
+                           },
+                           {
+                               "latitude":  31.4181940088547,
+                               "longitude":  120.07529854774475
+                           },
+                           {
+                               "latitude":  31.418606020348744,
+                               "longitude":  120.07509469985962
+                           },
+                           {
+                               "latitude":  31.418500728694646,
+                               "longitude":  120.07550239562988
+                           },
+                           {
+                               "latitude":  31.418244365912187,
+                               "longitude":  120.075523853302
+                           },
+                           {
+                               "latitude":  31.41783006386294,
+                               "longitude":  120.07578134536743
+                           },
+                           {
+                               "latitude":  31.417596588973758,
+                               "longitude":  120.07558286190033
+                           },
+                           {
+                               "latitude":  31.416935073631873,
+                               "longitude":  120.07510006427765
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "201",
+                           "name":  "景区入口",
+                           "latitude":  31.413883802346763,
+                           "longitude":  120.07296502590179,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1717793795949395970.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  211294
+                       },
+                       {
+                           "pointBaseId":  "658",
+                           "name":  "香月花街",
+                           "latitude":  31.415332768002248,
+                           "longitude":  120.07297039031982,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789726585122817.png",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789772923793409.mp3",
+                           "audioDuration":  43,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  74461
+                       },
+                       {
+                           "pointBaseId":  "171",
+                           "name":  "拈花堂",
+                           "latitude":  31.41723721962633,
+                           "longitude":  120.0738126039505,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633025128514142209.jpg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631098651288633346.mp3",
+                           "audioDuration":  45,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  23903
+                       },
+                       {
+                           "pointBaseId":  "196",
+                           "name":  "梵天花海",
+                           "latitude":  31.416935073631873,
+                           "longitude":  120.07510006427765,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631561559876517890.jpg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631097110682091521.mp3",
+                           "audioDuration":  25,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  150994
+                       }
+                   ]
+    },
+    {
+        "id":  "86",
+        "name":  "拈花禅游",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "5",
+        "browseTime":  "3",
+        "tags":  [
+
+                 ],
+        "pointCount":  6,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585294063210498.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "664",
+                                "pictureName":  "华服小图.jpg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585294063210498.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.413883802346763,
+                               "longitude":  120.07296502590179
+                           },
+                           {
+                               "latitude":  31.41442859774628,
+                               "longitude":  120.07317960262299
+                           },
+                           {
+                               "latitude":  31.4146666586082,
+                               "longitude":  120.07307231426239
+                           },
+                           {
+                               "latitude":  31.414858938094149,
+                               "longitude":  120.07312059402466
+                           },
+                           {
+                               "latitude":  31.414934476355796,
+                               "longitude":  120.07287383079529
+                           },
+                           {
+                               "latitude":  31.415035193943371,
+                               "longitude":  120.07283091545105
+                           },
+                           {
+                               "latitude":  31.415332768002248,
+                               "longitude":  120.07297039031982
+                           },
+                           {
+                               "latitude":  31.4162941546643,
+                               "longitude":  120.07338345050812
+                           },
+                           {
+                               "latitude":  31.41723721962633,
+                               "longitude":  120.0738126039505
+                           },
+                           {
+                               "latitude":  31.417594300001376,
+                               "longitude":  120.07398426532745
+                           },
+                           {
+                               "latitude":  31.4177636838065,
+                               "longitude":  120.07430076599121
+                           },
+                           {
+                               "latitude":  31.4181940088547,
+                               "longitude":  120.07529854774475
+                           },
+                           {
+                               "latitude":  31.418276411298294,
+                               "longitude":  120.07552921772003
+                           },
+                           {
+                               "latitude":  31.418500728694646,
+                               "longitude":  120.07550239562988
+                           },
+                           {
+                               "latitude":  31.418715889774841,
+                               "longitude":  120.07556140422821
+                           },
+                           {
+                               "latitude":  31.418761668664388,
+                               "longitude":  120.07602274417877
+                           },
+                           {
+                               "latitude":  31.419677241763402,
+                               "longitude":  120.07599592208862
+                           },
+                           {
+                               "latitude":  31.419942756290386,
+                               "longitude":  120.0760281085968
+                           },
+                           {
+                               "latitude":  31.421430539302598,
+                               "longitude":  120.07674157619476
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "201",
+                           "name":  "景区入口",
+                           "latitude":  31.413883802346763,
+                           "longitude":  120.07296502590179,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1717793795949395970.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  211294
+                       },
+                       {
+                           "pointBaseId":  "658",
+                           "name":  "香月花街",
+                           "latitude":  31.415332768002248,
+                           "longitude":  120.07297039031982,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789726585122817.png",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789772923793409.mp3",
+                           "audioDuration":  43,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  74461
+                       },
+                       {
+                           "pointBaseId":  "169",
+                           "name":  "拈花塔",
+                           "latitude":  31.41723721962633,
+                           "longitude":  120.0738126039505,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1630862342871252994.jpg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779399959023618.mp3",
+                           "audioDuration":  49,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  145947
+                       },
+                       {
+                           "pointBaseId":  "175",
+                           "name":  "五灯湖广场",
+                           "latitude":  31.418715889774841,
+                           "longitude":  120.07556140422821,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1563067801724715009.png",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779624220069889.mp3",
+                           "audioDuration":  59,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  41290
+                       },
+                       {
+                           "pointBaseId":  "181",
+                           "name":  "禅乐馆",
+                           "latitude":  31.419942756290386,
+                           "longitude":  120.0760281085968,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526142616050995201.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  27757
+                       },
+                       {
+                           "pointBaseId":  "162",
+                           "name":  "微笑广场",
+                           "latitude":  31.421430539302598,
+                           "longitude":  120.07674157619476,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636294876450979842.jpeg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779524085256194.mp3",
+                           "audioDuration":  37,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  19885
+                       }
+                   ]
+    },
+    {
+        "id":  "101",
+        "name":  "鹿鸣谷线路",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "2",
+        "browseTime":  "1",
+        "tags":  [
+
+                 ],
+        "pointCount":  4,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585182469558273.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "663",
+                                "pictureName":  "1631581728413794305.jpg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790585182469558273.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.423073820290234,
+                               "longitude":  120.08081322563157
+                           },
+                           {
+                               "latitude":  31.423174529696965,
+                               "longitude":  120.08034115635382
+                           },
+                           {
+                               "latitude":  31.423188262713296,
+                               "longitude":  120.07954722281283
+                           },
+                           {
+                               "latitude":  31.423870333327741,
+                               "longitude":  120.07961159582919
+                           },
+                           {
+                               "latitude":  31.42489571930086,
+                               "longitude":  120.07964914659169
+                           },
+                           {
+                               "latitude":  31.4255320019339,
+                               "longitude":  120.07933264592793
+                           },
+                           {
+                               "latitude":  31.425989755994742,
+                               "longitude":  120.0787318311086
+                           },
+                           {
+                               "latitude":  31.426703848739333,
+                               "longitude":  120.0797027909357
+                           },
+                           {
+                               "latitude":  31.427147865203892,
+                               "longitude":  120.08040016511586
+                           },
+                           {
+                               "latitude":  31.428557718537323,
+                               "longitude":  120.08254593249148
+                           },
+                           {
+                               "latitude":  31.428868980759969,
+                               "longitude":  120.08331840901519
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "206",
+                           "name":  "波罗蜜多酒店",
+                           "latitude":  31.423073820290234,
+                           "longitude":  120.08081322563157,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561918099570917378.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  41454
+                       },
+                       {
+                           "pointBaseId":  "204",
+                           "name":  "鹿鸣谷入口",
+                           "latitude":  31.425989755994742,
+                           "longitude":  120.0787318311086,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561970100270465026.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  43215
+                       },
+                       {
+                           "pointBaseId":  "203",
+                           "name":  "鹿鸣茶院",
+                           "latitude":  31.427147865203892,
+                           "longitude":  120.08040016511586,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1711200972487974913.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  12633
+                       },
+                       {
+                           "pointBaseId":  "202",
+                           "name":  "鹿鸣禅院",
+                           "latitude":  31.428868980759969,
+                           "longitude":  120.08331840901519,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561969759963975682.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  32993
+                       }
+                   ]
+    },
+    {
+        "id":  "102",
+        "name":  "国风之旅",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "4",
+        "browseTime":  "3",
+        "tags":  [
+
+                 ],
+        "pointCount":  8,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790584879846330369.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "662",
+                                "pictureName":  "1小时小封面.jpg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790584879846330369.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.413762347807186,
+                               "longitude":  120.07266469183378
+                           },
+                           {
+                               "latitude":  31.414169800374985,
+                               "longitude":  120.0731367606204
+                           },
+                           {
+                               "latitude":  31.414421596473037,
+                               "longitude":  120.07318504038267
+                           },
+                           {
+                               "latitude":  31.414581829684227,
+                               "longitude":  120.07310457411222
+                           },
+                           {
+                               "latitude":  31.414792421672008,
+                               "longitude":  120.07312603178434
+                           },
+                           {
+                               "latitude":  31.414870249165848,
+                               "longitude":  120.07294900598936
+                           },
+                           {
+                               "latitude":  31.414966388749427,
+                               "longitude":  120.07284171762876
+                           },
+                           {
+                               "latitude":  31.415817906474473,
+                               "longitude":  120.07322259130888
+                           },
+                           {
+                               "latitude":  31.416092587962755,
+                               "longitude":  120.07331378641538
+                           },
+                           {
+                               "latitude":  31.416664838514968,
+                               "longitude":  120.07357127848081
+                           },
+                           {
+                               "latitude":  31.417209617728844,
+                               "longitude":  120.07379658403806
+                           },
+                           {
+                               "latitude":  31.417507184890013,
+                               "longitude":  120.07391996565275
+                           },
+                           {
+                               "latitude":  31.41767656885246,
+                               "longitude":  120.07401652517729
+                           },
+                           {
+                               "latitude":  31.417855108373629,
+                               "longitude":  120.07446713629179
+                           },
+                           {
+                               "latitude":  31.418120628058688,
+                               "longitude":  120.07522888365202
+                           },
+                           {
+                               "latitude":  31.418257965531907,
+                               "longitude":  120.07556147756986
+                           },
+                           {
+                               "latitude":  31.418587574647166,
+                               "longitude":  120.07552929106168
+                           },
+                           {
+                               "latitude":  31.418738645104554,
+                               "longitude":  120.07632858934812
+                           },
+                           {
+                               "latitude":  31.4189126047238,
+                               "longitude":  120.07668264093809
+                           },
+                           {
+                               "latitude":  31.419091141892277,
+                               "longitude":  120.07691331091337
+                           },
+                           {
+                               "latitude":  31.419938044343944,
+                               "longitude":  120.07719762506895
+                           },
+                           {
+                               "latitude":  31.420794094726272,
+                               "longitude":  120.07737465086393
+                           },
+                           {
+                               "latitude":  31.42120609479889,
+                               "longitude":  120.07748730364256
+                           },
+                           {
+                               "latitude":  31.421055028315742,
+                               "longitude":  120.07795937226547
+                           },
+                           {
+                               "latitude":  31.4207666279904,
+                               "longitude":  120.07881767931394
+                           },
+                           {
+                               "latitude":  31.420615560799391,
+                               "longitude":  120.07904298487119
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "295",
+                           "name":  "分游客中心",
+                           "latitude":  31.413762347807186,
+                           "longitude":  120.07266469183378,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562363716363489282.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  202236
+                       },
+                       {
+                           "pointBaseId":  "242",
+                           "name":  "惠山泥人",
+                           "latitude":  31.416092587962755,
+                           "longitude":  120.07331378641538,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561896755013713921.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  11372
+                       },
+                       {
+                           "pointBaseId":  "254",
+                           "name":  "竹风禅韵",
+                           "latitude":  31.416664838514968,
+                           "longitude":  120.07357127848081,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/7/1676150340689293314.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  14248
+                       },
+                       {
+                           "pointBaseId":  "291",
+                           "name":  "Lucky Fun",
+                           "latitude":  31.417855108373629,
+                           "longitude":  120.07446713629179,
+                           "description":  "拈花湾推荐路线点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1642718234343849985.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  11739
+                       },
+                       {
+                           "pointBaseId":  "301",
+                           "name":  "惠泉酒坊",
+                           "latitude":  31.418120628058688,
+                           "longitude":  120.07522888365202,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1642718389425106946.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  10938
+                       },
+                       {
+                           "pointBaseId":  "175",
+                           "name":  "五灯湖广场",
+                           "latitude":  31.418587574647166,
+                           "longitude":  120.07552929106168,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1563067801724715009.png",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779624220069889.mp3",
+                           "audioDuration":  59,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  41290
+                       },
+                       {
+                           "pointBaseId":  "192",
+                           "name":  "拈花茶语",
+                           "latitude":  31.421055028315742,
+                           "longitude":  120.07795937226547,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/9/1698939622918623233.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  9013
+                       },
+                       {
+                           "pointBaseId":  "526",
+                           "name":  "云舒馆",
+                           "latitude":  31.420615560799391,
+                           "longitude":  120.07904298487119,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1555560321665339394.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  20153
+                       }
+                   ]
+    },
+    {
+        "id":  "103",
+        "name":  "不慌不忙 好好生活",
+        "description":  "拈花湾官方推荐游览路线",
+        "distance":  "3",
+        "browseTime":  "4",
+        "tags":  [
+
+                 ],
+        "pointCount":  10,
+        "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790580777819283458.jpeg",
+        "pictureUrls":  [
+                            {
+                                "pictureId":  "661",
+                                "pictureName":  "不慌场景长图_01.jpg",
+                                "pictureUrl":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1790580777819283458.jpeg",
+                                "pictureSort":  null
+                            }
+                        ],
+        "pathPoints":  [
+                           {
+                               "latitude":  31.41544250700003,
+                               "longitude":  120.07265932741575
+                           },
+                           {
+                               "latitude":  31.41538757052572,
+                               "longitude":  120.07271297159605
+                           },
+                           {
+                               "latitude":  31.415314321587129,
+                               "longitude":  120.0729919213336
+                           },
+                           {
+                               "latitude":  31.415186135999068,
+                               "longitude":  120.07294364157133
+                           },
+                           {
+                               "latitude":  31.415122043104432,
+                               "longitude":  120.07333524343267
+                           },
+                           {
+                               "latitude":  31.414934342232517,
+                               "longitude":  120.07336743059568
+                           },
+                           {
+                               "latitude":  31.415089996640702,
+                               "longitude":  120.0735337275546
+                           },
+                           {
+                               "latitude":  31.415296009361015,
+                               "longitude":  120.07357664289884
+                           },
+                           {
+                               "latitude":  31.415296009361015,
+                               "longitude":  120.07383413496427
+                           },
+                           {
+                               "latitude":  31.415108308837176,
+                               "longitude":  120.0739467877429
+                           },
+                           {
+                               "latitude":  31.414970966822381,
+                               "longitude":  120.07412381353788
+                           },
+                           {
+                               "latitude":  31.414961810676242,
+                               "longitude":  120.07437057676725
+                           },
+                           {
+                               "latitude":  31.414948076455396,
+                               "longitude":  120.07457442465238
+                           },
+                           {
+                               "latitude":  31.41572176772863,
+                               "longitude":  120.07460661116056
+                           },
+                           {
+                               "latitude":  31.416142946043564,
+                               "longitude":  120.07470853477571
+                           },
+                           {
+                               "latitude":  31.416504608617227,
+                               "longitude":  120.07486946764402
+                           },
+                           {
+                               "latitude":  31.41689373770949,
+                               "longitude":  120.07511086645536
+                           },
+                           {
+                               "latitude":  31.416811334051232,
+                               "longitude":  120.0754595536273
+                           },
+                           {
+                               "latitude":  31.416678572379691,
+                               "longitude":  120.07571704569273
+                           },
+                           {
+                               "latitude":  31.4166190585322,
+                               "longitude":  120.07582969847135
+                           },
+                           {
+                               "latitude":  31.416669416470114,
+                               "longitude":  120.07609255495481
+                           },
+                           {
+                               "latitude":  31.417502606940822,
+                               "longitude":  120.07687039556913
+                           },
+                           {
+                               "latitude":  31.418065693013109,
+                               "longitude":  120.07632858934812
+                           },
+                           {
+                               "latitude":  31.417809329041631,
+                               "longitude":  120.07580287605379
+                           },
+                           {
+                               "latitude":  31.418056537169047,
+                               "longitude":  120.07556147756986
+                           },
+                           {
+                               "latitude":  31.418244231793615,
+                               "longitude":  120.07563121500425
+                           },
+                           {
+                               "latitude":  31.418560107265133,
+                               "longitude":  120.07550783306215
+                           },
+                           {
+                               "latitude":  31.418706599876355,
+                               "longitude":  120.07609255495481
+                           },
+                           {
+                               "latitude":  31.419960933493282,
+                               "longitude":  120.07604427519254
+                           },
+                           {
+                               "latitude":  31.420047912209736,
+                               "longitude":  120.07542200270109
+                           },
+                           {
+                               "latitude":  31.420299692250083,
+                               "longitude":  120.07569558802061
+                           },
+                           {
+                               "latitude":  31.421096228289819,
+                               "longitude":  120.07611937704496
+                           },
+                           {
+                               "latitude":  31.421434982946074,
+                               "longitude":  120.076307131676
+                           },
+                           {
+                               "latitude":  31.421576893316821,
+                               "longitude":  120.07645733538084
+                           },
+                           {
+                               "latitude":  31.420903961589246,
+                               "longitude":  120.07842071237974
+                           },
+                           {
+                               "latitude":  31.420739161246487,
+                               "longitude":  120.07888741674833
+                           },
+                           {
+                               "latitude":  31.421599782066174,
+                               "longitude":  120.07916636648588
+                           },
+                           {
+                               "latitude":  31.42152196029555,
+                               "longitude":  120.07968671503477
+                           },
+                           {
+                               "latitude":  31.421640981800948,
+                               "longitude":  120.07998175802641
+                           },
+                           {
+                               "latitude":  31.421773736378778,
+                               "longitude":  120.08024997898929
+                           },
+                           {
+                               "latitude":  31.421842402466,
+                               "longitude":  120.0808454293292
+                           },
+                           {
+                               "latitude":  31.42203466724272,
+                               "longitude":  120.08104391296001
+                           },
+                           {
+                               "latitude":  31.422789989335389,
+                               "longitude":  120.0811512011569
+                           },
+                           {
+                               "latitude":  31.422840343925273,
+                               "longitude":  120.08144087973051
+                           },
+                           {
+                               "latitude":  31.423060072728362,
+                               "longitude":  120.08157499018125
+                           },
+                           {
+                               "latitude":  31.423284379242634,
+                               "longitude":  120.08140869322233
+                           },
+                           {
+                               "latitude":  31.423362198992006,
+                               "longitude":  120.08117265899273
+                           },
+                           {
+                               "latitude":  31.423284378683825,
+                               "longitude":  120.08096344652586
+                           },
+                           {
+                               "latitude":  31.423060072728362,
+                               "longitude":  120.0808454293292
+                           },
+                           {
+                               "latitude":  31.423165359822868,
+                               "longitude":  120.08036263187023
+                           },
+                           {
+                               "latitude":  31.423169936936848,
+                               "longitude":  120.07955796912483
+                           },
+                           {
+                               "latitude":  31.424424210861122,
+                               "longitude":  120.07964379969053
+                           },
+                           {
+                               "latitude":  31.42491859159415,
+                               "longitude":  120.07962234205934
+                           },
+                           {
+                               "latitude":  31.425614382284419,
+                               "longitude":  120.0792790192645
+                           },
+                           {
+                               "latitude":  31.425971430765777,
+                               "longitude":  120.0787372130435
+                           },
+                           {
+                               "latitude":  31.426209462331382,
+                               "longitude":  120.07894106096956
+                           },
+                           {
+                               "latitude":  31.426502423428811,
+                               "longitude":  120.07936484995298
+                           },
+                           {
+                               "latitude":  31.427161582551463,
+                               "longitude":  120.08038945379667
+                           }
+                       ],
+        "points":  [
+                       {
+                           "pointBaseId":  "615",
+                           "name":  "捌渡",
+                           "latitude":  31.41538757052572,
+                           "longitude":  120.07271297159605,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/10/1582545772739395586.png",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  1929
+                       },
+                       {
+                           "pointBaseId":  "196",
+                           "name":  "梵天花海",
+                           "latitude":  31.4166190585322,
+                           "longitude":  120.07582969847135,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631561559876517890.jpg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631097110682091521.mp3",
+                           "audioDuration":  25,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  150994
+                       },
+                       {
+                           "pointBaseId":  "630",
+                           "name":  "云门草坪",
+                           "latitude":  31.417502606940822,
+                           "longitude":  120.07687039556913,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636228374264500225.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  28514
+                       },
+                       {
+                           "pointBaseId":  "212",
+                           "name":  "拈花禅食馆",
+                           "latitude":  31.418244231793615,
+                           "longitude":  120.07563121500425,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561972558114197506.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  9246
+                       },
+                       {
+                           "pointBaseId":  "351",
+                           "name":  "弓守道",
+                           "latitude":  31.421096228289819,
+                           "longitude":  120.07611937704496,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561999285372719105.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  11064
+                       },
+                       {
+                           "pointBaseId":  "352",
+                           "name":  "又见山书社",
+                           "latitude":  31.421434982946074,
+                           "longitude":  120.076307131676,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641715519178358785.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  10872
+                       },
+                       {
+                           "pointBaseId":  "162",
+                           "name":  "微笑广场",
+                           "latitude":  31.421576893316821,
+                           "longitude":  120.07645733538084,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636294876450979842.jpeg",
+                           "audio":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779524085256194.mp3",
+                           "audioDuration":  37,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  19885
+                       },
+                       {
+                           "pointBaseId":  "526",
+                           "name":  "云舒馆",
+                           "latitude":  31.420739161246487,
+                           "longitude":  120.07888741674833,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1555560321665339394.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  20153
+                       },
+                       {
+                           "pointBaseId":  "206",
+                           "name":  "波罗蜜多酒店",
+                           "latitude":  31.423284379242634,
+                           "longitude":  120.08140869322233,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561918099570917378.jpg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  41454
+                       },
+                       {
+                           "pointBaseId":  "203",
+                           "name":  "鹿鸣茶院",
+                           "latitude":  31.427161582551463,
+                           "longitude":  120.08038945379667,
+                           "description":  "拈花湾景区导览点位",
+                           "cover":  "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1711200972487974913.jpeg",
+                           "audio":  "",
+                           "audioDuration":  0,
+                           "openFlag":  1,
+                           "isCheckIn":  false,
+                           "checkInCount":  12633
+                       }
+                   ]
+    }
+]

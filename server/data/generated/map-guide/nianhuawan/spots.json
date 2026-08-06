@@ -1,0 +1,6850 @@
+[
+  {
+    "id": "nianhuawan-160",
+    "sourcePointId": "160",
+    "name": "林溪禅径",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4266,
+    "longitude": 120.0812,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526079595287023617.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-161",
+    "sourcePointId": "161",
+    "name": "鹿鸣隐秀",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4246,
+    "longitude": 120.0799,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562361311922061313.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-162",
+    "sourcePointId": "162",
+    "name": "微笑广场",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.422,
+    "longitude": 120.077,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636294876450979842.jpeg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-162",
+      "title": "微笑广场",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779524085256194.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-163",
+    "sourcePointId": "163",
+    "name": "银杏谷",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4203,
+    "longitude": 120.079,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562278764716363778.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-164",
+    "sourcePointId": "164",
+    "name": "涧水禅音",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4142,
+    "longitude": 120.0726,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526080082824531970.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-165",
+    "sourcePointId": "165",
+    "name": "闲心斋",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4146,
+    "longitude": 120.0729,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633616834698547202.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-166",
+    "sourcePointId": "166",
+    "name": "半山衔日",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4148,
+    "longitude": 120.0724,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631554873631653890.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-166",
+      "title": "半山衔日",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688778522525396994.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [
+      "49906867"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-167",
+    "sourcePointId": "167",
+    "name": "福田阁",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4157,
+    "longitude": 120.0734,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526076130089336834.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [
+      "49906870"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-168",
+    "sourcePointId": "168",
+    "name": "拈花华服（百尺桥店）",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4163,
+    "longitude": 120.0734,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641343377147301890.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-169",
+    "sourcePointId": "169",
+    "name": "拈花塔",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4172,
+    "longitude": 120.0737,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1630862342871252994.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-169",
+      "title": "拈花塔",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779399959023618.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [
+      "49906875"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-170",
+    "sourcePointId": "170",
+    "name": "妙音台",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.417,
+    "longitude": 120.0741,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631492309125005313.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-170",
+      "title": "妙音台",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779293801189378.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [
+      "49906874"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-171",
+    "sourcePointId": "171",
+    "name": "拈花堂",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4173,
+    "longitude": 120.0736,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633025128514142209.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-171",
+      "title": "拈花堂",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631098651288633346.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-172",
+    "sourcePointId": "172",
+    "name": "心灯堂",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.417,
+    "longitude": 120.0735,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526113135682748418.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-172",
+      "title": "心灯堂",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779899181862914.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-175",
+    "sourcePointId": "175",
+    "name": "五灯湖广场",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4185,
+    "longitude": 120.0755,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1563067801724715009.png",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-175",
+      "title": "五灯湖广场",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688779624220069889.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [
+      "49906876"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-176",
+    "sourcePointId": "176",
+    "name": "拈花手作体验馆",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641341469295325186.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-181",
+    "sourcePointId": "181",
+    "name": "禅乐馆",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4158,
+    "longitude": 120.073,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/5/1526142616050995201.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [
+      "49906869"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-182",
+    "sourcePointId": "182",
+    "name": "亲子体验馆",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4164,
+    "longitude": 120.0733,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/1/1615290865934610433.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-186",
+    "sourcePointId": "186",
+    "name": "拈花华服（禅者之家店）",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4186,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641343264926564354.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-187",
+    "sourcePointId": "187",
+    "name": "禅林街",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.42,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562278940295757826.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-188",
+    "sourcePointId": "188",
+    "name": "芦花宿",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "44"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.419,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561964861324722177.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-190",
+    "sourcePointId": "190",
+    "name": "平常居",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4195,
+    "longitude": 120.0768,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561965214543839233.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-191",
+    "sourcePointId": "191",
+    "name": "浣月山房",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4192,
+    "longitude": 120.0766,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/7/1549213707239903234.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-192",
+    "sourcePointId": "192",
+    "name": "拈花茶语",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4218,
+    "longitude": 120.0763,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/9/1698939622918623233.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-193",
+    "sourcePointId": "193",
+    "name": "拈花湾-北入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4251,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562362735770828801.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-194",
+    "sourcePointId": "194",
+    "name": "鹿鸣谷",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.42451589715493,
+    "longitude": 120.07968127727509,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/7/1946504016159547394.png",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-194",
+      "title": "鹿鸣谷",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688778982218928130.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-195",
+    "sourcePointId": "195",
+    "name": "拈花广场",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4171,
+    "longitude": 120.0735,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/2/1630073698796130305.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-196",
+    "sourcePointId": "196",
+    "name": "梵天花海",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.41515574960835,
+    "longitude": 120.07530927658081,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631561559876517890.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-196",
+      "title": "梵天花海",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631097110682091521.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-199",
+    "sourcePointId": "199",
+    "name": "小剧场",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4183,
+    "longitude": 120.0765,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561967049531293697.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-200",
+    "sourcePointId": "200",
+    "name": "云湖礼堂",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4194,
+    "longitude": 120.0747,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561967899161006081.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-200",
+      "title": "云湖礼堂",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688780043591749634.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-201",
+    "sourcePointId": "201",
+    "name": "景区入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4136,
+    "longitude": 120.0726,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1717793795949395970.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-202",
+    "sourcePointId": "202",
+    "name": "鹿鸣禅院",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4287,
+    "longitude": 120.0836,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561969759963975682.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-203",
+    "sourcePointId": "203",
+    "name": "鹿鸣茶院",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46",
+      "65"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.427,
+    "longitude": 120.0807,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1711200972487974913.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-204",
+    "sourcePointId": "204",
+    "name": "鹿鸣谷入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4245,
+    "longitude": 120.0797,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561970100270465026.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-205",
+    "sourcePointId": "205",
+    "name": "鹿鸣谷站",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.4245,
+    "longitude": 120.0795,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562362580474662914.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-206",
+    "sourcePointId": "206",
+    "name": "波罗蜜多酒店",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "44",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4231,
+    "longitude": 120.0811,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561918099570917378.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [
+      "49906868"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-207",
+    "sourcePointId": "207",
+    "name": "波罗蜜多酒店会议中心",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4222,
+    "longitude": 120.0797,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633701119275175937.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-209",
+    "sourcePointId": "209",
+    "name": "拈花湾客栈",
+    "aliases": [],
+    "categoryId": "53",
+    "categoryIds": [
+      "53"
+    ],
+    "categoryName": "游客服务中心",
+    "kind": "facility",
+    "latitude": 31.4136,
+    "longitude": 120.0724,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1878759406069157889.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-212",
+    "sourcePointId": "212",
+    "name": "拈花禅食馆",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4183,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561972558114197506.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-213",
+    "sourcePointId": "213",
+    "name": "云树码头",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.4213,
+    "longitude": 120.0754,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561973424751312897.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-214",
+    "sourcePointId": "214",
+    "name": "云树帆影站",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.4213,
+    "longitude": 120.0785,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562361207592943618.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-215",
+    "sourcePointId": "215",
+    "name": "拈花湾公交站",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.4128,
+    "longitude": 120.0726,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562366245027545090.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-216",
+    "sourcePointId": "216",
+    "name": "游客中心站",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.4139,
+    "longitude": 120.073,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562363612065792002.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-217",
+    "sourcePointId": "217",
+    "name": "五灯湖站",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.4179,
+    "longitude": 120.0762,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562367356530262018.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-218",
+    "sourcePointId": "218",
+    "name": "A区停车场入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4118,
+    "longitude": 120.0721,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562308454378246145.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-219",
+    "sourcePointId": "219",
+    "name": "A区地下停车场入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4118,
+    "longitude": 120.0723,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633698856851947521.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-220",
+    "sourcePointId": "220",
+    "name": "出租车上下客点",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4129,
+    "longitude": 120.0722,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562366025361395714.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-222",
+    "sourcePointId": "222",
+    "name": "游客休息区(A区停车场）",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4129,
+    "longitude": 120.0723,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633698963346259970.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-223",
+    "sourcePointId": "223",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4132,
+    "longitude": 120.0726,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306816047415297.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-224",
+    "sourcePointId": "224",
+    "name": "拈花湾综合服务站",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4137,
+    "longitude": 120.072,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562371473674211329.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-225",
+    "sourcePointId": "225",
+    "name": "售票处",
+    "aliases": [],
+    "categoryId": "47",
+    "categoryIds": [
+      "47"
+    ],
+    "categoryName": "售票处",
+    "kind": "facility",
+    "latitude": 31.4137,
+    "longitude": 120.0721,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562363323424313346.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-226",
+    "sourcePointId": "226",
+    "name": "景区出口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.413597669042073,
+    "longitude": 120.07269144058228,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562364156794769409.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-227",
+    "sourcePointId": "227",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4137,
+    "longitude": 120.0727,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306895693053953.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-228",
+    "sourcePointId": "228",
+    "name": "南入口(售票检票处)",
+    "aliases": [],
+    "categoryId": "47",
+    "categoryIds": [
+      "47"
+    ],
+    "categoryName": "售票处",
+    "kind": "facility",
+    "latitude": 31.4134,
+    "longitude": 120.0731,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562367944106541058.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-229",
+    "sourcePointId": "229",
+    "name": "观光车售票处",
+    "aliases": [],
+    "categoryId": "47",
+    "categoryIds": [
+      "47"
+    ],
+    "categoryName": "售票处",
+    "kind": "facility",
+    "latitude": 31.4138,
+    "longitude": 120.0729,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562363444027330562.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-231",
+    "sourcePointId": "231",
+    "name": "拈花香铺",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4155,
+    "longitude": 120.0732,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561974496314658818.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-233",
+    "sourcePointId": "233",
+    "name": "云愈",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4156,
+    "longitude": 120.0732,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/3/2038423356250972161.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-234",
+    "sourcePointId": "234",
+    "name": "无银",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4157,
+    "longitude": 120.0731,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641710996070285313.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-236",
+    "sourcePointId": "236",
+    "name": "花无缺",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4158,
+    "longitude": 120.0733,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1882358104857694210.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-237",
+    "sourcePointId": "237",
+    "name": "善KONG",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4159,
+    "longitude": 120.0731,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561977807923187714.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-238",
+    "sourcePointId": "238",
+    "name": "香遇",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4159,
+    "longitude": 120.0733,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1642716738651910145.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-240",
+    "sourcePointId": "240",
+    "name": "朱炳仁·铜",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4161,
+    "longitude": 120.0733,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561978681426378753.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-241",
+    "sourcePointId": "241",
+    "name": "拈花市集",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.416,
+    "longitude": 120.0734,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561911303307399169.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-242",
+    "sourcePointId": "242",
+    "name": "惠山泥人",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4162,
+    "longitude": 120.0733,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561896755013713921.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-254",
+    "sourcePointId": "254",
+    "name": "竹风禅韵",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4166,
+    "longitude": 120.0737,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/7/1676150340689293314.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-256",
+    "sourcePointId": "256",
+    "name": "拈花68号奶茶",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4169,
+    "longitude": 120.0736,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561907193732534274.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-259",
+    "sourcePointId": "259",
+    "name": "遂意居",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.416892637921542,
+    "longitude": 120.0732439965941,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1882686381278339074.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-260",
+    "sourcePointId": "260",
+    "name": "品渔味",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4168,
+    "longitude": 120.073,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561912321141211138.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-262",
+    "sourcePointId": "262",
+    "name": "无相",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4165,
+    "longitude": 120.0739,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561981717689798658.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-264",
+    "sourcePointId": "264",
+    "name": "陶忆生活",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4173,
+    "longitude": 120.074,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561913708524273665.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-267",
+    "sourcePointId": "267",
+    "name": "萤火小墅",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4175,
+    "longitude": 120.0738,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561982860906074113.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-268",
+    "sourcePointId": "268",
+    "name": "草鞋山庐",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "44"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4174,
+    "longitude": 120.0741,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561983107935436802.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-269",
+    "sourcePointId": "269",
+    "name": "小憩",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44",
+      "65"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4174,
+    "longitude": 120.0743,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561983665528770561.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-270",
+    "sourcePointId": "270",
+    "name": "顿喜",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4175,
+    "longitude": 120.074,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/1/2016057499610750978.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-272",
+    "sourcePointId": "272",
+    "name": "星巴克",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4176,
+    "longitude": 120.0741,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561984583525138433.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-274",
+    "sourcePointId": "274",
+    "name": "椰不二",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4177,
+    "longitude": 120.0739,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/5/1658376435879071746.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-277",
+    "sourcePointId": "277",
+    "name": "拈花便利店",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4178,
+    "longitude": 120.0741,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561906659980050434.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-279",
+    "sourcePointId": "279",
+    "name": "茶花源记",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4179,
+    "longitude": 120.0742,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1651885285122605057.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-281",
+    "sourcePointId": "281",
+    "name": "宏雲宫",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.0736,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561896118261780482.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-285",
+    "sourcePointId": "285",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4175,
+    "longitude": 120.0734,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306971609956354.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-286",
+    "sourcePointId": "286",
+    "name": "青花",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4177,
+    "longitude": 120.0745,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561984009398784001.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-288",
+    "sourcePointId": "288",
+    "name": "一花一世界",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.418,
+    "longitude": 120.0744,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561986249557639170.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-289",
+    "sourcePointId": "289",
+    "name": "拈花锡食",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4178,
+    "longitude": 120.0746,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/1/1615595053570162690.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-290",
+    "sourcePointId": "290",
+    "name": "梅隐梅花糕",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.418,
+    "longitude": 120.0745,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2039588714942799874.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-292",
+    "sourcePointId": "292",
+    "name": "解缚",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4177,
+    "longitude": 120.0749,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561988002241974273.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-295",
+    "sourcePointId": "295",
+    "name": "分游客中心",
+    "aliases": [],
+    "categoryId": "53",
+    "categoryIds": [
+      "53"
+    ],
+    "categoryName": "游客服务中心",
+    "kind": "facility",
+    "latitude": 31.4182,
+    "longitude": 120.0748,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562363716363489282.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-297",
+    "sourcePointId": "297",
+    "name": "拈花瓷典",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.0749,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561988615824146434.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-299",
+    "sourcePointId": "299",
+    "name": "一斗",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4182,
+    "longitude": 120.0751,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561914196321828865.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-301",
+    "sourcePointId": "301",
+    "name": "惠泉酒坊",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.0753,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1642718389425106946.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-303",
+    "sourcePointId": "303",
+    "name": "无尘",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4183,
+    "longitude": 120.0752,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561989052056928257.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-307",
+    "sourcePointId": "307",
+    "name": "寸一",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4185,
+    "longitude": 120.0744,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561893533997957122.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-309",
+    "sourcePointId": "309",
+    "name": "放下睡眠酒店",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44",
+      "65"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4184,
+    "longitude": 120.0741,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/1/1615291785664724994.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-310",
+    "sourcePointId": "310",
+    "name": "拈花68号咖啡",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4184,
+    "longitude": 120.0756,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561913411714351106.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-311",
+    "sourcePointId": "311",
+    "name": "花面包房",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4185,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1645691158270013441.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-312",
+    "sourcePointId": "312",
+    "name": "远山堂",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.4189,
+    "longitude": 120.0746,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561992740414619649.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-314",
+    "sourcePointId": "314",
+    "name": "云水间",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4192,
+    "longitude": 120.0749,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633663508846350337.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-316",
+    "sourcePointId": "316",
+    "name": "舒云阁",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4193,
+    "longitude": 120.0751,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/4/1916311079858655234.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-319",
+    "sourcePointId": "319",
+    "name": "舒影时光",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4202,
+    "longitude": 120.0753,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561913108331954177.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-321",
+    "sourcePointId": "321",
+    "name": "都可手作",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4199,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641729143906201602.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-327",
+    "sourcePointId": "327",
+    "name": "净默",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4195,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561899040305414146.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-329",
+    "sourcePointId": "329",
+    "name": "拈花68号啫啫煲",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4192,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1883731427629912066.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-330",
+    "sourcePointId": "330",
+    "name": "无意",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4191,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/6/1666303562318049281.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-333",
+    "sourcePointId": "333",
+    "name": "无门关",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4192,
+    "longitude": 120.0761,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561995835076968450.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-334",
+    "sourcePointId": "334",
+    "name": "门前一棵松",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4199,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561996077595820033.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-335",
+    "sourcePointId": "335",
+    "name": "吃茶去",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4197,
+    "longitude": 120.0761,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561996646058655745.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-336",
+    "sourcePointId": "336",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.0761,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307107362799618.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-339",
+    "sourcePointId": "339",
+    "name": "露苔锡宜餐厅",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4204,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1693821691768041474.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-341",
+    "sourcePointId": "341",
+    "name": "花隐便利店",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4203,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561896496265039874.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-342",
+    "sourcePointId": "342",
+    "name": "武家面",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4204,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/5/1788084368813563906.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-345",
+    "sourcePointId": "345",
+    "name": "巴适小院",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4207,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561997571921903617.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-346",
+    "sourcePointId": "346",
+    "name": "小炉记",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4208,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561997782622339074.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-347",
+    "sourcePointId": "347",
+    "name": "炙荟",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4209,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561998085728337922.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-348",
+    "sourcePointId": "348",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4209,
+    "longitude": 120.0761,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307179177672706.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-349",
+    "sourcePointId": "349",
+    "name": "谷本鲜粥",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.421,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561998651076513794.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-350",
+    "sourcePointId": "350",
+    "name": "方寸间",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4211,
+    "longitude": 120.0763,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561998924041818114.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-351",
+    "sourcePointId": "351",
+    "name": "弓守道",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46",
+      "65"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4212,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561999285372719105.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-352",
+    "sourcePointId": "352",
+    "name": "又见山书社",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46",
+      "65"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4214,
+    "longitude": 120.0762,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641715519178358785.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-353",
+    "sourcePointId": "353",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4219,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307259326627842.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-354",
+    "sourcePointId": "354",
+    "name": "坐看云起",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4212,
+    "longitude": 120.0769,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633668533943369730.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-355",
+    "sourcePointId": "355",
+    "name": "云半间",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4212,
+    "longitude": 120.0765,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562001345067450370.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-356",
+    "sourcePointId": "356",
+    "name": "松风十里",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4209,
+    "longitude": 120.0766,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562001141400436737.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-357",
+    "sourcePointId": "357",
+    "name": "圆融堂",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4206,
+    "longitude": 120.0762,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633668462673756161.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-358",
+    "sourcePointId": "358",
+    "name": "醉春芳",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4205,
+    "longitude": 120.0764,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562000638754619394.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-359",
+    "sourcePointId": "359",
+    "name": "荣枯山房",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4202,
+    "longitude": 120.0762,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562000308696449026.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-361",
+    "sourcePointId": "361",
+    "name": "地库入口（自行车，三轮车）",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4183,
+    "longitude": 120.0768,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562368310231531522.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-362",
+    "sourcePointId": "362",
+    "name": "禅意村舍接待处",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4189,
+    "longitude": 120.0774,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303414846492673.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-363",
+    "sourcePointId": "363",
+    "name": "停车场",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696861721071617.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-364",
+    "sourcePointId": "364",
+    "name": "F区地下停车场入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4194,
+    "longitude": 120.0778,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562371727924531202.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-365",
+    "sourcePointId": "365",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.427,
+    "longitude": 120.0799,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307337147744258.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-367",
+    "sourcePointId": "367",
+    "name": "一号停车场入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4255,
+    "longitude": 120.0781,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696212828688385.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-368",
+    "sourcePointId": "368",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4247,
+    "longitude": 120.0784,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307401383510017.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-369",
+    "sourcePointId": "369",
+    "name": "拈花湾景区售检票处",
+    "aliases": [],
+    "categoryId": "47",
+    "categoryIds": [
+      "47"
+    ],
+    "categoryName": "售票处",
+    "kind": "facility",
+    "latitude": 31.425,
+    "longitude": 120.0791,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562731302189727745.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-370",
+    "sourcePointId": "370",
+    "name": "一号停车场出口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4253,
+    "longitude": 120.0776,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696258928283650.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-371",
+    "sourcePointId": "371",
+    "name": "禅意村舍E40",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4184,
+    "longitude": 120.0766,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303485147222017.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-372",
+    "sourcePointId": "372",
+    "name": "禅意村舍E41",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4185,
+    "longitude": 120.077,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303556576219137.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-373",
+    "sourcePointId": "373",
+    "name": "禅意村舍E42",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4187,
+    "longitude": 120.0765,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303633793355777.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-374",
+    "sourcePointId": "374",
+    "name": "禅意村舍E43",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4187,
+    "longitude": 120.0772,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303699568431105.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-375",
+    "sourcePointId": "375",
+    "name": "禅意村舍E44",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4189,
+    "longitude": 120.0769,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303768979968002.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-376",
+    "sourcePointId": "376",
+    "name": "禅意村舍E46",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4191,
+    "longitude": 120.0775,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303854736707585.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-377",
+    "sourcePointId": "377",
+    "name": "禅意村舍E47",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4192,
+    "longitude": 120.0771,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562303926878736386.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-378",
+    "sourcePointId": "378",
+    "name": "禅意村舍E48",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4195,
+    "longitude": 120.0773,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304011582705666.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-379",
+    "sourcePointId": "379",
+    "name": "禅意村舍E49",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4194,
+    "longitude": 120.0775,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304100338372610.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-380",
+    "sourcePointId": "380",
+    "name": "禅意村舍E50",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4197,
+    "longitude": 120.0773,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304233425698818.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-381",
+    "sourcePointId": "381",
+    "name": "禅意村舍E51",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4199,
+    "longitude": 120.0777,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304482154254338.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-382",
+    "sourcePointId": "382",
+    "name": "禅意村舍E52",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4201,
+    "longitude": 120.0774,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304542269079553.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-383",
+    "sourcePointId": "383",
+    "name": "禅意村舍E53",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4202,
+    "longitude": 120.0776,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304600819503105.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-384",
+    "sourcePointId": "384",
+    "name": "禅意村舍E54",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4204,
+    "longitude": 120.0774,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304668857368578.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-385",
+    "sourcePointId": "385",
+    "name": "禅意村舍E55",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4205,
+    "longitude": 120.0777,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304729345560578.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-386",
+    "sourcePointId": "386",
+    "name": "禅意村舍E56",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4207,
+    "longitude": 120.0775,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304795489734658.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-387",
+    "sourcePointId": "387",
+    "name": "禅意村舍E57",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4209,
+    "longitude": 120.0778,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304857485742081.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-388",
+    "sourcePointId": "388",
+    "name": "禅意村舍E58",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.421,
+    "longitude": 120.0776,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304918236041218.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-389",
+    "sourcePointId": "389",
+    "name": "E区停车场出口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4206,
+    "longitude": 120.0778,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633698080050069506.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-390",
+    "sourcePointId": "390",
+    "name": "禅意村舍F64",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4184,
+    "longitude": 120.0778,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562304982492778497.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-391",
+    "sourcePointId": "391",
+    "name": "禅意村舍F65",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4186,
+    "longitude": 120.0776,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305044241321985.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-392",
+    "sourcePointId": "392",
+    "name": "禅意村舍F66",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4187,
+    "longitude": 120.0779,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305163313418241.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-393",
+    "sourcePointId": "393",
+    "name": "禅意村舍F67",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.419,
+    "longitude": 120.078,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305566715248641.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-394",
+    "sourcePointId": "394",
+    "name": "禅意村舍F68",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4192,
+    "longitude": 120.0779,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305622935699457.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-395",
+    "sourcePointId": "395",
+    "name": "禅意村舍F70",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4198,
+    "longitude": 120.078,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305674248814593.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-396",
+    "sourcePointId": "396",
+    "name": "禅意村舍G71",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4195,
+    "longitude": 120.0792,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305736433565698.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-397",
+    "sourcePointId": "397",
+    "name": "禅意村舍G72",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4196,
+    "longitude": 120.0796,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305795564863490.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-398",
+    "sourcePointId": "398",
+    "name": "禅意村舍G73",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4194,
+    "longitude": 120.0796,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305884333113346.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-399",
+    "sourcePointId": "399",
+    "name": "禅意村舍G74",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4201,
+    "longitude": 120.0793,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562305970261819393.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-400",
+    "sourcePointId": "400",
+    "name": "禅意村舍G75",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4199,
+    "longitude": 120.0797,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306018882191362.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-401",
+    "sourcePointId": "401",
+    "name": "禅意村舍G76",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4173,
+    "longitude": 120.0771,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306070287581186.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-402",
+    "sourcePointId": "402",
+    "name": "禅意村舍G77",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4171,
+    "longitude": 120.0773,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306127950872578.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-403",
+    "sourcePointId": "403",
+    "name": "禅意村舍G78",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.417,
+    "longitude": 120.0772,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562306180270620674.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-404",
+    "sourcePointId": "404",
+    "name": "别墅接待处",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4173,
+    "longitude": 120.0775,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/2/1630047100679421954.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-406",
+    "sourcePointId": "406",
+    "name": "微笑停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4219,
+    "longitude": 120.0783,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696718290518017.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-407",
+    "sourcePointId": "407",
+    "name": "微笑停车场出入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4219,
+    "longitude": 120.0787,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696764700491778.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-408",
+    "sourcePointId": "408",
+    "name": "网红卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4215,
+    "longitude": 120.077,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307473894637570.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-409",
+    "sourcePointId": "409",
+    "name": "花海停车场出口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4152,
+    "longitude": 120.076,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697625474469889.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-410",
+    "sourcePointId": "410",
+    "name": "花海停车场入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4147,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697677865521154.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-411",
+    "sourcePointId": "411",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4146,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307546938441730.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-412",
+    "sourcePointId": "412",
+    "name": "盘龙湾停车场出入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4112,
+    "longitude": 120.0715,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697503405506562.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-413",
+    "sourcePointId": "413",
+    "name": "地下车库步行入口",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4131,
+    "longitude": 120.0725,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562366338321448962.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-414",
+    "sourcePointId": "414",
+    "name": "宠物之家",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4135,
+    "longitude": 120.0729,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562970245542318081.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-415",
+    "sourcePointId": "415",
+    "name": "寄存处",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4137,
+    "longitude": 120.0725,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562970811338784769.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-417",
+    "sourcePointId": "417",
+    "name": "究竟",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4179,
+    "longitude": 120.0753,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562001752724013057.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-420",
+    "sourcePointId": "420",
+    "name": "一号停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4251,
+    "longitude": 120.0784,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696396308516865.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-421",
+    "sourcePointId": "421",
+    "name": "花海停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.415,
+    "longitude": 120.0759,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697754765017089.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-422",
+    "sourcePointId": "422",
+    "name": "一池荷叶",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.4181,
+    "longitude": 120.0747,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562001940660752386.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-424",
+    "sourcePointId": "424",
+    "name": "卫生间",
+    "aliases": [],
+    "categoryId": "41",
+    "categoryIds": [
+      "41"
+    ],
+    "categoryName": "卫生间",
+    "kind": "facility",
+    "latitude": 31.4223,
+    "longitude": 120.078,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1562307686566821890.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-425",
+    "sourcePointId": "425",
+    "name": "丸武食事处",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4203,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561913962468835330.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-429",
+    "sourcePointId": "429",
+    "name": "肯德基",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4182,
+    "longitude": 120.0739,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641726848539783170.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-430",
+    "sourcePointId": "430",
+    "name": "五灯湖F区地下停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4184,
+    "longitude": 120.0772,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696974814150657.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-431",
+    "sourcePointId": "431",
+    "name": "五灯湖E区地下停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4185,
+    "longitude": 120.0758,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697098984460290.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-432",
+    "sourcePointId": "432",
+    "name": "酒店会议中心停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4224,
+    "longitude": 120.0794,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633696540334587905.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-433",
+    "sourcePointId": "433",
+    "name": "A区地库停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4129,
+    "longitude": 120.0723,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697381866225666.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-434",
+    "sourcePointId": "434",
+    "name": "盘龙湾停车场",
+    "aliases": [],
+    "categoryId": "48",
+    "categoryIds": [
+      "48"
+    ],
+    "categoryName": "停车场",
+    "kind": "facility",
+    "latitude": 31.4113,
+    "longitude": 120.072,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633697538645114881.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-435",
+    "sourcePointId": "435",
+    "name": "风度",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.4167,
+    "longitude": 120.0735,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641733773683814402.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-436",
+    "sourcePointId": "436",
+    "name": "谜底",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4198,
+    "longitude": 120.0757,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2039924407237844994.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-489",
+    "sourcePointId": "489",
+    "name": "微笑码头",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.42306465040629,
+    "longitude": 120.07683284464292,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/12/1740540689506537474.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-508",
+    "sourcePointId": "508",
+    "name": "拈花华服（游服中心店）",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.41357660960335,
+    "longitude": 120.07282555103302,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/9/1574955224477925378.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-510",
+    "sourcePointId": "510",
+    "name": "魔都三兄弟",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4160789880291,
+    "longitude": 120.07299184799194,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/9/1831153250834817025.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-514",
+    "sourcePointId": "514",
+    "name": "禅生活中心",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.415254330598373,
+    "longitude": 120.07301866975467,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633644894109962241.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-516",
+    "sourcePointId": "516",
+    "name": "水街码头",
+    "aliases": [],
+    "categoryId": "37",
+    "categoryIds": [
+      "37"
+    ],
+    "categoryName": "交通",
+    "kind": "facility",
+    "latitude": 31.416307278226533,
+    "longitude": 120.0729489326477,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631569327244054529.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-519",
+    "sourcePointId": "519",
+    "name": "滨水街",
+    "aliases": [],
+    "categoryId": "65",
+    "categoryIds": [
+      "65"
+    ],
+    "categoryName": "打卡优选",
+    "kind": "facility",
+    "latitude": 31.41614308026992,
+    "longitude": 120.07292747497559,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633647883731288065.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-522",
+    "sourcePointId": "522",
+    "name": "行运坊",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.417610716223912,
+    "longitude": 120.0743437546771,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633617286744981506.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-526",
+    "sourcePointId": "526",
+    "name": "云舒馆",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.420675206261187,
+    "longitude": 120.07921993732452,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1555560321665339394.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-527",
+    "sourcePointId": "527",
+    "name": "游客中心",
+    "aliases": [],
+    "categoryId": "53",
+    "categoryIds": [
+      "53"
+    ],
+    "categoryName": "游客服务中心",
+    "kind": "facility",
+    "latitude": 31.41371212246866,
+    "longitude": 120.0723534822464,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688754479117058049.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-567",
+    "sourcePointId": "567",
+    "name": "苗小坛",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.420307605350057,
+    "longitude": 120.07577602285892,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/9/1565532673742307330.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-568",
+    "sourcePointId": "568",
+    "name": "陆得兴",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.416842137076472,
+    "longitude": 120.07362489122897,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/9/1565533000918564865.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-607",
+    "sourcePointId": "607",
+    "name": "布兰兔的植物庄园",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.418111409631262,
+    "longitude": 120.07484257221222,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/10/1580733203523784705.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-609",
+    "sourcePointId": "609",
+    "name": "DQ",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.417855045784716,
+    "longitude": 120.07408618927002,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/10/1580734183811514369.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-610",
+    "sourcePointId": "610",
+    "name": "关东热煮",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.417800110583595,
+    "longitude": 120.07396280765533,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1879729472557977601.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-613",
+    "sourcePointId": "613",
+    "name": "独角乐园",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.416852473247427,
+    "longitude": 120.07357656955719,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1879790483506438146.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-614",
+    "sourcePointId": "614",
+    "name": "福运满阁",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.416454188105792,
+    "longitude": 120.07337272167206,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/7/1940693267321643009.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-615",
+    "sourcePointId": "615",
+    "name": "捌渡",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.415396664039736,
+    "longitude": 120.07268607616425,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/10/1582545772739395586.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-616",
+    "sourcePointId": "616",
+    "name": "大白兔",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.419816103089147,
+    "longitude": 120.07567942142487,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/10/1582620299875942402.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-618",
+    "sourcePointId": "618",
+    "name": "糕兴点",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.417797255381743,
+    "longitude": 120.07416665554047,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1642718587315503106.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-619",
+    "sourcePointId": "619",
+    "name": "九木杂物社",
+    "aliases": [],
+    "categoryId": "46",
+    "categoryIds": [
+      "46"
+    ],
+    "categoryName": "商铺",
+    "kind": "facility",
+    "latitude": 31.417586670139617,
+    "longitude": 120.07389307022095,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1641715666729779202.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-620",
+    "sourcePointId": "620",
+    "name": "北野家",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.417421863968173,
+    "longitude": 120.0738662481308,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/5/1925048494038425601.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-622",
+    "sourcePointId": "622",
+    "name": "呈湘",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.417337934741543,
+    "longitude": 120.07328689098358,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/11/1594520748418347010.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-624",
+    "sourcePointId": "624",
+    "name": "百尺竿",
+    "aliases": [],
+    "categoryId": "44",
+    "categoryIds": [
+      "44"
+    ],
+    "categoryName": "住宿",
+    "kind": "facility",
+    "latitude": 31.41800173620481,
+    "longitude": 120.07411301136017,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/11/1594547506139844609.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-626",
+    "sourcePointId": "626",
+    "name": "露苔（演艺）",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.420478360893583,
+    "longitude": 120.07546484470367,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/12/1607926381489356802.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-627",
+    "sourcePointId": "627",
+    "name": "游客中心（演艺）",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.413382496222017,
+    "longitude": 120.0723534822464,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/12/1607926786243887105.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-628",
+    "sourcePointId": "628",
+    "name": "五灯湖车站（演艺）",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.417923911448767,
+    "longitude": 120.076242685318,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/12/1607927823611072513.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-630",
+    "sourcePointId": "630",
+    "name": "云门草坪",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36",
+      "65"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.417952905039453,
+    "longitude": 120.07721900939941,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1636228374264500225.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-631",
+    "sourcePointId": "631",
+    "name": "拈花湖",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.415430433175214,
+    "longitude": 120.0724983215332,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/1/1615300625600806913.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-632",
+    "sourcePointId": "632",
+    "name": "酒店三楼西餐厅",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4234674851885,
+    "longitude": 120.0816018122714,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/2/1621339876463874050.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-633",
+    "sourcePointId": "633",
+    "name": "酒店四楼中餐厅",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.423494951133378,
+    "longitude": 120.08166618528776,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/2/1621340460145278978.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-634",
+    "sourcePointId": "634",
+    "name": "酒店大堂吧",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.423508684102792,
+    "longitude": 120.08162326994352,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/2/1621340730325565442.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-635",
+    "sourcePointId": "635",
+    "name": "云树帆影湿地",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.42083695504495,
+    "longitude": 120.07506787776947,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1633616642955939841.jpg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-635",
+      "title": "云树帆影湿地",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1631101586974277634.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-636",
+    "sourcePointId": "636",
+    "name": "云舒草坪",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.420438686769696,
+    "longitude": 120.07827043533325,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1649316498854313986.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-638",
+    "sourcePointId": "638",
+    "name": "百尺桥",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.416371846686232,
+    "longitude": 120.07339425268583,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/3/1638079819644092418.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-641",
+    "sourcePointId": "641",
+    "name": "山沟沟里的粉",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.420216227878644,
+    "longitude": 120.07571699330583,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/5/1658375370589024257.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-642",
+    "sourcePointId": "642",
+    "name": "叠泉",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.414011226671146,
+    "longitude": 120.07274508476257,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1646042191466819586.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-643",
+    "sourcePointId": "643",
+    "name": "潮蹄猪脚饭",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4179162816138,
+    "longitude": 120.07483184337616,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2045067505254191106.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-644",
+    "sourcePointId": "644",
+    "name": "拈花好礼",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.413721144611767,
+    "longitude": 120.07276661577635,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1646758638768832513.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-645",
+    "sourcePointId": "645",
+    "name": "寻友记",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.42054689409336,
+    "longitude": 120.0759101647418,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/5/1658375938791387137.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-648",
+    "sourcePointId": "648",
+    "name": "拈花68号闽南小吃",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.419965511322477,
+    "longitude": 120.07549174013548,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1883732017216151554.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-649",
+    "sourcePointId": "649",
+    "name": "一玺",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.415492865534617,
+    "longitude": 120.07313139620237,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1651875180847136770.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-650",
+    "sourcePointId": "650",
+    "name": "拈花露营吧",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.41937039165379,
+    "longitude": 120.07566876593046,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/5/1654776240805203970.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-651",
+    "sourcePointId": "651",
+    "name": "文腾金陵鸭血粉丝汤",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4159460912691,
+    "longitude": 120.0729382771533,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/5/1656168422136709121.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-652",
+    "sourcePointId": "652",
+    "name": "江南赞",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4176857396823,
+    "longitude": 120.07426863514411,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/5/1663008916709969922.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-654",
+    "sourcePointId": "654",
+    "name": "生姜",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41538758547481,
+    "longitude": 120.07314210735785,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/6/1671041401782480897.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-655",
+    "sourcePointId": "655",
+    "name": "蜜哆哆炸鸡",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.42054689409336,
+    "longitude": 120.07592089357786,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/5/1924689786306990082.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-656",
+    "sourcePointId": "656",
+    "name": "粤阿东深井烧鹅",
+    "aliases": [],
+    "categoryId": "55",
+    "categoryIds": [
+      "55"
+    ],
+    "categoryName": "餐饮",
+    "kind": "facility",
+    "latitude": 31.4186624810887,
+    "longitude": 120.07483184337616,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/7/1677239117503746049.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-658",
+    "sourcePointId": "658",
+    "name": "香月花街",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.415489947759372,
+    "longitude": 120.07304012775421,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789726585122817.png",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-658",
+      "title": "香月花街",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1688789772923793409.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [
+      "49906877"
+    ],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-659",
+    "sourcePointId": "659",
+    "name": "指月巷",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.421421249673006,
+    "longitude": 120.0767577427905,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1689210545174425601.jpeg",
+      "imageUrls": []
+    },
+    "narration": {
+      "id": "nianhuawan-official-audio-659",
+      "title": "指月巷",
+      "source": "official-audio",
+      "sourceAssetUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1689211000658808833.mp3",
+      "allowAvatarSynthesis": false,
+      "segments": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-661",
+    "sourcePointId": "661",
+    "name": "景区营销5-73",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.417844888497342,
+    "longitude": 120.07978858659044,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1697076443418148865.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-662",
+    "sourcePointId": "662",
+    "name": "景区运营本部 ",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.418211122388996,
+    "longitude": 120.07993879029527,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1697077067766525954.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-663",
+    "sourcePointId": "663",
+    "name": "酒店管理事业7-12",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.419058032786577,
+    "longitude": 120.07967056939378,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1697077484217909249.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-664",
+    "sourcePointId": "664",
+    "name": "商业管理事业5-1 ",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41675533421482,
+    "longitude": 120.07749261567369,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/8/1697077726447353857.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-665",
+    "sourcePointId": "665",
+    "name": "乐米欧SoleMio",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.417890340058577,
+    "longitude": 120.07433295249939,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/10/1708674166343835650.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-667",
+    "sourcePointId": "667",
+    "name": "梵登音疗空间 ",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.418227580275907,
+    "longitude": 120.07513225078583,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/2/1755049339030528002.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-668",
+    "sourcePointId": "668",
+    "name": "红胖胖龙虾",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.416703122514072,
+    "longitude": 120.0732547044754,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/6/2066419637833105410.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-669",
+    "sourcePointId": "669",
+    "name": "花路轻食礼品店",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41795582282541,
+    "longitude": 120.07613547029905,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/4/1909778426133139458.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-674",
+    "sourcePointId": "674",
+    "name": "酷拼工坊",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.415738979965408,
+    "longitude": 120.07317962357774,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/11/1856988832160784385.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-675",
+    "sourcePointId": "675",
+    "name": "呵爱逗",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.415926679297197,
+    "longitude": 120.07334592053667,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2024/11/1860863344025722881.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-676",
+    "sourcePointId": "676",
+    "name": "凡华造物",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41898585078274,
+    "longitude": 120.07567413002107,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1874729388939075586.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-677",
+    "sourcePointId": "677",
+    "name": "指尖电影",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.419678767897377,
+    "longitude": 120.07569015026093,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1879032120289984514.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-678",
+    "sourcePointId": "678",
+    "name": "满记甜品",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41845943816827,
+    "longitude": 120.07502498337999,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/1/1881142505552924673.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-679",
+    "sourcePointId": "679",
+    "name": "朴大叔拌饭",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41622278420362,
+    "longitude": 120.07302415957383,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/3/1903984735431331841.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-680",
+    "sourcePointId": "680",
+    "name": "lucky fun",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.418021925566872,
+    "longitude": 120.0746334856376,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/4/1916305453475667970.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-681",
+    "sourcePointId": "681",
+    "name": "喜盖",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.416756398203923,
+    "longitude": 120.0734961766284,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/4/1916747707580338178.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-682",
+    "sourcePointId": "682",
+    "name": "陶兽记",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41610216431609,
+    "longitude": 120.0734103276045,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/5/1926870098746724354.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-683",
+    "sourcePointId": "683",
+    "name": "荣",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4175302087521,
+    "longitude": 120.07383406162262,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/7/1943597811499438081.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-685",
+    "sourcePointId": "685",
+    "name": "丛林探险乐园",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.427912420013126,
+    "longitude": 120.08158564567566,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/7/1945724069474140162.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-686",
+    "sourcePointId": "686",
+    "name": "林下课堂",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.427440942387978,
+    "longitude": 120.08084535598755,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/7/1945749569613529089.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-687",
+    "sourcePointId": "687",
+    "name": "水乐园",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.424489957564784,
+    "longitude": 120.0796490907669,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/7/1946085477026037761.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-688",
+    "sourcePointId": "688",
+    "name": "渝八两鸡公煲",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.42033673525326,
+    "longitude": 120.07580285870063,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/8/1951208724469551105.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-689",
+    "sourcePointId": "689",
+    "name": "泰旺",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.418359099788713,
+    "longitude": 120.07423644929077,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/8/1954713460294541314.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-690",
+    "sourcePointId": "690",
+    "name": "半山甜品手焙",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.4172199611765,
+    "longitude": 120.07393072788545,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2025/9/1972163764345044994.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-692",
+    "sourcePointId": "692",
+    "name": "许愿广场",
+    "aliases": [],
+    "categoryId": "36",
+    "categoryIds": [
+      "36"
+    ],
+    "categoryName": "景点",
+    "kind": "scenic",
+    "latitude": 31.416140379955966,
+    "longitude": 120.0765968626365,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2039193937123397634.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": false
+  },
+  {
+    "id": "nianhuawan-693",
+    "sourcePointId": "693",
+    "name": "木与春间",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.419182699282757,
+    "longitude": 120.07562585058622,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2040613057375670273.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-694",
+    "sourcePointId": "694",
+    "name": "密室逃脱",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.416277720311047,
+    "longitude": 120.0730295246467,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2049713175407808513.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-695",
+    "sourcePointId": "695",
+    "name": "睦和山房",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.416419638502248,
+    "longitude": 120.07355523761362,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/4/2048658504925220865.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-696",
+    "sourcePointId": "696",
+    "name": "云煦香苑",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.415522345791135,
+    "longitude": 120.07314217742532,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2074755262788325378.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-697",
+    "sourcePointId": "697",
+    "name": "滑草",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.414847492897692,
+    "longitude": 120.07662892341614,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2076859729896775681.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-698",
+    "sourcePointId": "698",
+    "name": "赛博卡丁车",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41609272208438,
+    "longitude": 120.07304012775421,
+    "coordinateSystem": "GCJ02",
+    "description": "赛博卡丁车",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2077297779357491202.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-699",
+    "sourcePointId": "699",
+    "name": "呦呦卡丁车",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.426649037740827,
+    "longitude": 120.07938623428345,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2079795355755454465.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-700",
+    "sourcePointId": "700",
+    "name": "呦呦居",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.420208270065718,
+    "longitude": 120.07602274417877,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2079468131332366338.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-701",
+    "sourcePointId": "701",
+    "name": "萌宠乐园",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.42867684957115,
+    "longitude": 120.08240103721619,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2079800955650416642.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-702",
+    "sourcePointId": "702",
+    "name": "王春春鸡汤饭",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.417978846577373,
+    "longitude": 120.074982047081,
+    "coordinateSystem": "GCJ02",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2026/7/2082638985857241089.png",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-211",
+    "sourcePointId": "211",
+    "name": "码头",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41631246669559,
+    "longitude": 120.0729489326477,
+    "coordinateSystem": "GCJ02",
+    "description": "拈花湾推荐路线点位",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/point/2022/8/1561971218337693697.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-177",
+    "sourcePointId": "177",
+    "name": "云树帆影",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.420812539993896,
+    "longitude": 120.07517516613007,
+    "coordinateSystem": "GCJ02",
+    "description": "拈花湾推荐路线点位",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/1/1615301014245015553.jpg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  },
+  {
+    "id": "nianhuawan-291",
+    "sourcePointId": "291",
+    "name": "Lucky Fun",
+    "aliases": [],
+    "categoryId": "uncategorized",
+    "categoryIds": [],
+    "categoryName": "其他设施",
+    "kind": "facility",
+    "latitude": 31.41785510837363,
+    "longitude": 120.07446713629179,
+    "coordinateSystem": "GCJ02",
+    "description": "拈花湾推荐路线点位",
+    "media": {
+      "sourceCoverUrl": "https://nhm-cdn.nianhuawan.com/navigation/poi_point_file/2023/4/1642718234343849985.jpeg",
+      "imageUrls": []
+    },
+    "panoramaIds": [],
+    "hasFootprint": false,
+    "checkInEnabled": true,
+    "pointLevel": 15,
+    "sourceProject": "nianhuawan-miniapp-rebuild",
+    "manualReview": true
+  }
+]
