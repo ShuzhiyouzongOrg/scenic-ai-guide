@@ -59,30 +59,38 @@ export class LAppDelegate {
    * 実行処理。
    */
   public run(): void {
+    if (this._animationFrameId != null) {
+      return;
+    }
     // メインループ
     const loop = (): void => {
+      this._animationFrameId = null;
       // インスタンスの有無の確認
-      if (s_instance == null) {
+      if (s_instance !== this || this._subdelegates == null) {
         return;
       }
 
       // 時間更新
       LAppPal.updateTime();
-      
+
       for (let i = 0; i < this._subdelegates.getSize(); i++) {
         this._subdelegates.at(i).update();
       }
 
       // ループのために再帰呼び出し
-      requestAnimationFrame(loop);
+      this._animationFrameId = requestAnimationFrame(loop);
     };
-    loop();
+    this._animationFrameId = requestAnimationFrame(loop);
   }
 
   /**
    * 解放する。
    */
   private release(): void {
+    if (this._animationFrameId != null) {
+      cancelAnimationFrame(this._animationFrameId);
+      this._animationFrameId = null;
+    }
     this.releaseEventListener();
     this.releaseSubdelegates();
 
@@ -96,10 +104,10 @@ export class LAppDelegate {
    * イベントリスナーを解除する。
    */
   private releaseEventListener(): void {
-    document.removeEventListener('pointerup', onPointerBegan);
+    document.removeEventListener('pointerdown', onPointerBegan);
     document.removeEventListener('pointermove', onPointerMoved);
-    document.removeEventListener('pointerdown', onPointerEnded);
-    document.removeEventListener('pointerdown', onPointerCancel);
+    document.removeEventListener('pointerup', onPointerEnded);
+    document.removeEventListener('pointercancel', onPointerCancel);
   }
 
   /**
@@ -121,11 +129,11 @@ export class LAppDelegate {
   /**
    * APPに必要な物を初期化する。
    */
-  public initialize(): boolean {
+  public initialize(canvas?: HTMLCanvasElement): boolean {
     // Cubism SDKの初期化
     this.initializeCubism();
 
-    this.initializeSubdelegates();
+    this.initializeSubdelegates(canvas);
     this.initializeEventListener();
 
     return true;
@@ -138,7 +146,9 @@ export class LAppDelegate {
     document.addEventListener('pointerdown', onPointerBegan, { passive: true });
     document.addEventListener('pointermove', onPointerMoved, { passive: true });
     document.addEventListener('pointerup', onPointerEnded, { passive: true });
-    document.addEventListener('pointercancel', onPointerCancel, { passive: true });
+    document.addEventListener('pointercancel', onPointerCancel, {
+      passive: true
+    });
   }
 
   /**
@@ -159,32 +169,21 @@ export class LAppDelegate {
   /**
    * Canvasを生成配置、Subdelegateを初期化する
    */
-  private initializeSubdelegates(): void {
+  private initializeSubdelegates(targetCanvas?: HTMLCanvasElement): void {
     // 只支持一个画布
     if (LAppDefine.CanvasNum > 1) {
       throw new Error('CanvasNum > 1');
     }
-    let width: number = 100;
-    let height: number = 100;
-    if (LAppDefine.CanvasNum > 3) {
-      const widthunit: number = Math.ceil(Math.sqrt(LAppDefine.CanvasNum));
-      const heightUnit = Math.ceil(LAppDefine.CanvasNum / widthunit);
-      width = 100.0 / widthunit;
-      height = 100.0 / heightUnit;
-    } else {
-      width = 100.0 / LAppDefine.CanvasNum;
-    }
-
     this._canvases.prepareCapacity(LAppDefine.CanvasNum);
     this._subdelegates.prepareCapacity(LAppDefine.CanvasNum);
     for (let i = 0; i < LAppDefine.CanvasNum; i++) {
-      // const canvas = document.createElement('canvas');
-      // 默认只有一个 live2dCanvas 画布
-      const canvas = document.getElementById('live2dCanvas') as HTMLCanvasElement;
+      const canvas =
+        targetCanvas ||
+        (document.getElementById('live2dCanvas') as HTMLCanvasElement);
+      if (!canvas) {
+        throw new Error('Live2D canvas is unavailable.');
+      }
       this._canvases.pushBack(canvas);
-      // canvas.style.width = `${width}vw`;
-      // canvas.style.height = `${height}vh`;
-
       // キャンバスを DOM に追加
       // document.body.appendChild(canvas);
     }
@@ -220,6 +219,7 @@ export class LAppDelegate {
     this._cubismOption = new Option();
     this._subdelegates = new csmVector<LAppSubdelegate>();
     this._canvases = new csmVector<HTMLCanvasElement>();
+    this._animationFrameId = null;
   }
 
   /**
@@ -236,6 +236,8 @@ export class LAppDelegate {
    * Subdelegate
    */
   private _subdelegates: csmVector<LAppSubdelegate>;
+
+  private _animationFrameId: number | null;
 }
 
 function onPointerBegan(e: PointerEvent): void {

@@ -39,13 +39,23 @@ export function saveDigitalHumanConfig(data: Partial<DigitalHumanConfig>) {
 
 /** 预热当前数字人资源 */
 export function preloadDigitalHuman() {
-  return request.post<{ ok: boolean; engine: DigitalHumanEngine; avatarId: string; modelId: string; vcn: string }>({
+  return request.post<{
+    ok: boolean
+    engine: DigitalHumanEngine
+    avatarId: string
+    modelId: string
+    vcn: string
+  }>({
     url: '/api/digital-human/preload'
   })
 }
 
 /** 后端 TTS 合成结果（Live2D 数字人用它拿音频驱动口型） */
 export interface TtsResult {
+  provider?: string
+  voice?: string
+  requestedVoice?: string
+  fallbackUsed?: boolean
   segments: { audioUrl: string; mimeType?: string; text?: string }[]
   audioUrl: string | null
 }

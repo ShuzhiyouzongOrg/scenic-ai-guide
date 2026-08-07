@@ -19,7 +19,7 @@
 
       <Live2dAvatar
         v-else-if="engine === 'live2d'"
-        key="live2d"
+        :key="avatarKey"
         ref="childRef"
         :config="effectiveConfig"
         @ready="onReady"
@@ -28,7 +28,7 @@
 
       <XfAvatar
         v-else
-        key="xfyun"
+        :key="avatarKey"
         ref="childRef"
         :config="config"
         @ready="onReady"
@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue'
+  import { computed, onActivated, onBeforeUnmount, onMounted, ref } from 'vue'
   import XfAvatar from './XfAvatar.vue'
   import Live2dAvatar from './Live2dAvatar.vue'
   import {
@@ -80,6 +80,7 @@
   const loaded = ref(false)
   const childRef = ref<AvatarChild | null>(null)
   const forceLocalFallback = ref(false)
+  let configRequest = 0
 
   const engine = computed(() =>
     forceLocalFallback.value ? 'live2d' : props.engineOverride || config.value?.engine || 'xfyun'
@@ -94,16 +95,25 @@
       vcn: config.value?.vcn || '',
       modelId: props.fallbackModelId,
       welcomeText: config.value?.welcomeText || '',
-      speechRate: config.value?.speechRate || 50,
+      speechRate: config.value?.speechRate || 1,
       emotionStyle: config.value?.emotionStyle || 'neutral',
       serviceStatus: 'online',
       enabled: true,
       assetAvailable: true
     }
   })
+  const avatarKey = computed(() => {
+    const active = effectiveConfig.value
+    return [
+      engine.value,
+      active?.id || 'default',
+      active?.modelId || active?.avatarId || 'unconfigured',
+      active?.updatedAt || 'initial'
+    ].join(':')
+  })
 
   function onReady() {
-    emit('ready', config.value)
+    emit('ready', effectiveConfig.value)
   }
   function onError(message: string) {
     if (props.preferLocalFallback && !forceLocalFallback.value) {
@@ -155,21 +165,61 @@
     config
   })
 
-  onMounted(async () => {
+  async function loadConfig(): Promise<void> {
+    const requestId = ++configRequest
+    let nextConfig: DigitalHumanConfig | null = null
     try {
-      config.value = await fetchActiveDigitalHuman()
+      nextConfig = await fetchActiveDigitalHuman()
     } catch {
-      config.value = null
-    } finally {
-      if (
-        props.preferLocalFallback &&
-        (!config.value || config.value.serviceStatus !== 'online' || !config.value.assetAvailable)
-      ) {
-        forceLocalFallback.value = true
-      }
-      loaded.value = true
+      if (loaded.value) return
+      nextConfig = null
     }
+    if (requestId !== configRequest) return
+
+    const previousSignature = configSignature(config.value)
+    const nextSignature = configSignature(nextConfig)
+    if (loaded.value && previousSignature === nextSignature) return
+
+    await childRef.value?.interrupt()
+    forceLocalFallback.value = Boolean(
+      props.preferLocalFallback &&
+        (!nextConfig || nextConfig.serviceStatus !== 'online' || !nextConfig.assetAvailable)
+    )
+    config.value = nextConfig
+    loaded.value = true
+  }
+
+  function refreshOnFocus(): void {
+    if (document.visibilityState === 'visible') void loadConfig()
+  }
+
+  onMounted(() => {
+    void loadConfig()
+    window.addEventListener('focus', refreshOnFocus)
+    document.addEventListener('visibilitychange', refreshOnFocus)
   })
+
+  onActivated(refreshOnFocus)
+  onBeforeUnmount(() => {
+    configRequest += 1
+    window.removeEventListener('focus', refreshOnFocus)
+    document.removeEventListener('visibilitychange', refreshOnFocus)
+  })
+
+  function configSignature(value: DigitalHumanConfig | null): string {
+    if (!value) return 'none'
+    return [
+      value.id,
+      value.engine,
+      value.avatarId,
+      value.modelId,
+      value.vcn,
+      value.speechRate,
+      value.serviceStatus,
+      value.assetAvailable,
+      value.updatedAt
+    ].join('|')
+  }
 </script>
 
 <style scoped lang="scss">

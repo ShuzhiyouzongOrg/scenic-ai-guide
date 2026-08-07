@@ -8,7 +8,12 @@
   <div class="l2d-avatar" :class="`l2d-status-${live2d.status.value}`">
     <div class="l2d-stage">
       <!-- Live2D 渲染画布：用 v-show 保持挂载，确保初始化时能取到画布 -->
-      <canvas id="live2dCanvas" class="l2d-canvas" v-show="isRendering"></canvas>
+      <canvas
+        ref="canvasRef"
+        class="l2d-canvas"
+        :class="{ 'is-visible': isRendering }"
+        aria-hidden="true"
+      ></canvas>
 
       <!-- 降级 / 加载态 -->
       <div v-if="!isRendering" class="l2d-fallback">
@@ -54,7 +59,7 @@
     (e: 'error', message: string): void
   }>()
 
-  const wrapperRef = ref<HTMLElement | null>(null)
+  const canvasRef = ref<HTMLCanvasElement | null>(null)
   const config = computed(() => props.config)
   const live2d = useLive2dAvatar()
 
@@ -100,10 +105,17 @@
       emit('ready', config.value)
       return
     }
+    if (!canvasRef.value) {
+      live2d.status.value = 'error'
+      live2d.errorMessage.value = t('app.avatarTextOnly')
+      emit('error', live2d.errorMessage.value)
+      return
+    }
     const ok = await live2d.start({
       modelId: config.value?.modelId,
       vcn: config.value?.vcn,
-      wrapper: wrapperRef.value as HTMLElement
+      speechRate: config.value?.speechRate,
+      canvas: canvasRef.value
     })
     if (ok) {
       emit('ready', config.value)
@@ -180,12 +192,21 @@
   .l2d-canvas {
     width: 100%;
     height: 100%;
+    opacity: 0;
+    transition: opacity 180ms ease-out;
+
+    &.is-visible {
+      opacity: 1;
+    }
   }
 
   .l2d-fallback {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     color: rgb(255 255 255 / 88%);
     text-align: center;
   }

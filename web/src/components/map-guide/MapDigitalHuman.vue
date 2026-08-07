@@ -60,7 +60,6 @@
     <DigitalHumanAvatar
       ref="avatarRef"
       class="map-digital-human__engine"
-      engine-override="xfyun"
       @ready="emit('ready')"
       @error="emit('error', $event)"
     />
@@ -147,14 +146,20 @@
   }
 
   .map-digital-human__engine :deep(.dh-avatar),
-  .map-digital-human__engine :deep(.dh-stage) {
+  .map-digital-human__engine :deep(.dh-stage),
+  .map-digital-human__engine :deep(.l2d-avatar),
+  .map-digital-human__engine :deep(.l2d-stage) {
     border-radius: inherit;
   }
 
   .state-idle .map-digital-human__engine :deep(.dh-badge),
   .state-compact .map-digital-human__engine :deep(.dh-badge),
   .state-idle .map-digital-human__engine :deep(.dh-audio-mask),
-  .state-compact .map-digital-human__engine :deep(.dh-audio-mask) {
+  .state-compact .map-digital-human__engine :deep(.dh-audio-mask),
+  .state-idle .map-digital-human__engine :deep(.l2d-badge),
+  .state-compact .map-digital-human__engine :deep(.l2d-badge),
+  .state-idle .map-digital-human__engine :deep(.l2d-audio-mask),
+  .state-compact .map-digital-human__engine :deep(.l2d-audio-mask) {
     display: none;
   }
 
@@ -174,9 +179,32 @@
   .state-idle .map-digital-human__engine :deep(.dh-stage),
   .state-compact .map-digital-human__engine :deep(.dh-stage),
   .state-idle .map-digital-human__engine :deep(.dh-loading),
-  .state-compact .map-digital-human__engine :deep(.dh-loading) {
+  .state-compact .map-digital-human__engine :deep(.dh-loading),
+  .state-idle .map-digital-human__engine :deep(.l2d-avatar),
+  .state-compact .map-digital-human__engine :deep(.l2d-avatar),
+  .state-idle .map-digital-human__engine :deep(.l2d-stage),
+  .state-compact .map-digital-human__engine :deep(.l2d-stage) {
     background: #fff;
     border-radius: 50%;
+  }
+
+  .state-idle .map-digital-human__engine :deep(.l2d-canvas),
+  .state-compact .map-digital-human__engine :deep(.l2d-canvas) {
+    border-radius: 50%;
+  }
+
+  .state-idle .map-digital-human__engine :deep(.l2d-fallback-name),
+  .state-compact .map-digital-human__engine :deep(.l2d-fallback-name),
+  .state-idle .map-digital-human__engine :deep(.l2d-fallback-tip),
+  .state-compact .map-digital-human__engine :deep(.l2d-fallback-tip) {
+    display: none;
+  }
+
+  .state-idle .map-digital-human__engine :deep(.l2d-fallback-portrait),
+  .state-compact .map-digital-human__engine :deep(.l2d-fallback-portrait) {
+    width: 100%;
+    max-height: 100%;
+    margin: 0;
   }
 
   .state-speaking .map-digital-human__engine {

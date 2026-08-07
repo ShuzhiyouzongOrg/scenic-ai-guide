@@ -6,7 +6,7 @@
  *
  * 与讯飞不同：讯飞是云端出声 + 云端口型；Live2D 在本地画布渲染，声音来自项目
  * 已有的后端 TTS 接口，取到音频后喂给 Live2dManager，由 AnalyserNode 实时分析
- * 振幅驱动口型（见 live2dManager.getCurrentRms）。移植自 awesome-digital-human-live2d。
+ * 音量包络、静音片段和频谱特征并驱动口型。渲染基础移植自 awesome-digital-human-live2d。
  */
 import { ref } from 'vue'
 import { LAppDelegate } from '@/lib/live2d/src/lappdelegate'
@@ -21,25 +21,29 @@ export interface Live2dStartOptions {
   modelId?: string
   /** 口型驱动用的 TTS 音色（vcn），来自后台数字人配置 */
   vcn?: string
-  /** 渲染容器 */
-  wrapper: HTMLElement
+  /** TTS 语速 */
+  speechRate?: number
+  /** 当前组件的真实渲染画布，避免全局 id 在切换时取错实例 */
+  canvas: HTMLCanvasElement
 }
 
-const CANVAS_ID = 'live2dCanvas'
 const BASE = (import.meta.env.VITE_BASE_URL as string) || '/'
 const CORE_SCRIPT = `${BASE}live2d/core/live2dcubismcore.min.js`.replace(/\/{2,}/g, '/')
 
 /** 只加载一次 Cubism 核心运行时（挂到 window.Live2DCubismCore 全局） */
 let corePromise: Promise<void> | null = null
 function loadCubismCore(): Promise<void> {
-  if ((window as any).Live2DCubismCore) return Promise.resolve()
+  if ((window as Window & { Live2DCubismCore?: unknown }).Live2DCubismCore) return Promise.resolve()
   if (corePromise) return corePromise
   corePromise = new Promise((resolve, reject) => {
     const script = document.createElement('script')
     script.src = CORE_SCRIPT
     script.async = true
     script.onload = () => resolve()
-    script.onerror = () => reject(new Error('Live2D 核心运行时加载失败'))
+    script.onerror = () => {
+      corePromise = null
+      reject(new Error('Live2D 核心运行时加载失败'))
+    }
     document.head.appendChild(script)
   })
   return corePromise
@@ -52,31 +56,39 @@ export function useLive2dAvatar() {
   const audioReady = ref(false)
 
   let currentVcn = ''
+  let currentSpeechRate = 1
   let doneTimer: number | null = null
   let initialized = false
+  let speechGeneration = 0
+  let runtimeGeneration = 0
+  let cancelReadyWait: (() => void) | null = null
 
   /** Live2D 属于本地资源，无需云端凭证 */
   const hasCredentials = true
 
   async function start(options: Live2dStartOptions): Promise<boolean> {
+    const generation = ++runtimeGeneration
+    cancelReadyWait?.()
+    if (initialized) {
+      releaseRuntime()
+      Live2dManager.releaseInstance()
+    }
     try {
       status.value = 'connecting'
       errorMessage.value = ''
       currentVcn = options.vcn || ''
+      currentSpeechRate = Number.isFinite(options.speechRate) ? Number(options.speechRate) : 1
 
       await loadCubismCore()
+      if (generation !== runtimeGeneration) return false
 
-      // 画布必须存在于 DOM 中（LAppDelegate 通过 id 获取），由组件负责渲染
-      const canvas = document.getElementById(CANVAS_ID) as HTMLCanvasElement | null
-      if (!canvas) {
-        throw new Error('Live2D 画布未就绪')
-      }
-
-      if (LAppDelegate.getInstance().initialize() === false) {
+      if (!options.canvas.isConnected) throw new Error('Live2D 画布未就绪')
+      const delegate = LAppDelegate.getInstance()
+      initialized = true
+      if (delegate.initialize(options.canvas) === false) {
         throw new Error('Live2D 初始化失败（WebGL 不可用？）')
       }
-      LAppDelegate.getInstance().run()
-      initialized = true
+      delegate.run()
 
       // 加载模型
       const model = options.modelId || 'Haru'
@@ -86,27 +98,43 @@ export function useLive2dAvatar() {
       )
       Live2dManager.getInstance().changeCharacter({ resource_id: model, name: model, link })
 
-      const ok = await waitReady()
+      const ok = await waitReady(generation)
+      if (generation !== runtimeGeneration) return false
       if (!ok) throw new Error('Live2D 模型加载超时')
 
       status.value = 'ready'
-      // AudioContext 若被挂起，标记为需用户手势解锁
-      audioReady.value = true
+      audioReady.value = Live2dManager.getInstance().isAudioReady()
       return true
     } catch (err) {
+      if (generation !== runtimeGeneration) return false
+      releaseRuntime()
+      Live2dManager.releaseInstance()
       status.value = 'error'
       errorMessage.value = normalizeError(err)
       return false
     }
   }
 
-  function waitReady(timeoutMs = 15000): Promise<boolean> {
+  function waitReady(generation: number, timeoutMs = 15000): Promise<boolean> {
+    cancelReadyWait?.()
     return new Promise((resolve) => {
       const started = Date.now()
+      let timer: number | null = null
+      let settled = false
+      const finish = (result: boolean) => {
+        if (settled) return
+        settled = true
+        if (timer != null) window.clearTimeout(timer)
+        if (cancelReadyWait === cancel) cancelReadyWait = null
+        resolve(result)
+      }
+      const cancel = () => finish(false)
+      cancelReadyWait = cancel
       const check = () => {
-        if (Live2dManager.getInstance().isReady()) return resolve(true)
-        if (Date.now() - started > timeoutMs) return resolve(false)
-        window.setTimeout(check, 200)
+        if (generation !== runtimeGeneration) return finish(false)
+        if (Live2dManager.getInstance().isReady()) return finish(true)
+        if (Date.now() - started > timeoutMs) return finish(false)
+        timer = window.setTimeout(check, 200)
       }
       check()
     })
@@ -116,24 +144,29 @@ export function useLive2dAvatar() {
   async function speak(text: string, opts: { emotion?: string } = {}): Promise<boolean> {
     void opts
     const content = String(text || '').trim()
-    if (!content || status.value === 'error' || status.value === 'idle') return false
+    if (!content || ['error', 'idle', 'connecting'].includes(status.value)) return false
+    const generation = ++speechGeneration
+    stopPlayback()
     try {
-      const result = await synthesizeSpeech({ text: content, voice: currentVcn })
+      await resumeAudioContext()
+      if (generation !== speechGeneration) return false
+      const result = await synthesizeSpeech({
+        text: content,
+        voice: currentVcn,
+        speed: currentSpeechRate
+      })
+      if (generation !== speechGeneration) return false
       const urls = (result.segments || []).map((s) => s.audioUrl).filter(Boolean)
       if (!urls.length && result.audioUrl) urls.push(result.audioUrl)
       if (!urls.length) return false
 
+      const buffers = (await Promise.all(urls.map(fetchAudio))).filter(
+        (buffer): buffer is ArrayBuffer => Boolean(buffer)
+      )
+      if (generation !== speechGeneration || !buffers.length) return false
+      const queued = await Live2dManager.getInstance().enqueueAudioBatch(buffers)
+      if (generation !== speechGeneration || queued === 0) return false
       status.value = 'speaking'
-      // 恢复可能被挂起的音频上下文（首帧前尽力，失败则等用户手势）
-      await Live2dManager.getInstance()
-        .resume()
-        .catch(() => {})
-
-      // 顺序拉取音频片段入队（按句播报，口型连贯）
-      for (const url of urls) {
-        const buffer = await fetchAudio(url)
-        if (buffer) Live2dManager.getInstance().pushAudioQueue(buffer)
-      }
       watchSpeakingEnd()
       return true
     } catch (err) {
@@ -143,15 +176,16 @@ export function useLive2dAvatar() {
   }
 
   async function speakAudio(url: string): Promise<boolean> {
-    if (!url || status.value === 'error' || status.value === 'idle') return false
+    if (!url || ['error', 'idle', 'connecting'].includes(status.value)) return false
+    const generation = ++speechGeneration
+    stopPlayback()
+    await resumeAudioContext()
+    if (generation !== speechGeneration) return false
     const buffer = await fetchAudio(url)
-    if (!buffer) return false
-    await interrupt()
+    if (!buffer || generation !== speechGeneration) return false
+    const queued = await Live2dManager.getInstance().enqueueAudioBatch([buffer])
+    if (generation !== speechGeneration || queued === 0) return false
     status.value = 'speaking'
-    await Live2dManager.getInstance()
-      .resume()
-      .catch(() => undefined)
-    Live2dManager.getInstance().pushAudioQueue(buffer)
     watchSpeakingEnd()
     return true
   }
@@ -181,12 +215,7 @@ export function useLive2dAvatar() {
 
   /** 用户手势中恢复音频上下文 */
   async function enableAudio(): Promise<void> {
-    try {
-      await Live2dManager.getInstance().resume()
-      audioReady.value = true
-    } catch {
-      /* 仍被拦截，等待下一次用户手势 */
-    }
+    await resumeAudioContext()
   }
 
   async function pause(): Promise<void> {
@@ -194,11 +223,17 @@ export function useLive2dAvatar() {
   }
 
   async function resume(): Promise<void> {
-    await Live2dManager.getInstance().resume()
+    await resumeAudioContext()
   }
 
   /** 打断当前播报 */
   async function interrupt(): Promise<void> {
+    speechGeneration += 1
+    stopPlayback()
+    if (status.value === 'speaking') status.value = 'ready'
+  }
+
+  function stopPlayback(): void {
     Live2dManager.getInstance().stopAudio()
     if (doneTimer) {
       window.clearInterval(doneTimer)
@@ -207,25 +242,38 @@ export function useLive2dAvatar() {
     if (status.value === 'speaking') status.value = 'ready'
   }
 
+  async function resumeAudioContext(): Promise<void> {
+    try {
+      const manager = Live2dManager.getInstance()
+      await manager.resume()
+      audioReady.value = manager.isAudioReady()
+    } catch {
+      audioReady.value = false
+    }
+  }
+
   function destroy(): void {
+    runtimeGeneration += 1
+    speechGeneration += 1
+    cancelReadyWait?.()
     if (doneTimer) {
       window.clearInterval(doneTimer)
       doneTimer = null
     }
+    releaseRuntime()
+    Live2dManager.releaseInstance()
+    status.value = 'idle'
+    audioReady.value = false
+  }
+
+  function releaseRuntime(): void {
+    if (!initialized) return
     try {
-      Live2dManager.getInstance().stopAudio()
+      LAppDelegate.releaseInstance()
     } catch {
       /* ignore */
     }
-    if (initialized) {
-      try {
-        LAppDelegate.releaseInstance()
-      } catch {
-        /* ignore */
-      }
-      initialized = false
-    }
-    status.value = 'idle'
+    initialized = false
   }
 
   // 供组件在 window resize 时调用（画布自适应）
