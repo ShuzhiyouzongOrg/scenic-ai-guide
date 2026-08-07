@@ -43,7 +43,6 @@ import { LAppPal } from './lapppal';
 import { TextureInfo } from './lapptexturemanager';
 import { LAppWavFileHandler } from './lappwavfilehandler';
 import { CubismMoc } from '@framework/model/cubismmoc';
-import { LAppDelegate } from './lappdelegate';
 import { Live2dManager } from '../live2dManager';
 import { LAppSubdelegate } from './lappsubdelegate';
 
@@ -85,10 +84,13 @@ export class LAppModel extends CubismUserModel {
    */
   public loadAssets(dir: string, fileName: string): void {
     this._modelHomeDir = dir;
-    Live2dManager.getInstance().setReady(false);
+    this._live2dManager.beginModelLoad(this);
     fetch(`${this._modelHomeDir}${fileName}`)
       .then(response => response.arrayBuffer())
       .then(arrayBuffer => {
+        if (!this._live2dManager.isModelLoadCurrent(this)) {
+          return;
+        }
         const setting: ICubismModelSetting = new CubismModelSettingJson(
           arrayBuffer,
           arrayBuffer.byteLength
@@ -100,7 +102,7 @@ export class LAppModel extends CubismUserModel {
         // 結果を保存
         this.setupModel(setting);
       })
-      .catch(error => {
+      .catch(() => {
         // model3.json読み込みでエラーが発生した時点で描画は不可能なので、setupせずエラーをcatchして何もしない
         CubismLogError(`Failed to load file ${this._modelHomeDir}${fileName}`);
       });
@@ -463,6 +465,9 @@ export class LAppModel extends CubismUserModel {
 
         // ロード完了時に呼び出すコールバック関数
         const onLoad = (textureInfo: TextureInfo): void => {
+          if (!this._live2dManager.isModelLoadCurrent(this)) {
+            return;
+          }
           this.getRenderer().bindTexture(modelTextureNumber, textureInfo.id);
 
           this._textureCount++;
@@ -470,6 +475,7 @@ export class LAppModel extends CubismUserModel {
           if (this._textureCount >= textureCount) {
             // ロード完了
             this._state = LoadStep.CompleteSetup;
+            this._live2dManager.setReady(true, this);
           }
         };
 
@@ -480,9 +486,13 @@ export class LAppModel extends CubismUserModel {
         this.getRenderer().setIsPremultipliedAlpha(usePremultiply);
       }
 
-      this._state = LoadStep.WaitLoadTexture;
+      if (textureCount === 0) {
+        this._state = LoadStep.CompleteSetup;
+        this._live2dManager.setReady(true, this);
+      } else {
+        this._state = LoadStep.WaitLoadTexture;
+      }
     }
-    Live2dManager.getInstance().setReady(true);
   }
 
   /**
@@ -568,17 +578,56 @@ export class LAppModel extends CubismUserModel {
       this._physics.evaluate(this._model, deltaTimeSeconds);
     }
 
-    // リップシンクの設定
+    // Lip sync is applied after motion/expression/breath/physics and before model.update(),
+    // matching Cubism's update order so earlier animation does not overwrite speech.
     if (this._lipsync) {
-      const manager = Live2dManager.getInstance();
-      // 从队列取出并开始播放下一段音频（若有）
+      const manager = this._live2dManager;
       manager.playAudio();
-      // 口型直接来自 AnalyserNode 的实时 RMS（见 live2dManager.getCurrentRms 说明）：
-      // 真实振幅包络 + attack/release 平滑，不是正弦浮动或生硬开合。
-      // 原先依赖 WAV 解析的 _wavFileHandler 在这里不再使用（TTS 为 MP3）。
-      const value = manager.getCurrentRms() * manager.getLipFactor();
-      for (let i = 0; i < this._lipSyncIds.getSize(); ++i) {
-        this._model.addParameterValueById(this._lipSyncIds.at(i), value, 0.8);
+      const lipSyncFrame = manager.getLipSyncFrame(deltaTimeSeconds);
+      const mouthOpen = lipSyncFrame.mouthOpen * manager.getLipFactor();
+      const influence = manager.isAudioPlaying() || mouthOpen > 0.005 ? 0.9 : 0;
+      if (influence > 0) {
+        for (let i = 0; i < this._lipSyncIds.getSize(); ++i) {
+          this._model.setParameterValueById(
+            this._lipSyncIds.at(i),
+            mouthOpen,
+            influence
+          );
+        }
+
+        // Most bundled models expose ParamMouthForm. Kei additionally exposes
+        // five vowel blend-shapes; unsupported IDs are harmless virtual values
+        // in CubismModel and therefore keep this path model-agnostic.
+        this._model.setParameterValueById(
+          this._idParamMouthForm,
+          lipSyncFrame.mouthForm,
+          influence * 0.68
+        );
+        this._model.setParameterValueById(
+          this._idParamVowelA,
+          lipSyncFrame.vowels.a,
+          influence * 0.82
+        );
+        this._model.setParameterValueById(
+          this._idParamVowelI,
+          lipSyncFrame.vowels.i,
+          influence * 0.82
+        );
+        this._model.setParameterValueById(
+          this._idParamVowelU,
+          lipSyncFrame.vowels.u,
+          influence * 0.82
+        );
+        this._model.setParameterValueById(
+          this._idParamVowelE,
+          lipSyncFrame.vowels.e,
+          influence * 0.82
+        );
+        this._model.setParameterValueById(
+          this._idParamVowelO,
+          lipSyncFrame.vowels.o,
+          influence * 0.82
+        );
       }
     }
 
@@ -935,6 +984,8 @@ export class LAppModel extends CubismUserModel {
   public constructor() {
     super();
 
+    this._live2dManager = Live2dManager.getInstance();
+
     this._modelSetting = null;
     this._modelHomeDir = null;
     this._userTimeSeconds = 0.0;
@@ -966,6 +1017,14 @@ export class LAppModel extends CubismUserModel {
     this._idParamBodyAngleX = CubismFramework.getIdManager().getId(
       CubismDefaultParameterId.ParamBodyAngleX
     );
+    this._idParamMouthForm = CubismFramework.getIdManager().getId(
+      CubismDefaultParameterId.ParamMouthForm
+    );
+    this._idParamVowelA = CubismFramework.getIdManager().getId('ParamA');
+    this._idParamVowelI = CubismFramework.getIdManager().getId('ParamI');
+    this._idParamVowelU = CubismFramework.getIdManager().getId('ParamU');
+    this._idParamVowelE = CubismFramework.getIdManager().getId('ParamE');
+    this._idParamVowelO = CubismFramework.getIdManager().getId('ParamO');
 
     if (LAppDefine.MOCConsistencyValidationEnable) {
       this._mocConsistency = true;
@@ -981,6 +1040,7 @@ export class LAppModel extends CubismUserModel {
   }
 
   private _subdelegate: LAppSubdelegate;
+  private _live2dManager: Live2dManager;
 
   _modelSetting: ICubismModelSetting; // モデルセッティング情報
   _modelHomeDir: string; // モデルセッティングが置かれたディレクトリ
@@ -1001,6 +1061,12 @@ export class LAppModel extends CubismUserModel {
   _idParamEyeBallX: CubismIdHandle; // パラメータID: ParamEyeBallX
   _idParamEyeBallY: CubismIdHandle; // パラメータID: ParamEyeBAllY
   _idParamBodyAngleX: CubismIdHandle; // パラメータID: ParamBodyAngleX
+  _idParamMouthForm: CubismIdHandle;
+  _idParamVowelA: CubismIdHandle;
+  _idParamVowelI: CubismIdHandle;
+  _idParamVowelU: CubismIdHandle;
+  _idParamVowelE: CubismIdHandle;
+  _idParamVowelO: CubismIdHandle;
 
   _state: LoadStep; // 現在のステータス管理用
   _expressionCount: number; // 表情データカウント
