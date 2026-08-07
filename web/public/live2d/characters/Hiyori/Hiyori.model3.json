@@ -10,6 +10,7 @@
 		"Pose": "Hiyori.pose3.json",
 		"UserData": "Hiyori.userdata3.json",
 		"DisplayInfo": "Hiyori.cdi3.json",
+		"MotionSync": "../../motionsync/basic-cri.motionsync3.json",
 		"Motions": {
 			"Idle": [
 				{

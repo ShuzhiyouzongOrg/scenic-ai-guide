@@ -7,6 +7,7 @@
 		],
 		"Physics": "hibiki.physics3.json",
 		"DisplayInfo": "hibiki.cdi3.json",
+		"MotionSync": "../../motionsync/basic-cri.motionsync3.json",
 		"Expressions": [
 			{
 				"Name": "Angry",
@@ -35,7 +36,7 @@
 		],
 		"Motions": {
 			"Idle": [
-				
+
 			],
 			"TapBody": [
 				{

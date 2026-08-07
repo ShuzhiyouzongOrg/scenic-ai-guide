@@ -10,6 +10,7 @@
 		"Physics": "haru.physics3.json",
 		"Pose": "haru.pose3.json",
 		"DisplayInfo": "haru.cdi3.json",
+		"MotionSync": "../../motionsync/basic-cri.motionsync3.json",
 		"Motions": {
 			"Idle": [
 			],
