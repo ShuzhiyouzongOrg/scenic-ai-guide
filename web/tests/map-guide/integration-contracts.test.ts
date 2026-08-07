@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { effectScope } from 'vue'
 import { guideRoutes } from '../../src/router/modules/guide'
@@ -12,6 +13,40 @@ test('guide route registers the map page without replacing digital-human experie
     children.some((route) => route.name === 'GuideExperience' && route.path === 'experience')
   )
   assert.ok(children.some((route) => route.name === 'GuideMap' && route.path === 'map'))
+})
+
+test('map digital human follows the active backend engine', () => {
+  const source = readFileSync(
+    new URL('../../src/components/map-guide/MapDigitalHuman.vue', import.meta.url),
+    'utf8'
+  )
+  assert.doesNotMatch(source, /engine-override=["']xfyun["']/)
+})
+
+test('live2d runtime invalidates stale rendering and model loads', () => {
+  const delegate = readFileSync(
+    new URL('../../src/lib/live2d/src/lappdelegate.ts', import.meta.url),
+    'utf8'
+  )
+  const model = readFileSync(
+    new URL('../../src/lib/live2d/src/lappmodel.ts', import.meta.url),
+    'utf8'
+  )
+  const composable = readFileSync(
+    new URL('../../src/composables/useLive2dAvatar.ts', import.meta.url),
+    'utf8'
+  )
+  const manager = readFileSync(
+    new URL('../../src/lib/live2d/live2dManager.ts', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(delegate, /s_instance\s*!==\s*this/)
+  assert.match(delegate, /cancelAnimationFrame\(this\._animationFrameId\)/)
+  assert.match(model, /isModelLoadCurrent\(this\)/)
+  assert.match(composable, /runtimeGeneration/)
+  assert.match(composable, /cancelReadyWait/)
+  assert.match(manager, /releaseInstance\(\)/)
 })
 
 test('page resource cleanup is idempotent and runs every registered disposer', async () => {
