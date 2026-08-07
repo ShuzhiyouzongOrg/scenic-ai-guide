@@ -48,12 +48,19 @@
   import { Microphone } from '@element-plus/icons-vue'
   import { useLive2dAvatar } from '@/composables/useLive2dAvatar'
   import type { DigitalHumanConfig } from '@/api/digital-human'
+  import type { Live2dPresentation } from '@/lib/live2d/resource'
 
   defineOptions({ name: 'Live2dAvatar' })
 
   const { t } = useI18n()
 
-  const props = defineProps<{ config: DigitalHumanConfig | null }>()
+  const props = withDefaults(
+    defineProps<{
+      config: DigitalHumanConfig | null
+      presentation?: Live2dPresentation
+    }>(),
+    { presentation: 'stage' }
+  )
   const emit = defineEmits<{
     (e: 'ready', config: DigitalHumanConfig | null): void
     (e: 'error', message: string): void
@@ -115,7 +122,8 @@
       modelId: config.value?.modelId,
       vcn: config.value?.vcn,
       speechRate: config.value?.speechRate,
-      canvas: canvasRef.value
+      canvas: canvasRef.value,
+      presentation: props.presentation
     })
     if (ok) {
       emit('ready', config.value)

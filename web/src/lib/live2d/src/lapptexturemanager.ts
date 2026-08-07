@@ -45,7 +45,8 @@ export class LAppTextureManager {
   public createTextureFromPngFile(
     fileName: string,
     usePremultiply: boolean,
-    callback: (textureInfo: TextureInfo) => void
+    callback: (textureInfo: TextureInfo) => void,
+    onError?: (error: Error) => void
   ): void {
     // search loaded texture already
     for (
@@ -64,8 +65,14 @@ export class LAppTextureManager {
         ite
           .ptr()
           .img.addEventListener('load', (): void => callback(ite.ptr()), {
+            once: true,
             passive: true
           });
+        ite.ptr().img.addEventListener(
+          'error',
+          (): void => onError?.(new Error(`Failed to load Live2D texture: ${fileName}`)),
+          { once: true, passive: true }
+        );
         ite.ptr().img.src = fileName;
         return;
       }
@@ -147,9 +154,14 @@ export class LAppTextureManager {
 
         callback(textureInfo);
       },
-      { passive: true }
+      { once: true, passive: true }
     );
-    img.crossOrigin ="anonymous";
+    img.addEventListener(
+      'error',
+      (): void => onError?.(new Error(`Failed to load Live2D texture: ${fileName}`)),
+      { once: true, passive: true }
+    );
+    img.crossOrigin = 'anonymous';
     img.src = fileName;
   }
 

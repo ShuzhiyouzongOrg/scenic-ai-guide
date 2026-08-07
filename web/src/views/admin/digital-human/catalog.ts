@@ -1,4 +1,5 @@
 import type { DigitalHumanEngine } from '@/api/digital-human'
+import { BUNDLED_LIVE2D_MODELS } from '@/lib/live2d/resource'
 
 export interface AvatarOption {
   id: string
@@ -45,17 +46,12 @@ export const avatarOptions: AvatarOption[] = [
     modelId: '',
     labelKey: 'app.dhAvatarScenicB'
   },
-  ...[
-    ['Haru', 'app.dhModelHaru'],
-    ['Hiyori', 'app.dhModelHiyori'],
-    ['Kei', 'app.dhModelKei'],
-    ['Hibiki', 'app.dhModelHibiki']
-  ].map(([modelId, labelKey]) => ({
+  ...BUNDLED_LIVE2D_MODELS.map((modelId) => ({
     id: `live2d-${modelId.toLowerCase()}`,
     engine: 'live2d' as const,
     avatarId: '',
     modelId,
-    labelKey,
+    labelKey: `app.dhModel${modelId}`,
     preview: `/live2d/characters/${modelId}/${modelId}.png`
   }))
 ]

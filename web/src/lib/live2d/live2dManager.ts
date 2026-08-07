@@ -17,6 +17,7 @@ export class Live2dManager {
   public beginModelLoad(owner: object): void {
     this._readyOwner = owner
     this._ready = false
+    this._modelLoadError = null
   }
 
   public isModelLoadCurrent(owner: object): boolean {
@@ -26,7 +27,18 @@ export class Live2dManager {
   public setReady(ready: boolean, owner?: object): void {
     if (ready && owner !== this._readyOwner) return
     if (!ready && !owner) this._readyOwner = null
+    if (ready) this._modelLoadError = null
     this._ready = ready
+  }
+
+  public setModelLoadError(message: string, owner: object): void {
+    if (owner !== this._readyOwner) return
+    this._ready = false
+    this._modelLoadError = message
+  }
+
+  public getModelLoadError(): string | null {
+    return this._modelLoadError
   }
 
   public isReady(): boolean {
@@ -163,6 +175,7 @@ export class Live2dManager {
     this.stopAudio()
     this._ready = false
     this._readyOwner = null
+    this._modelLoadError = null
     this._analyser.disconnect()
     if (this._audioContext.state !== 'closed') void this._audioContext.close()
   }
@@ -196,4 +209,5 @@ export class Live2dManager {
   private _lipFactor = 1
   private _ready = false
   private _readyOwner: object | null = null
+  private _modelLoadError: string | null = null
 }

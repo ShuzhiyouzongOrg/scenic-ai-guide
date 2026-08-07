@@ -15,4 +15,30 @@ export interface ResourceModel {
   name: string
   /** 模型入口文件的可访问 URL，如 /live2d/characters/Haru/Haru.model3.json */
   link: string
+  /** 当前容器的模型取景参数，在 Cubism 投影阶段应用以保持原生清晰度。 */
+  viewTransform?: Live2dViewTransform
+}
+
+export interface Live2dViewTransform {
+  scale: number
+  offsetX: number
+  offsetY: number
+}
+
+export type Live2dPresentation = 'stage' | 'portrait'
+
+export const BUNDLED_LIVE2D_MODELS = ['Haru', 'Hiyori', 'Kei', 'Hibiki'] as const
+
+export type BundledLive2dModel = (typeof BUNDLED_LIVE2D_MODELS)[number]
+
+/** Model-space framing for the map's circular avatar. */
+export const LIVE2D_PORTRAIT_PROFILES: Record<BundledLive2dModel, Live2dViewTransform> = {
+  Haru: { scale: 2.35, offsetX: 0, offsetY: -0.34 },
+  Hiyori: { scale: 2.5, offsetX: 0, offsetY: -0.38 },
+  Kei: { scale: 1.08, offsetX: 0, offsetY: 0 },
+  Hibiki: { scale: 2.45, offsetX: 0, offsetY: -0.36 }
+}
+
+export function isBundledLive2dModel(modelId: string): modelId is BundledLive2dModel {
+  return BUNDLED_LIVE2D_MODELS.some((candidate) => candidate === modelId)
 }

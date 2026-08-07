@@ -97,6 +97,15 @@ export class LAppLive2DManager {
       if (this._viewMatrix != null) {
         projection.multiplyByMatrix(this._viewMatrix);
       }
+
+      const viewTransform = this._character?.viewTransform;
+      if (viewTransform) {
+        projection.scaleRelative(viewTransform.scale, viewTransform.scale);
+        projection.translateRelative(
+          viewTransform.offsetX,
+          viewTransform.offsetY
+        );
+      }
     }
 
     model.update();

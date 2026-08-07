@@ -60,6 +60,7 @@
     <DigitalHumanAvatar
       ref="avatarRef"
       class="map-digital-human__engine"
+      presentation="portrait"
       @ready="emit('ready')"
       @error="emit('error', $event)"
     />

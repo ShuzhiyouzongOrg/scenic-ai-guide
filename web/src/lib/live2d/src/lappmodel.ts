@@ -86,7 +86,14 @@ export class LAppModel extends CubismUserModel {
     this._modelHomeDir = dir;
     this._live2dManager.beginModelLoad(this);
     fetch(`${this._modelHomeDir}${fileName}`)
-      .then(response => response.arrayBuffer())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(
+            `Live2D model manifest request failed (${response.status}): ${fileName}`
+          );
+        }
+        return response.arrayBuffer();
+      })
       .then(arrayBuffer => {
         if (!this._live2dManager.isModelLoadCurrent(this)) {
           return;
@@ -102,8 +109,13 @@ export class LAppModel extends CubismUserModel {
         // 結果を保存
         this.setupModel(setting);
       })
-      .catch(() => {
+      .catch(error => {
         // model3.json読み込みでエラーが発生した時点で描画は不可能なので、setupせずエラーをcatchして何もしない
+        const message =
+          error instanceof Error
+            ? error.message
+            : `Failed to load Live2D model manifest: ${fileName}`;
+        this._live2dManager.setModelLoadError(message, this);
         CubismLogError(`Failed to load file ${this._modelHomeDir}${fileName}`);
       });
   }
@@ -126,21 +138,31 @@ export class LAppModel extends CubismUserModel {
 
       fetch(`${this._modelHomeDir}${modelFileName}`)
         .then(response => {
-          if (response.ok) {
-            return response.arrayBuffer();
-          } else if (response.status >= 400) {
-            CubismLogError(
-              `Failed to load file ${this._modelHomeDir}${modelFileName}`
+          if (!response.ok) {
+            throw new Error(
+              `Live2D model request failed (${response.status}): ${modelFileName}`
             );
-            return new ArrayBuffer(0);
           }
+          return response.arrayBuffer();
         })
         .then(arrayBuffer => {
+          if (!this._live2dManager.isModelLoadCurrent(this)) return;
+          if (!arrayBuffer.byteLength) {
+            throw new Error(`Live2D model is empty: ${modelFileName}`);
+          }
           this.loadModel(arrayBuffer, this._mocConsistency);
           this._state = LoadStep.LoadExpression;
 
           // callback
           loadCubismExpression();
+        })
+        .catch(error => {
+          const message =
+            error instanceof Error
+              ? error.message
+              : `Failed to load Live2D model: ${modelFileName}`;
+          this._live2dManager.setModelLoadError(message, this);
+          CubismLogError(`Failed to load file ${this._modelHomeDir}${modelFileName}`);
         });
 
       this._state = LoadStep.WaitLoadModel;
@@ -447,6 +469,13 @@ export class LAppModel extends CubismUserModel {
     if (this._state == LoadStep.LoadTexture) {
       // テクスチャ読み込み用
       const textureCount: number = this._modelSetting.getTextureCount();
+      let loadableTextureCount = 0;
+
+      for (let index = 0; index < textureCount; index++) {
+        if (this._modelSetting.getTextureFileName(index) != '') {
+          loadableTextureCount++;
+        }
+      }
 
       for (
         let modelTextureNumber = 0;
@@ -472,7 +501,7 @@ export class LAppModel extends CubismUserModel {
 
           this._textureCount++;
 
-          if (this._textureCount >= textureCount) {
+          if (this._textureCount >= loadableTextureCount) {
             // ロード完了
             this._state = LoadStep.CompleteSetup;
             this._live2dManager.setReady(true, this);
@@ -482,11 +511,16 @@ export class LAppModel extends CubismUserModel {
         // 読み込み
         this._subdelegate
           .getTextureManager()
-          .createTextureFromPngFile(texturePath, usePremultiply, onLoad);
+          .createTextureFromPngFile(
+            texturePath,
+            usePremultiply,
+            onLoad,
+            error => this._live2dManager.setModelLoadError(error.message, this)
+          );
         this.getRenderer().setIsPremultipliedAlpha(usePremultiply);
       }
 
-      if (textureCount === 0) {
+      if (loadableTextureCount === 0) {
         this._state = LoadStep.CompleteSetup;
         this._live2dManager.setReady(true, this);
       } else {

@@ -12,6 +12,8 @@ import { ref } from 'vue'
 import { LAppDelegate } from '@/lib/live2d/src/lappdelegate'
 import * as LAppDefine from '@/lib/live2d/src/lappdefine'
 import { Live2dManager } from '@/lib/live2d/live2dManager'
+import type { Live2dPresentation, Live2dViewTransform } from '@/lib/live2d/resource'
+import { isBundledLive2dModel, LIVE2D_PORTRAIT_PROFILES } from '@/lib/live2d/resource'
 import { synthesizeSpeech } from '@/api/digital-human'
 
 export type AvatarStatus = 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
@@ -25,6 +27,8 @@ export interface Live2dStartOptions {
   speechRate?: number
   /** 当前组件的真实渲染画布，避免全局 id 在切换时取错实例 */
   canvas: HTMLCanvasElement
+  /** 舞台全身或地图头像取景。 */
+  presentation?: Live2dPresentation
 }
 
 const BASE = (import.meta.env.VITE_BASE_URL as string) || '/'
@@ -96,11 +100,24 @@ export function useLive2dAvatar() {
         /([^:])\/{2,}/g,
         '$1/'
       )
-      Live2dManager.getInstance().changeCharacter({ resource_id: model, name: model, link })
-
-      const ok = await waitReady(generation)
-      if (generation !== runtimeGeneration) return false
-      if (!ok) throw new Error('Live2D 模型加载超时')
+      const resource = {
+        resource_id: model,
+        name: model,
+        link,
+        viewTransform: resolveViewTransform(model, options.presentation || 'stage')
+      }
+      const manager = Live2dManager.getInstance()
+      let ready = false
+      let loadError = ''
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        manager.changeCharacter(resource)
+        ready = await waitReady(generation, 10000)
+        if (generation !== runtimeGeneration) return false
+        if (ready) break
+        loadError = manager.getModelLoadError() || ''
+        if (attempt === 0) await waitForRetry(generation, 180)
+      }
+      if (!ready) throw new Error(loadError || `Live2D 模型 ${model} 加载超时`)
 
       status.value = 'ready'
       audioReady.value = Live2dManager.getInstance().isAudioReady()
@@ -132,12 +149,19 @@ export function useLive2dAvatar() {
       cancelReadyWait = cancel
       const check = () => {
         if (generation !== runtimeGeneration) return finish(false)
-        if (Live2dManager.getInstance().isReady()) return finish(true)
+        const manager = Live2dManager.getInstance()
+        if (manager.isReady()) return finish(true)
+        if (manager.getModelLoadError()) return finish(false)
         if (Date.now() - started > timeoutMs) return finish(false)
         timer = window.setTimeout(check, 200)
       }
       check()
     })
+  }
+
+  async function waitForRetry(generation: number, delayMs: number): Promise<void> {
+    await new Promise<void>((resolve) => window.setTimeout(resolve, delayMs))
+    if (generation !== runtimeGeneration) throw new Error('Live2D 模型加载已取消')
   }
 
   /** 驱动数字人说话：后端 TTS 取音频 -> 入队 -> AnalyserNode 驱动口型 */
@@ -298,6 +322,17 @@ export function useLive2dAvatar() {
     destroy,
     onResize
   }
+}
+
+export function resolveViewTransform(
+  modelId: string,
+  presentation: Live2dPresentation
+): Live2dViewTransform | undefined {
+  if (presentation === 'stage') return undefined
+
+  return isBundledLive2dModel(modelId)
+    ? LIVE2D_PORTRAIT_PROFILES[modelId]
+    : { scale: 2.2, offsetX: 0, offsetY: -0.32 }
 }
 
 function normalizeError(err: unknown): string {

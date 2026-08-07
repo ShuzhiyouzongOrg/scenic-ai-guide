@@ -40,13 +40,22 @@ test('live2d runtime invalidates stale rendering and model loads', () => {
     new URL('../../src/lib/live2d/live2dManager.ts', import.meta.url),
     'utf8'
   )
+  const textureManager = readFileSync(
+    new URL('../../src/lib/live2d/src/lapptexturemanager.ts', import.meta.url),
+    'utf8'
+  )
 
   assert.match(delegate, /s_instance\s*!==\s*this/)
   assert.match(delegate, /cancelAnimationFrame\(this\._animationFrameId\)/)
   assert.match(model, /isModelLoadCurrent\(this\)/)
+  assert.match(model, /setModelLoadError/)
   assert.match(composable, /runtimeGeneration/)
   assert.match(composable, /cancelReadyWait/)
+  assert.match(composable, /for \(let attempt = 0; attempt < 2; attempt \+= 1\)/)
+  assert.match(composable, /getModelLoadError\(\)/)
   assert.match(manager, /releaseInstance\(\)/)
+  assert.match(manager, /_audioContext\.close\(\)/)
+  assert.match(textureManager, /addEventListener\(\s*['"]error['"]/)
 })
 
 test('page resource cleanup is idempotent and runs every registered disposer', async () => {

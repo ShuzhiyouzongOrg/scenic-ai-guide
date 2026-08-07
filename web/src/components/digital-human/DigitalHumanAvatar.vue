@@ -22,6 +22,7 @@
         :key="avatarKey"
         ref="childRef"
         :config="effectiveConfig"
+        :presentation="presentation"
         @ready="onReady"
         @error="onError"
       />
@@ -47,6 +48,7 @@
     type DigitalHumanConfig,
     type DigitalHumanEngine
   } from '@/api/digital-human'
+  import type { Live2dPresentation } from '@/lib/live2d/resource'
 
   defineOptions({ name: 'DigitalHumanAvatar' })
 
@@ -55,9 +57,12 @@
       preferLocalFallback?: boolean
       fallbackModelId?: string
       engineOverride?: DigitalHumanEngine
+      presentation?: Live2dPresentation
     }>(),
-    { preferLocalFallback: false, fallbackModelId: 'Kei' }
+    { preferLocalFallback: false, fallbackModelId: 'Kei', presentation: 'stage' }
   )
+
+  const presentation = computed(() => props.presentation)
 
   const emit = defineEmits<{
     (e: 'ready', config: DigitalHumanConfig | null): void
