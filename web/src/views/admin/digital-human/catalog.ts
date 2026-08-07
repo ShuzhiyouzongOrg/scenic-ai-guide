@@ -92,11 +92,6 @@ export const voiceOptions: VoiceOption[] = [
     languageKey: 'app.dhLanguageMandarin'
   },
   {
-    parameter: 'x4_pengfei',
-    labelKey: 'app.dhVoicePengfei',
-    languageKey: 'app.dhLanguageMandarin'
-  },
-  {
     parameter: 'x6_jingqudaolannvsheng_mini',
     labelKey: 'app.dhVoiceGuideFemale',
     languageKey: 'app.dhLanguageMandarin'

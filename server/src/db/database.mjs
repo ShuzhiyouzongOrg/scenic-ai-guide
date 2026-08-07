@@ -24,6 +24,9 @@ const DIGITAL_HUMAN_NAMES = {
   live2dKei: "知远·坛城研学使（男）",
   live2dHibiki: "清响·禅旅伙伴（男）"
 };
+const DEFAULT_DIGITAL_HUMAN_WELCOME = "您好，我是灵山胜境 AI 导游，很高兴为您服务。";
+const LEGACY_LIVE2D_MALE_TTS_VOICE = "x4_pengfei";
+const LIVE2D_MALE_TTS_VOICE = "x6_zhantingnanjiedai_pro";
 
 const DDL = `
 CREATE TABLE IF NOT EXISTS admin_users (
@@ -232,6 +235,7 @@ export function seedReferenceData(instance = getDb()) {
   seedDigitalHuman(instance);
   seedDigitalHumanCatalog(instance);
   migrateLegacyDigitalHumanNames(instance);
+  migrateUnsupportedLive2dVoices(instance);
   seedScenicSpots(instance);
   return instance;
 }
@@ -314,7 +318,7 @@ function seedDigitalHumanCatalog(instance) {
     outfit: "guide-uniform",
     theme: "lingshan-teal-gold",
     speech_rate: 1,
-    welcome_text: "您好，我是灵山胜境 AI 导游，很高兴为您服务。",
+    welcome_text: DEFAULT_DIGITAL_HUMAN_WELCOME,
     emotion_style: "warm",
     service_status: "online",
     enabled: 0,
@@ -328,7 +332,7 @@ function seedDigitalHumanCatalog(instance) {
     character_asset: "",
     appearance: "live2d-canvas",
     speech_rate: 1,
-    welcome_text: "您好，我是灵山胜境 AI 导游，很高兴为您服务。",
+    welcome_text: DEFAULT_DIGITAL_HUMAN_WELCOME,
     emotion_style: "warm",
     service_status: "online",
     enabled: 0,
@@ -346,8 +350,8 @@ function seedDigitalHumanCatalog(instance) {
     // Local Live2D fallback avatars (name, model_id = character folder, vcn = TTS voice for lip-sync audio).
     { ...baseLive2d, id: "dh_l2d_haru", name: DIGITAL_HUMAN_NAMES.live2dHaru, model_id: "Haru", vcn: "x5_lingxiaoyue_flow", voice_id: "guide_female" },
     { ...baseLive2d, id: "dh_l2d_hiyori", name: DIGITAL_HUMAN_NAMES.live2dHiyori, model_id: "Hiyori", vcn: "x5_lingxiaoyue_flow", voice_id: "guide_female" },
-    { ...baseLive2d, id: "dh_l2d_kei", name: DIGITAL_HUMAN_NAMES.live2dKei, model_id: "Kei", vcn: "x4_pengfei", voice_id: "guide_male" },
-    { ...baseLive2d, id: "dh_l2d_hibiki", name: DIGITAL_HUMAN_NAMES.live2dHibiki, model_id: "Hibiki", vcn: "x4_pengfei", voice_id: "guide_male" }
+    { ...baseLive2d, id: "dh_l2d_kei", name: DIGITAL_HUMAN_NAMES.live2dKei, model_id: "Kei", vcn: LIVE2D_MALE_TTS_VOICE, voice_id: LIVE2D_MALE_TTS_VOICE },
+    { ...baseLive2d, id: "dh_l2d_hibiki", name: DIGITAL_HUMAN_NAMES.live2dHibiki, model_id: "Hibiki", vcn: LIVE2D_MALE_TTS_VOICE, voice_id: LIVE2D_MALE_TTS_VOICE }
   ];
 
   const insert = instance.prepare(
@@ -404,6 +408,48 @@ function migrateLegacyDigitalHumanNames(instance) {
     }
   });
   tx(legacyNames);
+}
+
+// x4_pengfei is not licensed for the configured WebAPI account and produced a
+// mock tone instead of speech. Only migrate untouched built-in rows; custom
+// administrator voice choices are left unchanged.
+function migrateUnsupportedLive2dVoices(instance) {
+  const legacySeeds = [
+    { id: "dh_l2d_kei", name: DIGITAL_HUMAN_NAMES.live2dKei, modelId: "Kei" },
+    { id: "dh_l2d_hibiki", name: DIGITAL_HUMAN_NAMES.live2dHibiki, modelId: "Hibiki" }
+  ];
+  const select = instance.prepare("SELECT * FROM digital_human_configs WHERE id = ?");
+  const update = instance.prepare(
+    `UPDATE digital_human_configs
+     SET vcn = ?, voice_id = ?, updated_at = ?
+     WHERE id = ?`
+  );
+  const now = new Date().toISOString();
+  for (const seed of legacySeeds) {
+    const row = select.get(seed.id);
+    if (!isUntouchedLegacyLive2dSeed(row, seed)) continue;
+    update.run(LIVE2D_MALE_TTS_VOICE, LIVE2D_MALE_TTS_VOICE, now, seed.id);
+  }
+}
+
+function isUntouchedLegacyLive2dSeed(row, seed) {
+  return Boolean(
+    row &&
+      row.name === seed.name &&
+      row.engine === "live2d" &&
+      (row.avatar_id || "") === "" &&
+      row.vcn === LEGACY_LIVE2D_MALE_TTS_VOICE &&
+      row.model_id === seed.modelId &&
+      (row.character_asset || "") === "" &&
+      row.appearance === "live2d-canvas" &&
+      (row.outfit || "") === "" &&
+      row.theme === "lingshan-teal-gold" &&
+      row.voice_id === "guide_male" &&
+      Number(row.speech_rate) === 1 &&
+      row.welcome_text === DEFAULT_DIGITAL_HUMAN_WELCOME &&
+      row.emotion_style === "warm" &&
+      row.service_status === "online"
+  );
 }
 
 function seedScenicSpots(instance) {

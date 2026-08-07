@@ -57,46 +57,58 @@ export async function synthesizeSpeech({ text = "", voice = "guide_female", spee
 
   const segments = splitForTts(cleanText);
   if (config.providers.tts === "xfyun" && hasXfyunTtsConfig()) {
-    try {
-      const audioSegments = [];
-      for (let index = 0; index < segments.length; index += 1) {
-        const segment = segments[index];
-        const buffer = await synthesizeXfyunSegment({
-          text: segment,
-          voice,
+    const requestedVoice = resolveXfyunVoice(voice);
+    const fallbackVoice = resolveXfyunVoice(config.xfyun.ttsVoice);
+    const candidates = [...new Set([requestedVoice, fallbackVoice].filter(Boolean))];
+    let lastError;
+    for (const candidateVoice of candidates) {
+      try {
+        const audioSegments = [];
+        for (let index = 0; index < segments.length; index += 1) {
+          const segment = segments[index];
+          const buffer = await synthesizeXfyunSegment({
+            text: segment,
+            voice: candidateVoice,
+            speed,
+            signal
+          });
+          const id = `tts_${Date.now()}_${randomBytes(4).toString("hex")}_${index}`;
+          audioStore.set(id, {
+            buffer,
+            mimeType: "audio/mpeg",
+            text: segment,
+            expiresAt: Date.now() + AUDIO_TTL_MS
+          });
+          audioSegments.push({
+            id,
+            text: segment,
+            audioUrl: `/api/voice/tts/audio/${id}`,
+            mimeType: "audio/mpeg",
+            durationMs: Math.min(30000, Math.max(900, segment.length * 180))
+          });
+        }
+        cleanupAudioStore();
+        return {
+          provider: "xfyun",
+          voice: candidateVoice,
+          requestedVoice,
+          fallbackUsed: candidateVoice !== requestedVoice,
           speed,
-          signal
-        });
-        const id = `tts_${Date.now()}_${randomBytes(4).toString("hex")}_${index}`;
-        audioStore.set(id, {
-          buffer,
-          mimeType: "audio/mpeg",
-          text: segment,
-          expiresAt: Date.now() + AUDIO_TTL_MS
-        });
-        audioSegments.push({
-          id,
-          text: segment,
-          audioUrl: `/api/voice/tts/audio/${id}`,
-          mimeType: "audio/mpeg",
-          durationMs: Math.min(30000, Math.max(900, segment.length * 180))
-        });
+          segments: audioSegments,
+          audioUrl: audioSegments[0]?.audioUrl || null,
+          latencyMs: nowMs() - started
+        };
+      } catch (error) {
+        lastError = error;
+        if (candidateVoice !== candidates.at(-1)) {
+          console.warn(`XFYUN TTS voice ${candidateVoice} failed; retrying the configured fallback voice.`);
+        }
       }
-      cleanupAudioStore();
-      return {
-        provider: "xfyun",
-        voice: resolveXfyunVoice(voice),
-        speed,
-        segments: audioSegments,
-        audioUrl: audioSegments[0]?.audioUrl || null,
-        latencyMs: nowMs() - started
-      };
-    } catch (error) {
-      if (!config.demoMode) {
-        throw error;
-      }
-      console.warn(`XFYUN TTS failed, falling back to mock: ${error.message}`);
     }
+    if (!config.demoMode) {
+      throw lastError;
+    }
+    console.warn(`XFYUN TTS failed, falling back to mock: ${lastError?.message || "unknown error"}`);
   }
 
   const audioSegments = segments.map((segment, index) => {
