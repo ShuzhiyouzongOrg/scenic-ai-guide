@@ -44,7 +44,36 @@ interface MotionSyncManifest {
 }
 
 const charactersRoot = fileURLToPath(new URL('../../public/live2d/characters/', import.meta.url))
+const publicRoot = fileURLToPath(new URL('../../public/', import.meta.url))
 const requiredAudioParameters = ['Silence', 'A', 'I', 'U', 'E', 'O']
+
+test('licensed CRI MotionSync Core is locally hosted', () => {
+  const corePath = resolve(publicRoot, 'live2d/motionsync/core/live2dcubismmotionsynccore.min.js')
+  assertAsset(corePath)
+  assert.ok(statSync(corePath).size > 500_000, 'MotionSync Core file is unexpectedly small')
+  const redistributableList = readFileSync(
+    resolve(publicRoot, 'live2d/motionsync/core/RedistributableFiles.txt'),
+    'utf8'
+  )
+  assert.match(redistributableList, /live2dcubismmotionsynccore\.min\.js/u)
+})
+
+test('MotionSync Framework is lazily evaluated after its Core becomes available', () => {
+  const runtimeSource = readFileSync(
+    fileURLToPath(new URL('../../src/lib/live2d/motionSyncRuntime.ts', import.meta.url)),
+    'utf8'
+  )
+  assert.match(runtimeSource, /globalThis\.Live2DCubismMotionSyncCore/u)
+  assert.match(runtimeSource, /import\('@motionsyncframework\/live2dcubismmotionsync'\)/u)
+
+  for (const relativePath of [
+    '../../src/lib/live2d/src/lappdelegate.ts',
+    '../../src/lib/live2d/src/lappmodel.ts'
+  ]) {
+    const source = readFileSync(fileURLToPath(new URL(relativePath, import.meta.url)), 'utf8')
+    assert.doesNotMatch(source, /from '@motionsyncframework\//u)
+  }
+})
 
 for (const modelId of BUNDLED_LIVE2D_MODELS) {
   test(`${modelId} has a complete loadable asset graph`, () => {
