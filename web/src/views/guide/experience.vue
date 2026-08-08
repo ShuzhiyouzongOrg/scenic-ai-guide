@@ -724,14 +724,29 @@
 
   .feedback-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     align-items: center;
-    padding-top: 8px;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 8px;
+    padding: 7px 12px;
+    border: 1px solid rgb(122 103 70 / 18%);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 92%);
+    box-shadow: 0 4px 14px rgb(63 52 34 / 10%);
+    backdrop-filter: blur(6px);
     font-size: 13px;
+
+    :deep(.el-button) {
+      margin-left: 0;
+      background: rgb(255 255 255 / 72%);
+    }
   }
 
   .fb-label {
-    color: var(--el-text-color-secondary);
+    color: var(--el-text-color-primary);
+    font-weight: 500;
   }
 
   .spots-body,
@@ -901,6 +916,10 @@
       flex: none;
       max-width: none;
       height: 46vh;
+    }
+
+    .feedback-row {
+      width: 100%;
     }
   }
 </style>
