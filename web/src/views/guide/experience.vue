@@ -93,17 +93,31 @@
               </ElButton>
             </div>
 
-            <!-- 情感快捷反馈 -->
-            <div class="feedback-row">
-              <span class="fb-label">{{ $t('app.guideFeedbackPrompt') }}</span>
-              <ElButton size="small" text type="success" @click="react('up', '开心')">
-                {{ $t('app.guideSatisfied') }}
-              </ElButton>
-              <ElButton size="small" text type="info" @click="react('down', '失望')">
-                {{ $t('app.guideAverage') }}
-              </ElButton>
-              <ElRate v-model="rating" size="small" @change="onRate" />
-            </div>
+            <!-- 仅在产生有效回答后出现，右边缘与发送按钮对齐。 -->
+            <Transition name="feedback">
+              <div
+                v-if="showFeedback"
+                class="feedback-row"
+                :class="{
+                  'is-animating': ratingAnimating,
+                  'is-submitted': feedbackSubmitted
+                }"
+                aria-live="polite"
+              >
+                <span class="fb-label">{{ $t('app.guideFeedbackPrompt') }}</span>
+                <ElRate
+                  v-model="rating"
+                  size="small"
+                  :disabled="feedbackSubmitting || feedbackSubmitted"
+                  :aria-label="$t('app.guideFeedbackPrompt')"
+                  @change="onRate"
+                />
+                <span v-if="feedbackSubmitted" class="feedback-done">
+                  <ElIcon><CircleCheck /></ElIcon>
+                  {{ $t('app.guideRatingSubmitted') }}
+                </span>
+              </div>
+            </Transition>
           </div>
         </ElTabPane>
 
@@ -202,9 +216,9 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+  import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
   import { useI18n } from 'vue-i18n'
-  import { Delete, Microphone } from '@element-plus/icons-vue'
+  import { CircleCheck, Delete, Microphone } from '@element-plus/icons-vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import DigitalHumanAvatar from '@/components/digital-human/DigitalHumanAvatar.vue'
   import { formatGuideAnswer } from '@/utils/guide-answer'
@@ -252,7 +266,13 @@
   // Live2D 自适应填充，保持原样。默认按后台主用的 xfyun 处理，避免首次加载时布局跳动。
   const avatarEngine = ref<string>('xfyun')
   const rating = ref(0)
-  const lastMessageId = ref('')
+  const feedbackAvailable = ref(false)
+  const feedbackSubmitting = ref(false)
+  const feedbackSubmitted = ref(false)
+  const ratingAnimating = ref(false)
+  let ratingAnimationTimer: number | undefined
+
+  const showFeedback = computed(() => feedbackAvailable.value && !asking.value)
 
   const quickQuestions = computed(() => [
     t('app.guideQuickHeight'),
@@ -301,6 +321,7 @@
       try {
         const history = await fetchHistory(sessionId.value)
         messages.value = (history || []).map((m) => ({ role: m.role, content: m.content }))
+        feedbackAvailable.value = messages.value.some((message) => message.role === 'assistant')
         scrollToBottom()
       } catch {
         /* ignore */
@@ -328,8 +349,9 @@
       messages.value = []
       input.value = ''
       lastLabel.value = ''
-      lastMessageId.value = ''
       rating.value = 0
+      feedbackAvailable.value = false
+      feedbackSubmitted.value = false
       statusTip.value = t('app.guideReady')
       ElMessage.success(t('app.guideClearChatDone'))
     } catch {
@@ -360,6 +382,9 @@
     // 在用户手势中解锁数字人音频（规避浏览器自动播放限制）
     avatarRef.value?.enableAudio()
     input.value = ''
+    rating.value = 0
+    feedbackAvailable.value = false
+    feedbackSubmitted.value = false
     messages.value.push({ role: 'user', content: question })
     scrollToBottom()
     asking.value = true
@@ -382,6 +407,7 @@
       })
       lastLabel.value = answer.label || ''
       statusTip.value = t('app.guideSpeaking')
+      feedbackAvailable.value = true
       speak(answer)
     } catch {
       messages.value.push({ role: 'assistant', content: t('app.guideServiceError') })
@@ -418,6 +444,9 @@
         content: res.narration,
         meta: { label: t('app.guideSpotNarration') }
       })
+      rating.value = 0
+      feedbackSubmitted.value = false
+      feedbackAvailable.value = true
       avatarRef.value?.speak(res.narration, 'warm')
     } catch {
       ElMessage.error(t('app.guideNarrationFailed'))
@@ -453,6 +482,9 @@
         content: res.narration,
         meta: { label: t('app.guideRouteNarration') }
       })
+      rating.value = 0
+      feedbackSubmitted.value = false
+      feedbackAvailable.value = true
       avatarRef.value?.speak(res.narration, 'warm')
       scrollToBottom()
     } catch {
@@ -461,29 +493,30 @@
   }
 
   // ---- 反馈 ----
-  async function react(vote: 'up' | 'down', emotion: string) {
+  async function onRate(value: number) {
+    if (!value || feedbackSubmitting.value || feedbackSubmitted.value) return
+    ratingAnimating.value = true
+    if (ratingAnimationTimer) window.clearTimeout(ratingAnimationTimer)
+    ratingAnimationTimer = window.setTimeout(() => {
+      ratingAnimating.value = false
+      ratingAnimationTimer = undefined
+    }, 320)
+
+    feedbackSubmitting.value = true
     try {
       await submitFeedback({
         sessionId: sessionId.value,
-        messageId: lastMessageId.value,
-        vote,
-        emotion
+        rating: value,
+        vote: value >= 4 ? 'up' : value <= 2 ? 'down' : undefined,
+        emotion: value >= 4 ? '开心' : value <= 2 ? '失望' : '平静'
       })
-      ElMessage.success(t('app.guideThanks'))
-      avatarRef.value?.speak(
-        vote === 'up' ? t('app.guideThanksSpeech') : t('app.guideSorrySpeech'),
-        vote === 'up' ? 'happy' : 'sorry'
-      )
-    } catch {
-      /* ignore */
-    }
-  }
-  async function onRate(value: number) {
-    try {
-      await submitFeedback({ sessionId: sessionId.value, rating: value })
+      feedbackSubmitted.value = true
       ElMessage.success(t('app.guideRatingSubmitted'))
     } catch {
-      /* ignore */
+      rating.value = 0
+      ElMessage.warning(t('app.guideFeedbackFailed'))
+    } finally {
+      feedbackSubmitting.value = false
     }
   }
 
@@ -553,6 +586,10 @@
   onMounted(() => {
     initSession()
     setupVoice()
+  })
+
+  onBeforeUnmount(() => {
+    if (ratingAnimationTimer) window.clearTimeout(ratingAnimationTimer)
   })
 </script>
 
@@ -724,29 +761,76 @@
 
   .feedback-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
     width: fit-content;
     max-width: 100%;
-    margin-top: 8px;
-    padding: 7px 12px;
-    border: 1px solid rgb(122 103 70 / 18%);
-    border-radius: 10px;
-    background: rgb(255 255 255 / 92%);
-    box-shadow: 0 4px 14px rgb(63 52 34 / 10%);
-    backdrop-filter: blur(6px);
-    font-size: 13px;
+    min-height: 28px;
+    margin: 6px 48px 0 auto;
+    padding: 3px 8px;
+    border: 1px solid rgb(122 103 70 / 14%);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 88%);
+    box-shadow: 0 2px 8px rgb(63 52 34 / 7%);
+    backdrop-filter: blur(4px);
+    font-size: 12px;
 
-    :deep(.el-button) {
-      margin-left: 0;
-      background: rgb(255 255 255 / 72%);
+    :deep(.el-rate) {
+      height: 20px;
+    }
+
+    :deep(.el-rate__item) {
+      transition: transform 150ms ease-out;
+    }
+
+    :deep(.el-rate__item:hover) {
+      transform: translateY(-1px) scale(1.08);
+    }
+
+    &.is-animating :deep(.el-rate__icon.is-active) {
+      animation: rating-pop 300ms ease-out;
     }
   }
 
   .fb-label {
-    color: var(--el-text-color-primary);
+    color: var(--el-text-color-regular);
     font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .feedback-done {
+    display: inline-flex;
+    gap: 3px;
+    align-items: center;
+    color: var(--el-color-success);
+    white-space: nowrap;
+  }
+
+  .feedback-enter-active,
+  .feedback-leave-active {
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  .feedback-enter-from,
+  .feedback-leave-to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  @keyframes rating-pop {
+    0% {
+      transform: scale(0.92);
+    }
+
+    60% {
+      transform: scale(1.16);
+    }
+
+    100% {
+      transform: scale(1);
+    }
   }
 
   .spots-body,
@@ -919,7 +1003,19 @@
     }
 
     .feedback-row {
-      width: 100%;
+      margin-right: 48px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feedback-enter-active,
+    .feedback-leave-active,
+    .feedback-row :deep(.el-rate__item) {
+      transition: none;
+    }
+
+    .feedback-row.is-animating :deep(.el-rate__icon.is-active) {
+      animation: none;
     }
   }
 </style>

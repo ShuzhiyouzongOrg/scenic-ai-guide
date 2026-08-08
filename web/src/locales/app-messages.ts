@@ -317,6 +317,9 @@ const catalog = {
   name: ['名称', 'Name', '이름', '名稱', '名称'],
   status: ['状态', 'Status', '상태', '狀態', 'ステータス'],
   noData: ['暂无数据', 'No data', '데이터 없음', '暫無資料', 'データがありません'],
+  previous: ['上一页', 'Previous', '이전', '上一頁', '前へ'],
+  next: ['下一页', 'Next', '다음', '下一頁', '次へ'],
+  retry: ['重试', 'Retry', '다시 시도', '重試', '再試行'],
   demoDataName: ['测试数据', 'Demo Data', '테스트 데이터', '測試資料', 'テストデータ'],
   demoDataDescription: [
     '随机生成全量演示数据',
@@ -416,6 +419,13 @@ const catalog = {
     'アップロードの進行状況'
   ],
   docsUploadRate: ['上传速率', 'Transfer rate', '전송 속도', '上傳速率', '転送速度'],
+  docsUploadDismiss: [
+    '关闭上传进度',
+    'Dismiss upload progress',
+    '업로드 진행 상황 닫기',
+    '關閉上傳進度',
+    'アップロード進捗を閉じる'
+  ],
   docsUploadQueued: ['等待上传', 'Queued', '업로드 대기', '等待上傳', 'アップロード待機中'],
   docsUploadUploading: ['正在上传', 'Uploading', '업로드 중', '正在上傳', 'アップロード中'],
   docsUploadIndexing: [
@@ -534,6 +544,49 @@ const catalog = {
     '문서가 길어 처음 100,000자만 표시합니다.',
     '文件較長，目前僅顯示前 100,000 個字元。',
     '文書が長いため、先頭 100,000 文字のみ表示しています。'
+  ],
+  docsPreviewTooLarge: [
+    '文件超过 {size}，为保证移动端稳定性，请下载后查看。',
+    'This file exceeds {size}. Download it to keep the mobile experience stable.',
+    '파일이 {size}를 초과합니다. 모바일 안정성을 위해 다운로드하여 확인해 주세요.',
+    '檔案超過 {size}，為確保行動裝置穩定性，請下載後查看。',
+    'ファイルが {size} を超えています。モバイルでの安定性のため、ダウンロードしてご確認ください。'
+  ],
+  docsPdfPreview: [
+    'PDF 文档预览',
+    'PDF document preview',
+    'PDF 문서 미리보기',
+    'PDF 文件預覽',
+    'PDF 文書プレビュー'
+  ],
+  docsPdfPage: [
+    '第 {page} / {total} 页',
+    'Page {page} of {total}',
+    '{page} / {total}페이지',
+    '第 {page} / {total} 頁',
+    '{page} / {total} ページ'
+  ],
+  docsSpreadsheetPreview: [
+    '电子表格预览',
+    'Spreadsheet preview',
+    '스프레드시트 미리보기',
+    '試算表預覽',
+    'スプレッドシートプレビュー'
+  ],
+  docsSpreadsheetSheet: ['工作表', 'Sheet', '시트', '工作表', 'シート'],
+  docsSpreadsheetSheetsLimited: [
+    '工作表较多，当前显示前 {count} 个。',
+    'This workbook has many sheets; the first {count} are shown.',
+    '시트가 많아 처음 {count}개만 표시합니다.',
+    '工作表較多，目前顯示前 {count} 個。',
+    'シート数が多いため、先頭 {count} 件を表示しています。'
+  ],
+  docsSpreadsheetLimited: [
+    '为保持浏览流畅，当前工作表最多预览 120 行、30 列。',
+    'For smooth browsing, previews are limited to 120 rows and 30 columns per sheet.',
+    '원활한 탐색을 위해 시트당 최대 120행, 30열만 미리 봅니다.',
+    '為保持瀏覽順暢，每個工作表最多預覽 120 列、30 欄。',
+    '快適な閲覧のため、各シートのプレビューは最大 120 行、30 列です。'
   ],
 
   spotsTitle: ['景点管理', 'Attractions', '관광지 관리', '景點管理', '観光スポット'],
@@ -1646,6 +1699,13 @@ const catalog = {
     '평점이 제출되었습니다.',
     '評分已送出',
     '評価を送信しました。'
+  ],
+  guideFeedbackFailed: [
+    '评分提交失败，请稍后重试',
+    'Could not submit the rating. Please try again.',
+    '평점을 제출하지 못했습니다. 다시 시도해 주세요.',
+    '評分送出失敗，請稍後再試',
+    '評価を送信できませんでした。もう一度お試しください。'
   ],
   guideVoiceFailed: [
     '语音识别失败，请改用文字输入',
