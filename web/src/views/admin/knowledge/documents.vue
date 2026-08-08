@@ -186,7 +186,7 @@
 
   defineOptions({ name: 'KnowledgeDocuments' })
 
-  type UploadTaskState = 'queued' | 'uploading' | 'indexing' | 'done' | 'failed'
+  type UploadTaskState = 'queued' | 'uploading' | 'indexing' | 'done' | 'duplicate' | 'failed'
 
   interface UploadTask {
     id: string
@@ -213,7 +213,9 @@
   const scopeLines = computed(() => (summary.value?.scope || '').split(/\s+/).filter(Boolean))
   const terminalTaskCount = computed(
     () =>
-      uploadTasks.value.filter((task) => task.state === 'done' || task.state === 'failed').length
+      uploadTasks.value.filter(
+        (task) => task.state === 'done' || task.state === 'duplicate' || task.state === 'failed'
+      ).length
   )
   const overallProgress = computed(() => {
     const totalSize = uploadTasks.value.reduce((total, task) => total + task.file.size, 0)
@@ -254,6 +256,7 @@
       uploading: t('app.docsUploadUploading'),
       indexing: t('app.docsUploadIndexing'),
       done: t('app.docsUploadCompleted'),
+      duplicate: t('app.docsUploadDuplicateState'),
       failed: t('app.docsUploadFailedState')
     }
     return labels[state]
@@ -321,7 +324,11 @@
     const raw = uploadFile.raw
     if (!raw || uploading.value) return
 
-    if (uploadTasks.value.every((task) => task.state === 'done' || task.state === 'failed')) {
+    if (
+      uploadTasks.value.every(
+        (task) => task.state === 'done' || task.state === 'duplicate' || task.state === 'failed'
+      )
+    ) {
       uploadTasks.value = []
     }
     if (uploadTasks.value.some((task) => task.id === String(uploadFile.uid))) return
@@ -358,9 +365,14 @@
     await refresh()
 
     const succeeded = uploadTasks.value.filter((task) => task.state === 'done').length
+    const duplicates = uploadTasks.value.filter((task) => task.state === 'duplicate').length
     const failed = uploadTasks.value.filter((task) => task.state === 'failed').length
-    const message = t('app.docsUploadBatchDone', { success: succeeded, failed })
-    if (failed) ElMessage.warning(message)
+    const message = t('app.docsUploadBatchDone', {
+      success: succeeded,
+      duplicate: duplicates,
+      failed
+    })
+    if (failed || duplicates) ElMessage.warning(message)
     else ElMessage.success(message)
   }
 
@@ -369,7 +381,7 @@
       task.startedAt = Date.now()
       task.state = 'uploading'
       const contentBase64 = await readAsBase64(task.file)
-      await uploadDocument(
+      const result = await uploadDocument(
         {
           fileName: task.file.name,
           mimeType: task.file.type || 'application/octet-stream',
@@ -382,7 +394,7 @@
       task.progress = 100
       task.transferred = task.file.size
       task.rateBps = 0
-      task.state = 'done'
+      task.state = result.duplicate ? 'duplicate' : 'done'
     } catch {
       task.rateBps = 0
       task.state = 'failed'
@@ -548,6 +560,11 @@
 
   .upload-task--done {
     border-color: color-mix(in srgb, var(--el-color-success) 25%, var(--el-border-color-lighter));
+  }
+
+  .upload-task--duplicate {
+    border-color: color-mix(in srgb, var(--el-color-warning) 32%, var(--el-border-color-lighter));
+    background: color-mix(in srgb, var(--el-color-warning-light-9) 75%, white);
   }
 
   .upload-task--failed {

@@ -271,6 +271,32 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
   return document;
 }
 
+export function removeIndexedKnowledgeDocuments(documentIds = []) {
+  const ids = new Set(documentIds.filter(Boolean));
+  if (ids.size === 0) return 0;
+
+  const knowledge = loadKnowledge();
+  if (!knowledge) return 0;
+
+  const documents = (knowledge.documents || []).filter((document) => !ids.has(document.id));
+  const chunks = (knowledge.chunks || []).filter((chunk) => !ids.has(chunk.documentId));
+  const removedDocuments = (knowledge.documents || []).length - documents.length;
+  const removedChunks = (knowledge.chunks || []).length - chunks.length;
+  if (removedDocuments === 0 && removedChunks === 0) return 0;
+
+  const next = {
+    ...knowledge,
+    generatedAt: new Date().toISOString(),
+    documents,
+    chunks
+  };
+  const generatedDir = runtimeGeneratedDir();
+  mkdirSync(generatedDir, { recursive: true });
+  writeJson(join(generatedDir, "knowledge.json"), next);
+  writeJson(join(generatedDir, "knowledge-chunks.json"), chunks);
+  return removedDocuments;
+}
+
 function runtimeGeneratedDir() {
   return join(config.dataDir, "generated");
 }

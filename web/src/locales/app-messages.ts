@@ -426,13 +426,20 @@ const catalog = {
     '内容を処理中'
   ],
   docsUploadCompleted: ['上传完成', 'Completed', '업로드 완료', '上傳完成', '完了'],
+  docsUploadDuplicateState: [
+    '内容已存在',
+    'Already exists',
+    '동일한 내용이 이미 있음',
+    '內容已存在',
+    '同じ内容が登録済み'
+  ],
   docsUploadFailedState: ['上传失败', 'Failed', '업로드 실패', '上傳失敗', '失敗'],
   docsUploadBatchDone: [
-    '已完成 {success} 个文件，失败 {failed} 个',
-    '{success} file(s) completed, {failed} failed',
-    '{success}개 파일 완료, {failed}개 실패',
-    '已完成 {success} 個文件，失敗 {failed} 個',
-    '{success} 件完了、{failed} 件失敗'
+    '新增 {success} 个，跳过重复 {duplicate} 个，失败 {failed} 个',
+    '{success} added, {duplicate} duplicate(s) skipped, {failed} failed',
+    '{success}개 추가, 중복 {duplicate}개 건너뜀, {failed}개 실패',
+    '新增 {success} 個，略過重複 {duplicate} 個，失敗 {failed} 個',
+    '{success} 件追加、重複 {duplicate} 件をスキップ、{failed} 件失敗'
   ],
   docsSupported: [
     '支持 .docx / .xlsx / .txt / .md / .pdf',

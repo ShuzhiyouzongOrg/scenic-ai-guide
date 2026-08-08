@@ -24,6 +24,8 @@ export interface UploadRecord {
   status: string
   chunkCount: number
   createdAt: string
+  duplicate?: boolean
+  duplicateOf?: string
 }
 
 export function getKnowledgeSummary() {

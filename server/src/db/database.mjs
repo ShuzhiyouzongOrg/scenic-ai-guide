@@ -133,6 +133,7 @@ CREATE TABLE IF NOT EXISTS knowledge_documents (
   mime_type TEXT,
   size INTEGER,
   file_type TEXT,
+  content_hash TEXT,
   status TEXT,
   chunk_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
@@ -204,6 +205,9 @@ export function getDb() {
 export function migrate(instance = getDb()) {
   instance.exec(DDL);
   addMissingColumns(instance);
+  instance.exec(
+    "CREATE INDEX IF NOT EXISTS idx_knowledge_documents_content_hash ON knowledge_documents(content_hash)"
+  );
   return instance;
 }
 
@@ -215,6 +219,9 @@ function addMissingColumns(instance) {
     digital_human_configs: [
       { name: "engine", ddl: "engine TEXT NOT NULL DEFAULT 'xfyun'" },
       { name: "model_id", ddl: "model_id TEXT" }
+    ],
+    knowledge_documents: [
+      { name: "content_hash", ddl: "content_hash TEXT" }
     ]
   };
   for (const [table, columns] of Object.entries(additions)) {
