@@ -10,7 +10,7 @@ try {
   process.env.UPLOAD_DIR = join(tempDir, "uploads");
   process.env.SQLITE_PATH = ":memory:";
 
-  const { createUpload, getUploadPreview, listUploads, reindexUploads } = await import("../src/services/uploads.mjs");
+  const { createUpload, getUploadContent, getUploadPreview, listUploads, reindexUploads } = await import("../src/services/uploads.mjs");
   const { buildKnowledge, loadKnowledge, restoreBundledKnowledge } = await import("../src/services/knowledgeBuild.mjs");
   const { getDb } = await import("../src/db/database.mjs");
   const { hybridSearch } = await import("../src/services/retrieval.mjs");
@@ -55,6 +55,10 @@ try {
     contentBase64: Buffer.from("binary-placeholder").toString("base64")
   });
   assert.equal(getUploadPreview(binaryUpload.id).previewable, false);
+  const binaryContent = getUploadContent(binaryUpload.id);
+  assert.equal(binaryContent.fileName, "reference.xlsx");
+  assert.equal(binaryContent.mimeType, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  assert.equal(binaryContent.buffer.toString("utf8"), "binary-placeholder");
 
   const legacyDuplicateId = "upload_legacy_duplicate";
   const legacyStoredName = `${legacyDuplicateId}.md`;

@@ -33,6 +33,11 @@
         "summary": "Preview uploaded Markdown, text or DOCX content as plain text"
       }
     },
+    "/api/uploads/{id}/content": {
+      "get": {
+        "summary": "Stream an uploaded document to an authenticated administrator for local preview"
+      }
+    },
     "/api/schema": {
       "get": {
         "summary": "Return database schema draft"

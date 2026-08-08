@@ -218,6 +218,29 @@ export function listUploads() {
   return rows.sort((a, b) => b.created_at.localeCompare(a.created_at)).map(toUpload);
 }
 
+export function getUploadContent(id) {
+  const row = getDb().prepare("SELECT * FROM knowledge_documents WHERE id = ?").get(id);
+  if (!row) {
+    const error = new Error("Uploaded document not found.");
+    error.statusCode = 404;
+    error.code = "UPLOAD_NOT_FOUND";
+    throw error;
+  }
+
+  const storedPath = storedPathFor(row);
+  if (!existsSync(storedPath)) {
+    const error = new Error("Uploaded source file not found.");
+    error.statusCode = 404;
+    error.code = "UPLOAD_SOURCE_FILE_NOT_FOUND";
+    throw error;
+  }
+
+  return {
+    ...toUpload(row),
+    buffer: readFileSync(storedPath)
+  };
+}
+
 export function getUploadPreview(id) {
   const db = getDb();
   const row = db.prepare("SELECT * FROM knowledge_documents WHERE id = ?").get(id);

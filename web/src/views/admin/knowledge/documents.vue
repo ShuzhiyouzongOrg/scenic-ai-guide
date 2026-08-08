@@ -89,7 +89,11 @@
     </ElCard>
 
     <Transition name="upload-progress">
-      <ElCard v-if="uploadTasks.length" shadow="never" class="upload-progress-card">
+      <ElCard
+        v-if="uploadTasks.length && uploadProgressVisible"
+        shadow="never"
+        class="upload-progress-card"
+      >
         <section aria-live="polite">
           <div class="upload-progress-heading">
             <div>
@@ -98,9 +102,23 @@
                 >{{ terminalTaskCount }} / {{ uploadTasks.length }}</p
               >
             </div>
-            <div class="upload-progress-rate">
-              <span>{{ $t('app.docsUploadRate') }}</span>
-              <strong>{{ formatRate(uploadRate) }}</strong>
+            <div class="upload-progress-actions">
+              <div class="upload-progress-rate">
+                <span>{{ $t('app.docsUploadRate') }}</span>
+                <strong>{{ formatRate(uploadRate) }}</strong>
+              </div>
+              <ElButton
+                v-if="!uploading"
+                class="upload-progress-close"
+                text
+                circle
+                size="small"
+                :title="$t('app.docsUploadDismiss')"
+                :aria-label="$t('app.docsUploadDismiss')"
+                @click="uploadProgressVisible = false"
+              >
+                <ElIcon><Close /></ElIcon>
+              </ElButton>
             </div>
           </div>
           <ElProgress :percentage="overallProgress" :stroke-width="8" :show-text="false" />
@@ -177,9 +195,10 @@
     <ElDrawer
       v-model="previewOpen"
       :title="preview?.fileName || $t('app.docsPreview')"
-      size="min(720px, 92vw)"
+      size="min(960px, 96vw)"
       destroy-on-close
       class="document-preview-drawer"
+      @closed="resetPreview"
     >
       <div v-loading="previewLoading" class="document-preview">
         <template v-if="preview">
@@ -194,7 +213,26 @@
             :closable="false"
             :title="$t('app.docsPreviewTruncated')"
           />
-          <pre v-if="preview.previewable" class="document-preview__content">{{
+          <ElResult
+            v-if="previewError"
+            icon="error"
+            :title="$t('app.docsPreviewFailed')"
+            :sub-title="previewError"
+          >
+            <template #extra>
+              <ElButton type="primary" plain @click="retryPreview">{{ $t('app.retry') }}</ElButton>
+            </template>
+          </ElResult>
+          <PdfDocumentPreview
+            v-else-if="previewFileType === 'pdf' && previewData"
+            :data="previewData"
+            :file-name="preview.fileName"
+          />
+          <SpreadsheetDocumentPreview
+            v-else-if="previewFileType === 'xlsx' && previewData"
+            :data="previewData"
+          />
+          <pre v-else-if="preview.previewable" class="document-preview__content">{{
             preview.content
           }}</pre>
           <ElEmpty v-else :description="$t('app.docsPreviewUnsupported')" />
@@ -205,13 +243,15 @@
 </template>
 
 <script setup lang="ts">
-  import { Refresh, UploadFilled } from '@element-plus/icons-vue'
+  import { defineAsyncComponent } from 'vue'
+  import { Close, Refresh, UploadFilled } from '@element-plus/icons-vue'
   import type { UploadFile } from 'element-plus'
   import { ElMessageBox } from 'element-plus'
   import { useI18n } from 'vue-i18n'
   import { formatDateTime } from '@/utils/date'
   import {
     getKnowledgeSummary,
+    getUploadContent,
     getUploadPreview,
     getUploads,
     rebuildKnowledge,
@@ -222,6 +262,13 @@
   } from '@/api/admin'
 
   defineOptions({ name: 'KnowledgeDocuments' })
+
+  const PdfDocumentPreview = defineAsyncComponent(
+    () => import('@/components/knowledge/PdfDocumentPreview.vue')
+  )
+  const SpreadsheetDocumentPreview = defineAsyncComponent(
+    () => import('@/components/knowledge/SpreadsheetDocumentPreview.vue')
+  )
 
   type UploadTaskState = 'queued' | 'uploading' | 'indexing' | 'done' | 'duplicate' | 'failed'
 
@@ -242,13 +289,18 @@
   const summary = ref<KnowledgeSummary | null>(null)
   const uploads = ref<UploadRecord[]>([])
   const uploadTasks = ref<UploadTask[]>([])
+  const uploadProgressVisible = ref(false)
   const loading = ref(false)
   const rebuilding = ref(false)
   const uploading = ref(false)
   const previewOpen = ref(false)
   const previewLoading = ref(false)
   const preview = ref<UploadPreview | null>(null)
+  const previewData = ref<ArrayBuffer | null>(null)
+  const previewError = ref('')
+  const activePreviewRecord = ref<UploadRecord | null>(null)
   let batchTimer: number | undefined
+  const maxInteractivePreviewBytes = 30 * 1024 * 1024
 
   const scopeLines = computed(() => (summary.value?.scope || '').split(/\s+/).filter(Boolean))
   const terminalTaskCount = computed(
@@ -268,6 +320,7 @@
       .filter((task) => task.state === 'uploading')
       .reduce((total, task) => total + task.rateBps, 0)
   )
+  const previewFileType = computed(() => preview.value?.fileType.toLowerCase() || '')
 
   function formatSize(size: number) {
     if (!Number.isFinite(size) || size < 0) return '-'
@@ -329,13 +382,37 @@
     previewOpen.value = true
     previewLoading.value = true
     preview.value = null
+    previewData.value = null
+    previewError.value = ''
+    activePreviewRecord.value = row
     try {
       preview.value = await getUploadPreview(row.id)
+      if (row.fileType === 'pdf' || row.fileType === 'xlsx') {
+        if (row.size > maxInteractivePreviewBytes) {
+          previewError.value = t('app.docsPreviewTooLarge', {
+            size: formatSize(maxInteractivePreviewBytes)
+          })
+          return
+        }
+        previewData.value = await getUploadContent(row.id)
+      }
     } catch {
+      previewError.value = t('app.docsPreviewFailed')
       ElMessage.error(t('app.docsPreviewFailed'))
     } finally {
       previewLoading.value = false
     }
+  }
+
+  function retryPreview() {
+    if (activePreviewRecord.value) void handlePreview(activePreviewRecord.value)
+  }
+
+  function resetPreview() {
+    preview.value = null
+    previewData.value = null
+    previewError.value = ''
+    activePreviewRecord.value = null
   }
 
   async function handleRebuild() {
@@ -376,6 +453,8 @@
   function onFileChange(uploadFile: UploadFile) {
     const raw = uploadFile.raw
     if (!raw || uploading.value) return
+
+    uploadProgressVisible.value = true
 
     if (
       uploadTasks.value.every(
@@ -576,6 +655,21 @@
     display: inline-flex;
     align-items: baseline;
     gap: 8px;
+  }
+
+  .upload-progress-actions {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .upload-progress-close {
+    color: var(--el-text-color-secondary);
+
+    &:hover {
+      color: var(--el-text-color-primary);
+      background: var(--el-fill-color-light);
+    }
   }
 
   .upload-progress-rate strong {

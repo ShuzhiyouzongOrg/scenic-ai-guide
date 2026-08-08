@@ -55,6 +55,15 @@ export function getUploadPreview(id: string) {
   return request.get<UploadPreview>({ url: `/api/uploads/${encodeURIComponent(id)}/preview` })
 }
 
+export function getUploadContent(id: string) {
+  return request.get<ArrayBuffer>({
+    url: `/api/uploads/${encodeURIComponent(id)}/content`,
+    responseType: 'arraybuffer',
+    rawResponse: true,
+    showErrorMessage: false
+  })
+}
+
 export function uploadDocument(
   data: {
     fileName: string

@@ -7,7 +7,13 @@ import { logError, logInfo } from "./logger.mjs";
 import { fail, ok, created } from "./http/response.mjs";
 import { getBearerToken, readJson } from "./http/request.mjs";
 import { createVisitorSession, login, verifyToken } from "./services/auth.mjs";
-import { createUpload, getUploadPreview, listUploads, reindexUploads } from "./services/uploads.mjs";
+import {
+  createUpload,
+  getUploadContent,
+  getUploadPreview,
+  listUploads,
+  reindexUploads
+} from "./services/uploads.mjs";
 import { buildKnowledge, loadKnowledge, restoreBundledKnowledge } from "./services/knowledgeBuild.mjs";
 import { hybridSearch, keywordSearch } from "./services/retrieval.mjs";
 import { answerQuestion, answerQuestionStream } from "./services/chat.mjs";
@@ -595,11 +601,13 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/uploads" && req.method === "GET") {
+    if (!requireAdmin(req, res)) return;
     ok(res, listUploads());
     return;
   }
 
   if (url.pathname === "/api/uploads" && req.method === "POST") {
+    if (!requireAdmin(req, res)) return;
     const body = await readJson(req);
     created(res, createUpload(body));
     return;
@@ -609,6 +617,22 @@ async function route(req, res, url) {
   if (uploadPreviewMatch && req.method === "GET") {
     if (!requireAdmin(req, res)) return;
     ok(res, getUploadPreview(decodeURIComponent(uploadPreviewMatch[1])));
+    return;
+  }
+
+  const uploadContentMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)\/content$/);
+  if (uploadContentMatch && req.method === "GET") {
+    if (!requireAdmin(req, res)) return;
+    const content = getUploadContent(decodeURIComponent(uploadContentMatch[1]));
+    const encodedName = encodeURIComponent(content.fileName).replaceAll("'", "%27");
+    res.writeHead(200, {
+      "content-type": content.mimeType || "application/octet-stream",
+      "content-length": content.buffer.length,
+      "content-disposition": `inline; filename*=UTF-8''${encodedName}`,
+      "cache-control": "private, no-store",
+      "x-content-type-options": "nosniff"
+    });
+    res.end(content.buffer);
     return;
   }
 

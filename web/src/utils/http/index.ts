@@ -36,6 +36,7 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   showErrorMessage?: boolean
   showSuccessMessage?: boolean
+  rawResponse?: boolean
 }
 
 const { VITE_API_URL, VITE_WITH_CREDENTIALS } = import.meta.env
@@ -86,6 +87,7 @@ axiosInstance.interceptors.request.use(
  */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
+    if ((response.config as ExtendedAxiosRequestConfig).rawResponse) return response
     if (response.data && response.data.success) return response
     const message = response.data?.error?.message || $t('httpMsg.requestFailed')
     throw createHttpError(message, response.status || ApiStatus.error)
@@ -186,7 +188,7 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
       showSuccess(res.data.meta.message)
     }
 
-    return res.data.data as T
+    return config.rawResponse ? (res.data as T) : (res.data.data as T)
   } catch (error) {
     if (error instanceof HttpError && error.code !== ApiStatus.unauthorized) {
       const showMsg = config.showErrorMessage !== false
