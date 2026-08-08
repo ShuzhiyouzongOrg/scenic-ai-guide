@@ -122,7 +122,7 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
 
   const result = {
     generatedAt: new Date().toISOString(),
-    sourceDir,
+    sourceDir: basename(sourceDir),
     scope: "灵山胜境 拈花湾禅意小镇",
     documents,
     spots,
@@ -696,8 +696,10 @@ function inferDocumentLanguage(fileName, text = "") {
   if (/(^|[._-])en([._-]|$)/.test(normalized)) return "en";
   if (/(^|[._-])ko([._-]|$)/.test(normalized)) return "ko";
   if (/(^|[._-])ja([._-]|$)/.test(normalized)) return "ja";
+  if (/(^|[._-])th([._-]|$)/.test(normalized)) return "th";
 
   const content = String(text || "");
+  if (/[\u0e00-\u0e7f]/u.test(content)) return "th";
   if (/[\uac00-\ud7af]/u.test(content)) return "ko";
   if (/[\u3040-\u30ff]/u.test(content)) return "ja";
   if (/[靈灣點開間覽價線體與於臺龍門歷]/u.test(content)) return "zh-TW";
