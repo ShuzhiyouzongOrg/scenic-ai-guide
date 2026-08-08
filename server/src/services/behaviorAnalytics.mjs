@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import * as fs from "node:fs";
 import { join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 import XLSX from "xlsx";
@@ -9,6 +9,8 @@ import { loadKnowledge } from "./knowledgeBuild.mjs";
 import { getDb } from "../db/database.mjs";
 
 const EXCEL_FILE = "景点景区旅游数据行为分析数据.xlsx";
+const { existsSync, readdirSync, statSync } = fs;
+XLSX.set_fs(fs);
 let cache = null;
 
 // Demo-data batches write directly to SQLite inside a single transaction.
