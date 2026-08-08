@@ -2,7 +2,7 @@
 // the upload directory; document metadata and processing status live in the
 // knowledge_documents table.
 import { randomBytes } from "node:crypto";
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { config } from "../config.mjs";
 import { getDb } from "../db/database.mjs";
@@ -101,4 +101,51 @@ export function listUploads() {
     .prepare("SELECT * FROM knowledge_documents ORDER BY created_at DESC, rowid DESC")
     .all()
     .map(toUpload);
+}
+
+/**
+ * Re-process document uploads after a knowledge-base rebuild or recovery.
+ * Binary uploads remain stored and are reported as skipped until a parser is
+ * supported for their file type.
+ */
+export function reindexUploads() {
+  const db = getDb();
+  const uploads = db.prepare("SELECT * FROM knowledge_documents ORDER BY created_at ASC, rowid ASC").all();
+  const result = { processed: 0, failed: 0, skipped: 0 };
+
+  for (const upload of uploads) {
+    const extension = `.${String(upload.file_type || "").toLowerCase()}`;
+    if (!indexableExtensions.has(extension)) {
+      result.skipped += 1;
+      continue;
+    }
+
+    try {
+      const storedPath = join(config.uploadDir, upload.stored_name);
+      if (!existsSync(storedPath)) {
+        const error = new Error(`Uploaded source file not found: ${upload.file_name}`);
+        error.code = "UPLOAD_SOURCE_FILE_NOT_FOUND";
+        throw error;
+      }
+
+      const text = extension === ".docx" ? extractDocxText(storedPath) : readFileSync(storedPath, "utf8");
+      const document = indexTextKnowledgeDocument({
+        documentId: upload.id,
+        fileName: upload.file_name,
+        text,
+        fileType: upload.file_type
+      });
+      db.prepare(
+        "UPDATE knowledge_documents SET status = 'processed', chunk_count = ? WHERE id = ?"
+      ).run(document.chunkCount, upload.id);
+      result.processed += 1;
+    } catch {
+      db.prepare(
+        "UPDATE knowledge_documents SET status = 'failed', chunk_count = 0 WHERE id = ?"
+      ).run(upload.id);
+      result.failed += 1;
+    }
+  }
+
+  return result;
 }

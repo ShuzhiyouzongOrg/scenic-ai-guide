@@ -1,10 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, extname, join, resolve } from "node:path";
 import { config } from "../config.mjs";
 import { extractDocxText } from "./docx.mjs";
 
 const STRUCTURED_DOC = "灵山胜境 景点结构化数据集.docx";
 const GUIDE_DOC = "灵山胜境：历史、文化、景点特色与个性化游览指南.docx";
+const GENERATED_KNOWLEDGE_FILES = ["knowledge.json", "knowledge-chunks.json", "scenic-spots.json"];
 
 const structuredFields = [
   "景区名称",
@@ -139,12 +140,50 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
 }
 
 export function loadKnowledge() {
-  const filePath = join(config.dataDir, "generated", "knowledge.json");
-  if (!existsSync(filePath)) {
-    return null;
+  return (
+    loadKnowledgeFrom(join(runtimeGeneratedDir(), "knowledge.json")) ||
+    loadKnowledgeFrom(join(bundledGeneratedDir(), "knowledge.json"))
+  );
+}
+
+/**
+ * Restore the release's verified knowledge snapshot into the writable runtime
+ * directory. Production persists DATA_DIR outside a release, so a newly
+ * provisioned volume must not leave document uploads unable to build an index.
+ */
+export function restoreBundledKnowledge({ force = false } = {}) {
+  const runtimeDir = runtimeGeneratedDir();
+  const runtimeKnowledge = join(runtimeDir, "knowledge.json");
+  if (!force && existsSync(runtimeKnowledge)) {
+    return loadKnowledgeFrom(runtimeKnowledge);
   }
 
-  return JSON.parse(readFileSync(filePath, "utf8"));
+  const bundledDir = bundledGeneratedDir();
+  const missingFiles = GENERATED_KNOWLEDGE_FILES.filter(
+    (fileName) => !existsSync(join(bundledDir, fileName))
+  );
+  if (missingFiles.length > 0) {
+    const error = new Error("Bundled knowledge snapshot is unavailable.");
+    error.statusCode = 503;
+    error.code = "KNOWLEDGE_SEED_MISSING";
+    throw error;
+  }
+
+  mkdirSync(runtimeDir, { recursive: true });
+  if (resolve(runtimeDir) !== resolve(bundledDir)) {
+    for (const fileName of GENERATED_KNOWLEDGE_FILES) {
+      copyFileSync(join(bundledDir, fileName), join(runtimeDir, fileName));
+    }
+  }
+
+  const knowledge = loadKnowledgeFrom(runtimeKnowledge);
+  if (!knowledge) {
+    const error = new Error("Bundled knowledge snapshot could not be restored.");
+    error.statusCode = 503;
+    error.code = "KNOWLEDGE_SEED_RESTORE_FAILED";
+    throw error;
+  }
+  return knowledge;
 }
 
 export function buildTextDocumentChunks({
@@ -180,7 +219,7 @@ export function buildTextDocumentChunks({
 }
 
 export function indexTextKnowledgeDocument({ documentId, fileName, text, fileType }) {
-  const knowledge = loadKnowledge();
+  const knowledge = loadKnowledge() || restoreBundledKnowledge();
   if (!knowledge) {
     const error = new Error("Knowledge base has not been built.");
     error.statusCode = 409;
@@ -224,12 +263,27 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
       ...chunks
     ]
   };
-  const generatedDir = join(config.dataDir, "generated");
+  const generatedDir = runtimeGeneratedDir();
   mkdirSync(generatedDir, { recursive: true });
   writeJson(join(generatedDir, "knowledge.json"), next);
   writeJson(join(generatedDir, "knowledge-chunks.json"), next.chunks);
 
   return document;
+}
+
+function runtimeGeneratedDir() {
+  return join(config.dataDir, "generated");
+}
+
+function bundledGeneratedDir() {
+  return resolve(process.cwd(), "data", "generated");
+}
+
+function loadKnowledgeFrom(filePath) {
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  return JSON.parse(readFileSync(filePath, "utf8"));
 }
 
 export function parseStructuredSpots(text) {

@@ -7,8 +7,8 @@ import { logError, logInfo } from "./logger.mjs";
 import { fail, ok, created } from "./http/response.mjs";
 import { getBearerToken, readJson } from "./http/request.mjs";
 import { createVisitorSession, login, verifyToken } from "./services/auth.mjs";
-import { createUpload, listUploads } from "./services/uploads.mjs";
-import { buildKnowledge, loadKnowledge } from "./services/knowledgeBuild.mjs";
+import { createUpload, listUploads, reindexUploads } from "./services/uploads.mjs";
+import { buildKnowledge, loadKnowledge, restoreBundledKnowledge } from "./services/knowledgeBuild.mjs";
 import { hybridSearch, keywordSearch } from "./services/retrieval.mjs";
 import { answerQuestion, answerQuestionStream } from "./services/chat.mjs";
 import { generateSpotNarration, generateAccompanyNarration } from "./services/narration.mjs";
@@ -137,13 +137,27 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/rebuild" && req.method === "POST") {
-    const knowledge = buildKnowledge();
+    let knowledge;
+    let source = "source";
+    try {
+      knowledge = buildKnowledge();
+    } catch (error) {
+      if (error.code !== "SOURCE_FILE_NOT_FOUND") {
+        throw error;
+      }
+      knowledge = restoreBundledKnowledge({ force: true });
+      source = "bundled";
+    }
+    const uploads = reindexUploads();
+    knowledge = loadKnowledge() || knowledge;
     created(res, {
       generatedAt: knowledge.generatedAt,
       documents: knowledge.documents.length,
       spots: knowledge.spots.length,
       guideSections: knowledge.guideSections.length,
-      chunks: knowledge.chunks.length
+      chunks: knowledge.chunks.length,
+      source,
+      uploads
     });
     return;
   }
