@@ -1,4 +1,5 @@
 import request from '@/utils/http'
+import type { AxiosProgressEvent } from 'axios'
 import type { ScenicSpot } from '@/api/guide'
 
 /** 管理后台 API（知识库 / 景点 / FAQ / 分析 / 会话 / 反馈 / 服务质量） */
@@ -37,12 +38,19 @@ export function getUploads() {
   return request.get<UploadRecord[]>({ url: '/api/uploads' })
 }
 
-export function uploadDocument(data: {
-  fileName: string
-  mimeType: string
-  contentBase64: string
-}) {
-  return request.post<UploadRecord>({ url: '/api/uploads', data })
+export function uploadDocument(
+  data: {
+    fileName: string
+    mimeType: string
+    contentBase64: string
+  },
+  options: { onUploadProgress?: (event: AxiosProgressEvent) => void } = {}
+) {
+  return request.post<UploadRecord>({
+    url: '/api/uploads',
+    data,
+    onUploadProgress: options.onUploadProgress
+  })
 }
 
 export interface KnowledgeHit {

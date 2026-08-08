@@ -401,6 +401,39 @@ const catalog = {
   docsChunks: ['知识切片', 'Knowledge chunks', '지식 청크', '知識切片', 'ナレッジチャンク'],
   docsScope: ['知识范围', 'Knowledge scope', '지식 범위', '知識範圍', 'ナレッジ範囲'],
   docsUpload: ['上传文档', 'Upload document', '문서 업로드', '上傳文件', '文書をアップロード'],
+  docsUploadMultiple: [
+    '可一次选择多个文件',
+    'Select multiple files at once',
+    '여러 파일을 한 번에 선택할 수 있습니다',
+    '可一次選擇多個文件',
+    '複数のファイルを一度に選択できます'
+  ],
+  docsUploadProgress: [
+    '上传进度',
+    'Upload progress',
+    '업로드 진행 상황',
+    '上傳進度',
+    'アップロードの進行状況'
+  ],
+  docsUploadRate: ['上传速率', 'Transfer rate', '전송 속도', '上傳速率', '転送速度'],
+  docsUploadQueued: ['等待上传', 'Queued', '업로드 대기', '等待上傳', 'アップロード待機中'],
+  docsUploadUploading: ['正在上传', 'Uploading', '업로드 중', '正在上傳', 'アップロード中'],
+  docsUploadIndexing: [
+    '正在整理内容',
+    'Processing content',
+    '내용 처리 중',
+    '正在整理內容',
+    '内容を処理中'
+  ],
+  docsUploadCompleted: ['上传完成', 'Completed', '업로드 완료', '上傳完成', '完了'],
+  docsUploadFailedState: ['上传失败', 'Failed', '업로드 실패', '上傳失敗', '失敗'],
+  docsUploadBatchDone: [
+    '已完成 {success} 个文件，失败 {failed} 个',
+    '{success} file(s) completed, {failed} failed',
+    '{success}개 파일 완료, {failed}개 실패',
+    '已完成 {success} 個文件，失敗 {failed} 個',
+    '{success} 件完了、{failed} 件失敗'
+  ],
   docsSupported: [
     '支持 .docx / .xlsx / .txt / .md / .pdf',
     'Supports .docx / .xlsx / .txt / .md / .pdf',
