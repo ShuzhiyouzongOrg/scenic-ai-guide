@@ -513,6 +513,28 @@ const catalog = {
     '文件上傳失敗',
     '文書のアップロードに失敗しました。'
   ],
+  docsPreview: ['预览文档', 'Preview document', '문서 미리보기', '預覽文件', '文書をプレビュー'],
+  docsPreviewUnsupported: [
+    '该文件类型暂不支持在线预览，可保留并用于后续处理。',
+    'Online preview is not available for this file type. The file remains stored for later processing.',
+    '이 파일 형식은 온라인 미리보기를 지원하지 않습니다. 파일은 추후 처리를 위해 보관됩니다.',
+    '此檔案類型暫不支援線上預覽，檔案仍會保留供後續處理。',
+    'このファイル形式はオンラインプレビューに未対応です。後続処理用に保存されています。'
+  ],
+  docsPreviewFailed: [
+    '文档预览加载失败',
+    'Failed to load the document preview.',
+    '문서 미리보기를 불러오지 못했습니다.',
+    '文件預覽載入失敗',
+    '文書プレビューの読み込みに失敗しました。'
+  ],
+  docsPreviewTruncated: [
+    '文档较长，当前仅显示前 100,000 个字符。',
+    'This document is long; only the first 100,000 characters are shown.',
+    '문서가 길어 처음 100,000자만 표시합니다.',
+    '文件較長，目前僅顯示前 100,000 個字元。',
+    '文書が長いため、先頭 100,000 文字のみ表示しています。'
+  ],
 
   spotsTitle: ['景点管理', 'Attractions', '관광지 관리', '景點管理', '観光スポット'],
   spotsAdd: ['新增景点', 'Add attraction', '관광지 추가', '新增景點', 'スポットを追加'],

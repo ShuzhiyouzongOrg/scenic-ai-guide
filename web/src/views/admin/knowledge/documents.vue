@@ -137,12 +137,19 @@
 
     <ElCard shadow="never" class="table-card">
       <ElTable v-loading="loading" :data="uploads" stripe border>
-        <ElTableColumn
-          prop="fileName"
-          :label="$t('app.fileName')"
-          min-width="200"
-          show-overflow-tooltip
-        />
+        <ElTableColumn :label="$t('app.fileName')" min-width="200" show-overflow-tooltip>
+          <template #default="{ row }">
+            <ElButton
+              class="file-preview-link"
+              link
+              type="primary"
+              :title="$t('app.docsPreview')"
+              @click="handlePreview(row)"
+            >
+              {{ row.fileName }}
+            </ElButton>
+          </template>
+        </ElTableColumn>
         <ElTableColumn prop="fileType" :label="$t('app.type')" width="110" />
         <ElTableColumn :label="$t('app.size')" width="110">
           <template #default="{ row }">{{ formatSize(row.size) }}</template>
@@ -166,6 +173,34 @@
         </template>
       </ElTable>
     </ElCard>
+
+    <ElDrawer
+      v-model="previewOpen"
+      :title="preview?.fileName || $t('app.docsPreview')"
+      size="min(720px, 92vw)"
+      destroy-on-close
+      class="document-preview-drawer"
+    >
+      <div v-loading="previewLoading" class="document-preview">
+        <template v-if="preview">
+          <div class="document-preview__meta">
+            <ElTag effect="plain">{{ preview.fileType.toUpperCase() }}</ElTag>
+            <span>{{ formatSize(preview.size) }}</span>
+          </div>
+          <ElAlert
+            v-if="preview.truncated"
+            class="document-preview__notice"
+            type="warning"
+            :closable="false"
+            :title="$t('app.docsPreviewTruncated')"
+          />
+          <pre v-if="preview.previewable" class="document-preview__content">{{
+            preview.content
+          }}</pre>
+          <ElEmpty v-else :description="$t('app.docsPreviewUnsupported')" />
+        </template>
+      </div>
+    </ElDrawer>
   </div>
 </template>
 
@@ -177,10 +212,12 @@
   import { formatDateTime } from '@/utils/date'
   import {
     getKnowledgeSummary,
+    getUploadPreview,
     getUploads,
     rebuildKnowledge,
     uploadDocument,
     type KnowledgeSummary,
+    type UploadPreview,
     type UploadRecord
   } from '@/api/admin'
 
@@ -208,6 +245,9 @@
   const loading = ref(false)
   const rebuilding = ref(false)
   const uploading = ref(false)
+  const previewOpen = ref(false)
+  const previewLoading = ref(false)
+  const preview = ref<UploadPreview | null>(null)
   let batchTimer: number | undefined
 
   const scopeLines = computed(() => (summary.value?.scope || '').split(/\s+/).filter(Boolean))
@@ -283,6 +323,19 @@
 
   async function refresh() {
     await Promise.all([loadSummary(), loadUploads()])
+  }
+
+  async function handlePreview(row: UploadRecord) {
+    previewOpen.value = true
+    previewLoading.value = true
+    preview.value = null
+    try {
+      preview.value = await getUploadPreview(row.id)
+    } catch {
+      ElMessage.error(t('app.docsPreviewFailed'))
+    } finally {
+      previewLoading.value = false
+    }
   }
 
   async function handleRebuild() {
@@ -624,6 +677,49 @@
       margin-right: 4px;
       vertical-align: middle;
     }
+  }
+
+  .file-preview-link {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    font-weight: 500;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .document-preview {
+    min-height: 240px;
+  }
+
+  .document-preview__meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    color: var(--el-text-color-secondary);
+    font-size: 13px;
+  }
+
+  .document-preview__notice {
+    margin-bottom: 12px;
+  }
+
+  .document-preview__content {
+    max-height: calc(100vh - 190px);
+    margin: 0;
+    padding: 16px;
+    overflow: auto;
+    border: 1px solid var(--el-border-color-lighter);
+    border-radius: 8px;
+    background: var(--el-fill-color-lighter);
+    color: var(--el-text-color-primary);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
   }
 
   @media (max-width: 640px) {

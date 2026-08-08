@@ -28,6 +28,11 @@
         "summary": "Upload a knowledge file using base64 content; DOCX, Markdown and text files are indexed immediately"
       }
     },
+    "/api/uploads/{id}/preview": {
+      "get": {
+        "summary": "Preview uploaded Markdown, text or DOCX content as plain text"
+      }
+    },
     "/api/schema": {
       "get": {
         "summary": "Return database schema draft"

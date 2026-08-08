@@ -28,6 +28,17 @@ export interface UploadRecord {
   duplicateOf?: string
 }
 
+export interface UploadPreview {
+  id: string
+  fileName: string
+  mimeType: string
+  size: number
+  fileType: string
+  previewable: boolean
+  truncated: boolean
+  content: string
+}
+
 export function getKnowledgeSummary() {
   return request.get<KnowledgeSummary>({ url: '/api/knowledge/summary' })
 }
@@ -38,6 +49,10 @@ export function rebuildKnowledge() {
 
 export function getUploads() {
   return request.get<UploadRecord[]>({ url: '/api/uploads' })
+}
+
+export function getUploadPreview(id: string) {
+  return request.get<UploadPreview>({ url: `/api/uploads/${encodeURIComponent(id)}/preview` })
 }
 
 export function uploadDocument(

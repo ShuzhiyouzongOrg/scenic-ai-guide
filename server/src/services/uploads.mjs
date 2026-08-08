@@ -14,6 +14,8 @@ import {
 
 const allowedExtensions = new Set([".docx", ".xlsx", ".txt", ".md", ".pdf"]);
 const indexableExtensions = new Set([".docx", ".txt", ".md"]);
+const previewableExtensions = new Set([".docx", ".txt", ".md"]);
+const previewCharacterLimit = 100_000;
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
@@ -214,6 +216,45 @@ export function listUploads() {
       .all()
   );
   return rows.sort((a, b) => b.created_at.localeCompare(a.created_at)).map(toUpload);
+}
+
+export function getUploadPreview(id) {
+  const db = getDb();
+  const row = db.prepare("SELECT * FROM knowledge_documents WHERE id = ?").get(id);
+  if (!row) {
+    const error = new Error("Uploaded document not found.");
+    error.statusCode = 404;
+    error.code = "UPLOAD_NOT_FOUND";
+    throw error;
+  }
+
+  const extension = `.${String(row.file_type || "").toLowerCase()}`;
+  const base = {
+    id: row.id,
+    fileName: row.file_name,
+    fileType: row.file_type,
+    mimeType: row.mime_type,
+    size: row.size
+  };
+  if (!previewableExtensions.has(extension)) {
+    return { ...base, previewable: false, truncated: false, content: "" };
+  }
+
+  const storedPath = storedPathFor(row);
+  if (!existsSync(storedPath)) {
+    const error = new Error("Uploaded source file not found.");
+    error.statusCode = 404;
+    error.code = "UPLOAD_SOURCE_FILE_NOT_FOUND";
+    throw error;
+  }
+
+  const text = extension === ".docx" ? extractDocxText(storedPath) : readFileSync(storedPath, "utf8");
+  return {
+    ...base,
+    previewable: true,
+    truncated: text.length > previewCharacterLimit,
+    content: text.slice(0, previewCharacterLimit)
+  };
 }
 
 /**
