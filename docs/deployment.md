@@ -4,13 +4,13 @@
 
 ## 一、运行环境
 
-| 组件 | 要求 |
-|---|---|
-| Node.js | ≥ 20（开发验证于 Node 25） |
-| 包管理器 | 后端 npm；前端 pnpm（≥ 9） |
-| 操作系统 | Windows / macOS / Linux 均可 |
-| 数据库 | 内置 SQLite（better-sqlite3），无需额外安装 |
-| 网络 | 使用讯飞数字人 / 云端大模型时需外网；离线演示可用内置 Mock |
+| 组件     | 要求                                                       |
+| -------- | ---------------------------------------------------------- |
+| Node.js  | ≥ 20（开发验证于 Node 25）                                 |
+| 包管理器 | 后端 npm；前端 pnpm（≥ 9）                                 |
+| 操作系统 | Windows / macOS / Linux 均可                               |
+| 数据库   | 内置 SQLite（better-sqlite3），无需额外安装                |
+| 网络     | 使用讯飞数字人 / 云端大模型时需外网；离线演示可用内置 Mock |
 
 ## 二、目录结构
 
@@ -134,6 +134,34 @@ cd ../server && npm start     # 后端同时提供 /api 与 web/dist 静态资�
 ```
 
 浏览器访问后端地址即可（默认 `http://127.0.0.1:5178`）。
+
+### 公网站点部署
+
+生产站点使用 `https://www.shuzhiyouzong.cn`，由 Nginx 终止 TLS 并反向代理到仅监听
+`127.0.0.1:5178` 的 Node 服务。发布目录采用不可变版本和软链接切换：
+
+```text
+/opt/scenic-ai-guide/
+  current -> releases/<YYYYMMDD-HHmmss>
+  releases/<YYYYMMDD-HHmmss>/
+    server/
+    web/dist/
+
+/var/lib/scenic-ai-guide/data/
+  scenic.sqlite
+  uploads/
+```
+
+`scenic-ai-guide.service` 以非 root 用户运行，环境文件从上一版本安全复制，不写入 Git。
+每次上线先备份 SQLite、上传目录和 `.env`，在新 release 中安装后端生产依赖并完成健康
+检查，最后以原子方式切换 `current` 并重启服务；回滚时把软链接切回上一版本即可。
+
+Nginx 需要转发普通 API、SSE 流式响应和 WebSocket 升级请求，并为带哈希的静态资源
+配置长期缓存；`index.html` 不应长期缓存。证书由 Certbot 管理，HTTP 统一跳转 HTTPS。
+
+备案信息固定显示为“数智游踪 · 闽ICP备2025107095号-3”，并链接至工信部备案查询站。
+根域名 `shuzhiyouzong.cn` 也需要单独配置 A 记录指向生产公网 IP；记录生效后再将根域名
+加入证书，并重定向到 `www`，避免 HTTPS 证书名称不匹配。
 
 ## 六、常用运维脚本（server/）
 
