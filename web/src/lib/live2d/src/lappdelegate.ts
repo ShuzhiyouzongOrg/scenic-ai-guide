@@ -12,6 +12,10 @@ import * as LAppDefine from './lappdefine';
 import { LAppPal } from './lapppal';
 import { LAppSubdelegate } from './lappsubdelegate';
 import { CubismLogError } from '@framework/utils/cubismdebug';
+import {
+  disposeOfficialMotionSync,
+  startOfficialMotionSync
+} from '../motionSyncRuntime';
 import { ResourceModel } from '../resource';
 
 export let s_instance: LAppDelegate = null;
@@ -94,6 +98,12 @@ export class LAppDelegate {
     this.releaseEventListener();
     this.releaseSubdelegates();
 
+    // Release MotionSync models before the shared CRI engine and Cubism SDK.
+    if (this._motionSyncInitialized) {
+      disposeOfficialMotionSync();
+      this._motionSyncInitialized = false;
+    }
+
     // Cubism SDKの解放
     CubismFramework.dispose();
 
@@ -162,8 +172,17 @@ export class LAppDelegate {
     this._cubismOption.loggingLevel = LAppDefine.CubismLoggingLevel;
     CubismFramework.startUp(this._cubismOption);
 
+    const motionSyncCoreAvailable = Boolean(
+      globalThis.Live2DCubismMotionSyncCore
+    );
     // initialize cubism
     CubismFramework.initialize();
+    if (motionSyncCoreAvailable) {
+      this._motionSyncInitialized = startOfficialMotionSync(
+        LAppPal.printMessage,
+        LAppDefine.CubismLoggingLevel
+      );
+    }
   }
 
   /**
@@ -226,6 +245,7 @@ export class LAppDelegate {
    * Cubism SDK Option
    */
   private _cubismOption: Option;
+  private _motionSyncInitialized = false;
 
   /**
    * 操作対象のcanvas要素

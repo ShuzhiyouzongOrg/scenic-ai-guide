@@ -1,5 +1,6 @@
 import { LAppDelegate } from '@/lib/live2d/src/lappdelegate'
 import { Live2dLipSyncAnalyzer, type LipSyncFrame } from './lipSyncAnalyzer'
+import { concatPcmChunks, mixAudioChannels, MotionSyncPcmCursor } from './motionSyncPcm'
 import type { ResourceModel } from './resource'
 
 export class Live2dManager {
@@ -92,6 +93,8 @@ export class Live2dManager {
     source.connect(this._analyser)
     source.onended = () => {
       if (token !== this._playbackToken || this._audioSource !== source) return
+      const remainingPcm = this._motionSyncCursor.drain()
+      if (remainingPcm.length) this._pendingMotionSyncPcm.push(remainingPcm)
       source.disconnect()
       this._audioSource = null
       this._audioIsPlaying = false
@@ -100,8 +103,19 @@ export class Live2dManager {
     this._audioSource = source
     this._audioIsPlaying = true
     try {
-      source.start()
+      const startedAt = this._audioContext.currentTime
+      this._motionSyncCursor.begin(
+        mixAudioChannels(
+          Array.from({ length: buffer.numberOfChannels }, (_, channel) =>
+            buffer.getChannelData(channel)
+          )
+        ),
+        buffer.sampleRate,
+        startedAt
+      )
+      source.start(startedAt)
     } catch {
+      this._motionSyncCursor.reset()
       source.disconnect()
       this._audioSource = null
       this._audioIsPlaying = false
@@ -132,12 +146,32 @@ export class Live2dManager {
     })
   }
 
+  /** Returns only the mono PCM samples whose playback time has elapsed. */
+  public readMotionSyncPcm(): Float32Array {
+    const pending = this._pendingMotionSyncPcm
+    this._pendingMotionSyncPcm = []
+    return concatPcmChunks([
+      ...pending,
+      this._motionSyncCursor.readUntil(this._audioContext.currentTime)
+    ])
+  }
+
+  public getAudioSampleRate(): number {
+    return this._audioContext.sampleRate
+  }
+
+  public getPlaybackToken(): number {
+    return this._playbackToken
+  }
+
   public stopAudio(): void {
     this._playbackToken += 1
     this.clearAudioQueue()
     const source = this._audioSource
     this._audioSource = null
     this._audioIsPlaying = false
+    this._pendingMotionSyncPcm = []
+    this._motionSyncCursor.reset()
     if (source) {
       source.onended = null
       try {
@@ -203,6 +237,8 @@ export class Live2dManager {
   private readonly _timeDomain: Float32Array
   private readonly _frequencyDomain: Float32Array
   private readonly _lipSyncAnalyzer = new Live2dLipSyncAnalyzer()
+  private readonly _motionSyncCursor = new MotionSyncPcmCursor()
+  private _pendingMotionSyncPcm: Float32Array[] = []
   private _audioIsPlaying = false
   private _audioSource: AudioBufferSourceNode | null = null
   private _playbackToken = 0

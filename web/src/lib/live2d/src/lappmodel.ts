@@ -7,7 +7,6 @@
  */
 
 import { CubismDefaultParameterId } from '@framework/cubismdefaultparameterid';
-import { CubismModelSettingJson } from '@framework/cubismmodelsettingjson';
 import {
   BreathParameterData,
   CubismBreath
@@ -45,6 +44,13 @@ import { LAppWavFileHandler } from './lappwavfilehandler';
 import { CubismMoc } from '@framework/model/cubismmoc';
 import { Live2dManager } from '../live2dManager';
 import { LAppSubdelegate } from './lappsubdelegate';
+import {
+  createMotionSyncModelSetting,
+  createOfficialMotionSync,
+  getMotionSyncFileName,
+  isOfficialMotionSyncInitialized,
+  type MotionSyncInstance
+} from '../motionSyncRuntime';
 
 enum LoadStep {
   LoadAssets,
@@ -63,6 +69,8 @@ enum LoadStep {
   SetupEyeBlinkIds,
   SetupLipSyncIds,
   SetupLayout,
+  LoadMotionSync,
+  WaitLoadMotionSync,
   LoadMotion,
   WaitLoadMotion,
   CompleteInitialize,
@@ -98,7 +106,7 @@ export class LAppModel extends CubismUserModel {
         if (!this._live2dManager.isModelLoadCurrent(this)) {
           return;
         }
-        const setting: ICubismModelSetting = new CubismModelSettingJson(
+        const setting = createMotionSyncModelSetting(
           arrayBuffer,
           arrayBuffer.byteLength
         );
@@ -415,10 +423,53 @@ export class LAppModel extends CubismUserModel {
 
       this._modelSetting.getLayoutMap(layout);
       this._modelMatrix.setupFromLayout(layout);
-      this._state = LoadStep.LoadMotion;
+      this._state = LoadStep.LoadMotionSync;
 
       // callback
-      loadCubismMotion();
+      loadCubismMotionSync();
+    };
+
+    // Official CRI phoneme recognition. Failure is non-fatal because the
+    // existing audio-feature analyzer remains available during rendering.
+    const loadCubismMotionSync = (): void => {
+      const motionSyncFileName = getMotionSyncFileName(this._modelSetting);
+      if (!motionSyncFileName || !isOfficialMotionSyncInitialized()) {
+        loadCubismMotion();
+        return;
+      }
+
+      this._state = LoadStep.WaitLoadMotionSync;
+      fetch(`${this._modelHomeDir}${motionSyncFileName}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(
+              `MotionSync profile request failed (${response.status}): ${motionSyncFileName}`
+            );
+          }
+          return response.arrayBuffer();
+        })
+        .then(arrayBuffer => {
+          if (!this._live2dManager.isModelLoadCurrent(this)) return;
+          this._motionSync = createOfficialMotionSync(
+            this._model,
+            arrayBuffer,
+            arrayBuffer.byteLength,
+            this._live2dManager.getAudioSampleRate()
+          );
+          if (!this._motionSync) {
+            throw new Error(`MotionSync could not initialize: ${motionSyncFileName}`);
+          }
+          this._motionSyncBuffer.clear();
+        })
+        .catch(error => {
+          this.releaseMotionSync();
+          CubismLogError(
+            error instanceof Error ? error.message : 'MotionSync profile failed to load.'
+          );
+        })
+        .finally(() => {
+          if (this._live2dManager.isModelLoadCurrent(this)) loadCubismMotion();
+        });
     };
 
     // Motion
@@ -612,65 +663,90 @@ export class LAppModel extends CubismUserModel {
       this._physics.evaluate(this._model, deltaTimeSeconds);
     }
 
-    // Lip sync is applied after motion/expression/breath/physics and before model.update(),
-    // matching Cubism's update order so earlier animation does not overwrite speech.
-    if (this._lipsync) {
-      const manager = this._live2dManager;
-      manager.playAudio();
-      const lipSyncFrame = manager.getLipSyncFrame(deltaTimeSeconds);
-      const mouthOpen = lipSyncFrame.mouthOpen * manager.getLipFactor();
-      const influence = manager.isAudioPlaying() || mouthOpen > 0.005 ? 0.9 : 0;
-      if (influence > 0) {
-        for (let i = 0; i < this._lipSyncIds.getSize(); ++i) {
-          this._model.setParameterValueById(
-            this._lipSyncIds.at(i),
-            mouthOpen,
-            influence
-          );
-        }
-
-        // Most bundled models expose ParamMouthForm. Kei additionally exposes
-        // five vowel blend-shapes; unsupported IDs are harmless virtual values
-        // in CubismModel and therefore keep this path model-agnostic.
-        this._model.setParameterValueById(
-          this._idParamMouthForm,
-          lipSyncFrame.mouthForm,
-          influence * 0.68
-        );
-        this._model.setParameterValueById(
-          this._idParamVowelA,
-          lipSyncFrame.vowels.a,
-          influence * 0.82
-        );
-        this._model.setParameterValueById(
-          this._idParamVowelI,
-          lipSyncFrame.vowels.i,
-          influence * 0.82
-        );
-        this._model.setParameterValueById(
-          this._idParamVowelU,
-          lipSyncFrame.vowels.u,
-          influence * 0.82
-        );
-        this._model.setParameterValueById(
-          this._idParamVowelE,
-          lipSyncFrame.vowels.e,
-          influence * 0.82
-        );
-        this._model.setParameterValueById(
-          this._idParamVowelO,
-          lipSyncFrame.vowels.o,
-          influence * 0.82
-        );
-      }
-    }
-
     // ポーズの設定
     if (this._pose != null) {
       this._pose.updateParameters(this._model, deltaTimeSeconds);
     }
 
+    // Lip sync is applied after motion/expression/breath/physics/pose and before
+    // model.update(), matching the official MotionSync sample update order.
+    if (this._lipsync) {
+      const manager = this._live2dManager;
+      manager.playAudio();
+      if (!this.updateOfficialMotionSync(deltaTimeSeconds)) {
+        const lipSyncFrame = manager.getLipSyncFrame(deltaTimeSeconds);
+        const mouthOpen = lipSyncFrame.mouthOpen * manager.getLipFactor();
+        const influence = manager.isAudioPlaying() || mouthOpen > 0.005 ? 0.9 : 0;
+        if (influence > 0) {
+          for (let i = 0; i < this._lipSyncIds.getSize(); ++i) {
+            this._model.setParameterValueById(
+              this._lipSyncIds.at(i),
+              mouthOpen,
+              influence
+            );
+          }
+
+          this._model.setParameterValueById(
+            this._idParamMouthForm,
+            lipSyncFrame.mouthForm,
+            influence * 0.68
+          );
+          this._model.setParameterValueById(this._idParamVowelA, lipSyncFrame.vowels.a, influence * 0.82);
+          this._model.setParameterValueById(this._idParamVowelI, lipSyncFrame.vowels.i, influence * 0.82);
+          this._model.setParameterValueById(this._idParamVowelU, lipSyncFrame.vowels.u, influence * 0.82);
+          this._model.setParameterValueById(this._idParamVowelE, lipSyncFrame.vowels.e, influence * 0.82);
+          this._model.setParameterValueById(this._idParamVowelO, lipSyncFrame.vowels.o, influence * 0.82);
+        }
+      }
+    }
+
     this._model.update();
+  }
+
+  private updateOfficialMotionSync(deltaTimeSeconds: number): boolean {
+    if (
+      !this._motionSync ||
+      !this._live2dManager.isAudioPlaying() ||
+      !this._live2dManager.isAudioReady()
+    ) {
+      return false;
+    }
+
+    try {
+      const playbackToken = this._live2dManager.getPlaybackToken();
+      if (playbackToken !== this._motionSyncPlaybackToken) {
+        this._motionSyncBuffer.clear();
+        this._motionSyncPlaybackToken = playbackToken;
+      }
+      const pcm = this._live2dManager.readMotionSyncPcm();
+      for (let index = 0; index < pcm.length; index++) {
+        this._motionSyncBuffer.pushBack(pcm[index]);
+      }
+      this._motionSync.setSoundBuffer(0, this._motionSyncBuffer, 0);
+      this._motionSync.updateParameters(this._model, deltaTimeSeconds);
+
+      const processed = Math.min(
+        this._motionSync.getLastTotalProcessedCount(0),
+        this._motionSyncBuffer.getSize()
+      );
+      if (processed > 0) {
+        this._motionSyncBuffer._ptr.splice(0, processed);
+        this._motionSyncBuffer._size -= processed;
+      }
+      return true;
+    } catch (error) {
+      CubismLogError(
+        error instanceof Error ? error.message : 'MotionSync processing failed.'
+      );
+      this.releaseMotionSync();
+      return false;
+    }
+  }
+
+  private releaseMotionSync(): void {
+    this._motionSync?.release();
+    this._motionSync = null;
+    this._motionSyncBuffer.clear();
   }
 
   /**
@@ -1012,6 +1088,11 @@ export class LAppModel extends CubismUserModel {
     this._subdelegate = subdelegate;
   }
 
+  public release(): void {
+    this.releaseMotionSync();
+    super.release();
+  }
+
   /**
    * コンストラクタ
    */
@@ -1019,6 +1100,9 @@ export class LAppModel extends CubismUserModel {
     super();
 
     this._live2dManager = Live2dManager.getInstance();
+    this._motionSync = null;
+    this._motionSyncBuffer = new csmVector<number>();
+    this._motionSyncPlaybackToken = -1;
 
     this._modelSetting = null;
     this._modelHomeDir = null;
@@ -1075,6 +1159,9 @@ export class LAppModel extends CubismUserModel {
 
   private _subdelegate: LAppSubdelegate;
   private _live2dManager: Live2dManager;
+  private _motionSync: MotionSyncInstance;
+  private _motionSyncBuffer: csmVector<number>;
+  private _motionSyncPlaybackToken: number;
 
   _modelSetting: ICubismModelSetting; // モデルセッティング情報
   _modelHomeDir: string; // モデルセッティングが置かれたディレクトリ

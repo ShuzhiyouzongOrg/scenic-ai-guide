@@ -21,7 +21,8 @@
       "@stores/*": ["src/store/*"],
       "@plugins/*": ["src/plugins/*"],
       "@styles/*": ["src/assets/styles/*"],
-      "@framework/*": ["src/lib/live2d/Framework/src/*"]
+      "@framework/*": ["src/lib/live2d/Framework/src/*"],
+      "@motionsyncframework/*": ["src/lib/live2d/MotionSync/Framework/src/*"]
     }
   },
   "include": ["src/**/*", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

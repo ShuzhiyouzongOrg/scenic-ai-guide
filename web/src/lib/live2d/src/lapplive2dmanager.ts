@@ -25,6 +25,9 @@ export class LAppLive2DManager {
    * 現在のシーンで保持しているすべてのモデルを解放する
    */
   private releaseAllModel(): void {
+    for (let index = 0; index < this._models.getSize(); index++) {
+      this._models.at(index)?.release();
+    }
     this._models.clear();
   }
 
@@ -176,7 +179,10 @@ export class LAppLive2DManager {
   /**
    * 解放する。
    */
-  public release(): void {}
+  public release(): void {
+    this.releaseAllModel();
+    this._character = null;
+  }
 
   /**
    * 初期化する。

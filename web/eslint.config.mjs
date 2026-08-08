@@ -73,6 +73,7 @@ export default [
       'node_modules',
       'dist',
       'public',
+      'src/lib/live2d/MotionSync/**',
       '.vscode/**',
       'src/assets/**',
       'src/utils/console.ts'

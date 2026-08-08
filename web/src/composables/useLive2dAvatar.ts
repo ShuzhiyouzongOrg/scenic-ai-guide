@@ -5,8 +5,9 @@
  * 响应式状态），因此 DigitalHumanAvatar 可以按后台配置的 engine 无缝切换两种引擎。
  *
  * 与讯飞不同：讯飞是云端出声 + 云端口型；Live2D 在本地画布渲染，声音来自项目
- * 已有的后端 TTS 接口，取到音频后喂给 Live2dManager，由 AnalyserNode 实时分析
- * 音量包络、静音片段和频谱特征并驱动口型。渲染基础移植自 awesome-digital-human-live2d。
+ * 已有的后端 TTS 接口，取到音频后喂给 Live2dManager。优先使用官方 Cubism
+ * MotionSync CRI 音素识别驱动口型；Core、配置或处理异常时回退到 AnalyserNode
+ * 音频特征驱动。渲染基础移植自 awesome-digital-human-live2d。
  */
 import { ref } from 'vue'
 import { LAppDelegate } from '@/lib/live2d/src/lappdelegate'
@@ -14,6 +15,7 @@ import * as LAppDefine from '@/lib/live2d/src/lappdefine'
 import { Live2dManager } from '@/lib/live2d/live2dManager'
 import type { Live2dPresentation, Live2dViewTransform } from '@/lib/live2d/resource'
 import { isBundledLive2dModel, LIVE2D_PORTRAIT_PROFILES } from '@/lib/live2d/resource'
+import { prepareOfficialMotionSync } from '@/lib/live2d/motionSyncRuntime'
 import { synthesizeSpeech } from '@/api/digital-human'
 
 export type AvatarStatus = 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
@@ -33,9 +35,12 @@ export interface Live2dStartOptions {
 
 const BASE = (import.meta.env.VITE_BASE_URL as string) || '/'
 const CORE_SCRIPT = `${BASE}live2d/core/live2dcubismcore.min.js`.replace(/\/{2,}/g, '/')
+const MOTION_SYNC_CORE_SCRIPT =
+  `${BASE}live2d/motionsync/core/live2dcubismmotionsynccore.min.js`.replace(/\/{2,}/g, '/')
 
 /** 只加载一次 Cubism 核心运行时（挂到 window.Live2DCubismCore 全局） */
 let corePromise: Promise<void> | null = null
+let motionSyncCorePromise: Promise<void> | null = null
 function loadCubismCore(): Promise<void> {
   if ((window as Window & { Live2DCubismCore?: unknown }).Live2DCubismCore) return Promise.resolve()
   if (corePromise) return corePromise
@@ -51,6 +56,26 @@ function loadCubismCore(): Promise<void> {
     document.head.appendChild(script)
   })
   return corePromise
+}
+
+/** Loads the licensed CRI phoneme runtime once; model playback can fall back if it fails. */
+function loadMotionSyncCore(): Promise<void> {
+  if ((window as Window & { Live2DCubismMotionSyncCore?: unknown }).Live2DCubismMotionSyncCore) {
+    return Promise.resolve()
+  }
+  if (motionSyncCorePromise) return motionSyncCorePromise
+  motionSyncCorePromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.src = MOTION_SYNC_CORE_SCRIPT
+    script.async = true
+    script.onload = () => resolve()
+    script.onerror = () => {
+      motionSyncCorePromise = null
+      reject(new Error('Live2D MotionSync 核心运行时加载失败'))
+    }
+    document.head.appendChild(script)
+  })
+  return motionSyncCorePromise
 }
 
 export function useLive2dAvatar() {
@@ -84,6 +109,17 @@ export function useLive2dAvatar() {
       currentSpeechRate = Number.isFinite(options.speechRate) ? Number(options.speechRate) : 1
 
       await loadCubismCore()
+      try {
+        await loadMotionSyncCore()
+        if (!(await prepareOfficialMotionSync())) {
+          throw new Error('Live2D MotionSync Framework 初始化失败')
+        }
+      } catch (motionSyncError) {
+        console.warn(
+          '[Live2D] Official MotionSync is unavailable; using audio analysis fallback.',
+          motionSyncError
+        )
+      }
       if (generation !== runtimeGeneration) return false
 
       if (!options.canvas.isConnected) throw new Error('Live2D 画布未就绪')

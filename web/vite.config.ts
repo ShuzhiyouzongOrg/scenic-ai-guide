@@ -45,7 +45,8 @@ export default ({ mode }: { mode: string }) => {
         '@stores': resolvePath('src/store'),
         '@styles': resolvePath('src/assets/styles'),
         // Live2D 框架内部用 @framework 引用官方 Cubism SDK Framework 源码
-        '@framework': resolvePath('src/lib/live2d/Framework/src')
+        '@framework': resolvePath('src/lib/live2d/Framework/src'),
+        '@motionsyncframework': resolvePath('src/lib/live2d/MotionSync/Framework/src')
       }
     },
     build: {
