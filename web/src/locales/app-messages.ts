@@ -1,4 +1,5 @@
 import { LanguageEnum } from '@/enums/appEnum'
+import thaiMessages from './langs/th-app.json'
 
 type TranslationTuple = readonly [zh: string, en: string, ko: string, zhTw: string, ja: string]
 
@@ -11,9 +12,10 @@ const languageOrder = [
 ] as const
 
 /**
- * Scenic AI Guide business copy. Keeping the five translations beside each
+ * Scenic AI Guide business copy. Keeping the original five translations beside each
  * other makes missing global translations visible during review and avoids
- * business pages silently falling back to framework copy.
+ * business pages silently falling back to framework copy. Thai is maintained in
+ * a dedicated locale file and validated against the same key set.
  */
 const catalog = {
   navGuide: ['游客导览', 'Visitor Guide', '관람객 가이드', '遊客導覽', '来場者ガイド'],
@@ -69,13 +71,7 @@ const catalog = {
     '景區發布的遊覽路線與建議順序',
     '景区公式ルートと推奨見学順序'
   ],
-  mapGuideAreaSelect: [
-    '选择景区',
-    'Select scenic area',
-    '관광지 선택',
-    '選擇景區',
-    '観光地を選択'
-  ],
+  mapGuideAreaSelect: ['选择景区', 'Select scenic area', '관광지 선택', '選擇景區', '観光地を選択'],
   mapGuideAreaLingshan: ['灵山胜境', 'Lingshan', '링산 명승지', '靈山勝境', '霊山勝境'],
   mapGuideAreaNianhuawan: ['拈花湾', 'Nianhuawan', '녠화완', '拈花灣', '拈花湾'],
   mapGuideAreaSwitching: [
@@ -1935,11 +1931,16 @@ const catalog = {
 
 export type AppMessageKey = keyof typeof catalog
 
-export const appMessages = Object.fromEntries(
+const fiveLanguageMessages = Object.fromEntries(
   languageOrder.map((language, languageIndex) => [
     language,
     Object.fromEntries(
       Object.entries(catalog).map(([key, translations]) => [key, translations[languageIndex]])
     )
   ])
-) as Record<LanguageEnum, Record<AppMessageKey, string>>
+) as Record<(typeof languageOrder)[number], Record<AppMessageKey, string>>
+
+export const appMessages = {
+  ...fiveLanguageMessages,
+  [LanguageEnum.TH]: thaiMessages
+} as Record<LanguageEnum, Record<AppMessageKey, string>>

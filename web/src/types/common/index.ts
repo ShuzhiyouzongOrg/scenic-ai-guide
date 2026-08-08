@@ -86,7 +86,7 @@ export type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
 // 语言类型
-export type Language = 'zh-CN' | 'en-US'
+export type Language = 'zh-CN' | 'en-US' | 'ko-KR' | 'zh-TW' | 'ja-JP' | 'th-TH'
 
 // 环境类型
 export type Environment = 'development' | 'production' | 'test'

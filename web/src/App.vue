@@ -19,6 +19,7 @@
   import ko from 'element-plus/es/locale/lang/ko'
   import zhTw from 'element-plus/es/locale/lang/zh-tw'
   import ja from 'element-plus/es/locale/lang/ja'
+  import th from 'element-plus/es/locale/lang/th'
   import { systemUpgrade } from './utils/sys'
   import { toggleTransition } from './utils/ui/animation'
   import { checkStorageCompatibility } from './utils/storage'
@@ -33,8 +34,13 @@
     en: en,
     ko: ko,
     'zh-TW': zhTw,
-    ja: ja
+    ja: ja,
+    th: th
   }
+
+  watchEffect(() => {
+    document.documentElement.lang = language.value
+  })
 
   onBeforeMount(() => {
     toggleTransition(true)

@@ -2,11 +2,11 @@
  * 国际化配置
  *
  * 基于 vue-i18n 实现的多语言国际化解决方案。
- * 支持简体中文、英文、韩文、繁体中文和日文切换，自动从本地存储恢复用户的语言偏好。
+ * 支持简体中文、英文、韩文、繁体中文、日文和泰文切换，自动从本地存储恢复用户的语言偏好。
  *
  * ## 主要功能
  *
- * - 多语言支持 - 支持五种界面语言
+ * - 多语言支持 - 支持六种界面语言
  * - 语言切换 - 运行时动态切换语言，无需刷新页面
  * - 持久化存储 - 自动保存和恢复用户的语言偏好
  * - 全局注入 - 在任何组件中都可以使用 $t 函数进行翻译
@@ -16,6 +16,10 @@
  *
  * - zh: 简体中文
  * - en: English
+ * - ko: 한국어
+ * - zh-TW: 繁體中文
+ * - ja: 日本語
+ * - th: ภาษาไทย
  *
  * @module locales
  * @author Art Design Pro Team
@@ -32,6 +36,7 @@ import { frameworkMessages } from './framework-messages'
 // 同步导入语言文件
 import enMessages from './langs/en.json'
 import zhMessages from './langs/zh.json'
+import thMessages from './langs/th.json'
 
 /**
  * 存储键管理器实例
@@ -69,7 +74,8 @@ const messages = {
   [LanguageEnum.JA]: mergeMessages(enMessages, {
     ...frameworkMessages[LanguageEnum.JA],
     app: appMessages[LanguageEnum.JA]
-  })
+  }),
+  [LanguageEnum.TH]: { ...thMessages, app: appMessages[LanguageEnum.TH] }
 }
 
 /**
@@ -81,7 +87,8 @@ export const languageOptions = [
   { value: LanguageEnum.EN, label: 'English' },
   { value: LanguageEnum.KO, label: '한국어' },
   { value: LanguageEnum.ZH_TW, label: '繁體中文' },
-  { value: LanguageEnum.JA, label: '日本語' }
+  { value: LanguageEnum.JA, label: '日本語' },
+  { value: LanguageEnum.TH, label: 'ภาษาไทย' }
 ]
 
 /**

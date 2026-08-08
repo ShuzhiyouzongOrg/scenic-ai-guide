@@ -331,8 +331,9 @@
     synth.cancel()
     const utter = new SpeechSynthesisUtterance(row.welcomeText || t('app.dhWelcomeDefault'))
     utter.lang =
-      { zh: 'zh-CN', en: 'en-US', ko: 'ko-KR', 'zh-TW': 'zh-TW', ja: 'ja-JP' }[locale.value] ||
-      'zh-CN'
+      { zh: 'zh-CN', en: 'en-US', ko: 'ko-KR', 'zh-TW': 'zh-TW', ja: 'ja-JP', th: 'th-TH' }[
+        locale.value
+      ] || 'zh-CN'
     utter.rate = row.speechRate || 1
     synth.speak(utter)
     ElMessage.info(t('app.dhPreviewPlaying'))

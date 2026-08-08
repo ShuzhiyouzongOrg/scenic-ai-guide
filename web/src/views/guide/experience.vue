@@ -536,7 +536,8 @@
     en: 'en-US',
     ko: 'ko-KR',
     'zh-TW': 'zh-TW',
-    ja: 'ja-JP'
+    ja: 'ja-JP',
+    th: 'th-TH'
   }
 
   watch(locale, (language) => {

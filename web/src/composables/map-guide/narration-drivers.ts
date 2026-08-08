@@ -77,7 +77,15 @@ export class BrowserSpeechNarrationDriver implements NarrationDriver {
   async play(content: NarrationContent): Promise<void> {
     await this.stop()
     const utterance = new SpeechSynthesisUtterance(narrationText(content))
-    utterance.lang = 'zh-CN'
+    utterance.lang =
+      {
+        zh: 'zh-CN',
+        en: 'en-US',
+        ko: 'ko-KR',
+        'zh-TW': 'zh-TW',
+        ja: 'ja-JP',
+        th: 'th-TH'
+      }[document.documentElement.lang] || 'zh-CN'
     utterance.rate = 0.94
     this.utterance = utterance
     await new Promise<void>((resolve, reject) => {

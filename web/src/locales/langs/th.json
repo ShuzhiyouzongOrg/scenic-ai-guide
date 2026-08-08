@@ -1,0 +1,348 @@
+{
+  "httpMsg": {
+    "unauthorized": "การเข้าถึงไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบอีกครั้ง",
+    "forbidden": "การเข้าถึงทรัพยากรนี้ไม่ได้รับอนุญาต",
+    "notFound": "ไม่พบทรัพยากรที่ร้องขอ",
+    "methodNotAllowed": "วิธีการร้องขอไม่ได้รับอนุญาต",
+    "requestTimeout": "หมดเวลาการร้องขอ กรุณาลองอีกครั้งในภายหลัง",
+    "internalServerError": "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์ กรุณาลองอีกครั้งในภายหลัง",
+    "badGateway": "เกิดข้อผิดพลาดเกตเวย์ กรุณาลองอีกครั้งในภายหลัง",
+    "serviceUnavailable": "บริการไม่พร้อมใช้งานชั่วคราว กรุณาลองอีกครั้งในภายหลัง",
+    "gatewayTimeout": "หมดเวลาเกตเวย์ กรุณาลองอีกครั้งในภายหลัง",
+    "requestCancelled": "คำขอถูกยกเลิก",
+    "networkError": "การเชื่อมต่อเครือข่ายผิดพลาด กรุณาตรวจสอบการเชื่อมต่อของคุณ",
+    "requestFailed": "คำขอล้มเหลว",
+    "requestConfigError": "ข้อผิดพลาดการกำหนดค่าคำขอ"
+  },
+  "topBar": {
+    "search": {
+      "title": "ค้นหา"
+    },
+    "user": {
+      "userCenter": "ศูนย์ผู้ใช้",
+      "docs": "เอกสาร",
+      "github": "Github",
+      "lockScreen": "ล็อกหน้าจอ",
+      "logout": "ออกจากระบบ"
+    },
+    "guide": {
+      "title": "คลิกที่นี่เพื่อดู",
+      "theme": "สไตล์ธีม",
+      "menu": "เปิดเมนูด้านบน",
+      "description": "การตั้งค่าเพิ่มเติม"
+    }
+  },
+  "common": {
+    "tips": "คำแนะนำ",
+    "cancel": "ยกเลิก",
+    "confirm": "ยืนยัน",
+    "logOutTips": "คุณต้องการออกจากระบบหรือไม่?"
+  },
+  "search": {
+    "placeholder": "ค้นหาหน้า",
+    "historyTitle": "ประวัติการค้นหา",
+    "switchKeydown": "นำทาง",
+    "selectKeydown": "เลือก",
+    "exitKeydown": "ปิด"
+  },
+  "setting": {
+    "menuType": {
+      "title": "เค้าโครงเมนู",
+      "list": ["แนวตั้ง", "แนวนอน", "ผสม", "สองคอลัมน์"]
+    },
+    "theme": {
+      "title": "สไตล์ธีม",
+      "list": ["สว่าง", "มืด", "ตามระบบ"]
+    },
+    "menu": {
+      "title": "สไตล์เมนู"
+    },
+    "color": {
+      "title": "สีธีม"
+    },
+    "box": {
+      "title": "สไตล์กล่อง",
+      "list": ["เส้นขอบ", "เงา"]
+    },
+    "container": {
+      "title": "ความกว้างคอนเทนเนอร์",
+      "list": ["เต็มจอ", "กล่อง"]
+    },
+    "basics": {
+      "title": "การตั้งค่าพื้นฐาน",
+      "list": {
+        "multiTab": "แสดงแท็บงาน",
+        "accordion": "แถบข้างเปิดแบบแอคคอร์เดียน",
+        "collapseSidebar": "แสดงปุ่มแถบข้าง",
+        "reloadPage": "แสดงปุ่มโหลดหน้าใหม่",
+        "fastEnter": "แสดงการเข้าด่วน",
+        "breadcrumb": "แสดงเส้นทาง breadcrumb",
+        "language": "แสดงตัวเลือกหลายภาษา",
+        "progressBar": "แสดงแถบความคืบหน้าด้านบน",
+        "weakMode": "โหมดความผิดปกติของการมองเห็นสี",
+        "watermark": "ลายน้ำทั่วโลก",
+        "menuWidth": "ความกว้างเมนู",
+        "tabStyle": "สไตล์แท็บ",
+        "pageTransition": "แอนิเมชันหน้า",
+        "borderRadius": "รัศมีมุมโค้งที่กำหนดเอง"
+      }
+    },
+    "tabStyle": {
+      "default": "ค่าเริ่มต้น",
+      "card": "การ์ด",
+      "google": "Chrome"
+    },
+    "transition": {
+      "list": {
+        "none": "ไม่มี",
+        "fade": "จาง",
+        "slideLeft": "เลื่อนซ้าย",
+        "slideBottom": "เลื่อนล่าง",
+        "slideTop": "เลื่อนบน"
+      }
+    },
+    "actions": {
+      "resetConfig": "รีเซ็ตการกำหนดค่า",
+      "copyConfig": "คัดลอกการกำหนดค่า",
+      "copySuccess": "การกำหนดค่าถูกคัดลอกไปยังคลิปบอร์ดแล้ว วางลงในไฟล์ src/config/setting.ts",
+      "copyFailed": "คัดลอกไม่สำเร็จ กรุณาลองอีกครั้ง",
+      "resetFailed": "รีเซ็ตไม่สำเร็จ กรุณารีเฟรชหน้าและลองอีกครั้ง"
+    }
+  },
+  "notice": {
+    "title": "ประกาศ",
+    "btnRead": "ทำเครื่องหมายว่าอ่านแล้ว",
+    "bar": ["ประกาศ", "ข้อความ", "งานที่ต้องทำ"],
+    "text": ["ไม่มี"],
+    "viewAll": "ดูทั้งหมด"
+  },
+  "worktab": {
+    "btn": {
+      "refresh": "รีเฟรช",
+      "fixed": "ปักหมุด",
+      "unfixed": "เลิกปักหมุด",
+      "closeLeft": "ปิดด้านซ้าย",
+      "closeRight": "ปิดด้านขวา",
+      "closeOther": "ปิดอื่นๆ",
+      "closeAll": "ปิดทั้งหมด"
+    }
+  },
+  "login": {
+    "leftView": {
+      "title": "Lingshan AI Digital Guide",
+      "subTitle": "คู่หู AI ของคุณสำหรับ Lingshan — บรรยายจุดท่องเที่ยว วางแผนเส้นทาง และตอบคำถามทันที"
+    },
+    "title": "ยินดีต้อนรับกลับ",
+    "subTitle": "กรุณากรอกบัญชีและรหัสผ่านเพื่อเข้าสู่ระบบ",
+    "roles": {
+      "super": "ผู้ดูแลระบบสูงสุด",
+      "admin": "ผู้ดูแลระบบ",
+      "user": "ผู้ใช้"
+    },
+    "placeholder": {
+      "username": "กรุณากรอกบัญชีของคุณ",
+      "password": "กรุณากรอกรหัสผ่านของคุณ",
+      "slider": "กรุณาลากเพื่อยืนยัน"
+    },
+    "sliderText": "กรุณาลากเพื่อยืนยัน",
+    "sliderSuccessText": "การยืนยันสำเร็จ",
+    "rememberPwd": "จดจำรหัสผ่าน",
+    "forgetPwd": "ลืมรหัสผ่าน",
+    "btnText": "เข้าสู่ระบบ",
+    "noAccount": "ยังไม่มีบัญชี?",
+    "register": "สมัครสมาชิก",
+    "success": {
+      "title": "เข้าสู่ระบบสำเร็จ",
+      "message": "ยินดีต้อนรับกลับ"
+    }
+  },
+  "forgetPassword": {
+    "title": "ลืมรหัสผ่าน?",
+    "subTitle": "กรอกอีเมลของคุณเพื่อรีเซ็ตรหัสผ่าน",
+    "placeholder": "กรุณากรอกอีเมลของคุณ",
+    "submitBtnText": "ส่ง",
+    "backBtnText": "ย้อนกลับ"
+  },
+  "register": {
+    "title": "สร้างบัญชี",
+    "subTitle": "ยินดีต้อนรับเข้าร่วมกับเรา กรุณากรอกข้อมูลต่อไปนี้เพื่อลงทะเบียนให้สมบูรณ์",
+    "placeholder": {
+      "username": "กรุณากรอกบัญชีของคุณ",
+      "password": "กรุณากรอกรหัสผ่านของคุณ",
+      "confirmPassword": "กรุณากรอกรหัสผ่านอีกครั้ง"
+    },
+    "rule": {
+      "confirmPasswordRequired": "กรุณากรอกรหัสผ่านอีกครั้ง",
+      "passwordMismatch": "รหัสผ่านทั้งสองไม่ตรงกัน!",
+      "usernameLength": "ความยาวต้องมี 3 ถึง 20 ตัวอักษร",
+      "passwordLength": "รหัสผ่านต้องมีความยาวไม่น้อยกว่า 6 ตัว",
+      "agreementRequired": "กรุณายอมรับนโยบายความเป็นส่วนตัว"
+    },
+    "agreeText": "ฉันยอมรับ",
+    "privacyPolicy": "นโยบายความเป็นส่วนตัว",
+    "submitBtnText": "สมัครสมาชิก",
+    "hasAccount": "มีบัญชีอยู่แล้ว?",
+    "toLogin": "ไปเข้าสู่ระบบ"
+  },
+  "lockScreen": {
+    "pwdError": "รหัสผ่านผิดพลาด",
+    "lock": {
+      "inputPlaceholder": "กรุณากรอกรหัสผ่านล็อกหน้าจอ",
+      "btnText": "ล็อก"
+    },
+    "unlock": {
+      "inputPlaceholder": "กรุณากรอกรหัสผ่านปลดล็อก",
+      "btnText": "ปลดล็อก",
+      "backBtnText": "กลับไปเข้าสู่ระบบ"
+    }
+  },
+  "greeting": {
+    "dawn": "อรุณสวัสดิ์!",
+    "morning": "สวัสดีตอนเช้า!",
+    "afternoon": "สวัสดีตอนบ่าย!",
+    "evening": "สวัสดีตอนเย็น!"
+  },
+  "exceptionPage": {
+    "403": "ขออภัย คุณไม่มีสิทธิ์เข้าถึงหน้านี้",
+    "404": "ขออภัย หน้าที่คุณต้องการเข้าถึงไม่มีอยู่",
+    "500": "ขออภัย เกิดข้อผิดพลาดบนเซิร์ฟเวอร์",
+    "gohome": "กลับหน้าหลัก"
+  },
+  "menus": {
+    "login": {
+      "title": "เข้าสู่ระบบ"
+    },
+    "register": {
+      "title": "สมัครสมาชิก"
+    },
+    "forgetPassword": {
+      "title": "ลืมรหัสผ่าน"
+    },
+    "outside": {
+      "title": "ภายนอก"
+    },
+    "dashboard": {
+      "title": "แดชบอร์ด",
+      "console": "คอนโซล",
+      "analysis": "วิเคราะห์",
+      "ecommerce": "อีคอมเมิร์ซ"
+    },
+    "widgets": {
+      "title": "คอมโพเนนต์",
+      "icon": "ไอคอน",
+      "imageCrop": "ครอบตัดรูปภาพ",
+      "excel": "นำเข้า/ส่งออก Excel",
+      "video": "เครื่องเล่นวิดีโอ",
+      "countTo": "นับไปยัง",
+      "wangEditor": "Wang Editor",
+      "watermark": "ลายน้ำ",
+      "contextMenu": "เมนูบริบท",
+      "qrcode": "คิวอาร์โค้ด",
+      "drag": "ลาก",
+      "textScroll": "เลื่อนข้อความ",
+      "fireworks": "พลุ",
+      "elementUI": "ภาพรวมคอมโพเนนต์"
+    },
+    "template": {
+      "title": "ศูนย์เทมเพลต",
+      "chat": "แชท",
+      "cards": "การ์ด",
+      "banners": "แบนเนอร์",
+      "charts": "แผนภูมิ",
+      "map": "แผนที่",
+      "calendar": "ปฏิทิน",
+      "pricing": "ราคา"
+    },
+    "article": {
+      "title": "บทความ",
+      "articleList": "รายการบทความ",
+      "articleDetail": "รายละเอียดบทความ",
+      "comment": "ความคิดเห็น",
+      "articlePublish": "เผยแพร่บทความ"
+    },
+    "result": {
+      "title": "หน้าผลลัพธ์",
+      "success": "สำเร็จ",
+      "fail": "ล้มเหลว"
+    },
+    "exception": {
+      "title": "ข้อยกเว้น",
+      "forbidden": "403",
+      "notFound": "404",
+      "serverError": "500"
+    },
+    "examples": {
+      "title": "ตัวอย่างฟีเจอร์",
+      "tabs": "แท็บ",
+      "tablesBasic": "ตารางพื้นฐาน",
+      "tables": "ตารางขั้นสูง",
+      "tablesTree": "เค้าโครงตารางแบบต้นไม้",
+      "forms": "ฟอร์ม",
+      "searchBar": "ฟอร์มค้นหา",
+      "socketChat": "การเชื่อมต่อ Socket",
+      "permission": {
+        "title": "สิทธิ์ฝั่ง Frontend",
+        "switchRole": "สลับสิทธิ์",
+        "buttonAuth": "สิทธิ์ปุ่ม",
+        "pageVisibility": "การมองเห็นของผู้ดูแลระบบสูงสุด"
+      }
+    },
+    "system": {
+      "title": "การตั้งค่าระบบ",
+      "user": "จัดการผู้ใช้",
+      "role": "จัดการบทบาท",
+      "userCenter": "ศูนย์ผู้ใช้",
+      "menu": "จัดการเมนู",
+      "nested": "เมนูซ้อน",
+      "menu1": "เมนู 1",
+      "menu2": "เมนู 2",
+      "menu21": "เมนู 2-1",
+      "menu3": "เมนู 3",
+      "menu31": "เมนู 3-1",
+      "menu32": "เมนู 3-2",
+      "menu321": "เมนู 3-2-1"
+    },
+    "safeguard": {
+      "title": "การป้องกัน",
+      "server": "เซิร์ฟเวอร์"
+    },
+    "plan": {
+      "title": "แผนเวอร์ชัน",
+      "log": "บันทึกการเปลี่ยนแปลง"
+    },
+    "help": {
+      "title": "ศูนย์ช่วยเหลือ",
+      "document": "เอกสาร",
+      "liteVersion": "เวอร์ชัน Lite",
+      "oldVersion": "เวอร์ชัน v2.6.1"
+    }
+  },
+  "table": {
+    "form": {
+      "reset": "รีเซ็ต",
+      "submit": "ส่ง"
+    },
+    "searchBar": {
+      "reset": "รีเซ็ต",
+      "search": "ค้นหา",
+      "expand": "ขยาย",
+      "collapse": "ยุบ",
+      "searchInputPlaceholder": "กรุณากรอก",
+      "searchSelectPlaceholder": "กรุณาเลือก"
+    },
+    "selection": "เลือก",
+    "sizeOptions": {
+      "small": "กะทัดรัด",
+      "default": "ค่าเริ่มต้น",
+      "large": "กว้าง"
+    },
+    "column": {
+      "selection": "เลือก",
+      "expand": "ขยาย",
+      "index": "ลำดับ"
+    },
+    "zebra": "ลายทาง",
+    "border": "เส้นขอบ",
+    "headerBackground": "พื้นหลังหัวตาราง"
+  }
+}
