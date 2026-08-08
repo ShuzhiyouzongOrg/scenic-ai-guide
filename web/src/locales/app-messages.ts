@@ -307,6 +307,13 @@ const catalog = {
 
   refresh: ['刷新', 'Refresh', '새로고침', '重新整理', '更新'],
   cancel: ['取消', 'Cancel', '취소', '取消', 'キャンセル'],
+  siteRegistrationAria: [
+    '网站备案信息',
+    'Website registration information',
+    '웹사이트 등록 정보',
+    '網站備案資訊',
+    'ウェブサイト登録情報'
+  ],
   save: ['保存', 'Save', '저장', '儲存', '保存'],
   edit: ['编辑', 'Edit', '편집', '編輯', '編集'],
   enabled: ['启用', 'Enabled', '사용', '啟用', '有効'],
