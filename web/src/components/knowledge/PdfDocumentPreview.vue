@@ -41,13 +41,11 @@
     type PDFDocumentProxy,
     type RenderTask
   } from 'pdfjs-dist/legacy/build/pdf.mjs'
-  import pdfWorkerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url'
+  import PdfWorker from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?worker'
   import { useI18n } from 'vue-i18n'
 
   const props = defineProps<{ data: ArrayBuffer; fileName: string }>()
   const { t } = useI18n()
-
-  GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
   const canvasRef = ref<HTMLCanvasElement | null>(null)
   const stageRef = ref<HTMLElement | null>(null)
@@ -65,6 +63,12 @@
   let resizeObserver: ResizeObserver | null = null
   let resizeFrame = 0
   let loadVersion = 0
+  let pdfWorker: Worker | null = null
+
+  function ensurePdfWorker() {
+    if (!pdfWorker) pdfWorker = new PdfWorker()
+    GlobalWorkerOptions.workerPort = pdfWorker
+  }
 
   async function disposeDocument() {
     renderTask?.cancel()
@@ -166,6 +170,7 @@
   watch(() => props.data, loadDocument)
 
   onMounted(async () => {
+    ensurePdfWorker()
     await nextTick()
     if (stageRef.value) {
       resizeObserver = new ResizeObserver(scheduleResponsiveRender)
@@ -178,7 +183,11 @@
     loadVersion += 1
     resizeObserver?.disconnect()
     window.cancelAnimationFrame(resizeFrame)
-    void disposeDocument()
+    void disposeDocument().finally(() => {
+      if (GlobalWorkerOptions.workerPort === pdfWorker) GlobalWorkerOptions.workerPort = null
+      pdfWorker?.terminate()
+      pdfWorker = null
+    })
   })
 </script>
 
