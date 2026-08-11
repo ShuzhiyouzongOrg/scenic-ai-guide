@@ -245,6 +245,11 @@
     border-radius: 14px;
   }
 
+  .state-speaking .map-digital-human__engine :deep(.dh-badge),
+  .state-speaking .map-digital-human__engine :deep(.l2d-badge) {
+    right: 54px;
+  }
+
   .map-digital-human__active-shell {
     position: relative;
     width: 100%;

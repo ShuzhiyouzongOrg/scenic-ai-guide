@@ -1,5 +1,4 @@
 import { AppRouteRecord } from '@/types/router'
-import { helpRoutes } from './help'
 
 /**
  * 管理后台模块（运营与管理端）
@@ -96,7 +95,6 @@ export const systemRoutes: AppRouteRecord = {
         roles: ['R_SUPER']
       }
     },
-    ...helpRoutes,
     {
       path: 'user-center',
       name: 'UserCenter',

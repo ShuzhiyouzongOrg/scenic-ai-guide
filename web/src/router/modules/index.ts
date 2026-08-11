@@ -7,6 +7,7 @@ import {
   operationRoutes,
   systemRoutes
 } from './admin'
+import { helpRoutes } from './help'
 
 /**
  * 导出所有模块化路由
@@ -18,5 +19,6 @@ export const routeModules: AppRouteRecord[] = [
   digitalHumanRoutes,
   analyticsRoutes,
   operationRoutes,
-  systemRoutes
+  systemRoutes,
+  ...helpRoutes
 ]
