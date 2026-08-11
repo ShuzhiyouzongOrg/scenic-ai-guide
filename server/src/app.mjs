@@ -266,27 +266,27 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/admin/roles" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requireSuperAdmin(req, res)) return;
     created(res, createRole(await readJson(req)));
     return;
   }
 
   const roleAdminMatch = url.pathname.match(/^\/api\/admin\/roles\/([^/]+)$/);
   if (roleAdminMatch && req.method === "PUT") {
-    if (!requireAdmin(req, res)) return;
+    if (!requireSuperAdmin(req, res)) return;
     ok(res, updateRole(Number(decodeURIComponent(roleAdminMatch[1])), await readJson(req)));
     return;
   }
 
   if (roleAdminMatch && req.method === "DELETE") {
-    if (!requireAdmin(req, res)) return;
+    if (!requireSuperAdmin(req, res)) return;
     ok(res, deleteRole(Number(decodeURIComponent(roleAdminMatch[1]))));
     return;
   }
 
   const rolePermissionMatch = url.pathname.match(/^\/api\/admin\/roles\/([^/]+)\/permissions$/);
   if (rolePermissionMatch && req.method === "PUT") {
-    if (!requireAdmin(req, res)) return;
+    if (!requireSuperAdmin(req, res)) return;
     const body = await readJson(req);
     ok(res, updateRolePermissions(Number(decodeURIComponent(rolePermissionMatch[1])), body.permissions));
     return;
@@ -736,6 +736,19 @@ function requireAdmin(req, res) {
   }
   if (!["admin", "operator"].includes(payload.role)) {
     fail(res, 403, "FORBIDDEN", "Administrator access is required.");
+    return false;
+  }
+  return true;
+}
+
+function requireSuperAdmin(req, res) {
+  const payload = verifyToken(getBearerToken(req));
+  if (!payload) {
+    fail(res, 401, "UNAUTHORIZED", "Login is required.");
+    return false;
+  }
+  if (payload.role !== "admin") {
+    fail(res, 403, "FORBIDDEN", "Super administrator access is required.");
     return false;
   }
   return true;

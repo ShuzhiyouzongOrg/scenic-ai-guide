@@ -28,7 +28,7 @@ export function register(input = {}) {
   }
 
   const avatar = String(input.avatar || "");
-  const safeAvatar = /^\/(?:assets\/ling-avatar-[1-4][^/]*\.webp|src\/assets\/images\/avatar\/ling-avatar-[1-4]\.webp)(?:\?.*)?$/.test(avatar)
+  const safeAvatar = /^\/(?:assets\/ling-avatar-[1-6][^/]*\.webp|src\/assets\/images\/avatar\/ling-avatar-[1-6]\.webp)(?:\?.*)?$/.test(avatar)
     ? avatar
     : "";
   const user = createAdminUser({

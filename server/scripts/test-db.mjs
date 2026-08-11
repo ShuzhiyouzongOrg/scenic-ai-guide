@@ -39,7 +39,7 @@ check("admin login works with seeded account", () => {
 
 check("visitor registration persists role and avatar", () => {
   const username = `visit${Date.now().toString().slice(-8)}`;
-  const avatar = "/assets/ling-avatar-2-test.webp";
+  const avatar = "/assets/ling-avatar-6-test.webp";
   const result = register({ username, password: "visit123", avatar });
   assert.equal(result.role, "visitor");
   assert.equal(result.avatar, avatar);

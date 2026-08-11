@@ -16,10 +16,20 @@
       <p class="profile-summary">{{ t('app.profileSummary') }}</p>
 
       <div class="profile-facts">
-        <div><ArtSvgIcon icon="ri:mail-line" /><span>{{ form.email || t('app.profileUnset') }}</span></div>
-        <div><ArtSvgIcon icon="ri:user-3-line" /><span>{{ t('app.profileGuideRole') }}</span></div>
-        <div><ArtSvgIcon icon="ri:map-pin-line" /><span>{{ t('app.profileLocation') }}</span></div>
-        <div><ArtSvgIcon icon="ri:compass-3-line" /><span>{{ t('app.profileTeam') }}</span></div>
+        <div
+          ><ArtSvgIcon icon="ri:mail-line" /><span>{{
+            form.email || t('app.profileUnset')
+          }}</span></div
+        >
+        <div
+          ><ArtSvgIcon icon="ri:user-3-line" /><span>{{ t('app.profileGuideRole') }}</span></div
+        >
+        <div
+          ><ArtSvgIcon icon="ri:map-pin-line" /><span>{{ t('app.profileLocation') }}</span></div
+        >
+        <div
+          ><ArtSvgIcon icon="ri:compass-3-line" /><span>{{ t('app.profileTeam') }}</span></div
+        >
       </div>
 
       <h3>{{ t('app.profileTags') }}</h3>
@@ -70,13 +80,28 @@
         <h1>{{ t('app.profileChangePassword') }}</h1>
         <ElForm :model="passwordForm" label-position="top" class="password-form">
           <ElFormItem :label="t('app.profileCurrentPassword')">
-            <ElInput v-model="passwordForm.currentPassword" type="password" show-password :disabled="!editingPassword" />
+            <ElInput
+              v-model="passwordForm.currentPassword"
+              type="password"
+              show-password
+              :disabled="!editingPassword"
+            />
           </ElFormItem>
           <ElFormItem :label="t('app.profileNewPassword')">
-            <ElInput v-model="passwordForm.newPassword" type="password" show-password :disabled="!editingPassword" />
+            <ElInput
+              v-model="passwordForm.newPassword"
+              type="password"
+              show-password
+              :disabled="!editingPassword"
+            />
           </ElFormItem>
           <ElFormItem :label="t('app.profileConfirmPassword')">
-            <ElInput v-model="passwordForm.confirmPassword" type="password" show-password :disabled="!editingPassword" />
+            <ElInput
+              v-model="passwordForm.confirmPassword"
+              type="password"
+              show-password
+              :disabled="!editingPassword"
+            />
           </ElFormItem>
           <div class="form-actions">
             <ElButton type="primary" :loading="passwordSaving" @click="savePassword">
@@ -120,14 +145,20 @@
   import avatar2 from '@/assets/images/avatar/ling-avatar-2.webp'
   import avatar3 from '@/assets/images/avatar/ling-avatar-3.webp'
   import avatar4 from '@/assets/images/avatar/ling-avatar-4.webp'
+  import avatar5 from '@/assets/images/avatar/ling-avatar-5.webp'
+  import avatar6 from '@/assets/images/avatar/ling-avatar-6.webp'
 
   defineOptions({ name: 'UserCenter' })
 
   const { t } = useI18n()
   const userStore = useUserStore()
   const userInfo = computed(() => userStore.getUserInfo)
-  const avatarOptions = [defaultAvatar, avatar2, avatar3, avatar4]
-  const profileTags = computed(() => [t('app.profileTagGuide'), t('app.profileTagCulture'), t('app.profileTagService')])
+  const avatarOptions = [defaultAvatar, avatar2, avatar3, avatar4, avatar5, avatar6]
+  const profileTags = computed(() => [
+    t('app.profileTagGuide'),
+    t('app.profileTagCulture'),
+    t('app.profileTagService')
+  ])
   const editingProfile = ref(false)
   const editingPassword = ref(false)
   const profileSaving = ref(false)
@@ -212,31 +243,199 @@
 </script>
 
 <style scoped lang="scss">
-  .user-center-page { display: grid; grid-template-columns: minmax(270px, 360px) minmax(0, 1fr); gap: 20px; padding: 12px 0 24px; }
-  .profile-card { position: relative; min-height: 680px; overflow: hidden; padding: 0 28px 28px; text-align: center; }
-  .profile-cover { width: calc(100% + 56px); height: 150px; margin-left: -28px; object-fit: cover; }
-  .profile-avatar-button { position: relative; display: block; width: 96px; height: 96px; margin: -48px auto 0; padding: 0; cursor: pointer; background: #fff; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 5px 16px rgb(31 70 65 / 18%); }
-  .profile-avatar { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  .avatar-edit-badge { position: absolute; right: -2px; bottom: 0; display: grid; place-items: center; width: 26px; height: 26px; color: #fff; background: var(--theme-color); border: 2px solid #fff; border-radius: 50%; }
-  .profile-card h2 { margin: 18px 0 8px; font-size: 24px; font-weight: 500; }
-  .profile-summary { color: var(--el-text-color-secondary); }
-  .profile-facts { display: grid; gap: 13px; margin: 34px auto 28px; text-align: left; }
-  .profile-facts div { display: flex; gap: 10px; align-items: center; color: var(--el-text-color-regular); }
-  .profile-facts .art-svg-icon { color: var(--theme-color); }
-  .profile-card h3 { margin: 28px 0 14px; font-size: 15px; font-weight: 600; }
-  .profile-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .profile-forms { display: grid; gap: 20px; min-width: 0; }
-  .profile-forms > section { padding: 0 26px 22px; }
-  .profile-forms h1 { margin: 0 -26px 22px; padding: 20px 26px; font-size: 22px; font-weight: 500; border-bottom: 1px solid var(--art-card-border); }
-  .profile-form, .password-form { padding-top: 4px; }
-  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; }
-  .w-full { width: 100%; }
-  .form-actions { display: flex; justify-content: flex-end; }
-  .dialog-avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .dialog-avatar-option { padding: 6px; cursor: pointer; color: var(--el-text-color-regular); background: transparent; border: 2px solid transparent; border-radius: 14px; }
-  .dialog-avatar-option.selected { color: var(--theme-color); border-color: var(--theme-color); background: var(--el-color-primary-light-9); }
-  .dialog-avatar-option img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
-  .dialog-avatar-option span { display: block; margin-top: 6px; font-size: 12px; }
-  @media (max-width: 900px) { .user-center-page { grid-template-columns: 1fr; } .profile-card { min-height: auto; } }
-  @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .profile-forms > section { padding-inline: 16px; } .profile-forms h1 { margin-inline: -16px; padding-inline: 16px; } }
+  .user-center-page {
+    display: grid;
+    grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
+    gap: 20px;
+    padding: 12px 0 24px;
+  }
+
+  .profile-card {
+    position: relative;
+    min-height: 680px;
+    padding: 0 28px 28px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .profile-cover {
+    width: calc(100% + 56px);
+    height: 150px;
+    margin-left: -28px;
+    object-fit: cover;
+  }
+
+  .profile-avatar-button {
+    position: relative;
+    display: block;
+    width: 96px;
+    height: 96px;
+    padding: 0;
+    margin: -48px auto 0;
+    cursor: pointer;
+    background: #fff;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 5px 16px rgb(31 70 65 / 18%);
+  }
+
+  .profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .avatar-edit-badge {
+    position: absolute;
+    right: -2px;
+    bottom: 0;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: #fff;
+    background: var(--theme-color);
+    border: 2px solid #fff;
+    border-radius: 50%;
+  }
+
+  .profile-card h2 {
+    margin: 18px 0 8px;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  .profile-summary {
+    color: var(--el-text-color-secondary);
+  }
+
+  .profile-facts {
+    display: grid;
+    gap: 13px;
+    margin: 34px auto 28px;
+    text-align: left;
+  }
+
+  .profile-facts div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: var(--el-text-color-regular);
+  }
+
+  .profile-facts .art-svg-icon {
+    color: var(--theme-color);
+  }
+
+  .profile-card h3 {
+    margin: 28px 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .profile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .profile-forms {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .profile-forms > section {
+    padding: 0 26px 22px;
+  }
+
+  .profile-forms h1 {
+    padding: 20px 26px;
+    margin: 0 -26px 22px;
+    font-size: 22px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--art-card-border);
+  }
+
+  .profile-form,
+  .password-form {
+    padding-top: 4px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 22px;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .dialog-avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .dialog-avatar-option {
+    padding: 6px;
+    color: var(--el-text-color-regular);
+    cursor: pointer;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 14px;
+  }
+
+  .dialog-avatar-option.selected {
+    color: var(--theme-color);
+    background: var(--el-color-primary-light-9);
+    border-color: var(--theme-color);
+  }
+
+  .dialog-avatar-option img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .dialog-avatar-option span {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+  }
+
+  @media (width <= 900px) {
+    .user-center-page {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+      min-height: auto;
+    }
+  }
+
+  @media (width <= 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-forms > section {
+      padding-inline: 16px;
+    }
+
+    .profile-forms h1 {
+      padding-inline: 16px;
+      margin-inline: -16px;
+    }
+  }
 </style>
