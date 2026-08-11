@@ -20,7 +20,7 @@
  * - 类型提示和自动补全
  *
  * @module types/store/index
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 import { MenuThemeEnum, SystemThemeEnum } from '@/enums/appEnum'

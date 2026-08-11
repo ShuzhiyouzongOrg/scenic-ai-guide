@@ -6,7 +6,7 @@ import { config } from "./config.mjs";
 import { logError, logInfo } from "./logger.mjs";
 import { fail, ok, created } from "./http/response.mjs";
 import { getBearerToken, readJson } from "./http/request.mjs";
-import { createVisitorSession, login, verifyToken } from "./services/auth.mjs";
+import { createVisitorSession, login, register, verifyToken } from "./services/auth.mjs";
 import {
   createUpload,
   getUploadContent,
@@ -42,7 +42,16 @@ import {
 } from "./services/serviceQuality.mjs";
 import { schema } from "./db/schema.mjs";
 import { getDb } from "./db/database.mjs";
-import { listAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser } from "./services/userAdmin.mjs";
+import {
+  listAdminUsers,
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
+  getAdminUserProfile,
+  updateAdminUserProfile,
+  changeAdminUserPassword
+} from "./services/userAdmin.mjs";
+import { listRoles, createRole, updateRole, updateRolePermissions, deleteRole } from "./services/roleAdmin.mjs";
 import { generateDemoData } from "./services/demoData.mjs";
 import {
   getMapGuideBootstrap,
@@ -71,6 +80,8 @@ const mimeTypes = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".ico": "image/x-icon",
   ".svg": "image/svg+xml"
 };
 
@@ -245,6 +256,39 @@ async function route(req, res, url) {
   if (userAdminMatch && req.method === "DELETE") {
     if (!requireAdmin(req, res)) return;
     ok(res, deleteAdminUser(decodeURIComponent(userAdminMatch[1])));
+    return;
+  }
+
+  if (url.pathname === "/api/admin/roles" && req.method === "GET") {
+    if (!requireAdmin(req, res)) return;
+    ok(res, listRoles(Object.fromEntries(url.searchParams.entries())));
+    return;
+  }
+
+  if (url.pathname === "/api/admin/roles" && req.method === "POST") {
+    if (!requireAdmin(req, res)) return;
+    created(res, createRole(await readJson(req)));
+    return;
+  }
+
+  const roleAdminMatch = url.pathname.match(/^\/api\/admin\/roles\/([^/]+)$/);
+  if (roleAdminMatch && req.method === "PUT") {
+    if (!requireAdmin(req, res)) return;
+    ok(res, updateRole(Number(decodeURIComponent(roleAdminMatch[1])), await readJson(req)));
+    return;
+  }
+
+  if (roleAdminMatch && req.method === "DELETE") {
+    if (!requireAdmin(req, res)) return;
+    ok(res, deleteRole(Number(decodeURIComponent(roleAdminMatch[1]))));
+    return;
+  }
+
+  const rolePermissionMatch = url.pathname.match(/^\/api\/admin\/roles\/([^/]+)\/permissions$/);
+  if (rolePermissionMatch && req.method === "PUT") {
+    if (!requireAdmin(req, res)) return;
+    const body = await readJson(req);
+    ok(res, updateRolePermissions(Number(decodeURIComponent(rolePermissionMatch[1])), body.permissions));
     return;
   }
 
@@ -576,6 +620,27 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/auth/register" && req.method === "POST") {
+    created(res, register(await readJson(req)));
+    return;
+  }
+
+  if (url.pathname === "/api/auth/profile" && req.method === "PUT") {
+    const payload = requireAuthPayload(req, res);
+    if (!payload) return;
+    const body = await readJson(req);
+    ok(res, toAuthUser(updateAdminUserProfile(payload.uid, body)));
+    return;
+  }
+
+  if (url.pathname === "/api/auth/password" && req.method === "PUT") {
+    const payload = requireAuthPayload(req, res);
+    if (!payload) return;
+    const body = await readJson(req);
+    ok(res, changeAdminUserPassword(payload.uid, body.currentPassword, body.newPassword));
+    return;
+  }
+
   if (url.pathname === "/api/auth/me" && req.method === "GET") {
     const token = getBearerToken(req);
     const payload = verifyToken(token);
@@ -584,14 +649,7 @@ async function route(req, res, url) {
       return;
     }
 
-    ok(res, {
-      userId: payload.uid || payload.sub,
-      userName: payload.sub,
-      roles: [payload.role === "admin" ? "R_SUPER" : payload.role],
-      buttons: [],
-      email: "",
-      avatar: ""
-    });
+    ok(res, toAuthUser(getAdminUserProfile(payload.uid), payload));
     return;
   }
 
@@ -671,11 +729,48 @@ async function streamChat(res, body) {
 
 function requireAdmin(req, res) {
   const token = getBearerToken(req);
-  if (!verifyToken(token)) {
+  const payload = verifyToken(token);
+  if (!payload) {
     fail(res, 401, "UNAUTHORIZED", "Login is required.");
     return false;
   }
+  if (!["admin", "operator"].includes(payload.role)) {
+    fail(res, 403, "FORBIDDEN", "Administrator access is required.");
+    return false;
+  }
   return true;
+}
+
+function requireAuthPayload(req, res) {
+  const payload = verifyToken(getBearerToken(req));
+  if (!payload) {
+    fail(res, 401, "UNAUTHORIZED", "Login is required.");
+    return null;
+  }
+  return payload;
+}
+
+function toAuthUser(user, fallback = {}) {
+  const role = user?.role || fallback.role || "operator";
+  const roles = role === "admin"
+    ? ["R_SUPER", "R_ADMIN"]
+    : role === "operator"
+      ? ["R_ADMIN", "operator"]
+      : ["R_USER", role];
+  return {
+    userId: user?.id || fallback.uid || fallback.sub,
+    userName: user?.username || fallback.sub || "",
+    roles,
+    buttons: [],
+    email: user?.email || "",
+    avatar: user?.avatar || "",
+    realName: user?.realName || "",
+    gender: user?.gender || "",
+    nickname: user?.nickname || user?.displayName || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+    bio: user?.bio || ""
+  };
 }
 
 function serveStatic(res, pathname) {

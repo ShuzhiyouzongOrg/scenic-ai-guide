@@ -2,7 +2,7 @@
  * UI 相关工具函数统一导出
  *
  * @module utils/ui/index
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 export * from './colors'

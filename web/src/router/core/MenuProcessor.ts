@@ -4,7 +4,7 @@
  * 负责菜单数据的获取、过滤和处理
  *
  * @module router/core/MenuProcessor
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 import type { AppRouteRecord } from '@/types/router'

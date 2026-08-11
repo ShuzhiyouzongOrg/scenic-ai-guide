@@ -21,7 +21,7 @@
  * - 配置数据验证
  *
  * @module types/config/index
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 import { MenuTypeEnum, SystemThemeEnum } from '@/enums/appEnum'

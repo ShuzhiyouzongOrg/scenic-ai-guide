@@ -60,7 +60,7 @@
       </div>
 
       <div class="border-l-d pl-6 pt-2">
-        <h3 class="mb-2.5 text-base font-medium text-g-800">快速链接</h3>
+        <h3 class="mb-2.5 text-base font-medium text-g-800">{{ t('app.quickLinks') }}</h3>
         <ul>
           <li
             v-for="quickLink in enabledQuickLinks"
@@ -68,7 +68,7 @@
             class="c-p py-2 hover:[&_span]:text-theme"
             @click="handleQuickLinkClick(quickLink)"
           >
-            <span class="text-g-600 no-underline">{{ quickLink.name }}</span>
+            <span class="text-g-600 no-underline">{{ getQuickLinkName(quickLink) }}</span>
           </li>
         </ul>
       </div>
@@ -105,6 +105,10 @@
     return application.descriptionI18nKey
       ? t(application.descriptionI18nKey)
       : application.description
+  }
+
+  const getQuickLinkName = (quickLink: FastEnterQuickLink): string => {
+    return quickLink.nameI18nKey ? t(quickLink.nameI18nKey) : quickLink.name
   }
 
   const formatGeneratedAt = (generatedAt?: string): string => {

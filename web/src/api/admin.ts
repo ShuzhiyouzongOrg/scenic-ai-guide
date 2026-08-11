@@ -258,9 +258,17 @@ export interface AdminUser {
   id: string
   username: string
   displayName: string
-  role: 'admin' | 'operator'
+  role: string
   status: 'active' | 'disabled'
   createdAt?: string
+  avatar?: string
+  realName?: string
+  gender?: string
+  nickname?: string
+  email?: string
+  phone?: string
+  address?: string
+  bio?: string
 }
 export function getAdminUsers() {
   return request.get<AdminUser[]>({ url: '/api/admin/users' })
@@ -278,4 +286,34 @@ export function updateAdminUser(id: string, data: Partial<AdminUser> & { passwor
 }
 export function deleteAdminUser(id: string) {
   return request.del({ url: `/api/admin/users/${id}` })
+}
+
+export interface AdminRole {
+  roleId: number
+  roleName: string
+  roleCode: string
+  description: string
+  enabled: boolean
+  permissions: string[]
+  createTime: string
+}
+
+export function getAdminRoles(params: Record<string, unknown> = {}) {
+  return request.get<AdminRole[]>({ url: '/api/admin/roles', params })
+}
+
+export function createAdminRole(data: Partial<AdminRole>) {
+  return request.post<AdminRole>({ url: '/api/admin/roles', data })
+}
+
+export function updateAdminRole(id: number, data: Partial<AdminRole>) {
+  return request.put<AdminRole>({ url: `/api/admin/roles/${id}`, data })
+}
+
+export function updateAdminRolePermissions(id: number, permissions: string[]) {
+  return request.put<AdminRole>({ url: `/api/admin/roles/${id}/permissions`, data: { permissions } })
+}
+
+export function deleteAdminRole(id: number) {
+  return request.del({ url: `/api/admin/roles/${id}` })
 }

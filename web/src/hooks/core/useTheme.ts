@@ -28,7 +28,7 @@
  * ```
  *
  * @module useTheme
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 import { useSettingStore } from '@/store/modules/setting'

@@ -257,7 +257,7 @@
         workbook.Props = {
           Title: filename,
           Subject: '数据导出',
-          Author: props.workbookOptions.creator || 'Art Design Pro',
+          Author: props.workbookOptions.creator || '灵山胜境 AI 导览',
           Manager: props.workbookOptions.lastModifiedBy || '',
           Company: '系统导出',
           Category: '数据',

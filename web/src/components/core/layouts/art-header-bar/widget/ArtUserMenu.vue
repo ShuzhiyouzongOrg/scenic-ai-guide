@@ -14,8 +14,8 @@
     <template #reference>
       <img
         class="size-8.5 mr-5 c-p rounded-full max-sm:w-6.5 max-sm:h-6.5 max-sm:mr-[16px]"
-        src="@imgs/user/avatar.webp"
-        alt="avatar"
+        :src="avatarUrl"
+        :alt="$t('app.avatarAlt')"
       />
     </template>
     <template #default>
@@ -23,7 +23,7 @@
         <div class="flex-c pb-1 px-0">
           <img
             class="w-10 h-10 mr-3 ml-0 overflow-hidden rounded-full float-left"
-            src="@imgs/user/avatar.webp"
+            :src="avatarUrl"
           />
           <div class="w-[calc(100%-60px)] h-full">
             <span class="block text-sm font-medium text-g-800 truncate">{{
@@ -66,6 +66,7 @@
   import { useUserStore } from '@/store/modules/user'
   import { WEB_LINKS } from '@/utils/constants'
   import { mittBus } from '@/utils/sys'
+  import defaultAvatar from '@/assets/images/avatar/ling-avatar-1.webp'
 
   defineOptions({ name: 'ArtUserMenu' })
 
@@ -74,6 +75,7 @@
   const userStore = useUserStore()
 
   const { getUserInfo: userInfo } = storeToRefs(userStore)
+  const avatarUrl = computed(() => userInfo.value.avatar || defaultAvatar)
   const userMenuPopover = ref()
 
   /**

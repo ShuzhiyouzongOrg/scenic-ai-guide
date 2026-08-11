@@ -42,12 +42,20 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
+$WorkspaceRoot = Split-Path -Parent $ProjectRoot
+$LocalTempRoot = Join-Path $WorkspaceRoot "LocalTemp"
+$RuntimeRoot = Join-Path $LocalTempRoot "scenic-ai-guide"
 $ServerDir = Join-Path $ProjectRoot "server"
 $WebDir = Join-Path $ProjectRoot "web"
 $ServerEnv = Join-Path $ServerDir ".env"
 $ServerEnvExample = Join-Path $ServerDir ".env.example"
-$DatabasePath = Join-Path $ServerDir "data\scenic.sqlite"
-$SetupLogDir = Join-Path $ProjectRoot ".setup-logs"
+$WebEnv = Join-Path $WebDir ".env"
+$WebEnvDevelopment = Join-Path $WebDir ".env.development"
+$RuntimeDataDir = Join-Path $RuntimeRoot "data"
+$RuntimeUploadDir = Join-Path $RuntimeRoot "uploads"
+$RuntimeBackupDir = Join-Path $RuntimeRoot "backups"
+$DatabasePath = Join-Path $RuntimeDataDir "scenic.sqlite"
+$SetupLogDir = Join-Path $RuntimeRoot "logs"
 $script:Warnings = [Collections.Generic.List[string]]::new()
 
 function Write-Step([string]$Message) {
@@ -206,12 +214,11 @@ Original error: $($_.Exception.Message)
 
 function Backup-ExistingDatabase {
   if (-not (Test-Path -LiteralPath $DatabasePath)) { return }
-  $backupDir = Join-Path $ServerDir "backups"
-  New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
+  New-Item -ItemType Directory -Force -Path $RuntimeBackupDir | Out-Null
   $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-  $backupPath = Join-Path $backupDir "pre-setup-$stamp.sqlite"
+  $backupPath = Join-Path $RuntimeBackupDir "pre-setup-$stamp.sqlite"
   Copy-Item -LiteralPath $DatabasePath -Destination $backupPath
-  Write-Pass "Existing database backed up to server/backups/$([IO.Path]::GetFileName($backupPath))"
+  Write-Pass "Existing database backed up to LocalTemp/scenic-ai-guide/backups/$([IO.Path]::GetFileName($backupPath))"
 }
 
 function Start-SmokeTestServer {
@@ -268,12 +275,18 @@ if ($env:OS -ne "Windows_NT") { throw "This script only supports Windows." }
 if ($PSVersionTable.PSVersion -lt [version]"5.1") { throw "PowerShell 5.1 or newer is required." }
 Write-Pass "PowerShell $($PSVersionTable.PSVersion)"
 
-$os = Get-CimInstance Win32_OperatingSystem
-$build = [int]$os.BuildNumber
+$os = $null
+try {
+  $os = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+} catch {
+  Write-Warn "Win32_OperatingSystem is unavailable in this PowerShell context; falling back to Windows API version information."
+}
+$build = if ($os) { [int]$os.BuildNumber } else { [int][Environment]::OSVersion.Version.Build }
 if ($build -lt 22000) {
   Write-Warn "Detected Windows build $build. Windows 11 build 22000+ is recommended."
 } else {
-  Write-Pass "$($os.Caption), build $build"
+  $caption = if ($os) { $os.Caption } else { "Windows" }
+  Write-Pass "$caption, build $build"
 }
 if (-not [Environment]::Is64BitOperatingSystem) { throw "A 64-bit Windows installation is required." }
 Write-Pass "64-bit operating system"
@@ -290,7 +303,6 @@ $requiredProjectFiles = @(
   (Join-Path $ServerDir ".env.example"),
   (Join-Path $WebDir "package.json"),
   (Join-Path $WebDir "pnpm-lock.yaml"),
-  (Join-Path $WebDir ".env"),
   (Join-Path $WebDir ".env.development")
 )
 $missingProjectFiles = @($requiredProjectFiles | Where-Object { -not (Test-Path -LiteralPath $_) })
@@ -311,9 +323,15 @@ if ($officialExcel.Count -lt 1 -or $officialDocx.Count -lt 2) {
 if ($ProjectRoot.StartsWith("\\")) { throw "UNC network paths are not supported. Copy the project to a local NTFS drive." }
 $drive = Get-PSDrive -Name ([IO.Path]::GetPathRoot($ProjectRoot).Substring(0, 1))
 $freeGb = [math]::Round($drive.Free / 1GB, 1)
-if ($freeGb -lt 4) { throw "At least 4 GB free disk space is required; only $freeGb GB is available." }
-if ($freeGb -lt 8) { Write-Warn "Only $freeGb GB free disk space is available; 8 GB or more is recommended." }
-else { Write-Pass "$freeGb GB free disk space" }
+if ($drive.Free -le 0) {
+  Write-Warn "Free disk space is unavailable in this restricted PowerShell context; continuing without the disk-space gate."
+} elseif ($freeGb -lt 4) {
+  throw "At least 4 GB free disk space is required; only $freeGb GB is available."
+} elseif ($freeGb -lt 8) {
+  Write-Warn "Only $freeGb GB free disk space is available; 8 GB or more is recommended."
+} else {
+  Write-Pass "$freeGb GB free disk space"
+}
 
 if ($ProjectRoot.Length -gt 160) { Write-Warn "The project path is long. Move it closer to a drive root if native builds fail." }
 if ($ProjectRoot -match '(?i)\\OneDrive\\') { Write-Warn "The project is inside OneDrive. Sync locks can interfere with node_modules and SQLite." }
@@ -378,6 +396,9 @@ if ($CheckOnly) {
   return
 }
 
+New-Item -ItemType Directory -Force -Path $LocalTempRoot, $RuntimeRoot, $RuntimeDataDir, $RuntimeUploadDir, $RuntimeBackupDir, $SetupLogDir | Out-Null
+Write-Pass "Windows runtime data, uploads, backups, and logs use $RuntimeRoot"
+
 Write-Step "Node.js and package manager checks"
 $nodeCommand = Get-Command node.exe -ErrorAction SilentlyContinue
 $nodeVersion = if ($nodeCommand) { Get-CommandVersion "node.exe" @("--version") } else { "" }
@@ -411,6 +432,16 @@ if (-not (Test-Path -LiteralPath $ServerEnv)) {
   Write-Pass "Created server/.env from server/.env.example"
 } else {
   Write-Pass "Preserving existing server/.env"
+}
+Set-DotEnvValue -Path $ServerEnv -Name "DATA_DIR" -Value $RuntimeDataDir
+Set-DotEnvValue -Path $ServerEnv -Name "UPLOAD_DIR" -Value $RuntimeUploadDir
+Set-DotEnvValue -Path $ServerEnv -Name "SQLITE_PATH" -Value $DatabasePath
+Write-Pass "Configured server runtime paths under LocalTemp/scenic-ai-guide"
+if (-not (Test-Path -LiteralPath $WebEnv)) {
+  Copy-Item -LiteralPath $WebEnvDevelopment -Destination $WebEnv
+  Write-Pass "Created web/.env from web/.env.development"
+} else {
+  Write-Pass "Preserving existing web/.env"
 }
 $jwtSecret = Get-DotEnvValue $ServerEnv "JWT_SECRET"
 if ([string]::IsNullOrWhiteSpace($jwtSecret) -or $jwtSecret -in @("dev-secret", "replace-with-a-long-random-secret")) {
@@ -450,7 +481,7 @@ Backup-ExistingDatabase
 Install-BackendDependencies
 Push-Location $WebDir
 try {
-  Invoke-Checked pnpm.cmd install --frozen-lockfile --prefer-offline
+  Invoke-Checked pnpm.cmd install --frozen-lockfile --prefer-offline --config.confirmModulesPurge=false --config.node-linker=hoisted
 } finally { Pop-Location }
 
 Write-Step "Database initialization and boundary tests"
@@ -460,11 +491,17 @@ try {
   Invoke-Checked npm.cmd run check
   Invoke-Checked npm.cmd run env:check
   if (-not $SkipTests) {
-    Invoke-Checked npm.cmd run test:db
-    Invoke-Checked npm.cmd run test:retrieval
-    Invoke-Checked npm.cmd run test:routes
-    Invoke-Checked npm.cmd run test:digital-human
-    Invoke-Checked npm.cmd run test:demo-mode
+    $previousSqlitePath = [Environment]::GetEnvironmentVariable("SQLITE_PATH", "Process")
+    [Environment]::SetEnvironmentVariable("SQLITE_PATH", ":memory:", "Process")
+    try {
+      Invoke-Checked npm.cmd run test:db
+      Invoke-Checked npm.cmd run test:retrieval
+      Invoke-Checked npm.cmd run test:routes
+      Invoke-Checked npm.cmd run test:digital-human
+      Invoke-Checked npm.cmd run test:demo-mode
+    } finally {
+      [Environment]::SetEnvironmentVariable("SQLITE_PATH", $previousSqlitePath, "Process")
+    }
   } else {
     Write-Warn "Automated backend boundary tests were skipped."
   }
@@ -473,7 +510,10 @@ try {
 Write-Step "Frontend verification"
 Push-Location $WebDir
 try {
-  Invoke-Checked pnpm.cmd run build
+  $vueTscCommand = Join-Path $WebDir "node_modules\.bin\vue-tsc.cmd"
+  $viteCommand = Join-Path $WebDir "node_modules\.bin\vite.cmd"
+  Invoke-Checked $vueTscCommand --noEmit
+  Invoke-Checked $viteCommand build
 } finally { Pop-Location }
 Write-Pass "Frontend type-check and production build"
 

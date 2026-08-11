@@ -221,6 +221,7 @@
   import { CircleCheck, Delete, Microphone } from '@element-plus/icons-vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import DigitalHumanAvatar from '@/components/digital-human/DigitalHumanAvatar.vue'
+  import { mittBus } from '@/utils/sys'
   import { formatGuideAnswer } from '@/utils/guide-answer'
   import {
     askQuestion,
@@ -496,6 +497,7 @@
   async function onRate(value: number) {
     if (!value || feedbackSubmitting.value || feedbackSubmitted.value) return
     ratingAnimating.value = true
+    if (value >= 3) mittBus.emit('triggerFireworks')
     if (ratingAnimationTimer) window.clearTimeout(ratingAnimationTimer)
     ratingAnimationTimer = window.setTimeout(() => {
       ratingAnimating.value = false

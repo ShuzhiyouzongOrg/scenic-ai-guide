@@ -166,6 +166,8 @@
   "register": {
     "title": "Create account",
     "subTitle": "Welcome to join us, please fill in the following information to complete the registration",
+    "avatarLabel": "Choose avatar",
+    "avatarOption": "Avatar {index}",
     "placeholder": {
       "username": "Please enter your account",
       "password": "Please enter your password",
@@ -181,6 +183,8 @@
     "agreeText": "I agree",
     "privacyPolicy": "Privacy policy",
     "submitBtnText": "Register",
+    "successMessage": "Registration succeeded. Please sign in with your new account",
+    "failedMessage": "Registration failed. The account may already exist",
     "hasAccount": "Already have an account?",
     "toLogin": "To login"
   },

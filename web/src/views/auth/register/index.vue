@@ -49,6 +49,22 @@
               />
             </ElFormItem>
 
+            <ElFormItem :label="$t('register.avatarLabel')" prop="avatar">
+              <div class="avatar-picker">
+                <button
+                  v-for="(avatar, index) in avatarOptions"
+                  :key="avatar"
+                  type="button"
+                  class="avatar-option"
+                  :class="{ selected: formData.avatar === avatar }"
+                  :aria-label="$t('register.avatarOption', { index: index + 1 })"
+                  @click="formData.avatar = avatar"
+                >
+                  <img :src="avatar" :alt="$t('app.avatarAlt')" />
+                </button>
+              </div>
+            </ElFormItem>
+
             <ElFormItem prop="agreement">
               <ElCheckbox v-model="formData.agreement">
                 {{ $t('register.agreeText') }}
@@ -88,6 +104,11 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchRegister } from '@/api/auth'
+  import avatar1 from '@/assets/images/avatar/ling-avatar-1.webp'
+  import avatar2 from '@/assets/images/avatar/ling-avatar-2.webp'
+  import avatar3 from '@/assets/images/avatar/ling-avatar-3.webp'
+  import avatar4 from '@/assets/images/avatar/ling-avatar-4.webp'
 
   defineOptions({ name: 'Register' })
 
@@ -96,6 +117,7 @@
     password: string
     confirmPassword: string
     agreement: boolean
+    avatar: string
   }
 
   const USERNAME_MIN_LENGTH = 3
@@ -119,8 +141,11 @@
     username: '',
     password: '',
     confirmPassword: '',
-    agreement: false
+    agreement: false,
+    avatar: avatar1
   })
+
+  const avatarOptions = [avatar1, avatar2, avatar3, avatar4]
 
   /**
    * 验证密码
@@ -201,26 +226,17 @@
     try {
       await formRef.value.validate()
       loading.value = true
-
-      // TODO: 替换为真实 API 调用
-      // const params = {
-      //   username: formData.username,
-      //   password: formData.password
-      // }
-      // const res = await AuthService.register(params)
-      // if (res.code === ApiStatus.success) {
-      //   ElMessage.success('注册成功')
-      //   toLogin()
-      // }
-
-      // 模拟注册请求
-      setTimeout(() => {
-        loading.value = false
-        ElMessage.success('注册成功')
-        toLogin()
-      }, REDIRECT_DELAY)
+      await fetchRegister({
+        username: formData.username,
+        password: formData.password,
+        avatar: formData.avatar
+      })
+      ElMessage.success(t('register.successMessage'))
+      toLogin()
     } catch (error) {
-      console.error('表单验证失败:', error)
+      if (loading.value) ElMessage.error(t('register.failedMessage'))
+      console.error('注册失败:', error)
+    } finally {
       loading.value = false
     }
   }
@@ -237,4 +253,33 @@
 
 <style scoped>
   @import '../login/style.css';
+
+  .avatar-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .avatar-option {
+    width: 44px;
+    height: 44px;
+    padding: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 50%;
+  }
+
+  .avatar-option.selected {
+    border-color: var(--theme-color);
+    box-shadow: 0 0 0 3px rgb(93 135 255 / 15%);
+  }
+
+  .avatar-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
 </style>

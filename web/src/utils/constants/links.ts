@@ -3,30 +3,30 @@
  * 集中管理便于维护和更新链接地址
  *
  * @module utils/constants/links
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 export const WEB_LINKS = {
   // Github 主页
-  GITHUB_HOME: 'https://github.com/Daymychen/art-design-pro',
+  GITHUB_HOME: 'https://github.com/babybitter/scenic-ai-guide',
 
   // 项目 Github 主页
-  GITHUB: 'https://github.com/Daymychen/art-design-pro',
+  GITHUB: 'https://github.com/babybitter/scenic-ai-guide',
 
   // 个人博客
-  BLOG: 'https://www.artd.pro',
+  BLOG: 'https://www.shuzhiyouzong.cn/',
 
   // 项目文档
-  DOCS: 'https://www.artd.pro/docs/zh/',
+  DOCS: 'https://www.shuzhiyouzong.cn/#/help/docs',
 
   // 精简版本
-  LiteVersion: 'https://www.artd.pro/docs/zh/guide/lite-version.html',
+  LiteVersion: 'https://www.shuzhiyouzong.cn/#/help/docs',
 
   // v2.6.1版本
-  OldVersion: 'https://www.artd.pro/v2/',
+  OldVersion: 'https://www.shuzhiyouzong.cn/#/help/changelog',
 
   // 项目社区
-  COMMUNITY: 'https://www.artd.pro/docs/zh/community/communicate.html',
+  COMMUNITY: 'https://www.shuzhiyouzong.cn/#/help/docs',
 
   // 项目介绍
-  INTRODUCE: 'https://www.artd.pro/docs/zh/guide/introduce.html'
+  INTRODUCE: 'https://www.shuzhiyouzong.cn/#/help/docs'
 }

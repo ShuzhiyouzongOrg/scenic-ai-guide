@@ -25,7 +25,7 @@
 
 ## 3. 前端框架完整性
 
-- 基于 art-design-pro（Vue3 + TS + Element Plus + Vite），已裁剪演示模块，保留布局/鉴权/异常/i18n/HTTP 基础设施。
+- 基于 scenic-ai-guide（Vue3 + TS + Element Plus + Vite），已裁剪演示模块，保留布局/鉴权/异常/i18n/HTTP 基础设施。
 - HTTP 层适配后端统一信封 `{success,data}` 与 Bearer Token；登录（admin/admin123）经 Vite 代理与同源两种方式验证通过。
 - 菜单模块：游客导览、知识库管理、数字人配置、运营分析、会话与反馈、系统管理。
 - `pnpm build` 通过（2752 模块），生产环境后端可同源提供 SPA 与 `/api`，SPA 路由回退正常。

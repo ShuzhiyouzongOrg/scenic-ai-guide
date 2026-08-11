@@ -103,7 +103,7 @@
   .map-digital-human.state-compact {
     position: absolute;
     right: 64px;
-    bottom: 20px;
+    bottom: 8px;
   }
 
   .map-digital-human.state-speaking {
@@ -166,7 +166,10 @@
 
   .state-idle .map-digital-human__engine,
   .state-compact .map-digital-human__engine {
-    inset: 7px;
+    top: 7px;
+    right: auto;
+    bottom: auto;
+    left: 7px;
     width: 90px;
     height: 90px;
     background: #fff;
@@ -237,7 +240,7 @@
     .map-digital-human.state-idle,
     .map-digital-human.state-compact {
       right: 58px;
-      bottom: 14px;
+      bottom: 6px;
       transform: scale(0.9);
       transform-origin: right bottom;
     }
@@ -256,7 +259,10 @@
 
     .state-idle .map-digital-human__engine,
     .state-compact .map-digital-human__engine {
-      inset: 6px;
+      top: 6px;
+      right: auto;
+      bottom: auto;
+      left: 6px;
       width: 80px;
       height: 80px;
     }

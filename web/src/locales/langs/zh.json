@@ -166,6 +166,8 @@
   "register": {
     "title": "创建账号",
     "subTitle": "欢迎加入我们，请填写以下信息完成注册",
+    "avatarLabel": "选择头像",
+    "avatarOption": "头像 {index}",
     "placeholder": {
       "username": "请输入账号",
       "password": "请输入密码",
@@ -181,6 +183,8 @@
     "agreeText": "我同意",
     "privacyPolicy": "《隐私政策》",
     "submitBtnText": "注册",
+    "successMessage": "注册成功，请使用新账号登录",
+    "failedMessage": "注册失败，账号可能已存在",
     "hasAccount": "已有账号？",
     "toLogin": "去登录"
   },

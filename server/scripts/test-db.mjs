@@ -15,7 +15,7 @@ import {
   listDigitalHumanConfigs,
   updateDigitalHumanConfig
 } from "../src/services/digitalHuman.mjs";
-import { login, createVisitorSession, getVisitorSession } from "../src/services/auth.mjs";
+import { login, register, createVisitorSession, getVisitorSession } from "../src/services/auth.mjs";
 
 let passed = 0;
 function check(name, fn) {
@@ -28,12 +28,26 @@ check("reference data seeded", () => {
   const db = getDb();
   assert.ok(db.prepare("SELECT COUNT(*) AS n FROM scenic_spots").get().n >= 16, "spots seeded");
   assert.ok(db.prepare("SELECT COUNT(*) AS n FROM admin_users").get().n >= 1, "admin seeded");
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM system_roles").get().n, 3, "built-in roles seeded");
 });
 
 check("admin login works with seeded account", () => {
   const result = login("admin", "admin123");
   assert.ok(result && result.token, "login returns token");
   assert.equal(login("admin", "wrong"), null, "bad password rejected");
+});
+
+check("visitor registration persists role and avatar", () => {
+  const username = `visit${Date.now().toString().slice(-8)}`;
+  const avatar = "/assets/ling-avatar-2-test.webp";
+  const result = register({ username, password: "visit123", avatar });
+  assert.equal(result.role, "visitor");
+  assert.equal(result.avatar, avatar);
+  assert.equal(login(username, "visit123").user.role, "visitor");
+  assert.throws(
+    () => register({ username, password: "visit123", avatar }),
+    (error) => error.code === "USER_EXISTS"
+  );
 });
 
 check("visitor session persists", () => {

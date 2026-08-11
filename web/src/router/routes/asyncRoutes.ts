@@ -1,4 +1,4 @@
-// 权限文档：https://www.artd.pro/docs/zh/guide/in-depth/permission.html
+// 权限说明后续在项目官方文档页面中补充。
 import { AppRouteRecord } from '@/types/router'
 import { routeModules } from '../modules'
 

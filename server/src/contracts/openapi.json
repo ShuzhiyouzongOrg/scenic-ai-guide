@@ -15,6 +15,11 @@
         "summary": "Admin login"
       }
     },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register a visitor account with a selected default avatar"
+      }
+    },
     "/api/visitor/session": {
       "post": {
         "summary": "Create anonymous visitor session"

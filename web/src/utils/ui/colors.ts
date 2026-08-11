@@ -39,7 +39,7 @@
  * - RGBA: rgba(255, 255, 255, 0.5)
  *
  * @module utils/ui/colors
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 import { useSettingStore } from '@/store/modules/setting'
 

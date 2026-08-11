@@ -39,7 +39,7 @@
  * - openLockScreen: 打开锁屏
  *
  * @module utils/sys/mittBus
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 import mitt, { type Emitter } from 'mitt'
 

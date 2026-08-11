@@ -25,3 +25,36 @@ export function fetchGetUserInfo() {
     url: '/api/auth/me'
   })
 }
+
+export interface UserProfilePayload {
+  avatar?: string
+  realName?: string
+  gender?: string
+  nickname?: string
+  email?: string
+  phone?: string
+  address?: string
+  bio?: string
+}
+
+export function updateUserProfile(data: UserProfilePayload) {
+  return request.put<Api.Auth.UserInfo>({
+    url: '/api/auth/profile',
+    data
+  })
+}
+
+export function fetchRegister(data: { username: string; password: string; avatar: string }) {
+  return request.post<Api.Auth.RegisterResponse>({
+    url: '/api/auth/register',
+    data,
+    showErrorMessage: false
+  })
+}
+
+export function updateUserPassword(data: { currentPassword: string; newPassword: string }) {
+  return request.put({
+    url: '/api/auth/password',
+    data
+  })
+}

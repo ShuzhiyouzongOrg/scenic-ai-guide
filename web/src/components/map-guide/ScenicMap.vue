@@ -103,8 +103,12 @@
       })
       const tileUrl =
         import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      const attribution =
-        import.meta.env.VITE_MAP_TILE_ATTRIBUTION || '&copy; OpenStreetMap contributors'
+      const attribution = [
+        import.meta.env.VITE_MAP_TILE_ATTRIBUTION || '&copy; OpenStreetMap contributors',
+        t('app.mapGuideArtworkAttribution')
+      ]
+        .filter(Boolean)
+        .join(' · ')
       baseLayer = L.tileLayer(tileUrl, {
         attribution,
         maxZoom: effectiveMaxZoom(),
@@ -445,6 +449,10 @@
 
   .leaflet-control-attribution {
     font-size: 10px;
+  }
+
+  .leaflet-control-attribution a {
+    color: #285e58;
   }
 
   .leaflet-control-zoom a {

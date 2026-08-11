@@ -1,14 +1,63 @@
 import { ref } from 'vue'
 
-/** 系统升级日志。留空表示不弹出升级公告。 */
-export interface UpgradeLog {
+export interface ProjectChangeLog {
   version: string
+  date: string
   title: string
-  date?: string
-  lowestVersion?: string
-  detail?: string[]
+  detail: string[]
   requireReLogin?: boolean
-  remark?: string[]
 }
 
-export const upgradeLogList = ref<UpgradeLog[]>([])
+// 从本项目 Git 提交记录按日期整理；标题与条目仅保留中文，便于后续继续追加正式版本说明。
+export const projectChangeLog: ProjectChangeLog[] = [
+  {
+    version: '2026-08-09',
+    date: '2026-08-09',
+    title: '知识库预览与问答反馈优化',
+    detail: ['上线 PDF 预览运行时', '补充知识文档与表格预览', '去重上传文档并补充泰语导览内容', '优化回答反馈交互与可读性', '完善生产环境知识库构建与测试覆盖']
+  },
+  {
+    version: '2026-08-08',
+    date: '2026-08-08',
+    title: '国际化与数字人渲染能力完善',
+    detail: ['增加批量上传进度与知识索引恢复能力', '补充生产部署说明与泰语国际化', '完善网站备案信息', '接入 Live2D 动作同步与 PCM 口型驱动', '稳定本地模型渲染、语音播放和数字人配置']
+  },
+  {
+    version: '2026-08-07',
+    date: '2026-08-07',
+    title: '多景区地图导览服务上线',
+    detail: ['增加拈花湾景区数据与景区切换', '补充地图导览运行时和路线音频适配器', '完善多景区路线、点位和导航测试', '整理拈花湾迁移文档与地图资料']
+  },
+  {
+    version: '2026-08-06',
+    date: '2026-08-06',
+    title: '地图导览与路线讲解体验优化',
+    detail: ['重设计数字人讲解卡片', '扩大景区地图视口并优化点位卡片', '修复官方路线标记与景点对齐', '优化路线覆盖层、预览静音和全景打开逻辑', '移除无效足迹状态并完善移动端视口', '规范问答路线答案与推荐重试逻辑']
+  },
+  {
+    version: '2026-07-18',
+    date: '2026-07-18',
+    title: '游客会话与多语言能力增强',
+    detail: ['增加游客聊天记录清理', '设置默认讯飞导览数字人', '本地化页面时间显示', '增加多语言知识支持', '增加可复用的 Windows 部署初始化脚本']
+  },
+  {
+    version: '2026-07-16',
+    date: '2026-07-16',
+    title: '数字人配置与主题视觉升级',
+    detail: ['增加完整覆盖的测试数据生成器', '完善数字人名称、性别和形象音色挑选', '增加全局五语言支持', '增加页面背景图与明暗模式过渡', '优化折叠菜单图标、页面背景和交互动画']
+  },
+  {
+    version: '2026-07-15',
+    date: '2026-07-15',
+    title: '全局界面视觉细节优化',
+    detail: ['增加青绿色全局背景氛围', '优化数字人展示区、侧栏背景、图表提示和数据标签']
+  },
+  {
+    version: '2026-07-14',
+    date: '2026-07-14',
+    title: '景区导览平台基础能力建设',
+    detail: ['增加拈花湾子景区与登录页导览视觉', '补充游客端导览、管理后台和知识数据', '接入讯飞交互数字人并增加 Live2D 本地备援', '建立 SQLite 持久化与 Node 后端', '增加管理员账号管理与部署自检文档', '修复数字人自动播放限制和路线选择逻辑']
+  }
+]
+
+export const upgradeLogList = ref(projectChangeLog)

@@ -20,12 +20,13 @@ assert.ok(photo.recommendation.nodes.some((node) => node.tags.includes("photo"))
 const culture = recommendRoute({ durationMinutes: 360, interests: ["历史文化", "佛教"] });
 assert.ok(["culture_half_day", "buddhist_culture"].includes(culture.recommendation.id));
 
+const routeTestSession = `route_test_session_${Date.now()}`;
 const saved = saveRouteSelection({
-  sessionId: "route_test_session",
+  sessionId: routeTestSession,
   route: family.recommendation,
   preferences: family.preferences
 });
-assert.equal(saved.sessionId, "route_test_session");
-assert.equal(listSavedRoutes("route_test_session").length, 1);
+assert.equal(saved.sessionId, routeTestSession);
+assert.equal(listSavedRoutes(routeTestSession).length, 1);
 
 console.log("Route planner tests passed.");

@@ -12,7 +12,7 @@ The system has two sides:
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vue 3 + TypeScript + Vite + Element Plus (based on art-design-pro) |
+| Frontend | Vue 3 + TypeScript + Vite + Element Plus (based on scenic-ai-guide) |
 | Digital human | iFlytek interactive streaming avatar (WebRTC, cloud lip-sync + TTS + expression) |
 | Backend | Node.js (HTTP API) with a local RAG pipeline over the official Lingshan corpus |
 | Persistence | SQLite |
@@ -50,4 +50,4 @@ See `docs/deployment.md` for the full setup, environment variables, and demo-mod
 
 - Backend logic and knowledge base migrated from the team's first-version project.
 - Digital-human integration migrated from the iFlytek avatar SDK used in the MOSS project.
-- Frontend rebuilt on the art-design-pro admin framework.
+- Frontend rebuilt on the scenic-ai-guide admin framework.

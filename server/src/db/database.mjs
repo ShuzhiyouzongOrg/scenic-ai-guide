@@ -34,8 +34,26 @@ CREATE TABLE IF NOT EXISTS admin_users (
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   display_name TEXT,
+  avatar TEXT,
+  real_name TEXT,
+  gender TEXT,
+  nickname TEXT,
+  email TEXT,
+  phone TEXT,
+  address TEXT,
+  bio TEXT,
   role TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS system_roles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  role_name TEXT NOT NULL,
+  role_code TEXT UNIQUE NOT NULL,
+  description TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  permissions TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL
 );
 
@@ -216,6 +234,16 @@ export function migrate(instance = getDb()) {
 // columns back-filled. Each entry is applied only when the column is absent.
 function addMissingColumns(instance) {
   const additions = {
+    admin_users: [
+      { name: "avatar", ddl: "avatar TEXT" },
+      { name: "real_name", ddl: "real_name TEXT" },
+      { name: "gender", ddl: "gender TEXT" },
+      { name: "nickname", ddl: "nickname TEXT" },
+      { name: "email", ddl: "email TEXT" },
+      { name: "phone", ddl: "phone TEXT" },
+      { name: "address", ddl: "address TEXT" },
+      { name: "bio", ddl: "bio TEXT" }
+    ],
     digital_human_configs: [
       { name: "engine", ddl: "engine TEXT NOT NULL DEFAULT 'xfyun'" },
       { name: "model_id", ddl: "model_id TEXT" }
@@ -239,12 +267,46 @@ function addMissingColumns(instance) {
 // are imported separately (scripts/db-init.mjs or lazily in behaviorAnalytics).
 export function seedReferenceData(instance = getDb()) {
   seedAdminUser(instance);
+  seedSystemRoles(instance);
   seedDigitalHuman(instance);
   seedDigitalHumanCatalog(instance);
   migrateLegacyDigitalHumanNames(instance);
   migrateUnsupportedLive2dVoices(instance);
   seedScenicSpots(instance);
   return instance;
+}
+
+function seedSystemRoles(instance) {
+  const insert = instance.prepare(
+    `INSERT OR IGNORE INTO system_roles
+      (role_name, role_code, description, enabled, permissions, created_at)
+     VALUES (@role_name, @role_code, @description, @enabled, @permissions, @created_at)`
+  );
+  const now = new Date().toISOString();
+  insert.run({
+    role_name: "管理员",
+    role_code: "admin",
+    description: "管理系统全部功能",
+    enabled: 1,
+    permissions: "[\"*\"]",
+    created_at: now
+  });
+  insert.run({
+    role_name: "运营人员",
+    role_code: "operator",
+    description: "处理景区内容与游客服务",
+    enabled: 1,
+    permissions: "[\"/admin/knowledge\",\"/admin/operation\"]",
+    created_at: now
+  });
+  insert.run({
+    role_name: "游客",
+    role_code: "visitor",
+    description: "使用数字人导览、地图导览及帮助页面",
+    enabled: 1,
+    permissions: "[\"/guide\",\"/help/docs\",\"/change/log\"]",
+    created_at: now
+  });
 }
 
 function seedAdminUser(instance) {

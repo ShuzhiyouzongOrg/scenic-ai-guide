@@ -29,7 +29,7 @@ server/backups/
 .vscode/*
 !.vscode/extensions.json
 
-# Auto-generated (art-design-pro)
+# Auto-generated (scenic-ai-guide)
 web/src/types/import/auto-imports.d.ts
 web/src/types/import/components.d.ts
 web/.auto-import.json

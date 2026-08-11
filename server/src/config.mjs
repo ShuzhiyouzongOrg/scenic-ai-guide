@@ -20,7 +20,9 @@ function loadDotEnv(filePath) {
 
     const key = trimmed.slice(0, separatorIndex).trim();
     const value = trimmed.slice(separatorIndex + 1).trim();
-    if (!process.env[key]) {
+    // Respect variables that were explicitly supplied by the parent process,
+    // including an empty value used by deterministic fallback tests.
+    if (!Object.prototype.hasOwnProperty.call(process.env, key)) {
       process.env[key] = value;
     }
   }

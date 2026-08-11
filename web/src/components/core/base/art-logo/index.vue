@@ -1,7 +1,12 @@
 <!-- 系统logo -->
 <template>
   <div class="flex-cc">
-    <img :style="logoStyle" src="@imgs/common/logo.webp" alt="logo" class="w-full h-full" />
+    <img
+      :style="logoStyle"
+      src="@imgs/common/logo.webp"
+      alt="灵山胜境 AI 导览"
+      class="w-full h-full"
+    />
   </div>
 </template>
 

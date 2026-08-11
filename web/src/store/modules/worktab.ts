@@ -35,7 +35,7 @@
  * - 刷新页面保持标签状态
  *
  * @module store/modules/worktab
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'

@@ -69,15 +69,33 @@ export const analyticsRoutes: AppRouteRecord = {
 
 export const systemRoutes: AppRouteRecord = {
   name: 'System',
-  path: '/admin/system',
+  path: '/system',
   component: '/index/index',
-  meta: { title: 'app.navSystem', icon: 'ri:settings-3-line', roles: ['R_SUPER'] },
+  meta: { title: 'app.navSystem', icon: 'ri:settings-3-line', roles: ['R_SUPER', 'R_ADMIN'] },
   children: [
     {
-      path: 'users',
-      name: 'SystemUsers',
-      component: '/admin/system/users',
-      meta: { title: 'app.navUsers', icon: 'ri:user-settings-line', keepAlive: true }
+      path: 'user',
+      name: 'SystemUser',
+      component: '/system/user',
+      meta: { title: 'menus.system.user', icon: 'ri:user-line', keepAlive: true, roles: ['R_SUPER', 'R_ADMIN'] }
+    },
+    {
+      path: 'role',
+      name: 'SystemRole',
+      component: '/system/role',
+      meta: { title: 'menus.system.role', icon: 'ri:user-settings-line', keepAlive: true, roles: ['R_SUPER'] }
+    },
+    {
+      path: 'user-center',
+      name: 'UserCenter',
+      component: '/system/user-center',
+      meta: {
+        title: 'menus.system.userCenter',
+        icon: 'ri:user-line',
+        isHide: true,
+        isHideTab: true,
+        keepAlive: true
+      }
     }
   ]
 }

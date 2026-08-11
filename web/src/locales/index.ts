@@ -22,7 +22,7 @@
  * - th: ภาษาไทย
  *
  * @module locales
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 import { createI18n } from 'vue-i18n'

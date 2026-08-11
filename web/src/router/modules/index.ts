@@ -1,5 +1,6 @@
 import { AppRouteRecord } from '@/types/router'
 import { guideRoutes } from './guide'
+import { helpRoutes } from './help'
 import {
   knowledgeRoutes,
   digitalHumanRoutes,
@@ -14,6 +15,7 @@ import {
  */
 export const routeModules: AppRouteRecord[] = [
   guideRoutes,
+  ...helpRoutes,
   knowledgeRoutes,
   digitalHumanRoutes,
   analyticsRoutes,

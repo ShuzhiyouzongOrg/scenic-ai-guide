@@ -4,7 +4,7 @@
  * 负责验证路由配置的合法性
  *
  * @module router/core/RouteValidator
- * @author Art Design Pro Team
+ * @author Scenic AI Guide Team
  */
 
 import type { AppRouteRecord } from '@/types/router'

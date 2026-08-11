@@ -4,6 +4,47 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { config } from "../config.mjs";
 import { getDb } from "../db/database.mjs";
 import { verifyPassword } from "../db/password.mjs";
+import { createAdminUser } from "./userAdmin.mjs";
+
+const REGISTER_USERNAME_MIN_LENGTH = 3;
+const REGISTER_USERNAME_MAX_LENGTH = 20;
+const REGISTER_PASSWORD_MIN_LENGTH = 6;
+const REGISTER_PASSWORD_MAX_LENGTH = 128;
+
+export function register(input = {}) {
+  const username = String(input.username || "").trim();
+  const password = String(input.password || "");
+  if (username.length < REGISTER_USERNAME_MIN_LENGTH || username.length > REGISTER_USERNAME_MAX_LENGTH) {
+    const error = new Error("Username must contain 3 to 20 characters.");
+    error.statusCode = 400;
+    error.code = "USERNAME_INVALID";
+    throw error;
+  }
+  if (password.length < REGISTER_PASSWORD_MIN_LENGTH || password.length > REGISTER_PASSWORD_MAX_LENGTH) {
+    const error = new Error("Password must contain 6 to 128 characters.");
+    error.statusCode = 400;
+    error.code = "PASSWORD_INVALID";
+    throw error;
+  }
+
+  const avatar = String(input.avatar || "");
+  const safeAvatar = /^\/(?:assets\/ling-avatar-[1-4][^/]*\.webp|src\/assets\/images\/avatar\/ling-avatar-[1-4]\.webp)(?:\?.*)?$/.test(avatar)
+    ? avatar
+    : "";
+  const user = createAdminUser({
+    username,
+    password,
+    displayName: username,
+    avatar: safeAvatar,
+    role: "visitor"
+  });
+  return {
+    userId: user.id,
+    userName: user.username,
+    avatar: user.avatar,
+    role: user.role
+  };
+}
 
 export function login(username, password) {
   const user = getDb()
