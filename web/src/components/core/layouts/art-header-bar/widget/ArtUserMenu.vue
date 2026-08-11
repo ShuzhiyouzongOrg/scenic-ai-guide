@@ -90,7 +90,8 @@
    * 打开文档页面
    */
   const toDocs = (): void => {
-    window.open(WEB_LINKS.DOCS)
+    closeUserMenu()
+    router.push({ name: 'OfficialDocs' })
   }
 
   /**

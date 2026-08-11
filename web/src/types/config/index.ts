@@ -207,10 +207,6 @@ export interface HeaderBarFeatureConfig {
   globalSearch: FeatureConfigItem
   /** 全屏功能 */
   fullscreen: FeatureConfigItem
-  /** 通知功能 */
-  notification: FeatureConfigItem
-  /** 聊天功能 */
-  chat: FeatureConfigItem
   /** 多语言切换 */
   language: FeatureConfigItem
   /** 设置面板 */

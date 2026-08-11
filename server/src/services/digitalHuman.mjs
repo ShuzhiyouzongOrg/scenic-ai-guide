@@ -4,6 +4,8 @@
 
 import { getDb } from "../db/database.mjs";
 
+const XFYUN_AVATAR_ID_PATTERN = /^[a-z0-9]{16,64}$/i;
+
 function toConfig(row) {
   const config = {
     id: row.id,
@@ -68,10 +70,6 @@ export function updateDigitalHumanConfig(input = {}) {
   const base = active ? toConfig(active) : getActiveDigitalHumanConfig() || {};
   const id = stringOr(input.id, base.id || `dh_${Date.now()}`);
 
-  if (input.enabled === true) {
-    db.prepare("UPDATE digital_human_configs SET enabled = 0").run();
-  }
-
   const next = {
     id,
     name: stringOr(input.name, base.name),
@@ -91,6 +89,17 @@ export function updateDigitalHumanConfig(input = {}) {
     enabled: (input.enabled ?? base.enabled) ? 1 : 0,
     updated_at: new Date().toISOString()
   };
+
+  if (next.engine === "xfyun" && next.service_status !== "text_only" && !XFYUN_AVATAR_ID_PATTERN.test(next.avatar_id)) {
+    const error = new Error("A valid iFlytek avatar_id is required.");
+    error.code = "AVATAR_ID_INVALID";
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (input.enabled === true) {
+    db.prepare("UPDATE digital_human_configs SET enabled = 0").run();
+  }
 
   db.prepare(
     `INSERT INTO digital_human_configs

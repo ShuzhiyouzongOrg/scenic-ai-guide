@@ -36,6 +36,7 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   showErrorMessage?: boolean
   showSuccessMessage?: boolean
+  showUnauthorizedMessage?: boolean
   rawResponse?: boolean
 }
 
@@ -95,7 +96,10 @@ axiosInstance.interceptors.response.use(
   (error) => {
     const status = error.response?.status
     const backendMessage = error.response?.data?.error?.message
-    if (status === ApiStatus.unauthorized) handleUnauthorizedError(backendMessage)
+    const config = error.config as ExtendedAxiosRequestConfig | undefined
+    if (status === ApiStatus.unauthorized) {
+      handleUnauthorizedError(backendMessage, config?.showUnauthorizedMessage !== false)
+    }
     return Promise.reject(handleError(error, backendMessage))
   }
 )
@@ -106,7 +110,7 @@ function createHttpError(message: string, code: number) {
 }
 
 /** 处理401错误（带防抖） */
-function handleUnauthorizedError(message?: string): never {
+function handleUnauthorizedError(message?: string, showMessage = true): never {
   const error = createHttpError(message || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
 
   if (!isUnauthorizedErrorShown) {
@@ -115,7 +119,7 @@ function handleUnauthorizedError(message?: string): never {
 
     unauthorizedTimer = setTimeout(resetUnauthorizedError, UNAUTHORIZED_DEBOUNCE_TIME)
 
-    showError(error, true)
+    if (showMessage) showError(error, true)
     throw error
   }
 

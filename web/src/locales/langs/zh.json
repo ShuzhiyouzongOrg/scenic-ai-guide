@@ -109,13 +109,6 @@
       "resetFailed": "重置失败，请刷新页面后重试"
     }
   },
-  "notice": {
-    "title": "通知",
-    "btnRead": "标为已读",
-    "bar": ["通知", "消息", "代办"],
-    "text": ["暂无"],
-    "viewAll": "查看全部"
-  },
   "worktab": {
     "btn": {
       "refresh": "刷新",
@@ -249,7 +242,6 @@
     },
     "template": {
       "title": "模板中心",
-      "chat": "聊天",
       "cards": "卡片",
       "banners": "横幅",
       "charts": "图表",

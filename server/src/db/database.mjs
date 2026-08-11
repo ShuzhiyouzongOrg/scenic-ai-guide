@@ -270,6 +270,7 @@ export function seedReferenceData(instance = getDb()) {
   seedSystemRoles(instance);
   seedDigitalHuman(instance);
   seedDigitalHumanCatalog(instance);
+  migrateLegacyDigitalHumanTestFixture(instance);
   migrateLegacyDigitalHumanNames(instance);
   migrateUnsupportedLive2dVoices(instance);
   seedScenicSpots(instance);
@@ -437,6 +438,36 @@ function seedDigitalHumanCatalog(instance) {
     }
   });
   tx(catalog);
+}
+
+// A legacy database test accidentally inherited server/.env and wrote this
+// exact fixture into the deployment database. Remove only that known row and
+// restore the shipped scenic-guide avatar when the fixture was active.
+function migrateLegacyDigitalHumanTestFixture(instance) {
+  const fixture = instance
+    .prepare(
+      `SELECT enabled FROM digital_human_configs
+       WHERE id = ? AND avatar_id = ? AND vcn = ?`
+    )
+    .get("dh_test_2", "test_avatar", "x5_test");
+  if (!fixture) return;
+
+  const restore = instance.transaction(() => {
+    instance
+      .prepare(
+        `DELETE FROM digital_human_configs
+         WHERE id = ? AND avatar_id = ? AND vcn = ?`
+      )
+      .run("dh_test_2", "test_avatar", "x5_test");
+
+    if (!fixture.enabled) return;
+    const fallback = instance.prepare("SELECT id FROM digital_human_configs WHERE id = ?").get("dh_xf_daolan_female_a");
+    if (!fallback) return;
+
+    instance.prepare("UPDATE digital_human_configs SET enabled = 0").run();
+    instance.prepare("UPDATE digital_human_configs SET enabled = 1, updated_at = ? WHERE id = ?").run(new Date().toISOString(), fallback.id);
+  });
+  restore();
 }
 
 // Rename only names shipped by earlier versions. Administrator-defined names

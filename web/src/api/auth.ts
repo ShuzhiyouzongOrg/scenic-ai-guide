@@ -22,7 +22,8 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
  */
 export function fetchGetUserInfo() {
   return request.get<Api.Auth.UserInfo>({
-    url: '/api/auth/me'
+    url: '/api/auth/me',
+    showUnauthorizedMessage: false
   })
 }
 

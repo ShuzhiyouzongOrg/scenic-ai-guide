@@ -21,7 +21,7 @@
     <div v-if="!isLock">
       <ElDialog v-model="visible" :width="370" :show-close="false" @open="handleDialogOpen">
         <div class="flex-c flex-col">
-          <img class="w-16 h-16 rounded-full" src="@imgs/user/avatar.webp" alt="用户头像" />
+          <img class="w-16 h-16 rounded-full" :src="avatarUrl" :alt="$t('app.avatarAlt')" />
           <div class="mt-7.5 mb-3.5 text-base font-medium">{{ userInfo.userName }}</div>
           <ElForm
             ref="formRef"
@@ -59,7 +59,7 @@
     <!-- 解锁界面 -->
     <div v-else class="unlock-content">
       <div class="flex-c flex-col w-80">
-        <img class="w-16 h-16 mt-5 rounded-full" src="@imgs/user/avatar.webp" alt="用户头像" />
+        <img class="w-16 h-16 mt-5 rounded-full" :src="avatarUrl" :alt="$t('app.avatarAlt')" />
         <div class="mt-3 mb-3.5 text-base font-medium">
           {{ userInfo.userName }}
         </div>
@@ -113,16 +113,19 @@
   import CryptoJS from 'crypto-js'
   import { useUserStore } from '@/store/modules/user'
   import { mittBus } from '@/utils/sys'
+  import defaultAvatar from '@/assets/images/avatar/ling-avatar-1.webp'
 
   // 国际化
   const { t } = useI18n()
 
   // 环境变量
-  const ENCRYPT_KEY = import.meta.env.VITE_LOCK_ENCRYPT_KEY
+  const ENCRYPT_KEY = import.meta.env.VITE_LOCK_ENCRYPT_KEY || 'lingshan-ai-guide-screen-lock'
+  const PASSWORD_DIGEST_PREFIX = 'sha256:'
 
   // Store
   const userStore = useUserStore()
   const { info: userInfo, lockPassword, isLock } = storeToRefs(userStore)
+  const avatarUrl = computed(() => userInfo.value.avatar || defaultAvatar)
 
   // 响应式数据
   const visible = ref<boolean>(false)
@@ -323,6 +326,14 @@
 
   // 工具函数
   const verifyPassword = (inputPassword: string, storedPassword: string): boolean => {
+    const expectedDigest = `${PASSWORD_DIGEST_PREFIX}${CryptoJS.SHA256(
+      `${ENCRYPT_KEY}:${inputPassword}`
+    ).toString()}`
+    if (storedPassword.startsWith(PASSWORD_DIGEST_PREFIX)) {
+      return storedPassword === expectedDigest
+    }
+
+    // Backward compatibility for passwords created before the hash migration.
     try {
       const decryptedPassword = CryptoJS.AES.decrypt(storedPassword, ENCRYPT_KEY).toString(
         CryptoJS.enc.Utf8
@@ -336,7 +347,7 @@
 
   // 事件处理函数
   const handleKeydown = (event: KeyboardEvent) => {
-    if (event.altKey && event.key.toLowerCase() === '¬') {
+    if (event.altKey && event.key.toLowerCase() === 'l') {
       event.preventDefault()
       visible.value = true
     }
@@ -353,7 +364,9 @@
 
     await formRef.value.validate((valid, fields) => {
       if (valid) {
-        const encryptedPassword = CryptoJS.AES.encrypt(formData.password, ENCRYPT_KEY).toString()
+        const encryptedPassword = `${PASSWORD_DIGEST_PREFIX}${CryptoJS.SHA256(
+          `${ENCRYPT_KEY}:${formData.password}`
+        ).toString()}`
         userStore.setLockStatus(true)
         userStore.setLockPassword(encryptedPassword)
         visible.value = false
@@ -428,7 +441,9 @@
     mittBus.on('openLockScreen', openLockScreen)
     document.addEventListener('keydown', handleKeydown)
 
-    if (isLock.value) {
+    if (isLock.value && !lockPassword.value) {
+      userStore.setLockStatus(false)
+    } else if (isLock.value) {
       visible.value = true
       setTimeout(() => {
         unlockInputRef.value?.input?.focus()
@@ -440,6 +455,7 @@
   })
 
   onUnmounted(() => {
+    mittBus.off('openLockScreen', openLockScreen)
     document.removeEventListener('keydown', handleKeydown)
     document.body.style.overflow = 'auto'
     // 清理禁用开发者工具的事件监听器

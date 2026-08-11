@@ -1,4 +1,5 @@
 import { AppRouteRecord } from '@/types/router'
+import { helpRoutes } from './help'
 
 /**
  * 管理后台模块（运营与管理端）
@@ -77,14 +78,25 @@ export const systemRoutes: AppRouteRecord = {
       path: 'user',
       name: 'SystemUser',
       component: '/system/user',
-      meta: { title: 'menus.system.user', icon: 'ri:user-line', keepAlive: true, roles: ['R_SUPER', 'R_ADMIN'] }
+      meta: {
+        title: 'menus.system.user',
+        icon: 'ri:user-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
     },
     {
       path: 'role',
       name: 'SystemRole',
       component: '/system/role',
-      meta: { title: 'menus.system.role', icon: 'ri:user-settings-line', keepAlive: true, roles: ['R_SUPER'] }
+      meta: {
+        title: 'menus.system.role',
+        icon: 'ri:user-settings-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
     },
+    ...helpRoutes,
     {
       path: 'user-center',
       name: 'UserCenter',

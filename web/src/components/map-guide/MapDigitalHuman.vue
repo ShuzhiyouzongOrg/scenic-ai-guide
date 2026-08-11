@@ -166,10 +166,7 @@
 
   .state-idle .map-digital-human__engine,
   .state-compact .map-digital-human__engine {
-    top: 7px;
-    right: auto;
-    bottom: auto;
-    left: 7px;
+    inset: 7px auto auto 7px;
     width: 90px;
     height: 90px;
     background: #fff;
@@ -190,6 +187,33 @@
   .state-compact .map-digital-human__engine :deep(.l2d-stage) {
     background: #fff;
     border-radius: 50%;
+  }
+
+  .state-idle .map-digital-human__engine :deep(.dh-fallback),
+  .state-compact .map-digital-human__engine :deep(.dh-fallback),
+  .state-idle .map-digital-human__engine :deep(.dh-loading-inner),
+  .state-compact .map-digital-human__engine :deep(.dh-loading-inner) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .state-idle .map-digital-human__engine :deep(.dh-fallback-icon),
+  .state-compact .map-digital-human__engine :deep(.dh-fallback-icon),
+  .state-idle .map-digital-human__engine :deep(.dh-spinner),
+  .state-compact .map-digital-human__engine :deep(.dh-spinner) {
+    margin: 0;
+  }
+
+  .state-idle .map-digital-human__engine :deep(.dh-fallback-name),
+  .state-compact .map-digital-human__engine :deep(.dh-fallback-name),
+  .state-idle .map-digital-human__engine :deep(.dh-fallback-tip),
+  .state-compact .map-digital-human__engine :deep(.dh-fallback-tip),
+  .state-idle .map-digital-human__engine :deep(.dh-loading-inner p),
+  .state-compact .map-digital-human__engine :deep(.dh-loading-inner p) {
+    display: none;
   }
 
   .state-idle .map-digital-human__engine :deep(.l2d-canvas),
@@ -259,10 +283,7 @@
 
     .state-idle .map-digital-human__engine,
     .state-compact .map-digital-human__engine {
-      top: 6px;
-      right: auto;
-      bottom: auto;
-      left: 6px;
+      inset: 6px auto auto 6px;
       width: 80px;
       height: 80px;
     }

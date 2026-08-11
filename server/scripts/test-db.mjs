@@ -1,21 +1,17 @@
 // Round-trip test for the SQLite persistence layer (in-memory database).
 import assert from "node:assert/strict";
-import { getDb } from "../src/db/database.mjs";
-import { appendMessage, clearMessages, getHistory, getMessages, listAllMessages } from "../src/services/conversation.mjs";
-import { createFeedback, listFeedback } from "../src/services/feedback.mjs";
-import { createAdminFaq, findAdminFaqAnswer, listAdminFaqs, updateAdminFaq } from "../src/services/adminFaq.mjs";
-import {
-  createScenicSpot,
-  disableScenicSpot,
-  listManagedScenicSpots,
-  updateScenicSpot
-} from "../src/services/scenicAdmin.mjs";
-import {
-  getActiveDigitalHumanConfig,
-  listDigitalHumanConfigs,
-  updateDigitalHumanConfig
-} from "../src/services/digitalHuman.mjs";
-import { login, register, createVisitorSession, getVisitorSession } from "../src/services/auth.mjs";
+
+// config.mjs loads server/.env. An explicitly empty value keeps this test in
+// memory even when the deployment environment defines a persistent database.
+process.env.SQLITE_PATH = "";
+
+const { getDb } = await import("../src/db/database.mjs");
+const { appendMessage, clearMessages, getHistory, getMessages, listAllMessages } = await import("../src/services/conversation.mjs");
+const { createFeedback, listFeedback } = await import("../src/services/feedback.mjs");
+const { createAdminFaq, findAdminFaqAnswer, listAdminFaqs, updateAdminFaq } = await import("../src/services/adminFaq.mjs");
+const { createScenicSpot, disableScenicSpot, listManagedScenicSpots, updateScenicSpot } = await import("../src/services/scenicAdmin.mjs");
+const { getActiveDigitalHumanConfig, listDigitalHumanConfigs, updateDigitalHumanConfig } = await import("../src/services/digitalHuman.mjs");
+const { login, register, createVisitorSession, getVisitorSession } = await import("../src/services/auth.mjs");
 
 let passed = 0;
 function check(name, fn) {
@@ -103,13 +99,11 @@ check("scenic spot CRUD", () => {
 check("digital human config switch", () => {
   const active = getActiveDigitalHumanConfig();
   assert.ok(active && active.avatarId, "default active config has avatarId");
-  const next = updateDigitalHumanConfig({
-    id: "dh_test_2",
-    name: "讲解员小灵",
-    avatarId: "test_avatar",
-    vcn: "x5_test",
-    enabled: true
-  });
+  assert.throws(
+    () => updateDigitalHumanConfig({ id: "dh_invalid", name: "Invalid avatar", avatarId: "test_avatar", vcn: "x5_test", enabled: true }),
+    (error) => error.code === "AVATAR_ID_INVALID"
+  );
+  const next = updateDigitalHumanConfig({ id: "dh_test_2", name: "讲解员小灵", avatarId: "cnrmkf0e2000000099", vcn: "x6_jingqudaolannvsheng_mini", enabled: true });
   assert.equal(getActiveDigitalHumanConfig().id, next.id, "new config becomes active");
   assert.ok(listDigitalHumanConfigs().length >= 2, "second config created");
 });

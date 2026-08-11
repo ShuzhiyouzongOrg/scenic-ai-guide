@@ -109,13 +109,6 @@
       "resetFailed": "Reset failed, please refresh the page and try again"
     }
   },
-  "notice": {
-    "title": "Notice",
-    "btnRead": "Mark as read",
-    "bar": ["Notice", "Message", "Todo"],
-    "text": ["No"],
-    "viewAll": "View all"
-  },
   "worktab": {
     "btn": {
       "refresh": "Refresh",
@@ -249,7 +242,6 @@
     },
     "template": {
       "title": "Template Center",
-      "chat": "Chat",
       "cards": "Cards",
       "banners": "Banners",
       "charts": "Charts",
