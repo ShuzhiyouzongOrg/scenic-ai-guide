@@ -81,6 +81,7 @@
   const panelCollapsed = ref(false)
   const routeDrawerOpen = ref(false)
   const routeDetailOpen = ref(false)
+  const handDrawnVisible = ref(true)
   const panoramaOpen = ref(false)
   const activePanorama = ref<PanoramaRecord>()
   const avatarDisplayState = ref<AvatarDisplayState>('idle')
@@ -436,6 +437,7 @@
         .filter((tile) => failed.has(tile.id))
         .map(tileLoader.retry)
     )
+    if (tileLoader.allFailed.value) handDrawnVisible.value = false
   }
 
   function persistPageState() {
@@ -446,7 +448,7 @@
       zoom: view?.zoom,
       selectedSpotId: selectedSpotId.value,
       favoriteRouteIds: [],
-      layerMode: 'hand-drawn'
+      layerMode: handDrawnVisible.value ? 'hand-drawn' : 'base'
     }
     localStorage.setItem(scenicAreaStateStorageKey(activeAreaId.value), JSON.stringify(state))
   }
@@ -461,6 +463,7 @@
       selectedSpotId.value = bootstrap.value?.spots.some((spot) => spot.id === state.selectedSpotId)
         ? state.selectedSpotId
         : undefined
+      handDrawnVisible.value = state.layerMode !== 'base'
       routeState.selectedRouteId.value = undefined
       routePlayback.clear()
       if (state.center && state.zoom !== undefined) {
@@ -516,6 +519,7 @@
     activeNarration.value = undefined
     activeSegments.value = []
     avatarDisplayState.value = cleared.avatarDisplayState
+    handDrawnVisible.value = cleared.handDrawnVisible
   }
 
   async function switchScenicArea(areaId: ScenicAreaId) {
@@ -543,7 +547,9 @@
       activeAreaId.value = nextBootstrap.area.id
       await nextTick()
       restorePageState()
-      void tileLoader.preload(nextBootstrap.config.tileLayer.tiles)
+      void tileLoader.preload(nextBootstrap.config.tileLayer.tiles).then(() => {
+        if (tileLoader.allFailed.value) handDrawnVisible.value = false
+      })
     } catch (error) {
       if (!controller.signal.aborted) {
         if (bootstrap.value && bootstrap.value.area.id !== areaId) {
@@ -638,6 +644,7 @@
             "
             :route="selectedRoute"
             :current-route-node-index="routePlayback.nodeIndex.value"
+            :hand-drawn-visible="handDrawnVisible"
             :loaded-tile-ids="loadedTileIds"
             :safe-area="safeArea"
             @select-spot="focusSpot"
@@ -665,11 +672,13 @@
           />
           <MapControlGroup
             v-if="!panoramaOpen && (!isMobile || (!routeDrawerOpen && !routeDetailOpen))"
+            :hand-drawn-visible="handDrawnVisible"
             :panorama-available="bootstrap.panoramas.length > 0"
             :route-active="Boolean(selectedRoute)"
             @browse-routes="openRouteDrawer"
             @locate="mapRef?.locate()"
             @reset="mapRef?.resetView()"
+            @toggle-layer="handDrawnVisible = !handDrawnVisible"
             @panorama="openPanorama"
             @clear-route="clearRoute"
           />

@@ -856,6 +856,7 @@ async function buildMapConfig(config) {
   return {
     center: { ...config.map.center, coordinateSystem: "GCJ02" },
     visitorCenter: { ...config.map.visitorCenter, coordinateSystem: "GCJ02" },
+    artworkBackgroundColor: "#b0d8b8",
     rotationDegrees: Number(config.map.rotate || 0),
     minZoom: Number(config.map.minScale),
     maxZoom: Math.min(Number(config.map.maxScale), 19),

@@ -126,6 +126,7 @@
     display: grid;
     overflow: visible;
     pointer-events: none;
+    background: var(--scenic-artwork-background, #b0d8b8);
     transform-origin: center;
     backface-visibility: hidden;
   }

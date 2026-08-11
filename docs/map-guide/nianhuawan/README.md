@@ -58,7 +58,7 @@ nianhuawan-miniapp-rebuild
 - 园区边界：SW `(31.407641, 120.063915)`，NE `(31.431446, 120.088033)`。
 - 方向：`rotationDegrees=0`，不翻转、不倾斜。
 - 缝隙：图块共享同一经纬边界，DOM 仅使用 1.2px 接缝缓冲，不做 CSS 锐化。
-- 视野：手绘模式的最小缩放按“覆盖容器”计算，并启用强边界限制；不会拖出园区后露出普通底图。
+- 视野：手绘模式恢复来源配置的最小缩放，不再按“铺满容器”额外抬高；透明像素和画布外围使用景区图源匹配底色遮罩，不会露出普通底图的道路或文字。
 
 | 验收尺寸    | DPR | 允许最大缩放 | 单张物理像素放大约值 |
 | ----------- | --: | -----------: | -------------------: |
@@ -125,7 +125,7 @@ pnpm dev
 | `web/src/types/map-guide/map-guide.ts`                | 增加 `ScenicAreaId`、area 元数据和高 DPR 上限                  | 现有类型扩展                         | type-check                       |
 | `web/src/utils/map-guide/scenic-area.ts`              | 景区 ID 规范化、缓存键和切换清理状态                           | 防止跨景区状态污染                   | `scenic-area.test.ts`            |
 | `web/src/components/map-guide/ScenicAreaSwitcher.vue` | 增加居中的双景区选择器和 reduced-motion 支持                   | 不替换原页面控件                     | 桌面/平板/手机截图检查           |
-| `web/src/components/map-guide/ScenicMap.vue`          | 覆盖式最小缩放、高 DPR 限制、缓存视野夹取                      | 保留 Leaflet 与灵山投影              | 浏览器缩放、边界和切换检查       |
+| `web/src/components/map-guide/ScenicMap.vue`          | 完整画布缩放、透明边缘遮罩、高 DPR 限制和缓存视野夹取          | 保留 Leaflet 与灵山投影              | 浏览器缩放、边界和切换检查       |
 | `web/src/components/map-guide/ScenicMarkerLayer.vue`  | 多分类筛选、设施颜色和标签碰撞控制                             | 灵山 Marker 行为保留                 | 设施色测试、视觉检查             |
 | `web/src/views/guide/map/index.vue`                   | 加载/切换景区、隔离状态、拈花湾讲解降级和响应式安全区          | 不修改 AI 数字人导览 experience 页面 | type-check、37 tests、浏览器验收 |
 | `web/tests/map-guide/scenic-area.test.ts`             | 覆盖缓存隔离、数据不串区、路线、图块、设施色和全景             | 仅测试代码                           | Node test runner                 |

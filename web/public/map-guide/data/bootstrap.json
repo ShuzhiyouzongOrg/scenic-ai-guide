@@ -12,6 +12,7 @@
       "longitude": 120.10072,
       "coordinateSystem": "GCJ02"
     },
+    "artworkBackgroundColor": "#b0d8b8",
     "rotationDegrees": 30,
     "minZoom": 15,
     "maxZoom": 19,

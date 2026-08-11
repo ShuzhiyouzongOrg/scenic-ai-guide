@@ -132,6 +132,8 @@ const catalog = {
     '雲覺 · 景區講解員',
     'ユンジュエ · 観光ガイド'
   ],
+  mapGuideHandDrawn: ['手绘地图', 'Hand-drawn map', '손그림 지도', '手繪地圖', '手描きマップ'],
+  mapGuideBaseMap: ['普通底图', 'Base map', '기본 지도', '普通底圖', 'ベースマップ'],
   mapGuideLocate: ['我的位置', 'My location', '내 위치', '我的位置', '現在地'],
   mapGuideReset: ['复位', 'Reset view', '보기 초기화', '復位', '表示をリセット'],
   mapGuidePanorama: ['全景导览', 'Panorama', '파노라마', '全景導覽', 'パノラマ'],
@@ -361,7 +363,7 @@ const catalog = {
   rolePermissionsSaved: ['菜单权限已保存', 'Menu permissions saved.', '메뉴 권한이 저장되었습니다.', '選單權限已儲存', 'メニュー権限を保存しました。'],
   roleDeleteTitle: ['删除角色', 'Delete role', '역할 삭제', '刪除角色', 'ロールを削除'],
   roleDeleteConfirm: ['确认删除该角色？', 'Delete this role?', '이 역할을 삭제하시겠습니까?', '確認刪除此角色？', 'このロールを削除しますか？'],
-  mapGuideArtworkAttribution: ['两张手绘地图均来源于景区官方小程序', 'Both hand-drawn maps are from the scenic areas’ official mini programs.', '두 손그림 지도는 모두 관광지 공식 미니 프로그램에서 제공됩니다.', '兩張手繪地圖均來源於景區官方小程式', '2枚の手描き地図はいずれも景勝地の公式ミニプログラムに由来します。'],
+  mapGuideArtworkAttribution: ['手绘图来源于官方', 'Hand-drawn map source: official', '손그림 지도 출처: 공식', '手繪圖來源於官方', '手描き地図の出典：公式'],
   changeLogTitle: ['更新日志', 'Change log', '변경 로그', '更新日誌', '更新履歴'],
   quickLinks: ['快速链接', 'Quick links', '빠른 링크', '快速連結', 'クイックリンク'],
   officialDocsName: ['官方文档', 'Official documentation', '공식 문서', '官方文件', '公式ドキュメント'],

@@ -69,6 +69,8 @@ export interface PanoramaRecord {
 export interface MapGuideConfig {
   center: GuideCoordinate
   visitorCenter: GuideCoordinate
+  /** Opaque edge colour used below transparent artwork pixels and outside the mosaic. */
+  artworkBackgroundColor?: string
   /** Matches the source mini-program map bearing so artwork and points stay registered. */
   rotationDegrees: number
   minZoom: number

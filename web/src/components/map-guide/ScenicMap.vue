@@ -14,6 +14,7 @@
     MapSafeArea,
     ScenicSpot
   } from '@/types/map-guide'
+  import { transformCoordinate } from '@/utils/map-guide/coordinate'
   import {
     fromScenicDisplayCoordinate,
     scenicDisplayBounds,
@@ -22,6 +23,7 @@
   import {
     loadTencentMapSdk,
     scenicDisplayToTencentMapCoordinate,
+    toTencentMapCoordinate,
     type TencentMapApi,
     type TencentMapInstance
   } from '@/utils/map-guide/tencent-map'
@@ -35,6 +37,7 @@
     narratingSpotId?: string
     route?: GuideRoute
     currentRouteNodeIndex?: number
+    handDrawnVisible: boolean
     loadedTileIds: string[]
     safeArea: MapSafeArea
   }>()
@@ -47,8 +50,9 @@
     mapError: [error: Error]
   }>()
 
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const tencentMapElement = ref<HTMLDivElement>()
+  const tencentAttributionElement = ref<HTMLDivElement>()
   const mapElement = ref<HTMLDivElement>()
   const mapInstance = ref<L.Map>()
   const initializationError = ref('')
@@ -59,8 +63,11 @@
   let resizeObserver: ResizeObserver | undefined
   let tencentInitializationAttempt = 0
   let tencentSyncFrame: number | undefined
+  let tencentAttributionTimer: number | undefined
   let disposed = false
+  let artworkAttribution = ''
   let minimumScenicZoom = props.config.minZoom
+  const leafletAttributionPrefix = '<a href="https://leafletjs.com" title="Leaflet">Leaflet</a>'
 
   function effectiveMaxZoom(): number {
     return window.devicePixelRatio > 1.25 && props.config.highDpiMaxZoom
@@ -68,16 +75,25 @@
       : props.config.maxZoom
   }
 
+  function artworkBackgroundColor(): string {
+    if (props.config.artworkBackgroundColor) return props.config.artworkBackgroundColor
+    return props.config.tileLayer.tiles.some((tile) => tile.url.includes('/nianhuawan/'))
+      ? '#90d070'
+      : '#b0d8b8'
+  }
+
   function currentRotation(): number {
-    return props.config.rotationDegrees
+    return props.handDrawnVisible ? props.config.rotationDegrees : 0
   }
 
   function toLatLng(coordinate: GuideCoordinate): L.LatLngExpression {
-    const converted = toScenicDisplayCoordinate(
-      coordinate,
-      props.config.tileLayer.bounds,
-      props.config.rotationDegrees
-    )
+    const converted = props.handDrawnVisible
+      ? toScenicDisplayCoordinate(
+          coordinate,
+          props.config.tileLayer.bounds,
+          props.config.rotationDegrees
+        )
+      : transformCoordinate(coordinate, 'WGS84')
     return [converted.latitude, converted.longitude]
   }
 
@@ -87,6 +103,17 @@
       [bounds.southwest.latitude, bounds.southwest.longitude],
       [bounds.northeast.latitude, bounds.northeast.longitude]
     )
+  }
+
+  function syncAttribution() {
+    const attributionControl = mapInstance.value?.attributionControl
+    if (!attributionControl) return
+    attributionControl.setPrefix(
+      baseProvider.value === 'leaflet' ? leafletAttributionPrefix : false
+    )
+    if (artworkAttribution) attributionControl.removeAttribution(artworkAttribution)
+    artworkAttribution = props.handDrawnVisible ? t('app.mapGuideArtworkAttribution') : ''
+    if (artworkAttribution) attributionControl.addAttribution(artworkAttribution)
   }
 
   function paddingOptions(): Pick<L.FitBoundsOptions, 'paddingTopLeft' | 'paddingBottomRight'> {
@@ -120,15 +147,15 @@
         crossOrigin: true,
         updateWhenIdle: true
       })
-      map.attributionControl.addAttribution(t('app.mapGuideArtworkAttribution'))
       baseLayer.addTo(map)
       L.control.zoom({ position: 'bottomright' }).addTo(map)
       mapInstance.value = map
-      applyScenicBounds(true)
+      syncAttribution()
+      applyMapMode(true)
       map.on('move zoom resize', scheduleTencentViewSync)
       resizeObserver = new ResizeObserver(() => {
         map.invalidateSize({ pan: false })
-        applyScenicBounds(false)
+        if (props.handDrawnVisible) applyScenicBounds(false)
       })
       resizeObserver.observe(mapElement.value)
       window.addEventListener('online', initializeTencentBaseMap)
@@ -153,22 +180,45 @@
     const map = mapInstance.value
     if (!map) return
     const bounds = scenicBounds()
-    map.setMaxBounds(bounds)
-    minimumScenicZoom = Math.max(
-      props.config.minZoom,
-      map.getBoundsZoom(bounds, true, L.point(34, 34))
-    )
+    const navigationBounds = bounds.pad(0.25)
+    minimumScenicZoom = props.config.minZoom
+    map.setMaxBounds(navigationBounds)
     map.setMinZoom(minimumScenicZoom)
     if (reset || map.getZoom() < minimumScenicZoom) {
       map.setView(bounds.getCenter(), minimumScenicZoom, { animate: false })
     }
-    map.panInsideBounds(bounds, { animate: false })
+    map.panInsideBounds(navigationBounds, { animate: false })
+  }
+
+  function applyMapMode(reset: boolean) {
+    const map = mapInstance.value
+    if (!map) return
+    syncAttribution()
+    if (props.handDrawnVisible) {
+      map.getContainer().classList.add('is-hand-drawn')
+      applyScenicBounds(reset)
+    } else {
+      map.getContainer().classList.remove('is-hand-drawn')
+      map.setMinZoom(props.config.minZoom)
+      map.setMaxBounds([
+        [-85, -180],
+        [85, 180]
+      ])
+      if (reset) {
+        const center = transformCoordinate(props.config.center, 'WGS84')
+        map.setView([center.latitude, center.longitude], props.config.initialZoom, {
+          animate: false
+        })
+      }
+    }
+    scheduleTencentViewSync()
   }
 
   function activateLeafletFallback() {
     tencentInitializationAttempt += 1
     const map = mapInstance.value
     baseProvider.value = 'leaflet'
+    syncAttribution()
     if (!map || !baseLayer) return
     if (!map.hasLayer(baseLayer)) baseLayer.addTo(map)
   }
@@ -177,11 +227,18 @@
     const map = mapInstance.value
     if (!map) return
     const center = map.getCenter()
-    return scenicDisplayToTencentMapCoordinate(
-      { latitude: center.lat, longitude: center.lng, coordinateSystem: 'WGS84' },
-      props.config.tileLayer.bounds,
-      props.config.rotationDegrees
-    )
+    const coordinate: GuideCoordinate = {
+      latitude: center.lat,
+      longitude: center.lng,
+      coordinateSystem: 'WGS84'
+    }
+    return props.handDrawnVisible
+      ? scenicDisplayToTencentMapCoordinate(
+          coordinate,
+          props.config.tileLayer.bounds,
+          props.config.rotationDegrees
+        )
+      : toTencentMapCoordinate(coordinate)
   }
 
   function syncTencentView() {
@@ -191,6 +248,21 @@
     if (!center || zoom === undefined || !tencentMapApi || !tencentMapInstance) return
     tencentMapInstance.setCenter(new tencentMapApi.LatLng(center.latitude, center.longitude))
     tencentMapInstance.setZoom(zoom)
+  }
+
+  function syncTencentAttribution(attempt = 0) {
+    if (tencentAttributionTimer !== undefined) window.clearTimeout(tencentAttributionTimer)
+    tencentAttributionTimer = undefined
+    const target = tencentAttributionElement.value
+    const link = tencentMapElement.value?.querySelector<HTMLAnchorElement>('a[href*="map.qq.com"]')
+    const officialControl = link?.parentElement
+    if (target && officialControl) {
+      target.replaceChildren(officialControl.cloneNode(true))
+      return
+    }
+    if (!disposed && attempt < 20) {
+      tencentAttributionTimer = window.setTimeout(() => syncTencentAttribution(attempt + 1), 100)
+    }
   }
 
   function scheduleTencentViewSync() {
@@ -225,9 +297,11 @@
       } else {
         syncTencentView()
       }
+      syncTencentAttribution()
       baseProvider.value = 'tencent'
       if (baseLayer && mapInstance.value.hasLayer(baseLayer))
         baseLayer.removeFrom(mapInstance.value)
+      syncAttribution()
     } catch {
       if (!disposed && attempt === tencentInitializationAttempt) activateLeafletFallback()
     }
@@ -240,11 +314,13 @@
     const map = mapInstance.value
     if (!map) return
     const targetZoom = Math.min(zoom, effectiveMaxZoom())
-    const displayCoordinate = toScenicDisplayCoordinate(
-      coordinate,
-      props.config.tileLayer.bounds,
-      props.config.rotationDegrees
-    )
+    const displayCoordinate = props.handDrawnVisible
+      ? toScenicDisplayCoordinate(
+          coordinate,
+          props.config.tileLayer.bounds,
+          props.config.rotationDegrees
+        )
+      : transformCoordinate(coordinate, 'WGS84')
     const target = L.latLng(displayCoordinate.latitude, displayCoordinate.longitude)
     const safeAreaOffset = L.point(
       (props.safeArea.left - props.safeArea.right) / 2,
@@ -270,11 +346,13 @@
 
   function focusRoute(route: GuideRoute) {
     const points = resolveRoutePathCoordinates(route, props.allSpots).map((coordinate) => {
-      const displayCoordinate = toScenicDisplayCoordinate(
-        coordinate,
-        props.config.tileLayer.bounds,
-        props.config.rotationDegrees
-      )
+      const displayCoordinate = props.handDrawnVisible
+        ? toScenicDisplayCoordinate(
+            coordinate,
+            props.config.tileLayer.bounds,
+            props.config.rotationDegrees
+          )
+        : transformCoordinate(coordinate, 'WGS84')
       return L.latLng(displayCoordinate.latitude, displayCoordinate.longitude)
     })
     if (points.length === 1) mapInstance.value?.setView(points[0], 17)
@@ -288,8 +366,14 @@
   }
 
   function resetView() {
-    const bounds = scenicBounds()
-    mapInstance.value?.flyTo(bounds.getCenter(), minimumScenicZoom, { duration: 0.38 })
+    if (props.handDrawnVisible) {
+      const bounds = scenicBounds()
+      mapInstance.value?.flyTo(bounds.getCenter(), minimumScenicZoom, { duration: 0.38 })
+    } else {
+      mapInstance.value?.flyTo(toLatLng(props.config.center), props.config.initialZoom, {
+        duration: 0.38
+      })
+    }
   }
 
   function locate() {
@@ -336,11 +420,13 @@
       coordinateSystem: 'WGS84'
     }
     return {
-      center: fromScenicDisplayCoordinate(
-        displayCenter,
-        props.config.tileLayer.bounds,
-        props.config.rotationDegrees
-      ),
+      center: props.handDrawnVisible
+        ? fromScenicDisplayCoordinate(
+            displayCenter,
+            props.config.tileLayer.bounds,
+            props.config.rotationDegrees
+          )
+        : displayCenter,
       zoom: mapInstance.value.getZoom()
     }
   }
@@ -348,9 +434,12 @@
   function restoreView(state?: { center: GuideCoordinate; zoom: number }) {
     const map = mapInstance.value
     if (!state || !map) return
-    const zoom = Math.max(minimumScenicZoom, Math.min(state.zoom, effectiveMaxZoom()))
+    const zoom = Math.max(
+      props.handDrawnVisible ? minimumScenicZoom : props.config.minZoom,
+      Math.min(state.zoom, effectiveMaxZoom())
+    )
     map.setView(toLatLng(state.center), zoom, { animate: false })
-    map.panInsideBounds(scenicBounds(), { animate: false })
+    if (props.handDrawnVisible) map.panInsideBounds(scenicBounds().pad(0.25), { animate: false })
   }
 
   watch(
@@ -360,6 +449,11 @@
     }
   )
   watch(() => props.safeArea, invalidateSize, { deep: true })
+  watch(
+    () => props.handDrawnVisible,
+    () => applyMapMode(true)
+  )
+  watch(locale, syncAttribution)
 
   onMounted(createMap)
   onBeforeUnmount(() => {
@@ -368,6 +462,7 @@
     window.removeEventListener('online', initializeTencentBaseMap)
     window.removeEventListener('offline', activateLeafletFallback)
     if (tencentSyncFrame !== undefined) window.cancelAnimationFrame(tencentSyncFrame)
+    if (tencentAttributionTimer !== undefined) window.clearTimeout(tencentAttributionTimer)
     resizeObserver?.disconnect()
     resizeObserver = undefined
     tencentMapInstance?.destroy?.()
@@ -391,12 +486,22 @@
 </script>
 
 <template>
-  <div class="scenic-map-shell" :data-base-provider="baseProvider">
+  <div
+    class="scenic-map-shell"
+    :data-base-provider="baseProvider"
+    :style="{ '--scenic-artwork-background': artworkBackgroundColor() }"
+  >
     <div
       ref="tencentMapElement"
       class="scenic-map-tencent-base"
       :class="{ 'is-active': baseProvider === 'tencent' }"
       aria-hidden="true"
+    />
+    <div
+      v-show="baseProvider === 'tencent'"
+      ref="tencentAttributionElement"
+      class="scenic-tencent-attribution"
+      aria-label="Tencent map attribution"
     />
     <div ref="mapElement" class="scenic-map-canvas" role="application" aria-label="Scenic map" />
     <div v-if="initializationError" class="scenic-map-error" role="alert">
@@ -413,7 +518,7 @@
         :columns="config.tileLayer.columns"
         :loaded-ids="loadedTileIds"
         :rotation-degrees="config.rotationDegrees"
-        :visible="true"
+        :visible="handDrawnVisible"
       />
       <ScenicMarkerLayer
         :map="mapInstance"
@@ -464,6 +569,16 @@
     opacity: 1;
   }
 
+  .scenic-tencent-attribution {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 450;
+    max-width: calc(100% - 180px);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+
   .scenic-map-error {
     position: absolute;
     inset: 0;
@@ -499,6 +614,15 @@
   .scenic-map-canvas {
     z-index: 1;
     background: transparent;
+    transition: background-color 160ms ease-out;
+  }
+
+  .scenic-map-canvas.is-hand-drawn {
+    background: var(--scenic-artwork-background, #b0d8b8);
+  }
+
+  .scenic-map-canvas.is-hand-drawn .leaflet-tile-pane {
+    opacity: 0;
   }
 
   .hand-drawn-map-tile {
