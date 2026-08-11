@@ -1,10 +1,9 @@
 <script setup lang="ts">
-  defineProps<{ handDrawnVisible: boolean; panoramaAvailable: boolean; routeActive?: boolean }>()
+  defineProps<{ panoramaAvailable: boolean; routeActive?: boolean }>()
   const emit = defineEmits<{
     browseRoutes: []
     locate: []
     reset: []
-    toggleLayer: []
     panorama: []
     clearRoute: []
   }>()
@@ -26,19 +25,6 @@
       <button type="button" :aria-label="$t('app.mapGuideReset')" @click="emit('reset')"
         ><ArtSvgIcon icon="ri:home-4-line"
       /></button>
-    </el-tooltip>
-    <el-tooltip
-      :content="handDrawnVisible ? $t('app.mapGuideBaseMap') : $t('app.mapGuideHandDrawn')"
-      placement="left"
-    >
-      <button
-        type="button"
-        :aria-label="handDrawnVisible ? $t('app.mapGuideBaseMap') : $t('app.mapGuideHandDrawn')"
-        :class="{ active: handDrawnVisible }"
-        @click="emit('toggleLayer')"
-      >
-        <ArtSvgIcon icon="ri:stack-line" />
-      </button>
     </el-tooltip>
     <el-tooltip v-if="panoramaAvailable" :content="$t('app.mapGuidePanorama')" placement="left">
       <button type="button" :aria-label="$t('app.mapGuidePanorama')" @click="emit('panorama')"
@@ -88,11 +74,6 @@
   .map-control-group button:hover {
     background: #fff;
     transform: translateY(-1px);
-  }
-
-  .map-control-group button.active {
-    color: #fff;
-    background: #397a70;
   }
 
   .map-control-group button.danger {

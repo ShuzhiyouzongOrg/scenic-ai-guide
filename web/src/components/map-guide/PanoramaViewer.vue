@@ -3,12 +3,10 @@
   import type { PanoramaRecord } from '@/types/map-guide'
 
   const props = defineProps<{ panorama: PanoramaRecord; open: boolean }>()
-  const emit = defineEmits<{ close: []; narrate: [] }>()
+  const emit = defineEmits<{ close: [] }>()
 
-  const root = ref<HTMLElement>()
   const status = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const frameKey = ref(0)
-  const gyroscopeStatus = ref<'idle' | 'granted' | 'denied'>('idle')
   let watchdog: number | undefined
 
   const safePanoramaUrl = computed(() => {
@@ -56,24 +54,6 @@
     status.value = 'error'
   }
 
-  async function enableGyroscope() {
-    try {
-      const orientation = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
-        requestPermission?: () => Promise<'granted' | 'denied'>
-      }
-      const result = orientation.requestPermission
-        ? await orientation.requestPermission()
-        : 'granted'
-      gyroscopeStatus.value = result
-    } catch {
-      gyroscopeStatus.value = 'denied'
-    }
-  }
-
-  async function fullscreen() {
-    await root.value?.requestFullscreen?.()
-  }
-
   function openExternal() {
     if (safePanoramaUrl.value) {
       window.open(safePanoramaUrl.value, '_blank', 'noopener,noreferrer')
@@ -96,7 +76,7 @@
 </script>
 
 <template>
-  <section v-if="open" ref="root" class="panorama-viewer">
+  <section v-if="open" class="panorama-viewer">
     <iframe
       v-if="status !== 'error'"
       :key="frameKey"
@@ -126,17 +106,6 @@
       <button type="button" @click="emit('close')"
         ><ArtSvgIcon icon="ri:arrow-left-line" />{{ $t('app.mapGuidePanoramaBack') }}</button
       >
-      <strong>{{ panorama.title }}</strong>
-      <div>
-        <button
-          type="button"
-          :class="{ active: gyroscopeStatus === 'granted' }"
-          @click="enableGyroscope"
-          ><ArtSvgIcon icon="ri:compass-3-line" />{{ $t('app.mapGuideGyroscope') }}</button
-        >
-        <button type="button" @click="emit('narrate')"><ArtSvgIcon icon="ri:speak-line" /></button>
-        <button type="button" @click="fullscreen"><ArtSvgIcon icon="ri:fullscreen-line" /></button>
-      </div>
     </header>
   </section>
 </template>
@@ -160,20 +129,7 @@
   .panorama-viewer header {
     position: absolute;
     top: 14px;
-    right: 14px;
     left: 14px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 9px 11px;
-    background: rgb(32 43 39 / 78%);
-    border-radius: 10px;
-  }
-
-  .panorama-viewer header div {
-    display: flex;
-    gap: 6px;
   }
 
   .panorama-viewer header button {
@@ -187,10 +143,6 @@
     background: rgb(255 255 255 / 12%);
     border: 1px solid rgb(255 255 255 / 18%);
     border-radius: 7px;
-  }
-
-  .panorama-viewer header button.active {
-    background: #39786d;
   }
 
   .panorama-viewer__loading,
@@ -259,24 +211,6 @@
   @keyframes panorama-spin {
     to {
       transform: rotate(360deg);
-    }
-  }
-
-  @media (width <= 680px) {
-    .panorama-viewer header {
-      align-items: flex-start;
-    }
-
-    .panorama-viewer header strong {
-      display: none;
-    }
-
-    .panorama-viewer header button {
-      font-size: 0;
-    }
-
-    .panorama-viewer header button svg {
-      font-size: 17px;
     }
   }
 
