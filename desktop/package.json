@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "description": "数智游踪跨平台桌面应用",
+  "homepage": "https://www.shuzhiyouzong.cn",
+  "desktopName": "cn.shuzhiyouzong.desktop",
   "author": "Marve1ous <2829245700@qq.com>",
   "license": "UNLICENSED",
   "main": "main.mjs",

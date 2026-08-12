@@ -59,9 +59,10 @@ dmg:
   artifactName: ShuzhiYouzong-${version}-mac-${arch}.${ext}
 
 linux:
-  icon: assets/icons/linux
+  icon: assets/icons/linux/512x512/cn.shuzhiyouzong.desktop.png
   category: Education
   executableName: shuzhiyouzong
+  syncDesktopName: true
   maintainer: Marve1ous <2829245700@qq.com>
   synopsis: 数智游踪 AI 景区导览桌面应用
   description: 数智游踪提供 AI 数字人讲解、景区地图导览与知识问答能力。
