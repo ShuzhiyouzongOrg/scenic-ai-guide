@@ -22,14 +22,6 @@ files:
     to: web/dist
 
 asar: true
-asarUnpack:
-  - node_modules/better-sqlite3/**
-  - "**/*.node"
-
-npmRebuild: true
-nativeRebuilder: sequential
-buildDependenciesFromSource: false
-
 artifactName: ShuzhiYouzong-${version}-${os}-${arch}.${ext}
 
 win:

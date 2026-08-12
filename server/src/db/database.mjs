@@ -6,13 +6,73 @@
 // survives restarts, while test and eval scripts leave it unset and therefore
 // run against a fresh in-memory database each process -> deterministic tests.
 
-import Database from "better-sqlite3";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { config } from "../config.mjs";
 import { loadKnowledge } from "../services/knowledgeBuild.mjs";
 import { hashPassword } from "./password.mjs";
 
 let db = null;
+const require = createRequire(import.meta.url);
+
+function createDatabase(path) {
+  if (process.env.DESKTOP_USE_NODE_SQLITE === "1") {
+    let DatabaseSync;
+    try {
+      ({ DatabaseSync } = require("node:sqlite"));
+    } catch (error) {
+      throw new Error(
+        "The desktop runtime requires Electron with built-in node:sqlite support.",
+        { cause: error }
+      );
+    }
+    return new NodeSqliteDatabase(path, DatabaseSync);
+  }
+  const Database = require("better-sqlite3");
+  return new Database(path);
+}
+
+class NodeSqliteDatabase {
+  constructor(path, DatabaseSync) {
+    this.database = new DatabaseSync(path);
+  }
+
+  prepare(sql) {
+    return this.database.prepare(sql);
+  }
+
+  exec(sql) {
+    this.database.exec(sql);
+    return this;
+  }
+
+  pragma(source) {
+    const statement = String(source).trim().replace(/;$/, "");
+    if (statement.includes("=")) {
+      this.database.exec(`PRAGMA ${statement}`);
+      return [];
+    }
+    return this.database.prepare(`PRAGMA ${statement}`).all();
+  }
+
+  transaction(callback) {
+    return (...args) => {
+      this.database.exec("BEGIN");
+      try {
+        const result = callback(...args);
+        this.database.exec("COMMIT");
+        return result;
+      } catch (error) {
+        this.database.exec("ROLLBACK");
+        throw error;
+      }
+    };
+  }
+
+  close() {
+    this.database.close();
+  }
+}
 
 const DIGITAL_HUMAN_NAMES = {
   receptionMale: "景行·灵山迎宾使（男）",
@@ -210,7 +270,7 @@ export function getDb() {
     return db;
   }
   const path = resolveSqlitePath();
-  db = new Database(path);
+  db = createDatabase(path);
   if (path !== ":memory:") {
     db.pragma("journal_mode = WAL");
   }
@@ -220,7 +280,10 @@ export function getDb() {
   return db;
 }
 
-export function migrate(instance = getDb()) {
+export function migrate(instance) {
+  if (!instance) {
+    throw new Error("A database instance is required.");
+  }
   instance.exec(DDL);
   addMissingColumns(instance);
   instance.exec(
@@ -265,7 +328,10 @@ function addMissingColumns(instance) {
 // Seed only the small reference rows the product needs to boot (default digital
 // human, admin account, scenic-spot catalogue). Heavy behaviour analytics rows
 // are imported separately (scripts/db-init.mjs or lazily in behaviorAnalytics).
-export function seedReferenceData(instance = getDb()) {
+export function seedReferenceData(instance) {
+  if (!instance) {
+    throw new Error("A database instance is required.");
+  }
   seedAdminUser(instance);
   seedSystemRoles(instance);
   seedDigitalHuman(instance);

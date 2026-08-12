@@ -99,6 +99,7 @@ function backendEnvironment(paths) {
     DATA_DIR: paths.runtimeData,
     UPLOAD_DIR: uploadDir,
     SQLITE_PATH: join(paths.runtimeData, "scenic.sqlite"),
+    DESKTOP_USE_NODE_SQLITE: "1",
     WEB_DIST_DIR: paths.webDist,
     CONFIG_ENV_FILE: paths.serverEnvPath,
     DESKTOP_SERVER_ENTRY: pathToFileURL(paths.serverEntryPath).href
