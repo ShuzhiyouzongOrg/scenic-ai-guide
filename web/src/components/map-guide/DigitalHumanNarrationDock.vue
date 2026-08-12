@@ -55,7 +55,7 @@
     padding: 14px;
     overflow: hidden;
     color: #304a43;
-    background: #f5f6f1;
+    background: #fff;
     border-left: 1px solid rgb(50 92 81 / 14%);
   }
 
@@ -126,8 +126,9 @@
   }
 
   :deep(.narration-subtitle) {
-    color: #e8f0ed;
-    background: #29473f;
+    color: #304a43;
+    background: #f2f6f4;
+    border: 1px solid rgb(50 92 81 / 12%);
   }
 
   @media (width <= 760px) {

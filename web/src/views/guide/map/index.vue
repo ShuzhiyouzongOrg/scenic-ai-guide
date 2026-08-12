@@ -78,7 +78,7 @@
   const query = ref('')
   const selectedCategoryIds = ref<string[]>(['36'])
   const selectedSpotId = ref<string>()
-  const panelCollapsed = ref(false)
+  const panelCollapsed = ref(true)
   const routeDrawerOpen = ref(false)
   const routeDetailOpen = ref(false)
   const handDrawnVisible = ref(true)
@@ -687,6 +687,7 @@
             :spot="selectedSpot"
             :panorama-available="bootstrap.panoramas.length > 0"
             :original-audio-available="originalAudioAvailable"
+            :search-panel-open="!panelCollapsed"
             @close="selectedSpotId = undefined"
             @narrate="startSpotNarration"
             @narrate-original="startOriginalNarration"

@@ -5,6 +5,7 @@
     spot: ScenicSpot
     panoramaAvailable: boolean
     originalAudioAvailable: boolean
+    searchPanelOpen: boolean
   }>()
   const emit = defineEmits<{
     close: []
@@ -16,7 +17,10 @@
 </script>
 
 <template>
-  <article class="scenic-spot-card" :class="{ 'no-cover': !spot.media.coverUrl }">
+  <article
+    class="scenic-spot-card"
+    :class="{ 'no-cover': !spot.media.coverUrl, 'search-panel-open': searchPanelOpen }"
+  >
     <button class="scenic-spot-card__close" type="button" aria-label="Close" @click="emit('close')">
       <ArtSvgIcon icon="ri:close-line" />
     </button>
@@ -53,7 +57,7 @@
   .scenic-spot-card {
     position: absolute;
     bottom: 18px;
-    left: 18px;
+    left: 50%;
     z-index: 440;
     display: grid;
     grid-template-columns: 122px 1fr;
@@ -65,7 +69,15 @@
     border: 1px solid rgb(57 92 82 / 16%);
     border-radius: 15px;
     box-shadow: 0 12px 30px rgb(28 49 42 / 18%);
+    transform: translateX(-50%);
     animation: spot-card-in 220ms ease-out;
+  }
+
+  @media (width > 760px) {
+    .scenic-spot-card.search-panel-open {
+      // Keep a 12px gap from the 300px search panel while preserving the map-centred anchor.
+      width: min(560px, max(340px, calc(100% - 656px)));
+    }
   }
 
   .scenic-spot-card > img {
@@ -149,7 +161,7 @@
   @keyframes spot-card-in {
     from {
       opacity: 0;
-      transform: translateY(12px);
+      transform: translate(-50%, 12px);
     }
   }
 
@@ -161,6 +173,7 @@
       grid-template-columns: 84px 1fr;
       width: auto;
       min-height: 112px;
+      transform: none;
     }
 
     .scenic-spot-card > img {
@@ -178,6 +191,13 @@
 
     .scenic-spot-card__actions button {
       padding: 0 8px;
+    }
+
+    @keyframes spot-card-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
     }
   }
 </style>

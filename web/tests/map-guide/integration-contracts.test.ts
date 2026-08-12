@@ -23,6 +23,42 @@ test('map digital human follows the active backend engine', () => {
   assert.doesNotMatch(source, /engine-override=["']xfyun["']/)
 })
 
+test('map guide opens with compact search and keeps the spot card centered', () => {
+  const page = readFileSync(new URL('../../src/views/guide/map/index.vue', import.meta.url), 'utf8')
+  const spotCard = readFileSync(
+    new URL('../../src/components/map-guide/ScenicSpotCard.vue', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(page, /const panelCollapsed = ref\(true\)/)
+  assert.match(page, /:search-panel-open="!panelCollapsed"/)
+  assert.match(spotCard, /\.scenic-spot-card\.search-panel-open/)
+  assert.match(spotCard, /\.scenic-spot-card \{[\s\S]*?bottom: 18px;[\s\S]*?left: 50%;/)
+  assert.match(spotCard, /transform: translateX\(-50%\)/)
+  assert.match(spotCard, /width: min\(560px, max\(340px, calc\(100% - 656px\)\)\);/)
+  assert.doesNotMatch(spotCard, /left: calc/)
+  assert.match(spotCard, /@media \(width <= 600px\)[\s\S]*?transform: none;/)
+  assert.match(page, /@close="selectedSpotId = undefined"/)
+})
+
+test('expanded map avatar uses a white stage without a status badge', () => {
+  const source = readFileSync(
+    new URL('../../src/components/map-guide/MapDigitalHuman.vue', import.meta.url),
+    'utf8'
+  )
+  const dock = readFileSync(
+    new URL('../../src/components/map-guide/DigitalHumanNarrationDock.vue', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /\.state-speaking .*:deep\(\.dh-stage\)/s)
+  assert.match(source, /\.state-speaking .*:deep\(\.l2d-stage\)/s)
+  assert.match(source, /:deep\(\.dh-badge\),\s*.*:deep\(\.l2d-badge\) \{\s*display: none;/s)
+  assert.match(source, /:deep\(\.dh-fallback-tip\),\s*.*:deep\(\.l2d-fallback-tip\)/s)
+  assert.match(dock, /\.digital-human-dock \{[\s\S]*?background: #fff;/)
+  assert.match(dock, /:deep\(\.narration-subtitle\) \{[\s\S]*?background: #f2f6f4;/)
+})
+
 test('live2d runtime invalidates stale rendering and model loads', () => {
   const delegate = readFileSync(
     new URL('../../src/lib/live2d/src/lappdelegate.ts', import.meta.url),

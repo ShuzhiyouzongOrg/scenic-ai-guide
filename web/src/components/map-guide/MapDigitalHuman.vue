@@ -241,13 +241,48 @@
     left: 14px;
     height: clamp(210px, 38vh, 340px);
     pointer-events: auto;
+    background: #fff;
     border: 1px solid rgb(50 92 81 / 14%);
     border-radius: 14px;
   }
 
   .state-speaking .map-digital-human__engine :deep(.dh-badge),
   .state-speaking .map-digital-human__engine :deep(.l2d-badge) {
-    right: 54px;
+    display: none;
+  }
+
+  .state-speaking .map-digital-human__engine :deep(.dh-host),
+  .state-speaking .map-digital-human__engine :deep(.dh-avatar),
+  .state-speaking .map-digital-human__engine :deep(.dh-stage),
+  .state-speaking .map-digital-human__engine :deep(.dh-loading),
+  .state-speaking .map-digital-human__engine :deep(.l2d-avatar),
+  .state-speaking .map-digital-human__engine :deep(.l2d-stage) {
+    background: #fff;
+  }
+
+  .state-speaking .map-digital-human__engine :deep(.dh-loading-inner) {
+    color: #4a655d;
+  }
+
+  .state-speaking .map-digital-human__engine :deep(.dh-fallback),
+  .state-speaking .map-digital-human__engine :deep(.l2d-fallback),
+  .state-speaking .map-digital-human__engine :deep(.dh-fallback-name),
+  .state-speaking .map-digital-human__engine :deep(.l2d-fallback-name) {
+    color: #334f47;
+  }
+
+  .state-speaking .map-digital-human__engine :deep(.dh-fallback-tip),
+  .state-speaking .map-digital-human__engine :deep(.l2d-fallback-tip) {
+    color: #71837d;
+  }
+
+  .state-speaking .map-digital-human__engine :deep(.dh-fallback-icon) {
+    color: #a87936;
+  }
+
+  .state-speaking .map-digital-human__engine :deep(.dh-spinner) {
+    border-color: rgb(57 120 109 / 18%);
+    border-top-color: #39786d;
   }
 
   .map-digital-human__active-shell {
