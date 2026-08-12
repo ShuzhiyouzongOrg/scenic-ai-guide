@@ -28,7 +28,7 @@ function loadDotEnv(filePath) {
   }
 }
 
-loadDotEnv(resolve(process.cwd(), ".env"));
+loadDotEnv(resolve(process.env.CONFIG_ENV_FILE || resolve(process.cwd(), ".env")));
 
 export const config = {
   appName: process.env.APP_NAME || "Lingshan AI Guide",

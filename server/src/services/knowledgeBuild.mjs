@@ -1,5 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, extname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { config } from "../config.mjs";
 import { extractDocxText } from "./docx.mjs";
 
@@ -302,7 +303,7 @@ function runtimeGeneratedDir() {
 }
 
 function bundledGeneratedDir() {
-  return resolve(process.cwd(), "data", "generated");
+  return resolve(fileURLToPath(new URL("../../data/generated", import.meta.url)));
 }
 
 function loadKnowledgeFrom(filePath) {

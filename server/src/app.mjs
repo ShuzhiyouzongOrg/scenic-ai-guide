@@ -41,7 +41,7 @@ import {
   listFeedbackClusters
 } from "./services/serviceQuality.mjs";
 import { schema } from "./db/schema.mjs";
-import { getDb } from "./db/database.mjs";
+import { closeDb, getDb } from "./db/database.mjs";
 import {
   listAdminUsers,
   createAdminUser,
@@ -70,7 +70,7 @@ if (!process.env.SQLITE_PATH) {
 getDb();
 
 const rootDir = resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const publicDir = join(rootDir, "web", "dist");
+const publicDir = resolve(process.env.WEB_DIST_DIR || join(rootDir, "web", "dist"));
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -82,10 +82,17 @@ const mimeTypes = {
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
   ".ico": "image/x-icon",
-  ".svg": "image/svg+xml"
+  ".svg": "image/svg+xml",
+  ".wasm": "application/wasm",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
+  ".moc3": "application/octet-stream",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav"
 };
 
-const server = createServer(async (req, res) => {
+export const server = createServer(async (req, res) => {
   const start = Date.now();
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
 
@@ -819,10 +826,69 @@ function serveStatic(res, pathname) {
   res.end(body);
 }
 
-server.listen(config.port, config.host, () => {
-  logInfo("server started", {
-    url: `http://${config.host}:${config.port}`,
-    visitor: `http://${config.host}:${config.port}/visitor`,
-    admin: `http://${config.host}:${config.port}/admin`
+let listenPromise = null;
+
+export function startServer({ host = config.host, port = config.port } = {}) {
+  if (server.listening) {
+    return Promise.resolve(server);
+  }
+  if (listenPromise) {
+    return listenPromise;
+  }
+
+  listenPromise = new Promise((resolveStart, rejectStart) => {
+    const onError = (error) => {
+      listenPromise = null;
+      rejectStart(error);
+    };
+    server.once("error", onError);
+    server.listen(port, host, () => {
+      server.off("error", onError);
+      const address = server.address();
+      const actualHost = typeof address === "object" && address ? address.address : host;
+      const actualPort = typeof address === "object" && address ? address.port : port;
+      logInfo("server started", {
+        url: `http://${actualHost}:${actualPort}`,
+        visitor: `http://${actualHost}:${actualPort}/visitor`,
+        admin: `http://${actualHost}:${actualPort}/admin`
+      });
+      resolveStart(server);
+    });
   });
-});
+
+  return listenPromise;
+}
+
+export function stopServer() {
+  if (!server.listening) {
+    listenPromise = null;
+    closeDb();
+    return Promise.resolve();
+  }
+
+  return new Promise((resolveStop, rejectStop) => {
+    server.close((error) => {
+      listenPromise = null;
+      if (error) {
+        rejectStop(error);
+        return;
+      }
+      closeDb();
+      resolveStop();
+    });
+  });
+}
+
+function isMainEntry() {
+  if (!process.argv[1]) {
+    return false;
+  }
+  return resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+}
+
+if (isMainEntry()) {
+  startServer().catch((error) => {
+    logError("server failed to start", { error: error.message });
+    process.exitCode = 1;
+  });
+}
