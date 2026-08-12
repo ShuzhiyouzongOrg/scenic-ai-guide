@@ -31,6 +31,4 @@ server/backups/
 !.vscode/extensions.json
 
 # Auto-generated (scenic-ai-guide)
-web/src/types/import/auto-imports.d.ts
-web/src/types/import/components.d.ts
 web/.auto-import.json
