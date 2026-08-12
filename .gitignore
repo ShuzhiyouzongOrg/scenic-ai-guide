@@ -16,6 +16,7 @@ server/.env
 dist/
 dist-ssr/
 desktop/dist/
+desktop/generated/
 
 # Runtime data
 server/data/uploads/

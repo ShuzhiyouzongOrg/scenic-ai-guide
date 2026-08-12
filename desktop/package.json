@@ -14,6 +14,7 @@
   },
   "scripts": {
     "prepare:runtime": "node scripts/prepare-runtime.mjs",
+    "test": "node scripts/test-main-runtime.mjs && node scripts/test-runtime-env.mjs",
     "prestart": "npm run prepare:runtime",
     "start": "electron .",
     "prestart:smoke": "npm run prepare:runtime",

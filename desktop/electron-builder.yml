@@ -11,6 +11,8 @@ files:
   - preload.mjs
   - server-process.mjs
   - package.json
+  - from: generated/server.env
+    to: runtime/default-server.env
   - assets/icons/linux/512x512/cn.shuzhiyouzong.desktop.png
   - from: ../server/src
     to: runtime/server/src

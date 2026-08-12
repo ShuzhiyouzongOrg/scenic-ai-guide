@@ -1,5 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, shell, utilityProcess } from "electron";
-import { existsSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { fork as forkNodeProcess } from "node:child_process";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -23,6 +23,7 @@ let mainWindow = null;
 let backendProcess = null;
 let backendUsesUtilityProcess = false;
 let backendPort = null;
+let bootstrapPromise = null;
 let shutdownPromise = null;
 let quitAfterBackendStops = false;
 
@@ -44,6 +45,9 @@ function runtimePaths() {
   const serverEnvPath = app.isPackaged
     ? join(app.getPath("userData"), "server.env")
     : join(repositoryRoot, "server", ".env");
+  const bundledServerEnvPath = app.isPackaged
+    ? join(root, "runtime", "default-server.env")
+    : null;
   const serverWorkingDirectory = app.isPackaged
     ? app.getPath("userData")
     : join(repositoryRoot, "server");
@@ -55,8 +59,23 @@ function runtimePaths() {
     serverEntryPath,
     serverLauncherPath,
     serverEnvPath,
+    bundledServerEnvPath,
     serverWorkingDirectory
   };
+}
+
+function provisionServerEnvironment(paths) {
+  if (!paths.bundledServerEnvPath || !existsSync(paths.bundledServerEnvPath)) {
+    return;
+  }
+
+  const managedHeader = "# Managed by the desktop runtime.";
+  const currentConfig = existsSync(paths.serverEnvPath)
+    ? readFileSync(paths.serverEnvPath, "utf8")
+    : "";
+  if (!currentConfig || currentConfig.startsWith(managedHeader)) {
+    copyFileSync(paths.bundledServerEnvPath, paths.serverEnvPath);
+  }
 }
 
 function assertRuntimeFiles(paths) {
@@ -114,6 +133,7 @@ async function startBackend() {
 
   const paths = runtimePaths();
   assertRuntimeFiles(paths);
+  provisionServerEnvironment(paths);
 
   const child = app.isPackaged
     ? utilityProcess.fork(paths.serverLauncherPath, [], {
@@ -296,8 +316,25 @@ function registerIpc() {
 }
 
 async function bootstrap() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    return mainWindow;
+  }
+  if (bootstrapPromise) {
+    return bootstrapPromise;
+  }
+
+  bootstrapPromise = bootstrapApplication();
+  try {
+    return await bootstrapPromise;
+  } finally {
+    bootstrapPromise = null;
+  }
+}
+
+async function bootstrapApplication() {
   const port = await startBackend();
   await createMainWindow(port);
+  return mainWindow;
 }
 
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
@@ -331,10 +368,10 @@ if (!hasSingleInstanceLock) {
 }
 
 app.on("activate", async () => {
+  await app.whenReady();
   if (BrowserWindow.getAllWindows().length === 0) {
     try {
-      const port = await startBackend();
-      await createMainWindow(port);
+      await bootstrap();
     } catch (error) {
       dialog.showErrorBox(`${APP_NAME} 启动失败`, error instanceof Error ? error.message : String(error));
     }
