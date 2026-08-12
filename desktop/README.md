@@ -16,7 +16,7 @@ npm ci
 npm start
 ```
 
-开发态会读取 `server/.env`，并将运行数据放在工作区的 `LocalTemp/desktop-user-data`。安装包不会内置任何密钥；如需启用真实第三方服务，请在应用的 `userData` 目录创建 `server.env`。未提供时使用后端的安全演示配置。
+开发态会读取 `server/.env`，并将运行数据放在工作区的 `LocalTemp/desktop-user-data`。本地打包时只会提取大模型、语音和默认数字人所需的白名单配置，写入被 Git 忽略的 `desktop/generated/server.env`；账号、JWT 等服务端管理配置不会打入安装包。安装后，该文件会复制到应用的 `userData/server.env`。用户手工维护的、没有托管标记的 `server.env` 不会被覆盖。
 
 ## 本地打包
 
@@ -38,4 +38,13 @@ Windows 本地构建缓存会自动写入工作区的 `LocalTemp`，安装包输
 3. 打开 **Actions > Build desktop artifacts > Run workflow**，选择默认分支并运行。
 4. 等待四个平台任务完成，在该次运行页面底部下载 Artifacts。
 
-当前开发者构建不需要配置 GitHub Secrets。macOS 应用未签名、未公证，Windows 安装程序也未签名，仅适合内部评审测试。
+在仓库 **Settings > Secrets and variables > Actions** 中配置以下 Repository secrets：
+
+- `DEEPSEEK_API_KEY`
+- `XFYUN_APP_ID`
+- `XFYUN_API_KEY`
+- `XFYUN_API_SECRET`
+
+工作流在构建前端时注入讯飞交互数字人凭证，在打包时生成被 Git 忽略的桌面服务配置。缺少任一必需 Secret 时打包会明确失败，不再生成自动降级到 Mock/纯文本模式的安装包。当前产物会携带评审环境凭证，只适合内部评审；正式公开发行前应改为远程服务端代理并轮换密钥。
+
+macOS 应用未签名、未公证，Windows 安装程序也未签名，仅适合内部评审测试。

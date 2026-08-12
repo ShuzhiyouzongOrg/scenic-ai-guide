@@ -45,6 +45,10 @@ jobs:
 
       - name: Build web application
         working-directory: web
+        env:
+          VITE_XF_AVATAR_APPID: ${{ secrets.XFYUN_APP_ID }}
+          VITE_XF_AVATAR_APIKEY: ${{ secrets.XFYUN_API_KEY }}
+          VITE_XF_AVATAR_APISECRET: ${{ secrets.XFYUN_API_SECRET }}
         run: pnpm build
 
       - name: Upload web build
@@ -105,10 +109,30 @@ jobs:
           name: shuzhiyouzong-web-dist
           path: web/dist
 
+      - name: Run desktop runtime tests
+        working-directory: desktop
+        run: npm test
+
       - name: Package desktop application
         working-directory: desktop
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+          DEMO_MODE: "true"
+          LLM_PROVIDER: "openai"
+          LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          LLM_BASE_URL: "https://api.deepseek.com/v1"
+          LLM_MODEL: "deepseek-chat"
+          LLM_TIMEOUT_MS: "20000"
+          LLM_MAX_RETRIES: "2"
+          LLM_TEMPERATURE: "0.4"
+          ASR_PROVIDER: "mock"
+          TTS_PROVIDER: "xfyun"
+          XFYUN_APP_ID: ${{ secrets.XFYUN_APP_ID }}
+          XFYUN_API_KEY: ${{ secrets.XFYUN_API_KEY }}
+          XFYUN_API_SECRET: ${{ secrets.XFYUN_API_SECRET }}
+          XFYUN_TTS_VOICE: "x4_xiaoyan"
+          DEFAULT_AVATAR_ID: "cnrmkf0e2000000006"
+          DEFAULT_AVATAR_VCN: "x6_jingqudaolannvsheng_mini"
         run: ${{ matrix.command }}
 
       - name: Create checksums
