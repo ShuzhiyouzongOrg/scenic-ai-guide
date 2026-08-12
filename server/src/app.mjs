@@ -1,11 +1,12 @@
 import { createServer } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
-import { extname, join, normalize, resolve } from "node:path";
+import { extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "./config.mjs";
 import { logError, logInfo } from "./logger.mjs";
 import { fail, ok, created } from "./http/response.mjs";
 import { getBearerToken, readJson } from "./http/request.mjs";
+import { resolveStaticFilePath } from "./http/staticPath.mjs";
 import { createVisitorSession, login, register, verifyToken } from "./services/auth.mjs";
 import {
   createUpload,
@@ -794,13 +795,16 @@ function toAuthUser(user, fallback = {}) {
 }
 
 function serveStatic(res, pathname) {
-  const safePath = normalize(pathname === "/" ? "/index.html" : pathname).replace(/^(\.\.[/\\])+/, "");
-  let filePath = join(publicDir, safePath);
+  let filePath = resolveStaticFilePath(publicDir, pathname);
+  if (!filePath) {
+    fail(res, 400, "INVALID_PATH", "Resource path is invalid.");
+    return;
+  }
 
   // SPA fallback: unknown routes without a file extension serve index.html so
   // the Vue router can handle client-side navigation.
-  if (!filePath.startsWith(publicDir) || !existsSync(filePath)) {
-    if (!extname(safePath)) {
+  if (!existsSync(filePath)) {
+    if (!extname(filePath)) {
       filePath = join(publicDir, "index.html");
     }
     if (!existsSync(filePath)) {

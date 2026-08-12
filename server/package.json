@@ -21,6 +21,7 @@
     "eval:chat": "node scripts/eval-chat-accuracy.mjs",
     "test:chat": "node scripts/test-chat.mjs",
     "test:routes": "node scripts/test-routes.mjs",
+    "test:static-path": "node scripts/test-static-path.mjs",
     "test:voice": "node scripts/test-voice.mjs",
     "test:digital-human": "node scripts/test-digital-human.mjs",
     "test:analytics": "node scripts/test-analytics.mjs",
