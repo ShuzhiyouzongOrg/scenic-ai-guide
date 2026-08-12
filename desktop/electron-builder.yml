@@ -1,0 +1,81 @@
+appId: cn.shuzhiyouzong.desktop
+productName: 数智游踪
+copyright: Copyright © 2026 Marve1ous
+
+directories:
+  output: dist
+  buildResources: assets/icons
+
+files:
+  - main.mjs
+  - preload.mjs
+  - server-process.mjs
+  - package.json
+  - assets/icons/linux/512x512/cn.shuzhiyouzong.desktop.png
+  - from: ../server/src
+    to: runtime/server/src
+  - from: ../server/data/generated
+    to: runtime/server/data/generated
+  - from: ../web/dist
+    to: web/dist
+
+asar: true
+asarUnpack:
+  - node_modules/better-sqlite3/**
+  - "**/*.node"
+
+npmRebuild: true
+nativeRebuilder: sequential
+buildDependenciesFromSource: false
+electronDist: node_modules/electron/dist
+
+artifactName: ShuzhiYouzong-${version}-${os}-${arch}.${ext}
+
+win:
+  icon: assets/icons/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 数智游踪
+  uninstallDisplayName: 数智游踪
+
+mac:
+  icon: assets/icons/icon.icns
+  category: public.app-category.travel
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+
+dmg:
+  title: 数智游踪 ${version}
+  artifactName: ShuzhiYouzong-${version}-mac-${arch}.${ext}
+
+linux:
+  icon: assets/icons/linux
+  category: Education
+  executableName: shuzhiyouzong
+  maintainer: Marve1ous <2829245700@qq.com>
+  synopsis: 数智游踪 AI 景区导览桌面应用
+  description: 数智游踪提供 AI 数字人讲解、景区地图导览与知识问答能力。
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+
+appImage:
+  artifactName: ShuzhiYouzong-${version}-linux-${arch}.${ext}
+
+deb:
+  artifactName: ShuzhiYouzong-${version}-linux-${arch}.${ext}

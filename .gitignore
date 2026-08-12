@@ -15,6 +15,7 @@ server/.env
 # Build output
 dist/
 dist-ssr/
+desktop/dist/
 
 # Runtime data
 server/data/uploads/

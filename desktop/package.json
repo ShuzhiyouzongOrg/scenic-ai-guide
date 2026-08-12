@@ -1,0 +1,41 @@
+{
+  "name": "shuzhiyouzong-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "数智游踪跨平台桌面应用",
+  "author": "Marve1ous <2829245700@qq.com>",
+  "license": "UNLICENSED",
+  "main": "main.mjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prepare:runtime": "node scripts/prepare-runtime.mjs",
+    "prestart": "npm run prepare:runtime",
+    "start": "electron .",
+    "prestart:smoke": "npm run prepare:runtime",
+    "start:smoke": "electron . --smoke-test",
+    "rebuild": "node scripts/run-builder.mjs install-app-deps",
+    "prepack": "npm run prepare:runtime",
+    "pack": "node scripts/run-builder.mjs --dir --publish never",
+    "predist": "npm run prepare:runtime",
+    "dist": "node scripts/run-builder.mjs --publish never",
+    "predist:win": "npm run prepare:runtime",
+    "dist:win": "node scripts/run-builder.mjs --win nsis --x64 --publish never",
+    "predist:mac:x64": "npm run prepare:runtime",
+    "dist:mac:x64": "node scripts/run-builder.mjs --mac dmg --x64 --publish never",
+    "predist:mac:arm64": "npm run prepare:runtime",
+    "dist:mac:arm64": "node scripts/run-builder.mjs --mac dmg --arm64 --publish never",
+    "predist:linux": "npm run prepare:runtime",
+    "dist:linux": "node scripts/run-builder.mjs --linux AppImage deb --x64 --publish never"
+  },
+  "dependencies": {
+    "better-sqlite3": "12.11.1",
+    "xlsx": "file:../vendor/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "electron": "43.4.0",
+    "electron-builder": "26.15.3"
+  }
+}
