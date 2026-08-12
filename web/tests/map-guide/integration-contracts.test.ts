@@ -41,7 +41,7 @@ test('map guide opens with compact search and keeps the spot card centered', () 
   assert.match(page, /@close="selectedSpotId = undefined"/)
 })
 
-test('expanded map avatar uses a white stage without a status badge', () => {
+test('expanded map avatar keeps its white stage and readable dark narration panel', () => {
   const source = readFileSync(
     new URL('../../src/components/map-guide/MapDigitalHuman.vue', import.meta.url),
     'utf8'
@@ -55,8 +55,18 @@ test('expanded map avatar uses a white stage without a status badge', () => {
   assert.match(source, /\.state-speaking .*:deep\(\.l2d-stage\)/s)
   assert.match(source, /:deep\(\.dh-badge\),\s*.*:deep\(\.l2d-badge\) \{\s*display: none;/s)
   assert.match(source, /:deep\(\.dh-fallback-tip\),\s*.*:deep\(\.l2d-fallback-tip\)/s)
-  assert.match(dock, /\.digital-human-dock \{[\s\S]*?background: #fff;/)
-  assert.match(dock, /:deep\(\.narration-subtitle\) \{[\s\S]*?background: #f2f6f4;/)
+  assert.match(
+    dock,
+    /\.digital-human-dock \{[\s\S]*?color: #304a43;[\s\S]*?background: #fff;/
+  )
+  assert.match(
+    dock,
+    /:deep\(\.narration-subtitle\) \{[\s\S]*?color: #f5f8f7;[\s\S]*?background: #1c342e;/
+  )
+  assert.match(
+    dock,
+    /footer button \{[\s\S]*?color: #f4f7f5;[\s\S]*?background: #3e5952;/
+  )
 })
 
 test('live2d runtime invalidates stale rendering and model loads', () => {

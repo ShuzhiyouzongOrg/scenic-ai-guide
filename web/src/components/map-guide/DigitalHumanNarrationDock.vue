@@ -113,10 +113,10 @@
     align-items: center;
     justify-content: center;
     min-height: 36px;
-    color: #385a52;
+    color: #f4f7f5;
     cursor: pointer;
-    background: #e7ece7;
-    border: 1px solid rgb(50 92 81 / 12%);
+    background: #3e5952;
+    border: 1px solid #587068;
     border-radius: 8px;
   }
 
@@ -126,9 +126,9 @@
   }
 
   :deep(.narration-subtitle) {
-    color: #304a43;
-    background: #f2f6f4;
-    border: 1px solid rgb(50 92 81 / 12%);
+    color: #f5f8f7;
+    background: #1c342e;
+    border: 1px solid #405750;
   }
 
   @media (width <= 760px) {
