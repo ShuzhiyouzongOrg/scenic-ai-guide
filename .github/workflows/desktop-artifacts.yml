@@ -1,0 +1,134 @@
+name: Build desktop artifacts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "11.13.0"
+
+jobs:
+  build-web:
+    name: Build and test web application
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install web dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Run map guide tests
+        working-directory: web
+        run: pnpm test
+
+      - name: Build web application
+        working-directory: web
+        run: pnpm build
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v7
+        with:
+          name: shuzhiyouzong-web-dist
+          path: web/dist
+          if-no-files-found: error
+          retention-days: 1
+
+  package-desktop:
+    name: Package ${{ matrix.label }}
+    needs: build-web
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows x64
+            runner: windows-2025
+            command: npm run dist:win
+            artifact: shuzhiyouzong-windows-x64
+            file_extensions: ".exe"
+          - label: macOS x64
+            runner: macos-15-intel
+            command: npm run dist:mac:x64
+            artifact: shuzhiyouzong-macos-x64
+            file_extensions: ".dmg"
+          - label: macOS arm64
+            runner: macos-15
+            command: npm run dist:mac:arm64
+            artifact: shuzhiyouzong-macos-arm64
+            file_extensions: ".dmg"
+          - label: Linux x64
+            runner: ubuntu-24.04
+            command: npm run dist:linux
+            artifact: shuzhiyouzong-linux-x64
+            file_extensions: ".AppImage .deb"
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Download web build
+        uses: actions/download-artifact@v8
+        with:
+          name: shuzhiyouzong-web-dist
+          path: web/dist
+
+      - name: Package desktop application
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: ${{ matrix.command }}
+
+      - name: Create checksums
+        working-directory: desktop/dist
+        env:
+          FILE_EXTENSIONS: ${{ matrix.file_extensions }}
+        run: |
+          node ../scripts/create-checksums.mjs $FILE_EXTENSIONS
+
+      - name: Upload desktop artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+            desktop/dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+          include-hidden-files: false
