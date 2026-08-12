@@ -27,7 +27,6 @@ asarUnpack:
 npmRebuild: true
 nativeRebuilder: sequential
 buildDependenciesFromSource: false
-electronDist: node_modules/electron/dist
 
 artifactName: ShuzhiYouzong-${version}-${os}-${arch}.${ext}
 
