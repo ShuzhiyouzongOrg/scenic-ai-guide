@@ -1,6 +1,6 @@
 # 数智游踪桌面端
 
-桌面端使用 Electron 与 electron-builder 封装现有 Vue 前端和 Node.js 服务端。应用启动时会在本机回环地址上分配随机端口，运行数据写入 Electron 的 `userData/runtime` 目录，不修改打包内资源。
+桌面端使用 Electron 与 electron-builder 封装现有 Vue 前端和 Node.js 服务端。应用启动时会在本机回环地址上分配随机端口，运行数据写入 Electron 的 `userData/runtime` 目录，不修改打包内资源。桌面运行时使用 Electron 内置的 `node:sqlite`，避免 Linux 安装包携带与构建机 glibc 绑定的数据库原生模块。
 
 ## 本地运行
 
@@ -25,11 +25,13 @@ cd desktop
 npm run dist:win
 ```
 
-Windows 本地构建缓存会自动写入工作区的 `LocalTemp`，安装包输出到 `desktop/dist`。当前产物未签名，首次启动可能显示操作系统安全提示。
+Windows 本地构建缓存和打包输出会自动写入工作区的 `LocalTemp`，其中解包与安装产物位于 `LocalTemp/desktop-dist`。CI 产物仍输出到 `desktop/dist`。当前产物未签名，首次启动可能显示操作系统安全提示。
 
 ## GitHub Actions
 
 `.github/workflows/desktop-artifacts.yml` 仅支持手动触发。它分别在 Windows x64、macOS x64、macOS arm64 与 Linux x64 环境生成 `.exe`、`.dmg`、`.AppImage` 和 `.deb`，并上传为 Actions Artifacts。
+
+Electron 43 的官方平台基线包含 Ubuntu 18.04 及以上版本。Linux 打包任务会检查 `.deb`、`.AppImage` 和解包运行时，并在发现 Node 原生模块时失败，防止再次引入依赖构建机 glibc 的文件。正式发布前仍建议在 Ubuntu 18.04、20.04 和 22.04 的干净环境中分别执行安装、启动和数据库读写验收。
 
 该工作流不会创建或发布 GitHub Release，也不会自动更新应用。待审核后将工作流提交到默认分支，才会在仓库的 **Actions** 页面出现手动运行入口。构建产物保留 30 天，可直接下载测试。
 

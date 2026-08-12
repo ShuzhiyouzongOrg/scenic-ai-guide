@@ -25,7 +25,15 @@ if (process.platform === "win32" && !process.env.CI) {
 }
 
 const builderCli = resolve(desktopDir, "node_modules", "electron-builder", "cli.js");
-const result = spawnSync(process.execPath, [builderCli, ...process.argv.slice(2)], {
+const builderArguments = process.argv.slice(2);
+if (!builderArguments.includes("--config.directories.output")) {
+  const outputDirectory = process.platform === "win32" && !process.env.CI
+    ? resolve(workspaceDir, "LocalTemp", "desktop-dist")
+    : resolve(desktopDir, "dist");
+  mkdirSync(outputDirectory, { recursive: true });
+  builderArguments.push("--config.directories.output", outputDirectory);
+}
+const result = spawnSync(process.execPath, [builderCli, ...builderArguments], {
   cwd: desktopDir,
   env: environment,
   stdio: "inherit"

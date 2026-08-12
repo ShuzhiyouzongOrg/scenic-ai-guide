@@ -135,6 +135,11 @@ jobs:
           DEFAULT_AVATAR_VCN: "x6_jingqudaolannvsheng_mini"
         run: ${{ matrix.command }}
 
+      - name: Verify Linux compatibility
+        if: matrix.label == 'Linux x64'
+        working-directory: desktop
+        run: node scripts/verify-linux-package.mjs dist
+
       - name: Create checksums
         working-directory: desktop/dist
         env:
