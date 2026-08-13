@@ -7,12 +7,12 @@ directories:
   buildResources: assets/icons
 
 files:
+  - "!**/*.node"
+  - "!node_modules/better-sqlite3{,/**/*}"
   - main.mjs
-  - preload.mjs
+  - preload.cjs
   - server-process.mjs
   - package.json
-  - from: generated/server.env
-    to: runtime/default-server.env
   - assets/icons/linux/512x512/cn.shuzhiyouzong.desktop.png
   - from: ../server/src
     to: runtime/server/src
@@ -20,6 +20,10 @@ files:
     to: runtime/server/data/generated
   - from: ../web/dist
     to: web/dist
+
+extraResources:
+  - from: generated/server.env
+    to: runtime/default-server.env
 
 asar: true
 artifactName: ShuzhiYouzong-${version}-${os}-${arch}.${ext}

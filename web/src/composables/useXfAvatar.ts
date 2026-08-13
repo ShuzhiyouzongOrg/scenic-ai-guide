@@ -11,6 +11,10 @@ import AvatarPlatform, {
   SDKEvents,
   PlayerEvents
 } from '@/vm-sdk/avatar-sdk-web_3.1.1.1011/index.js'
+import {
+  hasAvatarCredentials,
+  resolveAvatarCredentials
+} from '@/utils/digital-human/avatar-credentials'
 
 export type AvatarStatus = 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
 
@@ -50,14 +54,31 @@ export function useXfAvatar() {
   const platform = shallowRef<InstanceType<typeof AvatarPlatform> | null>(null)
 
   const env = import.meta.env
-  const apiInfo = {
+  const apiInfo: Record<string, string> = {
     appId: env.VITE_XF_AVATAR_APPID || env.XFYUN_APP_ID,
     apiKey: env.VITE_XF_AVATAR_APIKEY || env.XFYUN_API_KEY,
     apiSecret: env.VITE_XF_AVATAR_APISECRET || env.XFYUN_API_SECRET,
     serverUrl: env.VITE_XF_AVATAR_SERVERURL || 'wss://avatar.cn-huadong-1.xf-yun.com/v1/interact'
-  } as Record<string, string>
+  }
 
-  const hasCredentials = Boolean(apiInfo.appId && apiInfo.apiKey && apiInfo.apiSecret)
+  const credentialsAvailable = ref(hasAvatarCredentials(apiInfo))
+  let desktopCredentialsPromise: Promise<boolean> | null = null
+
+  async function resolveCredentials(): Promise<boolean> {
+    if (credentialsAvailable.value) return true
+    if (desktopCredentialsPromise) return desktopCredentialsPromise
+
+    desktopCredentialsPromise = (async () => {
+      const credentials = await resolveAvatarCredentials(
+        apiInfo,
+        window.shuzhiyouzongDesktop?.getAvatarCredentials
+      )
+      if (credentials) Object.assign(apiInfo, credentials)
+      credentialsAvailable.value = hasAvatarCredentials(apiInfo)
+      return credentialsAvailable.value
+    })()
+    return desktopCredentialsPromise
+  }
 
   function buildGlobalParams(avatarId: string, vcn: string) {
     const params: Record<string, unknown> = {
@@ -92,7 +113,7 @@ export function useXfAvatar() {
   }
 
   async function start(options: AvatarStartOptions): Promise<boolean> {
-    if (!hasCredentials) {
+    if (!(await resolveCredentials())) {
       status.value = 'error'
       errorMessage.value = '未配置数字人账号凭证，已切换为纯文本模式。'
       return false
@@ -269,7 +290,7 @@ export function useXfAvatar() {
     errorMessage,
     audioReady,
     subtitle,
-    hasCredentials,
+    hasCredentials: credentialsAvailable,
     start,
     speak,
     speakAudio,
