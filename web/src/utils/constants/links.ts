@@ -16,7 +16,7 @@ export const WEB_LINKS = {
   BLOG: 'https://www.shuzhiyouzong.cn/',
 
   // 项目文档
-  DOCS: 'https://www.shuzhiyouzong.cn/#/help/docs',
+  DOCS: 'https://docs.shuzhiyouzong.cn',
 
   // 精简版本
   LiteVersion: 'https://www.shuzhiyouzong.cn/#/help/docs',

@@ -3,6 +3,7 @@
  * 包含：应用列表、快速链接等配置
  */
 import type { FastEnterConfig } from '@/types/config'
+import { WEB_LINKS } from '@/utils/constants'
 
 const fastEnterConfig: FastEnterConfig = {
   // 显示条件（屏幕宽度）
@@ -18,7 +19,7 @@ const fastEnterConfig: FastEnterConfig = {
       iconColor: '#ffb100',
       enabled: true,
       order: 1,
-      routeName: 'OfficialDocs'
+      link: WEB_LINKS.DOCS
     },
     {
       name: '更新日志',

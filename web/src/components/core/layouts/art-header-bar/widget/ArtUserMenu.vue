@@ -91,7 +91,7 @@
    */
   const toDocs = (): void => {
     closeUserMenu()
-    router.push({ name: 'OfficialDocs' })
+    window.open(WEB_LINKS.DOCS, '_blank', 'noopener,noreferrer')
   }
 
   /**
