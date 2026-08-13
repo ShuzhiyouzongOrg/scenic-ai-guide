@@ -51,6 +51,14 @@ jobs:
           VITE_XF_AVATAR_APISECRET: ${{ secrets.XFYUN_API_SECRET }}
         run: pnpm build
 
+      - name: Verify avatar credentials in web build
+        working-directory: desktop
+        env:
+          VITE_XF_AVATAR_APPID: ${{ secrets.XFYUN_APP_ID }}
+          VITE_XF_AVATAR_APIKEY: ${{ secrets.XFYUN_API_KEY }}
+          VITE_XF_AVATAR_APISECRET: ${{ secrets.XFYUN_API_SECRET }}
+        run: node scripts/verify-web-build.mjs ../web/dist
+
       - name: Upload web build
         uses: actions/upload-artifact@v7
         with:
@@ -72,21 +80,25 @@ jobs:
             command: npm run dist:win
             artifact: shuzhiyouzong-windows-x64
             file_extensions: ".exe"
+            expected_arch: x64
           - label: macOS x64
             runner: macos-15-intel
             command: npm run dist:mac:x64
             artifact: shuzhiyouzong-macos-x64
             file_extensions: ".dmg"
+            expected_arch: x86_64
           - label: macOS arm64
             runner: macos-15
             command: npm run dist:mac:arm64
             artifact: shuzhiyouzong-macos-arm64
             file_extensions: ".dmg"
+            expected_arch: arm64
           - label: Linux x64
-            runner: ubuntu-24.04
+            runner: ubuntu-22.04
             command: npm run dist:linux
             artifact: shuzhiyouzong-linux-x64
             file_extensions: ".AppImage .deb"
+            expected_arch: x64
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout repository
@@ -134,6 +146,27 @@ jobs:
           DEFAULT_AVATAR_ID: "cnrmkf0e2000000006"
           DEFAULT_AVATAR_VCN: "x6_jingqudaolannvsheng_mini"
         run: ${{ matrix.command }}
+
+      - name: Verify packaged desktop runtime
+        working-directory: desktop
+        run: node scripts/verify-unpacked-package.mjs dist
+
+      - name: Verify Windows installer contents
+        if: matrix.label == 'Windows x64'
+        working-directory: desktop
+        run: node scripts/verify-windows-package.mjs dist
+
+      - name: Smoke test Windows installer runtime
+        if: matrix.label == 'Windows x64'
+        working-directory: desktop
+        run: node scripts/smoke-windows-package.mjs dist
+
+      - name: Verify macOS disk image contents
+        if: startsWith(matrix.label, 'macOS')
+        working-directory: desktop
+        env:
+          EXPECTED_ARCH: ${{ matrix.expected_arch }}
+        run: node scripts/verify-macos-package.mjs dist
 
       - name: Verify Linux compatibility
         if: matrix.label == 'Linux x64'
