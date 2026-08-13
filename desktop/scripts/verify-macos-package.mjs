@@ -3,9 +3,8 @@ import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { extractFile, listPackage } from "@electron/asar";
 
-import { verifyPackagedTree, walk } from "./package-verifier.mjs";
+import { createAsarReader, verifyPackagedTree, walk } from "./package-verifier.mjs";
 
 if (process.platform !== "darwin") {
   throw new Error("macOS disk image verification must run on macOS.");
@@ -20,10 +19,6 @@ function run(command, args) {
   const result = spawnSync(command, args, { encoding: "utf8" });
   assert.equal(result.error, undefined, result.error?.message);
   assert.equal(result.status, 0, result.stderr || result.stdout);
-}
-
-function normalizeAsarPath(path) {
-  return path.replace(/^[/\\]+/, "").replaceAll("\\", "/");
 }
 
 const temp = mkdtempSync(join(tmpdir(), "shuzhiyouzong-macos-package-"));
@@ -61,17 +56,7 @@ try {
         [expectedArchitecture],
         `Unexpected macOS architecture for ${diskImage}.`
       );
-      verifyPackagedTree(applicationRoot, {
-        readAsar(path) {
-          const paths = listPackage(path).map(normalizeAsarPath);
-          return {
-            paths,
-            read(entry) {
-              return extractFile(path, entry).toString("utf8");
-            }
-          };
-        }
-      });
+      verifyPackagedTree(applicationRoot, { readAsar: createAsarReader });
       console.log(`Verified macOS disk image: ${diskImage}.`);
     } finally {
       run("hdiutil", ["detach", mountPoint]);

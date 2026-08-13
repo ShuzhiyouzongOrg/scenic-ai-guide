@@ -3,9 +3,8 @@ import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { extractFile, listPackage } from "@electron/asar";
 
-import { verifyPackagedTree, walk } from "./package-verifier.mjs";
+import { createAsarReader, verifyPackagedTree, walk } from "./package-verifier.mjs";
 
 if (process.platform !== "win32") {
   throw new Error("Windows installer verification must run on Windows.");
@@ -26,10 +25,6 @@ function run(args) {
   assert.equal(result.status, 0, result.stderr || result.stdout);
 }
 
-function normalizeAsarPath(path) {
-  return path.replace(/^[/\\]+/, "").replaceAll("\\", "/");
-}
-
 const temp = mkdtempSync(join(tmpdir(), "shuzhiyouzong-windows-package-"));
 try {
   for (const installer of installers) {
@@ -40,17 +35,7 @@ try {
 
     const applicationRoot = join(temp, installer.replace(/\.exe$/i, ""), "application");
     run(["x", "-y", `-o${applicationRoot}`, applicationArchive]);
-    verifyPackagedTree(applicationRoot, {
-      readAsar(asarPath) {
-        const paths = listPackage(asarPath).map(normalizeAsarPath);
-        return {
-          paths,
-          read(path) {
-            return extractFile(asarPath, path.replaceAll("/", "\\")).toString("utf8");
-          }
-        };
-      }
-    });
+    verifyPackagedTree(applicationRoot, { readAsar: createAsarReader });
     console.log(`Verified Windows installer: ${installer}.`);
   }
 } finally {

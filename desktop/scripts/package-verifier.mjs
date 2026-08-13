@@ -1,9 +1,26 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, extname, join, normalize } from "node:path";
+import { basename, extname, join, normalize, sep } from "node:path";
+import { extractFile, listPackage } from "@electron/asar";
 
 const nativeModulePattern = /(?:^|[\\/])[^\\/]+\.node$/i;
 const forbiddenSqlitePattern = /(?:^|[\\/])better-sqlite3(?:[\\/]|$)/i;
+
+function normalizeAsarPath(path) {
+  return path.replace(/^[/\\]+/, "").replaceAll("\\", "/");
+}
+
+export function createAsarReader(asarPath) {
+  const paths = listPackage(asarPath).map(normalizeAsarPath);
+  return {
+    paths,
+    read(path) {
+      const normalized = normalizeAsarPath(path);
+      assert.ok(paths.includes(normalized), `Missing app.asar entry: ${normalized}`);
+      return extractFile(asarPath, normalized.replaceAll("/", sep)).toString("utf8");
+    }
+  };
+}
 
 export function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
 
@@ -11,7 +18,10 @@ if (process.platform !== "win32") {
 
 const input = resolve(process.argv[2] || "dist");
 assert.ok(existsSync(input), `Windows package input is missing: ${input}`);
-const localTemp = resolve(import.meta.dirname, "..", "..", "..", "LocalTemp");
+const localTemp = process.env.CI && process.env.RUNNER_TEMP
+  ? resolve(process.env.RUNNER_TEMP)
+  : resolve(import.meta.dirname, "..", "..", "..", "LocalTemp");
+mkdirSync(localTemp, { recursive: true });
 const extractionRoot = mkdtempSync(join(localTemp, "windows-installer-smoke-"));
 
 function unpackInstaller(outputDirectory) {

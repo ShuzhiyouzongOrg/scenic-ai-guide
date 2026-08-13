@@ -12,11 +12,10 @@ import {
   statSync
 } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { dirname, extname, join, resolve, sep } from "node:path";
+import { dirname, extname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { extractFile, listPackage } from "@electron/asar";
 
-import { verifyPackagedTree, walk } from "./package-verifier.mjs";
+import { createAsarReader, verifyPackagedTree, walk } from "./package-verifier.mjs";
 
 if (process.platform !== "linux") {
   throw new Error("Linux package verification must run on Linux.");
@@ -35,22 +34,8 @@ const unpackedDirectory = join(outputDirectory, "linux-unpacked");
 assert.ok(existsSync(unpackedDirectory), "linux-unpacked runtime is missing.");
 const maximumSupportedGlibc = [2, 27];
 
-const normalizeAsarPath = (path) => path.replace(/^[/\\]+/, "").replaceAll("\\", "/");
-
 function verifyRoot(root) {
-  const result = verifyPackagedTree(root, {
-    readAsar(asarPath) {
-      const paths = listPackage(asarPath).map(normalizeAsarPath);
-      return {
-        paths,
-        read(path) {
-          const normalized = normalizeAsarPath(path);
-          assert.ok(paths.includes(normalized), `Missing app.asar entry: ${normalized}`);
-          return extractFile(asarPath, path.replaceAll("/", sep)).toString("utf8");
-        }
-      };
-    }
-  });
+  const result = verifyPackagedTree(root, { readAsar: createAsarReader });
   verifyGlibcCompatibility(root);
   return result;
 }

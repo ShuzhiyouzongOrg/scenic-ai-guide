@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createPackage, extractFile, listPackage } from "@electron/asar";
+import { createPackage } from "@electron/asar";
 
-import { verifyPackagedTree } from "./package-verifier.mjs";
+import { createAsarReader, verifyPackagedTree } from "./package-verifier.mjs";
 
 const temp = mkdtempSync(join(tmpdir(), "desktop-package-verifier-"));
 const source = join(temp, "source");
@@ -39,22 +39,15 @@ writeFileSync(
 );
 await createPackage(source, join(resources, "app.asar"));
 
-function readAsar(asarPath) {
-  const paths = listPackage(asarPath).map((path) => path.replace(/^[/\\]+/, "").replaceAll("\\", "/"));
-  return {
-    paths,
-    read(path) {
-      return extractFile(asarPath, path.replaceAll("/", "\\")).toString("utf8");
-    }
-  };
-}
-
 try {
-  assert.doesNotThrow(() => verifyPackagedTree(root, { readAsar }));
+  assert.doesNotThrow(() => verifyPackagedTree(root, { readAsar: createAsarReader }));
   const nativePath = join(resources, "app.asar.unpacked", "addon.node");
   mkdirSync(join(resources, "app.asar.unpacked"), { recursive: true });
   writeFileSync(nativePath, "native");
-  assert.throws(() => verifyPackagedTree(root, { readAsar }), /Unexpected native SQLite files/);
+  assert.throws(
+    () => verifyPackagedTree(root, { readAsar: createAsarReader }),
+    /Unexpected native SQLite files/
+  );
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }
