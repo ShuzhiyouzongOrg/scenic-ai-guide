@@ -11,6 +11,15 @@ export interface ProjectChangeLog {
 // 从本项目 Git 提交记录按日期整理；标题与条目仅保留中文，便于后续继续追加正式版本说明。
 export const projectChangeLog: ProjectChangeLog[] = [
   {
+    version: '2026-08-14',
+    date: '2026-08-14',
+    title: '多平台桌面构建验证修复',
+    detail: [
+      '修复：Windows 构建环境缺少临时目录导致安装包烟测失败的问题',
+      '修复：统一处理多平台 ASAR 包内路径分隔符'
+    ]
+  },
+  {
     version: '2026-08-13',
     date: '2026-08-13',
     title: '桌面构建与多端运行稳定性修复',
