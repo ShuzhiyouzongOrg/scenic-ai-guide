@@ -69,6 +69,19 @@ test('expanded map avatar keeps its white stage and readable dark narration pane
   )
 })
 
+test('project changelog includes every update date after August 11', () => {
+  const source = readFileSync(
+    new URL('../../src/mock/upgrade/changeLog.ts', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /version: '2026-08-13'[\s\S]*?date: '2026-08-13'/)
+  assert.match(source, /version: '2026-08-12'[\s\S]*?date: '2026-08-12'/)
+  assert.match(source, /修复：使用 Node 运行时执行跨平台桌面数据库回归测试/)
+  assert.ok(source.indexOf("version: '2026-08-13'") < source.indexOf("version: '2026-08-12'"))
+  assert.ok(source.indexOf("version: '2026-08-12'") < source.indexOf("version: '2026-08-11'"))
+})
+
 test('live2d runtime invalidates stale rendering and model loads', () => {
   const delegate = readFileSync(
     new URL('../../src/lib/live2d/src/lappdelegate.ts', import.meta.url),
