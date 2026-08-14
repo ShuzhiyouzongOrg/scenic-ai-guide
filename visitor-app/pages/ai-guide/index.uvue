@@ -2,13 +2,17 @@
 	<view class="page">
 		<view class="guide-header">
 			<view class="guide-avatar" @click="openLiveAvatar">
-				<image class="guide-avatar-image" :class="digitalHumanState == 'speaking' ? 'guide-avatar-image-speaking' : ''" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" />
-				<view class="online-dot"></view>
+				<image class="guide-avatar-image" :class="digitalHumanState == 'speaking' ? 'guide-avatar-image-speaking' : ''" :src="digitalHumanAvatarSource" mode="aspectFit" />
 			</view>
 			<view class="guide-heading">
 				<view class="guide-title-row">
 					<text class="guide-title">{{ digitalHumanTitle }}</text>
+					<!-- #ifdef MP-WEIXIN -->
+					<text class="guide-mode">Live2D 模型</text>
+					<!-- #endif -->
+					<!-- #ifndef MP-WEIXIN -->
 					<text class="guide-mode" @click="toggleDigitalHumanMode">{{ digitalHumanMode == 'xfyun' ? '讯飞 · 切换' : '本地形象 · 切换' }}</text>
+					<!-- #endif -->
 				</view>
 				<text class="guide-status">{{ digitalHumanProviderStatus }}</text>
 			</view>
@@ -26,7 +30,9 @@
 							<text class="avatar-mode-title">选择陪伴形象</text>
 						</view>
 						<view class="avatar-mode-switch">
+							<!-- #ifndef MP-WEIXIN -->
 							<view class="avatar-mode-option" :class="digitalHumanMode == 'xfyun' ? 'avatar-mode-option-active' : ''" @click="selectDigitalHumanMode('xfyun')"><text class="avatar-mode-option-text" :class="digitalHumanMode == 'xfyun' ? 'avatar-mode-option-text-active' : ''">讯飞</text></view>
+							<!-- #endif -->
 							<view class="avatar-mode-option" :class="digitalHumanMode == 'live2d' ? 'avatar-mode-option-active' : ''" @click="selectDigitalHumanMode('live2d')"><text class="avatar-mode-option-text" :class="digitalHumanMode == 'live2d' ? 'avatar-mode-option-text-active' : ''">本地</text></view>
 						</view>
 					</view>
@@ -43,16 +49,30 @@
 							@error="handleEmbeddedAvatarError"
 							@message="handleEmbeddedAvatarMessage"
 						/>
+						<web-view
+							v-if="digitalHumanMode == 'live2d' && live2dAvatarUrl.length > 0 && !live2dAvatarFailed"
+							id="live2d-avatar-webview"
+							class="embedded-avatar-webview"
+							:src="live2dAvatarUrl"
+							:ios-allows-inline-media-playback="true"
+							@load="handleLive2dAvatarLoad"
+							@error="handleLive2dAvatarError"
+							@message="handleLive2dAvatarMessage"
+						/>
 						<!-- #endif -->
 						<view v-if="showLocalAvatarStage" class="local-avatar-stage">
 							<view class="local-avatar-halo" :class="digitalHumanState == 'speaking' ? 'local-avatar-halo-speaking' : ''"></view>
-							<image class="local-avatar-image" :class="mouthOpen ? 'local-avatar-image-speaking' : ''" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" />
+									<image class="local-avatar-image" :class="mouthOpen ? 'local-avatar-image-speaking' : ''" :src="digitalHumanAvatarSource" mode="aspectFit" />
 							<view class="local-avatar-mouth" :class="mouthOpen ? 'local-avatar-mouth-open' : ''"><view class="local-avatar-mouth-core"></view></view>
 							<view v-if="digitalHumanState == 'speaking'" class="local-speaking-badge"><view class="local-speaking-dot"></view><text class="local-speaking-text">正在同步口型与讯飞音色</text></view>
 						</view>
 						<view v-if="digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length == 0 && !embeddedAvatarFailed && !showLocalAvatarStage" class="avatar-stage-loading">
 							<rice-loading mode="circle" color="#0b68d0" size="26" />
 							<text class="avatar-stage-loading-text">正在建立讯飞动态形象会话</text>
+						</view>
+						<view v-if="digitalHumanMode == 'live2d' && live2dAvatarUrl.length == 0 && !live2dAvatarFailed && !showLocalAvatarStage" class="avatar-stage-loading">
+							<rice-loading mode="circle" color="#0b68d0" size="26" />
+							<text class="avatar-stage-loading-text">正在加载 Live2D 模型</text>
 						</view>
 						<view v-if="embeddedAvatarFailed && digitalHumanMode == 'xfyun'" class="avatar-stage-fallback" @click="initializeEmbeddedAvatar(true)"><text class="avatar-stage-fallback-text">云端舞台暂不可用，当前已切换本地口型 · 点击重试</text></view>
 					</view>
@@ -73,7 +93,7 @@
 				</view>
 
 				<view v-for="item in messages" :key="item.id" :id="'message-' + item.id" class="message-item" :class="item.role == 'user' ? 'message-item-user' : 'message-item-assistant'">
-					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" /></view>
+					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" :src="digitalHumanAvatarSource" mode="aspectFit" /></view>
 					<view class="message-bubble" :class="item.role == 'user' ? 'message-bubble-user' : 'message-bubble-assistant'">
 						<text class="message-text" :class="item.role == 'user' ? 'message-text-user' : ''">{{ item.content }}</text>
 						<view v-if="item.sources.length > 0" class="source-list">
@@ -135,31 +155,43 @@
 	const embeddedAvatarCreating = ref<boolean>(false)
 	const embeddedAvatarRuntimeStatus = ref<string>('正在连接讯飞动态形象')
 	const embeddedAvatarRuntimeObserved = ref<boolean>(false)
+	const live2dAvatarUrl = ref<string>('')
+	const live2dAvatarLoaded = ref<boolean>(false)
+	const live2dAvatarPageLoaded = ref<boolean>(false)
+	const live2dAvatarFailed = ref<boolean>(false)
+	const live2dAvatarCreating = ref<boolean>(false)
+	const live2dAvatarRuntimeStatus = ref<string>('正在加载 Live2D 模型')
 	const mouthOpen = ref<boolean>(false)
 	const scrollTarget = ref<string>('message-bottom')
 	const sessionId = ref<string>('')
 	const recorderManager = ref<RecorderManager | null>(null)
 	const audioContext = ref<InnerAudioContext | null>(null)
 	const ttsQueue = ref<TtsSegment[]>([])
+	const pendingLive2dSpeechUrls = ref<string[]>([])
 	const ttsQueueIndex = ref<number>(0)
 	const messages = ref<ChatMessageItem[]>([])
 	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线', '哪些地方适合拍照'])
 	const currentInstance = getCurrentInstance()
 	let avatarWebViewContext = null as WebviewContext | null
+	let live2dWebViewContext = null as WebviewContext | null
 	let mouthAnimationTimer : number | null = null
 	let embeddedSpeechResetTimer : number | null = null
 	let pendingEmbeddedSpeech = ''
 	let activeEmbeddedSpeech = ''
+	let embeddedAvatarGeneration = 0
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
+	const digitalHumanAvatarSource = computed<string>(() => digitalHumanMode.value == 'xfyun' ? '/static/digital-human/guide-xfyun.webp' : '/static/digital-human/guide-haru-transparent.png')
 	const digitalHumanActionText = computed<string>(() => {
-		let text = digitalHumanMode.value == 'xfyun' ? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台') : '本地口型'
+		let text = digitalHumanMode.value == 'xfyun'
+			? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台')
+			: (live2dAvatarLoaded.value ? 'Live2D 已连接' : '连接 Live2D')
 		// #ifdef MP-WEIXIN
-		text = digitalHumanMode.value == 'xfyun' ? '讯飞语音' : '本地形象'
+		text = 'Live2D 模型'
 		// #endif
 		return text
 	})
 	const showLocalAvatarStage = computed<boolean>(() => {
-		let show = digitalHumanMode.value == 'live2d' || embeddedAvatarFailed.value
+		let show = (digitalHumanMode.value == 'live2d' && live2dAvatarFailed.value) || (digitalHumanMode.value == 'xfyun' && embeddedAvatarFailed.value)
 		// #ifdef MP-WEIXIN
 		show = true
 		// #endif
@@ -170,10 +202,13 @@
 		if (digitalHuman.value!.serviceStatus != 'online') return '数字人服务降级 · 文字问答仍可使用'
 		const voice = digitalHuman.value!.vcn.length > 0 ? '专属音色已接入' : '默认音色'
 		// #ifdef MP-WEIXIN
-		return (digitalHumanMode.value == 'xfyun' ? '本地动态形象 · 讯飞' : '本地口型形象 · ') + voice
+		return 'Live2D 模型 · ' + voice
 		// #endif
 		if (digitalHumanMode.value == 'xfyun') return embeddedAvatarRuntimeStatus.value + ' · ' + voice
-		return '本地动态形象 · ' + voice
+		// #ifndef MP-WEIXIN
+		return live2dAvatarRuntimeStatus.value + ' · ' + voice
+		// #endif
+		return 'Live2D 模型 · ' + voice
 	})
 
 	async function loadDigitalHumanPreference() {
@@ -213,14 +248,25 @@
 	}
 
 	async function selectDigitalHumanMode(mode : string) {
-		const nextMode = mode == 'live2d' ? 'live2d' : 'xfyun'
+		let nextMode = mode == 'live2d' ? 'live2d' : 'xfyun'
+		// #ifdef MP-WEIXIN
+		// 个人版小程序不能使用讯飞动态数字人 WebView，只保留本地 Live2D 模式。
+		nextMode = 'live2d'
+		// #endif
 		if (digitalHumanMode.value != nextMode) {
+			// Stop any local TTS before changing renderer. This prevents a queued
+			// segment from speaking underneath the newly mounted WebView.
+			audioContext.value?.stop()
+			ttsQueue.value = []
+			ttsQueueIndex.value = 0
+			if (digitalHumanMode.value == 'xfyun') resetEmbeddedAvatar()
+			else resetLive2dAvatar()
 			digitalHumanMode.value = nextMode
 			setDigitalHumanRenderMode(nextMode)
 			applyDigitalHumanConfigForMode()
 		}
 		if (nextMode == 'xfyun') await initializeEmbeddedAvatar(false)
-		else resetEmbeddedAvatar()
+		else await initializeLive2dAvatar(false)
 	}
 
 	function toggleDigitalHumanMode() {
@@ -228,7 +274,14 @@
 	}
 
 	function resetEmbeddedAvatar() {
+		embeddedAvatarGeneration += 1
 		interruptEmbeddedAvatar()
+		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
+		embeddedSpeechResetTimer = null
+		audioContext.value?.stop()
+		ttsQueue.value = []
+		ttsQueueIndex.value = 0
+		digitalHumanState.value = 'idle'
 		embeddedAvatarUrl.value = ''
 		embeddedAvatarLoaded.value = false
 		embeddedAvatarPageLoaded.value = false
@@ -237,6 +290,45 @@
 		embeddedAvatarRuntimeStatus.value = '正在连接讯飞动态形象'
 		embeddedAvatarRuntimeObserved.value = false
 		avatarWebViewContext = null
+	}
+
+	function resetLive2dAvatar() {
+		interruptLive2dAvatar()
+		live2dAvatarUrl.value = ''
+		live2dAvatarLoaded.value = false
+		live2dAvatarPageLoaded.value = false
+		live2dAvatarFailed.value = false
+		live2dAvatarCreating.value = false
+		live2dAvatarRuntimeStatus.value = '正在加载 Live2D 模型'
+		live2dWebViewContext = null
+	}
+
+	async function initializeLive2dAvatar(force : boolean) {
+		// #ifdef MP-WEIXIN
+		return
+		// #endif
+		// #ifndef MP-WEIXIN
+		if (digitalHumanMode.value != 'live2d' || live2dAvatarCreating.value) return
+		if (!force && live2dAvatarUrl.value.length > 0) return
+		live2dAvatarCreating.value = true
+		if (force) {
+			resetLive2dAvatar()
+			live2dAvatarCreating.value = true
+		}
+		live2dAvatarFailed.value = false
+		live2dAvatarRuntimeStatus.value = '正在创建 Live2D 模型舞台'
+		try {
+			const modelId = digitalHuman.value?.modelId ?? 'Haru'
+			live2dAvatarUrl.value = resolveAssetUrl('/live2d/?model=' + encodeURIComponent(modelId) + '&embed=1')
+			live2dAvatarRuntimeStatus.value = 'Live2D 模型正在启动'
+		} catch (error) {
+			live2dAvatarFailed.value = true
+			live2dAvatarRuntimeStatus.value = 'Live2D 模型暂不可用'
+			console.error('create live2d avatar failed', error)
+		} finally {
+			live2dAvatarCreating.value = false
+		}
+		// #endif
 	}
 
 	async function initializeEmbeddedAvatar(force : boolean) {
@@ -253,25 +345,30 @@
 		}
 		embeddedAvatarCreating.value = true
 		if (force) {
+			embeddedAvatarGeneration += 1
+			interruptEmbeddedAvatar()
 			embeddedAvatarUrl.value = ''
 			embeddedAvatarLoaded.value = false
 			embeddedAvatarPageLoaded.value = false
 			avatarWebViewContext = null
 		}
+		const generation = embeddedAvatarGeneration
 		embeddedAvatarFailed.value = false
 		embeddedAvatarRuntimeStatus.value = '正在创建讯飞安全会话'
 		try {
 			const session = await createDigitalHumanWebSession(config.id)
+			if (generation != embeddedAvatarGeneration || digitalHumanMode.value != 'xfyun') return
 			const pageUrl = resolveAssetUrl(session.pageUrl)
 			const separator = pageUrl.indexOf('?') >= 0 ? '&' : '?'
-			embeddedAvatarUrl.value = pageUrl + separator + 'embed=1&autostart=1'
+			embeddedAvatarUrl.value = pageUrl + separator + 'embed=1&autostart=1&welcome=0'
 		} catch (error) {
+			if (generation != embeddedAvatarGeneration || digitalHumanMode.value != 'xfyun') return
 			embeddedAvatarFailed.value = true
 			embeddedAvatarRuntimeStatus.value = '讯飞动态形象暂不可用'
 			fallbackEmbeddedSpeech()
 			console.error('create embedded digital human failed', error)
 		} finally {
-			embeddedAvatarCreating.value = false
+			if (generation == embeddedAvatarGeneration) embeddedAvatarCreating.value = false
 		}
 		// #endif
 	}
@@ -353,9 +450,76 @@
 		})
 	}
 
+	function handleLive2dAvatarLoad() {
+		live2dAvatarPageLoaded.value = true
+		live2dAvatarFailed.value = false
+		live2dAvatarRuntimeStatus.value = 'Live2D 页面已加载，正在启动模型'
+		// #ifdef APP
+		live2dWebViewContext = uni.createWebViewContext('live2d-avatar-webview', currentInstance?.proxy)
+		live2dWebViewContext?.evalJS('window.scenicLive2dPing && window.scenicLive2dPing()')
+		flushPendingLive2dSpeech()
+		// #endif
+	}
+
+	function handleLive2dAvatarError(event : WebViewErrorEvent) {
+		console.warn('live2d resource warning', event.detail.errCode, event.detail.errMsg, event.detail.fullUrl)
+		if (!live2dAvatarPageLoaded.value && event.detail.url == live2dAvatarUrl.value) {
+			live2dAvatarFailed.value = true
+			live2dAvatarRuntimeStatus.value = 'Live2D 页面加载失败'
+			fallbackLive2dSpeech()
+		}
+	}
+
+	function handleLive2dAvatarMessage(event : UniWebViewMessageEvent) {
+		const packets = event.detail.data
+		packets.forEach((packet : UTSJSONObject) => {
+			if (packet.getString('source', '') != 'scenic-live2d') return
+			const type = packet.getString('type', '')
+			if (type == 'page-loaded') {
+				live2dAvatarPageLoaded.value = true
+				live2dAvatarRuntimeStatus.value = 'Live2D 页面已加载，正在启动模型'
+				flushPendingLive2dSpeech()
+				return
+			}
+			if (type == 'ready' || (type == 'runtime-state' && packet.getBoolean('ready', false))) {
+				live2dAvatarLoaded.value = true
+				live2dAvatarFailed.value = false
+				live2dAvatarRuntimeStatus.value = 'Live2D 模型在线'
+				flushPendingLive2dSpeech()
+				return
+			}
+			if (type == 'speaking') {
+				digitalHumanState.value = 'speaking'
+				live2dAvatarRuntimeStatus.value = 'Live2D 正在同步口型'
+				return
+			}
+			if (type == 'idle') {
+				digitalHumanState.value = 'idle'
+				live2dAvatarRuntimeStatus.value = 'Live2D 模型在线'
+				return
+			}
+			if (type == 'error' || type == 'audio-blocked') {
+				live2dAvatarRuntimeStatus.value = packet.getString('message', 'Live2D 模型暂不可用')
+				live2dAvatarFailed.value = type == 'error'
+				fallbackLive2dSpeech()
+			}
+		})
+	}
+
 	function speakThroughEmbeddedAvatar(text : string) : boolean {
 		if (digitalHumanMode.value != 'xfyun' || embeddedAvatarFailed.value) return false
-		pendingEmbeddedSpeech = text.length > 1200 ? text.slice(0, 1200) : text
+		const speechText = text.length > 1200 ? text.slice(0, 1200) : text
+		if (speechText.length == 0) return false
+		// A duplicated answer can be delivered by both the WebView ready event
+		// and the host flush path. Keep one pending/active utterance only.
+		if (pendingEmbeddedSpeech == speechText || activeEmbeddedSpeech == speechText) return true
+		if (activeEmbeddedSpeech.length > 0) interruptEmbeddedAvatar()
+		// Switching from local TTS to the cloud avatar must also stop the local
+		// audio queue, otherwise both renderers speak at the same time.
+		audioContext.value?.stop()
+		ttsQueue.value = []
+		ttsQueueIndex.value = 0
+		pendingEmbeddedSpeech = speechText
 		activeEmbeddedSpeech = pendingEmbeddedSpeech
 		let delegated = false
 		// #ifdef APP
@@ -382,6 +546,44 @@
 		return delegated
 	}
 
+	function speakThroughLive2d(audioUrls : string[]) : boolean {
+		// #ifdef MP-WEIXIN
+		return false
+		// #endif
+		// #ifndef MP-WEIXIN
+		if (digitalHumanMode.value != 'live2d' || live2dAvatarFailed.value || audioUrls.length == 0) return false
+		if (live2dAvatarPageLoaded.value && live2dWebViewContext != null) {
+			const payload = JSON.stringify(audioUrls) as string
+			live2dWebViewContext!.evalJS('window.scenicLive2dSpeak && window.scenicLive2dSpeak(' + payload + ')')
+			return true
+		}
+		// Keep one bounded batch until the model's page-loaded event arrives.
+		pendingLive2dSpeechUrls.value = audioUrls
+		initializeLive2dAvatar(false)
+		return true
+		// #endif
+	}
+
+	function flushPendingLive2dSpeech() {
+		// #ifdef APP
+		if (!live2dAvatarPageLoaded.value || live2dWebViewContext == null || pendingLive2dSpeechUrls.value.length == 0) return
+		const payload = JSON.stringify(pendingLive2dSpeechUrls.value) as string
+		live2dWebViewContext!.evalJS('window.scenicLive2dSpeak && window.scenicLive2dSpeak(' + payload + ')')
+		pendingLive2dSpeechUrls.value = []
+		// #endif
+	}
+
+	function fallbackLive2dSpeech() {
+		const urls = pendingLive2dSpeechUrls.value
+		pendingLive2dSpeechUrls.value = []
+		if (urls.length == 0 || !autoNarration.value) return
+		// The URLs are already synthesized; play them through the normal host
+		// queue only when the real model cannot start.
+		ttsQueue.value = urls.map<TtsSegment>((url : string, index : number) => ({ id: 'live2d-fallback-' + index, text: '', audioUrl: url, mimeType: 'audio/mpeg', durationMs: 0 }))
+		ttsQueueIndex.value = 0
+		playNextTtsSegment()
+	}
+
 	function flushPendingEmbeddedSpeech() {
 		// #ifdef APP
 		if (!embeddedAvatarPageLoaded.value || avatarWebViewContext == null || pendingEmbeddedSpeech.length == 0) return
@@ -393,10 +595,18 @@
 
 	function interruptEmbeddedAvatar() {
 		// #ifdef APP
+		avatarWebViewContext?.evalJS('window.scenicAvatarDispose && window.scenicAvatarDispose()')
 		avatarWebViewContext?.evalJS('window.scenicAvatarInterrupt && window.scenicAvatarInterrupt()')
 		// #endif
 		activeEmbeddedSpeech = ''
 		pendingEmbeddedSpeech = ''
+	}
+
+	function interruptLive2dAvatar() {
+		// #ifdef APP
+		live2dWebViewContext?.evalJS('window.scenicLive2dInterrupt && window.scenicLive2dInterrupt()')
+		// #endif
+		pendingLive2dSpeechUrls.value = []
 	}
 
 	function failEmbeddedAvatar() {
@@ -492,6 +702,11 @@
 	async function requestTts(text : string) {
 		try {
 			const result = await synthesizeSpeech(text, digitalHuman.value?.vcn ?? 'x6_jingqudaolannvsheng_mini', digitalHuman.value?.speechRate ?? 1)
+			const audioUrls = result.segments.map<string>((segment : TtsSegment) : string => resolveAssetUrl(segment.audioUrl))
+			if (speakThroughLive2d(audioUrls)) {
+				digitalHumanState.value = 'speaking'
+				return
+			}
 			ttsQueue.value = result.segments
 			ttsQueueIndex.value = 0
 			playNextTtsSegment()
@@ -520,9 +735,13 @@
 					const speech = preferredVoice.length == 0 || result.tts.voice == preferredVoice
 						? result.tts
 						: await synthesizeSpeech(result.answer.answer, preferredVoice, digitalHuman.value?.speechRate ?? 1)
-					ttsQueue.value = speech.segments
-					ttsQueueIndex.value = 0
-					playNextTtsSegment()
+					const delegatedLive2d = speakThroughLive2d(speech.segments.map<string>((segment : TtsSegment) : string => resolveAssetUrl(segment.audioUrl)))
+					if (delegatedLive2d) digitalHumanState.value = 'speaking'
+					else {
+						ttsQueue.value = speech.segments
+						ttsQueueIndex.value = 0
+						playNextTtsSegment()
+					}
 				}
 			} else digitalHumanState.value = 'idle'
 		} catch (error) {
@@ -569,6 +788,7 @@
 		autoNarration.value = !autoNarration.value
 		if (!autoNarration.value) {
 			interruptEmbeddedAvatar()
+			interruptLive2dAvatar()
 			audioContext.value?.stop()
 			ttsQueue.value = []
 			ttsQueueIndex.value = 0
@@ -588,8 +808,13 @@
 	}
 
 	onLoad(async () => {
+		// #ifdef MP-WEIXIN
+		digitalHumanMode.value = 'live2d'
+		setDigitalHumanRenderMode('live2d')
+		// #endif
 		await loadDigitalHumanPreference()
-		await initializeEmbeddedAvatar(false)
+		if (digitalHumanMode.value == 'xfyun') await initializeEmbeddedAvatar(false)
+		else await initializeLive2dAvatar(false)
 		try { await restoreHistory() } catch (error) { console.error('restore chat history failed', error) }
 		// #ifndef WEB
 		recorderManager.value = uni.getRecorderManager()
@@ -621,8 +846,13 @@
 
 	onShow(async () => {
 		if (initialized.value) {
+			// #ifdef MP-WEIXIN
+			digitalHumanMode.value = 'live2d'
+			setDigitalHumanRenderMode('live2d')
+			// #endif
 			await loadDigitalHumanPreference()
-			await initializeEmbeddedAvatar(false)
+			if (digitalHumanMode.value == 'xfyun') await initializeEmbeddedAvatar(false)
+			else await initializeLive2dAvatar(false)
 			applyPendingPrompt()
 		}
 	})
@@ -630,7 +860,9 @@
 	onUnload(() => {
 		recorderManager.value?.stop()
 		audioContext.value?.destroy()
+		embeddedAvatarGeneration += 1
 		interruptEmbeddedAvatar()
+		interruptLive2dAvatar()
 		stopMouthAnimation()
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
 		embeddedSpeechResetTimer = null
@@ -644,7 +876,6 @@
 	.guide-avatar { position: relative; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
 	.guide-avatar-image { width: 72px; height: 52px; margin-top: 9px; }
 	.guide-avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.035); }
-	.online-dot { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border-radius: 6px; background-color: #49b583; border: 2px solid #ffffff; }
 	.guide-heading { flex: 1; margin-left: 11px; }
 	.guide-title-row { flex-direction: row; align-items: center; }
 	.guide-title { font-size: 18px; font-weight: 800; color: #172741; }

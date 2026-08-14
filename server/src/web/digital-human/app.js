@@ -12,6 +12,10 @@ void XRTCPlayer;
 const runtimeQuery = new URLSearchParams(window.location.search);
 const embedMode = runtimeQuery.get("embed") === "1";
 const autoStart = embedMode && runtimeQuery.get("autostart") === "1";
+// Embedded hosts can suppress the automatic welcome line when they replace a
+// WebView. This prevents a newly-created session from speaking while the old
+// session is still being torn down.
+const playWelcome = runtimeQuery.get("welcome") !== "0";
 const sessionToken = runtimeQuery.get("session") || "";
 const MAX_AUTO_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 900;
@@ -87,12 +91,65 @@ window.scenicAvatarInterrupt = () => {
   pendingExternalSpeech.length = 0;
   activeSpeech = null;
   clearSpeechCompletionTimer();
-  if (!platform) return false;
-  void platform.interrupt().finally(() => {
+  const activePlatform = platform;
+  if (!activePlatform) return false;
+  try {
+    activePlatform.player?.stop?.();
+    activePlatform.stop?.();
+  } catch {
+    // The SDK may have already closed the player; still send the interrupt.
+  }
+  let interruptPromise;
+  try {
+    interruptPromise = activePlatform.interrupt();
+  } catch {
+    interruptPromise = Promise.resolve();
+  }
+  void Promise.resolve(interruptPromise).catch(() => {}).finally(() => {
     setRuntimeState("ready");
     setStatus("播报已停止");
     notifyHost("idle", { reason: "interrupted" });
   });
+  return true;
+};
+
+// Stop every audio/session resource synchronously before an embedded host
+// removes this page. `interrupt()` is asynchronous in the vendor SDK; calling
+// player.stop() and destroy() as well makes the teardown deterministic and
+// prevents two cloud avatar sessions from speaking over one another.
+window.scenicAvatarDispose = () => {
+  if (disposed) return false;
+  disposed = true;
+  cancelRetryTimer();
+  clearStableConnectionTimer();
+  clearSpeechCompletionTimer();
+  pendingExternalSpeech.length = 0;
+  activeSpeech = null;
+  speechWriteInFlight = false;
+  ready = false;
+  starting = false;
+  const activePlatform = platform;
+  platform = null;
+  try {
+    const interruptResult = activePlatform?.interrupt?.();
+    Promise.resolve(interruptResult).catch(() => {});
+  } catch {
+    // Best-effort interruption; destroy below still tears down the stream.
+  }
+  try {
+    activePlatform?.player?.stop?.();
+    activePlatform?.stop?.();
+  } catch {
+    // The player may already have been closed by the SDK.
+  }
+  try {
+    activePlatform?.destroy?.();
+  } catch {
+    // The WebView is going away; there is no recovery action to take here.
+  }
+  document.body.classList.remove("avatar-stream-ready");
+  setRuntimeState("disposed");
+  notifyHost("disposed", { reason: "host-dispose" });
   return true;
 };
 
@@ -282,7 +339,7 @@ async function startAvatar(options) {
       }
     }
     if (pendingExternalSpeech.length > 0) void flushPendingSpeech();
-    else if (!welcomeQueued) {
+    else if (playWelcome && !welcomeQueued) {
       const welcome = String(options.digitalHuman.welcomeText || "").trim();
       welcomeQueued = true;
       if (welcome) {
@@ -341,6 +398,15 @@ function speakAvatarText(text) {
 }
 
 function queueSpeech(text, { front = false } = {}) {
+  // A host may deliver the same evalJS call twice while a WebView is being
+  // replaced. Do not enqueue an identical utterance when it is already active
+  // or waiting; this is also safe for repeated welcome retries.
+  const duplicate = pendingExternalSpeech.find((item) => item.text === text) ||
+    (activeSpeech?.text === text ? activeSpeech : null);
+  if (duplicate) {
+    elements.answer.textContent = text;
+    return duplicate;
+  }
   const speech = { id: ++speechSequence, text };
   if (front) pendingExternalSpeech.unshift(speech);
   else pendingExternalSpeech.push(speech);
@@ -595,18 +661,5 @@ function ensureHostBridge() {
 document.addEventListener("UniAppJSBridgeReady", flushHostMessages, false);
 
 window.addEventListener("pagehide", () => {
-  disposed = true;
-  cancelRetryTimer();
-  clearStableConnectionTimer();
-  clearSpeechCompletionTimer();
-  const activePlatform = platform;
-  platform = null;
-  try {
-    activePlatform?.destroy();
-  } catch {
-    // WebView teardown is best-effort.
-  }
-  ready = false;
-  setRuntimeState("disposed");
-  notifyHost("disposed");
+  window.scenicAvatarDispose();
 });

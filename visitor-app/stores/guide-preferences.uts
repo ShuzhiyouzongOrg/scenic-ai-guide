@@ -30,6 +30,9 @@ export function normalizeDigitalHumanRenderMode(value : string) : string {
 }
 
 export function getDigitalHumanRenderMode() : string {
+	// #ifdef MP-WEIXIN
+	return 'live2d'
+	// #endif
 	const stored = uni.getStorageSync(DIGITAL_HUMAN_RENDER_MODE_KEY) as string
 	return normalizeDigitalHumanRenderMode(stored)
 }

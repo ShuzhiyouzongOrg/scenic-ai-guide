@@ -11,7 +11,8 @@
 			"path": "pages/map/index",
 			"style": {
 				"navigationStyle": "custom",
-				"navigationBarTitleText": "景区地图"
+				"navigationBarTitleText": "景区地图",
+				"disableScroll": true
 			}
 		},
 		{

@@ -31,9 +31,18 @@ required_files=(
   web/src/vm-sdk/avatar-sdk-web_3.1.1.1011/webrtc-player-6-MVvVqH.js
   web/src/vm-sdk/avatar-sdk-web_3.1.1.1011/xrtc-player-BDn4MFE-.js
 )
+required_directories=(
+  server/src/web/live2d
+)
 for relative_path in "${required_files[@]}"; do
   [[ -f "${PAYLOAD_ROOT}/${relative_path}" ]] || {
     echo "Missing payload file: ${relative_path}" >&2
+    exit 1
+  }
+done
+for relative_path in "${required_directories[@]}"; do
+  [[ -d "${PAYLOAD_ROOT}/${relative_path}" ]] || {
+    echo "Missing payload directory: ${relative_path}" >&2
     exit 1
   }
 done
@@ -59,6 +68,14 @@ for relative_path in "${required_files[@]}"; do
       ;;
   esac
 done
+
+for relative_path in "${required_directories[@]}"; do
+  target="${new_release}/${relative_path}"
+  install -d -o scenic-ai -g scenic-ai -m 0755 "${target}"
+  cp -a "${PAYLOAD_ROOT}/${relative_path}/." "${target}/"
+  chown -R scenic-ai:scenic-ai "${target}"
+done
+/usr/local/bin/node --check "${new_release}/server/src/web/live2d/runtime.js"
 
 for name in XFYUN_APP_ID XFYUN_API_KEY XFYUN_API_SECRET; do
   grep -Eq "^${name}=.+" "${new_release}/server/.env" || {
@@ -110,6 +127,14 @@ avatar_page="$(curl -fsS --max-time 5 http://127.0.0.1:5178/digital-human/ 2>/de
 if ! grep -q '启动动态数字人' <<< "${avatar_page}"; then
   rollback
   echo "The controlled digital-human page did not become healthy; current was rolled back to ${old_release}." >&2
+  exit 1
+fi
+
+live2d_page="$(curl -fsS --max-time 5 http://127.0.0.1:5178/live2d/ 2>/dev/null || true)"
+live2d_model="$(curl -fsS --max-time 5 http://127.0.0.1:5178/live2d/characters/Haru/Haru.model3.json 2>/dev/null || true)"
+if ! grep -q 'live2dCanvas' <<< "${live2d_page}" || ! grep -q 'haru.moc3' <<< "${live2d_model}"; then
+  rollback
+  echo "The controlled Live2D runtime did not become healthy; current was rolled back to ${old_release}." >&2
   exit 1
 fi
 

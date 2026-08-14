@@ -146,7 +146,7 @@
 				</view>
 			</view>
 			<template v-if="sheetExpanded && selectedSpot != null">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" @click="openLiveAvatar" />
+				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" :avatar-source="digitalHumanAvatarSource" @click="openLiveAvatar" />
 				<view class="sheet-heading">
 					<view class="sheet-heading-copy">
 						<text class="sheet-label">{{ selectedSpot!.categoryName }}</text>
@@ -161,7 +161,7 @@
 				</view>
 			</template>
 			<view v-if="sheetExpanded && selectedSpot == null" class="sheet-empty">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" @click="openLiveAvatar" />
+				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" :avatar-source="digitalHumanAvatarSource" @click="openLiveAvatar" />
 				<text class="sheet-empty-title">点击地图标记查看景点</text>
 				<text v-if="sheetExpanded" class="sheet-empty-copy">低缩放优先显示景点，放大后展示服务设施</text>
 				<view v-if="sheetExpanded" class="sheet-single-action" @click="askGuide"><text class="sheet-action-primary-text">问问我 · 规划游览</text></view>
@@ -175,7 +175,7 @@
 	import { createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchMapGuideBootstrap } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { consumeMapSpot, getActiveRoute, queueGuidePrompt } from '@/stores/navigation-context.uts'
-	import { getPreferredScenicArea, getSelectedDigitalHumanId, setPreferredScenicArea } from '@/stores/guide-preferences.uts'
+	import { getDigitalHumanRenderMode, getPreferredScenicArea, getSelectedDigitalHumanId, setPreferredScenicArea } from '@/stores/guide-preferences.uts'
 
 	type ArtworkMarkerItem = {
 		spotId : string,
@@ -246,23 +246,27 @@
 
 	const activeAreaName = computed<string>(() => activeAreaId.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
+	const digitalHumanAvatarSource = computed<string>(() => {
+		if (getDigitalHumanRenderMode() == 'xfyun' || digitalHuman.value?.engine == 'xfyun') return '/static/digital-human/guide-xfyun.webp'
+		return '/static/digital-human/guide-haru-transparent.png'
+	})
 	const digitalHumanRenderEngine = computed<string>(() => {
 		let engine = digitalHuman.value?.engine ?? 'xfyun'
 		// #ifdef MP-WEIXIN
-		engine = 'local-xfyun'
+		engine = 'live2d'
 		// #endif
 		return engine
 	})
 	const digitalHumanActionText = computed<string>(() => {
 		let text = '动态形象'
 		// #ifdef MP-WEIXIN
-		text = '讯飞语音'
+		text = 'Live2D模型'
 		// #endif
 		return text
 	})
 	const digitalHumanProviderStatus = computed<string>(() => {
 		// #ifdef MP-WEIXIN
-		return digitalHuman.value?.serviceStatus == 'online' ? '本地动态形象 · 讯飞音色' : '数字人降级'
+		return digitalHuman.value?.serviceStatus == 'online' ? 'Live2D模型 · 讯飞音色' : '数字人降级'
 		// #endif
 		return digitalHuman.value?.engine == 'xfyun' && digitalHuman.value?.serviceStatus == 'online' ? '讯飞数字人在线' : '数字人降级'
 	})
@@ -523,7 +527,8 @@
 		try {
 			const configs = await fetchDigitalHumanConfigs()
 			const selectedId = getSelectedDigitalHumanId()
-			const selected = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId) ?? null
+			const desiredEngine = getDigitalHumanRenderMode()
+			const selected = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId && item.engine == desiredEngine) ?? configs.find((item : DigitalHumanConfig) : boolean => item.engine == desiredEngine && item.assetAvailable) ?? null
 			if (selected != null) digitalHuman.value = selected
 			else digitalHuman.value = await fetchDigitalHumanConfig()
 		} catch (error) {
@@ -859,7 +864,7 @@
 </script>
 
 <style>
-	.page { flex: 1; background-color: #b0d8b8; }
+	.page { position: relative; flex: 1; width: 100%; height: 100%; overflow: hidden; background-color: #b0d8b8; }
 	.map-header { position: absolute; left: 14px; right: 14px; top: 48px; z-index: 10; padding: 13px 13px 10px; background-color: rgba(255,255,255,0.97); border-radius: 22px; border: 1px solid #dfe7f2; box-shadow: 0 12px 30px rgba(18,61,115,0.15); }
 	.map-header-expanded { min-height: 196px; }
 	.map-header-collapsed { left: auto; width: 184px; padding: 8px; border-radius: 20px; }

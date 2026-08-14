@@ -206,6 +206,8 @@ try {
   assert.match(runtimeSource, /bootstrap = await fetchBootstrap\(\);/);
   assert.match(runtimeSource, /scheduleAutoRetry\(message\);/);
   assert.match(runtimeSource, /scheduleStableConnectionReset\(instance\);/);
+  assert.match(runtimeSource, /const playWelcome = runtimeQuery\.get\("welcome"\) !== "0";/);
+  assert.match(runtimeSource, /window\.scenicAvatarDispose = \(\) =>/);
   assert.doesNotMatch(runtimeSource, /\bapiKey\b|\bapiSecret\b/);
 
   const sdkResponse = await fetch(`${origin}/digital-human/sdk/index.js`);
@@ -215,6 +217,25 @@ try {
 
   const forbiddenSdkResponse = await fetch(`${origin}/digital-human/sdk/index.d.ts`);
   assert.equal(forbiddenSdkResponse.status, 404);
+
+  const live2dPageResponse = await fetch(`${origin}/live2d/`);
+  assert.equal(live2dPageResponse.status, 200);
+  assert.match(live2dPageResponse.headers.get("content-type"), /^text\/html/);
+  assert.match(live2dPageResponse.headers.get("content-security-policy"), /script-src 'self'/);
+  assert.match(await live2dPageResponse.text(), /live2dCanvas/);
+
+  const live2dRuntimeResponse = await fetch(`${origin}/live2d/runtime.js`);
+  assert.equal(live2dRuntimeResponse.status, 200);
+  assert.match(live2dRuntimeResponse.headers.get("content-type"), /^text\/javascript/);
+  assert.match(await live2dRuntimeResponse.text(), /scenicLive2dSpeak/);
+
+  const live2dModelResponse = await fetch(`${origin}/live2d/characters/Haru/Haru.model3.json`);
+  assert.equal(live2dModelResponse.status, 200);
+  assert.match(live2dModelResponse.headers.get("content-type"), /^application\/json/);
+  assert.match(await live2dModelResponse.text(), /haru\.moc3/);
+
+  const forbiddenLive2dResponse = await fetch(`${origin}/live2d/%2e%2e/config.mjs`);
+  assert.equal(forbiddenLive2dResponse.status, 404);
 } finally {
   await stopServer();
 }

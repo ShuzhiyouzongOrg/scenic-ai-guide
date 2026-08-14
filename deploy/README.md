@@ -67,10 +67,11 @@ sudo bash deploy/scripts/deploy-visitor-backend.sh /path/to/payload-root
 ```
 
 This copies the current release, replaces only the allowlisted API contracts,
-request/auth/voice/avatar services, controlled digital-human page and bundled
-avatar SDK assets, atomically switches `current`, and rolls back the symlink if
-the service or controlled page health check fails. It does not copy an
-environment file or database from the operator machine.
+request/auth/voice/avatar services, controlled XFYUN page, controlled Live2D
+runtime/model directory and bundled avatar SDK assets, atomically switches
+`current`, and rolls back the symlink if the service or either controlled page
+health check fails. It does not copy an environment file or database from the
+operator machine.
 
 For testing before public DNS propagation, the verification script pins curl
 to the current production IP. Override or disable that pin when the server IP

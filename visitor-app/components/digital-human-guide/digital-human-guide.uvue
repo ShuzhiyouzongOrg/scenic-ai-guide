@@ -2,7 +2,7 @@
 	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''" @click="handleClick">
 		<view class="avatar-shell" :class="compact ? 'avatar-shell-compact' : ''">
 			<view class="avatar-glow" :class="state == 'speaking' ? 'avatar-glow-speaking' : ''"></view>
-			<image class="avatar-image" :class="avatarImageClass" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" />
+			<image class="avatar-image" :class="avatarImageClass" :src="avatarSource" mode="aspectFit" />
 			<view v-if="state == 'speaking'" class="avatar-mouth" :class="mouthClass"><view class="avatar-mouth-core"></view></view>
 			<view v-if="state == 'speaking'" class="voice-wave">
 				<view class="voice-wave-bar voice-wave-bar-one"></view>
@@ -31,7 +31,8 @@
 		compact ?: boolean,
 		engine ?: string,
 		serviceStatus ?: string,
-		actionText ?: string
+		actionText ?: string,
+		avatarSource ?: string
 	}
 	const emit = defineEmits(['click'])
 	const mouthOpen = ref<boolean>(false)
@@ -44,8 +45,10 @@
 		compact: false,
 		engine: 'xfyun',
 		serviceStatus: 'online',
-		actionText: '动态形象'
+		actionText: '动态形象',
+		avatarSource: '/static/digital-human/guide-haru-transparent.png'
 	})
+	const avatarSource = computed<string>(() => props.avatarSource ?? '/static/digital-human/guide-haru-transparent.png')
 
 	const engineBadge = computed<string>(() => {
 		if (props.engine == 'xfyun') return '讯飞云'
@@ -115,7 +118,6 @@
 	.avatar-mouth-core { width: 5px; height: 2px; border-radius: 2px; background-color: #f3a7ad; }
 	.avatar-mouth-compact { left: 27px; top: 14px; width: 7px; height: 4px; }
 	.avatar-mouth-compact.avatar-mouth-open { top: 12px; height: 7px; }
-	.avatar-online { position: absolute; right: 8px; bottom: 8px; width: 11px; height: 11px; border-radius: 6px; background-color: #50d999; border: 2px solid #ffffff; }
 	.voice-wave { position: absolute; left: 8px; bottom: 8px; height: 22px; padding: 4px 6px; flex-direction: row; align-items: center; border-radius: 11px; background-color: rgba(4,44,92,0.78); }
 	.voice-wave-bar { width: 3px; height: 8px; margin: 0 1px; border-radius: 2px; background-color: #ffd885; }
 	.voice-wave-bar-two { height: 15px; }

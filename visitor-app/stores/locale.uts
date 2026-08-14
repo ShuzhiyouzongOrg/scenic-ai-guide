@@ -1,0 +1,51 @@
+const APP_LOCALE_KEY = 'scenic-guide-app-locale'
+
+export function normalizeAppLocale(value : string) : string {
+	const locale = value.toLowerCase().replace('_', '-')
+	if (locale == 'en' || locale.startsWith('en-')) return 'en'
+	if (locale == 'zh-hant' || locale == 'zh-tw' || locale == 'zh-hk' || locale == 'zh-mo') return 'zh-Hant'
+	return 'zh-Hans'
+}
+
+export function getAppLocale() : string {
+	const stored = uni.getStorageSync(APP_LOCALE_KEY) as string
+	if (stored.length > 0) return normalizeAppLocale(stored)
+	return normalizeAppLocale(uni.getLocale())
+}
+
+export function setAppLocale(value : string) {
+	const locale = normalizeAppLocale(value)
+	uni.setStorageSync(APP_LOCALE_KEY, locale)
+	uni.setLocale(locale)
+	applyLocalizedTabBar(locale)
+}
+
+export function getAppLanguageName(value : string) : string {
+	const locale = normalizeAppLocale(value)
+	if (locale == 'en') return 'English'
+	if (locale == 'zh-Hant') return '繁體中文'
+	return '简体中文'
+}
+
+export function localize(value : string, simplified : string, english : string, traditional : string) : string {
+	const locale = normalizeAppLocale(value)
+	if (locale == 'en') return english
+	if (locale == 'zh-Hant') return traditional
+	return simplified
+}
+
+export function applyLocalizedTabBar(value : string) {
+	const locale = normalizeAppLocale(value)
+	const labels = locale == 'en'
+		? ['Home', 'Map', 'AI Guide', 'Trips', 'Profile']
+		: (locale == 'zh-Hant' ? ['首頁', '地圖', 'AI導遊', '行程', '我的'] : ['首页', '地图', 'AI导游', '行程', '我的'])
+	labels.forEach((label : string, index : number) => {
+		uni.setTabBarItem({ index, text: label })
+	})
+}
+
+export function initializeAppLocale() {
+	const locale = getAppLocale()
+	uni.setLocale(locale)
+	applyLocalizedTabBar(locale)
+}

@@ -1,9 +1,12 @@
 <script setup lang="uts">
+	import { initializeAppLocale } from '@/stores/locale.uts'
+
 	// #ifdef APP-ANDROID || APP-HARMONY
 	let firstBackTime = 0
 	// #endif
 
 	onLaunch(() => {
+		initializeAppLocale()
 		console.log('App Launch')
 	})
 

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "./config.mjs";
@@ -78,6 +78,11 @@ getDb();
 const rootDir = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const publicDir = resolve(process.env.WEB_DIST_DIR || join(rootDir, "web", "dist"));
 const digitalHumanPageDir = resolve(join(rootDir, "server", "src", "web", "digital-human"));
+// The Live2D host is intentionally kept under server/src/web so visitor-app
+// can load a real Cubism canvas without changing the existing root web build.
+// Unlike /digital-human, its model and texture tree is served by a bounded
+// path resolver below; no credentials or API session data are exposed here.
+const live2dPageDir = resolve(join(rootDir, "server", "src", "web", "live2d"));
 const digitalHumanSdkDir = resolve(join(rootDir, "web", "src", "vm-sdk", "avatar-sdk-web_3.1.1.1011"));
 const digitalHumanPageFiles = new Set(["index.html", "app.js", "styles.css"]);
 const digitalHumanSdkFiles = new Set([
@@ -816,6 +821,16 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/live2d" || url.pathname.startsWith("/live2d/")) {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      applyLive2dSecurityHeaders(res);
+      fail(res, 405, "METHOD_NOT_ALLOWED", "Only GET and HEAD are allowed for the Live2D runtime.");
+      return;
+    }
+    serveLive2dStatic(res, url.pathname, req.method === "HEAD");
+    return;
+  }
+
   serveStatic(res, url.pathname);
 }
 
@@ -996,6 +1011,47 @@ function serveDigitalHumanStatic(res, pathname, headOnly = false) {
   res.end(headOnly ? undefined : body);
 }
 
+/**
+ * Serve the controlled Live2D page and its model tree.
+ *
+ * `resolveStaticFilePath` rejects encoded traversal, NUL bytes and Windows
+ * drive paths on every platform. We additionally require a regular file so a
+ * request for a model directory cannot make `readFileSync` leak a filesystem
+ * error through the generic request handler.
+ */
+function serveLive2dStatic(res, pathname, headOnly = false) {
+  applyLive2dSecurityHeaders(res);
+  if (pathname === "/live2d") {
+    res.writeHead(308, {
+      location: "/live2d/",
+      "cache-control": "private, no-store, no-cache, must-revalidate"
+    });
+    res.end();
+    return;
+  }
+
+  const relativePath = pathname.slice("/live2d/".length) || "index.html";
+  const filePath = resolveStaticFilePath(live2dPageDir, relativePath);
+  if (!filePath || !existsSync(filePath) || !statSync(filePath).isFile()) {
+    fail(res, 404, "NOT_FOUND", "Live2D resource not found.");
+    return;
+  }
+
+  const extension = extname(filePath);
+  const body = readFileSync(filePath);
+  res.writeHead(200, {
+    "content-type": mimeTypes[extension] || "application/octet-stream",
+    "content-length": body.length,
+    // Model binaries/textures are local test assets. Keep the page fresh while
+    // allowing the browser to reuse an in-flight texture during one session.
+    "cache-control": extension === ".html" || extension === ".js"
+      ? "private, no-store, no-cache, must-revalidate"
+      : "public, max-age=3600",
+    "cross-origin-resource-policy": "same-origin"
+  });
+  res.end(headOnly ? undefined : body);
+}
+
 function applyDigitalHumanApiHeaders(res) {
   res.setHeader("cache-control", "private, no-store, no-cache, must-revalidate");
   res.setHeader("pragma", "no-cache");
@@ -1013,6 +1069,21 @@ function applyDigitalHumanSecurityHeaders(res) {
     "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
       + "connect-src 'self' https://*.xf-yun.com wss://*.xf-yun.com https://*.xfyun.cn wss://*.xfyun.cn https://*.iflytek.com wss://*.iflytek.com; "
       + "media-src 'self' blob: data:; font-src 'self'; worker-src 'self' blob:; child-src blob:; "
+      + "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn"
+  );
+  res.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("x-permitted-cross-domain-policies", "none");
+}
+
+function applyLive2dSecurityHeaders(res) {
+  applyDigitalHumanApiHeaders(res);
+  res.setHeader(
+    "content-security-policy",
+    // The bundled runtime is self-contained. It needs WebGL, Web Audio and
+    // same-origin model/audio resources, but it must not load arbitrary remote
+    // scripts or embed a remote frame.
+    "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+      + "connect-src 'self'; media-src 'self' blob: data:; font-src 'self'; worker-src 'self' blob:; "
       + "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn"
   );
   res.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");

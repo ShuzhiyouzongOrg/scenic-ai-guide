@@ -5,52 +5,54 @@
 			<view class="profile-avatar" @click="chooseProfileAvatar">
 				<image class="profile-avatar-image" :src="profileAvatarSource" mode="aspectFill" />
 				<view class="profile-status-dot"></view>
-				<view class="profile-avatar-edit"><text class="profile-avatar-edit-text">{{ avatarUploading ? '上传中' : '更换头像' }}</text></view>
+				<view class="profile-avatar-edit"><text class="profile-avatar-edit-text">{{ avatarUploading ? t('上传中', 'Uploading', '上傳中') : t('更换头像', 'Change', '更換頭像') }}</text></view>
 			</view>
 			<text class="profile-name">{{ displayName }}</text>
-			<text class="profile-copy">{{ authUser == null ? '当前使用本设备游客会话，导览功能可直接使用' : '游客账号已登录，本设备导览记录继续保留' }}</text>
-			<view class="auth-button" @click="handleAuth"><text class="auth-button-text">{{ authUser == null ? '登录 / 注册' : '退出登录' }}</text><text class="auth-button-arrow">→</text></view>
+			<text class="profile-copy">{{ authUser == null ? t('当前使用本设备游客会话，导览功能可直接使用', 'Guest mode is active on this device', '目前使用本裝置訪客工作階段') : t('游客账号已登录，本设备导览记录继续保留', 'Visitor account signed in', '訪客帳號已登入') }}</text>
+			<view class="auth-button" @click="handleAuth"><text class="auth-button-text">{{ authUser == null ? t('登录 / 注册', 'Sign in / Register', '登入 / 註冊') : t('退出登录', 'Sign out', '登出') }}</text><text class="auth-button-arrow">→</text></view>
 		</view>
 
 		<view class="content">
 			<view class="stats-card">
-				<view class="stat-item"><text class="stat-value">{{ favoriteCount }}</text><text class="stat-label">收藏景点</text></view>
+				<view class="stat-item"><text class="stat-value">{{ favoriteCount }}</text><text class="stat-label">{{ t('收藏景点', 'Favorites', '收藏景點') }}</text></view>
 				<view class="stat-divider"></view>
-				<view class="stat-item"><text class="stat-value">{{ savedRouteCount }}</text><text class="stat-label">保存行程</text></view>
+				<view class="stat-item"><text class="stat-value">{{ savedRouteCount }}</text><text class="stat-label">{{ t('保存行程', 'Saved trips', '儲存行程') }}</text></view>
 				<view class="stat-divider"></view>
-				<view class="stat-item"><text class="stat-value">{{ footprintCount }}</text><text class="stat-label">游览足迹</text></view>
+				<view class="stat-item"><text class="stat-value">{{ footprintCount }}</text><text class="stat-label">{{ t('游览足迹', 'Footprints', '遊覽足跡') }}</text></view>
 			</view>
 
-			<text class="menu-section-title">我的服务</text>
+			<text class="menu-section-title">{{ t('我的服务', 'My services', '我的服務') }}</text>
 			<view class="preference-card">
 				<view class="preference-item" @click="chooseScenicArea">
 					<view class="menu-icon menu-icon-blue"><rice-icon name="location-fill" size="19" color="#0b68d0" /></view>
-					<view class="menu-copy"><text class="menu-title">当前景区</text><text class="menu-label">{{ scenicAreaName }} · 地图与行程将同步切换</text></view>
-					<text class="preference-value">切换</text><text class="menu-arrow">›</text>
+					<view class="menu-copy"><text class="menu-title">{{ t('当前景区', 'Current scenic area', '目前景區') }}</text><text class="menu-label">{{ scenicAreaName }} · {{ t('地图与行程将同步切换', 'Map and trip data switch together', '地圖與行程將同步切換') }}</text></view>
+					<text class="preference-value">{{ t('切换', 'Change', '切換') }}</text><text class="menu-arrow">›</text>
 				</view>
 				<view class="menu-divider"></view>
 				<view class="preference-item" @click="chooseDigitalHuman">
 					<view class="menu-icon menu-icon-cyan"><rice-icon name="voice" size="19" color="#087fbd" /></view>
-					<view class="menu-copy"><text class="menu-title">数字人导游</text><text class="menu-label">{{ selectedDigitalHumanName }} · {{ selectedDigitalHumanStatus }}</text></view>
-					<text class="preference-value">切换</text><text class="menu-arrow">›</text>
+					<view class="menu-copy"><text class="menu-title">{{ t('数字人导游', 'Digital guide', '數位人導遊') }}</text><text class="menu-label">{{ selectedDigitalHumanName }} · {{ selectedDigitalHumanStatus }}</text></view>
+					<text class="preference-value">{{ t('切换', 'Change', '切換') }}</text><text class="menu-arrow">›</text>
 				</view>
 			</view>
 
 			<view class="menu-card service-menu-card">
-				<view class="menu-item" @click="openTrip"><view class="menu-icon menu-icon-blue"><rice-icon name="calendar-fill" size="19" color="#0b68d0" /></view><view class="menu-copy"><text class="menu-title">我的行程</text><text class="menu-label">查看已保存和进行中的路线</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-item" @click="openTrip"><view class="menu-icon menu-icon-blue"><rice-icon name="calendar-fill" size="19" color="#0b68d0" /></view><view class="menu-copy"><text class="menu-title">{{ t('我的行程', 'My trips', '我的行程') }}</text><text class="menu-label">{{ t('查看已保存和进行中的路线', 'View saved and active routes', '查看已儲存和進行中的路線') }}</text></view><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
-				<view class="menu-item" @click="openFavorites"><view class="menu-icon menu-icon-gold"><rice-icon name="star-fill" size="19" color="#d88400" /></view><view class="menu-copy"><text class="menu-title">收藏与足迹</text><text class="menu-label">查看本设备保存的景点记录</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-item" @click="openFavorites"><view class="menu-icon menu-icon-gold"><rice-icon name="star-fill" size="19" color="#d88400" /></view><view class="menu-copy"><text class="menu-title">{{ t('收藏与足迹', 'Favorites & footprints', '收藏與足跡') }}</text><text class="menu-label">{{ t('查看本设备保存的景点记录', 'View places saved on this device', '查看本裝置儲存的景點記錄') }}</text></view><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
-				<view class="menu-item" @click="openGuide"><view class="menu-icon menu-icon-cyan"><rice-icon name="chat-fill" size="19" color="#087fbd" /></view><view class="menu-copy"><text class="menu-title">对话记录</text><text class="menu-label">继续本设备上的 AI 导游会话</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-item" @click="openGuide"><view class="menu-icon menu-icon-cyan"><rice-icon name="chat-fill" size="19" color="#087fbd" /></view><view class="menu-copy"><text class="menu-title">{{ t('对话记录', 'Chat history', '對話記錄') }}</text><text class="menu-label">{{ t('继续本设备上的 AI 导游会话', 'Continue AI guide conversations', '繼續本裝置上的 AI 導遊對話') }}</text></view><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
-				<view class="menu-item" @click="openFeedback"><view class="menu-icon menu-icon-rose"><rice-icon name="comments-fill" size="19" color="#e45b70" /></view><view class="menu-copy"><text class="menu-title">意见反馈</text><text class="menu-label">帮助我们改进导游服务</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-item" @click="openFeedback"><view class="menu-icon menu-icon-rose"><rice-icon name="comments-fill" size="19" color="#e45b70" /></view><view class="menu-copy"><text class="menu-title">{{ t('意见反馈', 'Feedback', '意見回饋') }}</text><text class="menu-label">{{ t('帮助我们改进导游服务', 'Help us improve the guide', '協助我們改進導遊服務') }}</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-divider"></view>
+				<view class="menu-item" @click="chooseLanguage"><view class="menu-icon menu-icon-purple"><text class="language-icon-text">文</text></view><view class="menu-copy"><text class="menu-title">{{ t('切换语言', 'Language', '切換語言') }}</text><text class="menu-label">{{ currentLanguageName }}</text></view><text class="preference-value">{{ t('切换', 'Change', '切換') }}</text><text class="menu-arrow">›</text></view>
 			</view>
 
-			<text class="menu-section-title menu-section-space">更多设置</text>
+			<text class="menu-section-title menu-section-space">{{ t('更多设置', 'More settings', '更多設定') }}</text>
 			<view class="settings-card">
-				<view class="setting-item" @click="showPrivacy"><text class="setting-title">隐私与权限</text><text class="setting-label">定位、麦克风与数据使用说明</text><text class="menu-arrow">›</text></view>
+				<view class="setting-item" @click="showPrivacy"><text class="setting-title">{{ t('隐私与权限', 'Privacy', '隱私與權限') }}</text><text class="setting-label">{{ t('定位、麦克风与数据使用说明', 'Location, microphone and data usage', '定位、麥克風與資料使用說明') }}</text><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
-				<view class="setting-item" @click="showAbout"><text class="setting-title">关于应用</text><text class="setting-label">灵山AI导游 1.0.0</text><text class="menu-arrow">›</text></view>
+				<view class="setting-item" @click="showAbout"><text class="setting-title">{{ t('关于应用', 'About', '關於應用程式') }}</text><text class="setting-label">{{ t('灵山AI导游', 'Lingshan AI Guide', '靈山AI導遊') }} 1.0.2</text><text class="menu-arrow">›</text></view>
 			</view>
 		</view>
 	</scroll-view>
@@ -61,7 +63,8 @@
 	import { createDefaultDigitalHumanConfig, fetchAuthProfile, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchSavedRoutes, uploadProfileAvatar } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { clearAuthSession, getAuthToken, getCachedAuthUser, updateCachedAuthProfile } from '@/stores/auth.uts'
-	import { getPreferredScenicArea, getSelectedDigitalHumanId, setPreferredScenicArea, setSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
+	import { getPreferredScenicArea, getSelectedDigitalHumanId, setDigitalHumanRenderMode, setPreferredScenicArea, setSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
+	import { getAppLanguageName, getAppLocale, localize, setAppLocale } from '@/stores/locale.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
 	import { getFavoriteSpotIds, getFootprintSpotIds } from '@/stores/visitor-activity.uts'
 
@@ -70,30 +73,54 @@
 	const footprintCount = ref<number>(0)
 	const authUser = ref<AuthUser | null>(null)
 	const avatarUploading = ref<boolean>(false)
+	const currentLocale = ref<string>(getAppLocale())
 	const scenicArea = ref<string>('lingshan')
-	const digitalHumans = ref<DigitalHumanConfig[]>([createDefaultDigitalHumanConfig()])
-	const selectedDigitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
-	const displayName = computed<string>(() => authUser.value?.displayName ?? '游客')
+	const initialDigitalHuman = createProfileDefaultDigitalHuman()
+	const digitalHumans = ref<DigitalHumanConfig[]>([initialDigitalHuman])
+	const selectedDigitalHuman = ref<DigitalHumanConfig | null>(initialDigitalHuman)
+	const displayName = computed<string>(() => authUser.value?.displayName ?? t('游客', 'Guest', '訪客'))
+	const currentLanguageName = computed<string>(() => getAppLanguageName(currentLocale.value))
 	const profileAvatarSource = computed<string>(() => {
 		const avatar = authUser.value?.avatar ?? ''
 		return avatar.length > 0 ? resolveAssetUrl(avatar) : '/static/logo.png'
 	})
 	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
 	const selectedDigitalHumanName = computed<string>(() => selectedDigitalHuman.value?.name ?? '云觉·大佛文化使（女）')
-	const selectedDigitalHumanStatus = computed<string>(() => selectedDigitalHuman.value?.engine == 'xfyun' ? '讯飞云音色已接入' : '本地形象模式')
+	const selectedDigitalHumanStatus = computed<string>(() => selectedDigitalHuman.value?.engine == 'xfyun' ? t('讯飞云音色已接入', 'iFLYTEK cloud voice', '訊飛雲端音色已接入') : t('Live2D 模型模式', 'Live2D model', 'Live2D 模型模式'))
+
+	function t(simplified : string, english : string, traditional : string) : string {
+		return localize(currentLocale.value, simplified, english, traditional)
+	}
+
+	function createProfileDefaultDigitalHuman() : DigitalHumanConfig {
+		const config = createDefaultDigitalHumanConfig()
+		// #ifdef MP-WEIXIN
+		config.id = 'dh_l2d_haru'
+		config.name = '春和·九龙灵使（女）'
+		config.engine = 'live2d'
+		config.avatarId = ''
+		config.modelId = 'Haru'
+		config.characterAsset = '/live2d/characters/Haru/Haru.model3.json'
+		// #endif
+		return config
+	}
 
 	async function refreshGuidePreferences() {
 		scenicArea.value = getPreferredScenicArea()
 		try {
 			let configs = await fetchDigitalHumanConfigs()
-			configs = configs.filter((item : DigitalHumanConfig) : boolean => item.engine == 'xfyun' && item.serviceStatus == 'online')
+			configs = configs.filter((item : DigitalHumanConfig) : boolean => item.assetAvailable && item.serviceStatus == 'online')
+			// #ifdef MP-WEIXIN
+			configs = configs.filter((item : DigitalHumanConfig) : boolean => item.engine == 'live2d')
+			setDigitalHumanRenderMode('live2d')
+			// #endif
 			if (configs.length == 0) configs = [await fetchDigitalHumanConfig()]
 			digitalHumans.value = configs
 			const selectedId = getSelectedDigitalHumanId()
 			selectedDigitalHuman.value = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId) ?? configs[0]
 		} catch (error) {
 			console.error('load guide preferences failed', error)
-			const fallback = createDefaultDigitalHumanConfig()
+			const fallback = createProfileDefaultDigitalHuman()
 			digitalHumans.value = [fallback]
 			selectedDigitalHuman.value = fallback
 		}
@@ -143,11 +170,24 @@
 		}
 		uni.showActionSheet({
 			itemList: digitalHumans.value.map<string>((item : DigitalHumanConfig) : string => item.name),
+				success: (result) => {
+					const selected = digitalHumans.value[result.tapIndex]
+					selectedDigitalHuman.value = selected
+					setSelectedDigitalHumanId(selected.id)
+					setDigitalHumanRenderMode(selected.engine == 'xfyun' ? 'xfyun' : 'live2d')
+					uni.showToast({ title: '已切换为' + selected.name, icon: 'none' })
+				}
+			})
+	}
+
+	function chooseLanguage() {
+		uni.showActionSheet({
+			itemList: ['简体中文', 'English', '繁體中文'],
 			success: (result) => {
-				const selected = digitalHumans.value[result.tapIndex]
-				selectedDigitalHuman.value = selected
-				setSelectedDigitalHumanId(selected.id)
-				uni.showToast({ title: '已切换为' + selected.name, icon: 'none' })
+				const locale = result.tapIndex == 1 ? 'en' : (result.tapIndex == 2 ? 'zh-Hant' : 'zh-Hans')
+				setAppLocale(locale)
+				currentLocale.value = locale
+				uni.showToast({ title: t('语言已切换', 'Language updated', '語言已切換'), icon: 'none' })
 			}
 		})
 	}
@@ -225,7 +265,10 @@
 	function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
 	function openFeedback() { uni.navigateTo({ url: '/pages/feedback/index' }) }
 
-	onShow(() => { refreshProfileState() })
+	onShow(() => {
+		currentLocale.value = getAppLocale()
+		refreshProfileState()
+	})
 </script>
 
 <style>
@@ -260,6 +303,8 @@
 	.menu-icon-gold { background-color: #faf0dc; }
 	.menu-icon-blue { background-color: #e7f1ff; }
 	.menu-icon-rose { background-color: #f7eaea; }
+	.menu-icon-purple { background-color: #efeafa; }
+	.language-icon-text { color: #7655b5; font-size: 16px; font-weight: 800; }
 	.menu-copy { flex: 1; }
 	.menu-title { font-size: 14px; font-weight: 700; color: #23344d; }
 	.menu-label { font-size: 10px; color: #8793a5; margin-top: 4px; }
