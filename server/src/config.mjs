@@ -66,6 +66,19 @@ export const config = {
     ttsHost: process.env.XFYUN_TTS_HOST || "tts-api.xfyun.cn",
     ttsPath: process.env.XFYUN_TTS_PATH || "/v2/tts",
     ttsTimeoutMs: Number(process.env.XFYUN_TTS_TIMEOUT_MS || 20000)
+  },
+  digitalHumanWeb: {
+    appId: process.env.XFYUN_AVATAR_APP_ID || process.env.XFYUN_APP_ID || "",
+    apiKey: process.env.XFYUN_AVATAR_API_KEY || process.env.XFYUN_API_KEY || "",
+    apiSecret: process.env.XFYUN_AVATAR_API_SECRET || process.env.XFYUN_API_SECRET || "",
+    serverUrl: process.env.XFYUN_AVATAR_SERVER_URL || "wss://avatar.cn-huadong-1.xf-yun.com/v1/interact",
+    sceneId: process.env.XFYUN_AVATAR_SCENE_ID || "",
+    sceneVersion: process.env.XFYUN_AVATAR_SCENE_VERSION || "",
+    sessionSecret: process.env.XFYUN_AVATAR_SESSION_SECRET || process.env.JWT_SECRET || "dev-secret",
+    sessionTtlSeconds: Math.max(
+      30,
+      Math.min(300, Number(process.env.XFYUN_AVATAR_SESSION_TTL_SECONDS || 180))
+    )
   }
 };
 

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="referrer" content="no-referrer" />
+    <title>灵山 AI 动态数字人</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-card" aria-label="讯飞动态数字人">
+        <div id="avatar-stage" class="avatar-stage" aria-live="polite">
+          <div id="stage-placeholder" class="stage-placeholder">
+            <span class="brand-mark">AI</span>
+            <strong id="guide-name">灵山 AI 导游</strong>
+            <span id="status-text">正在准备安全会话…</span>
+          </div>
+        </div>
+        <div class="stage-toolbar">
+          <span class="provider-badge">讯飞云端动态形象</span>
+          <button id="audio-button" class="text-button" type="button" hidden>启用声音</button>
+          <button id="interrupt-button" class="text-button" type="button" disabled>停止播报</button>
+        </div>
+      </section>
+
+      <section class="control-card">
+        <div class="intro-copy">
+          <span class="eyebrow">SMART GUIDE</span>
+          <h1>和动态数字人一起游景区</h1>
+          <p id="welcome-text">点击启动后，可以询问景点、路线和服务信息。</p>
+        </div>
+
+        <button id="start-button" class="primary-button" type="button" disabled>
+          启动动态数字人
+        </button>
+
+        <form id="question-form" class="question-form">
+          <label for="question-input">想问导游什么？</label>
+          <div class="question-row">
+            <input
+              id="question-input"
+              name="question"
+              maxlength="500"
+              autocomplete="off"
+              placeholder="例如：第一次来灵山怎么玩？"
+              disabled
+            />
+            <button id="ask-button" type="submit" disabled>问问我</button>
+          </div>
+        </form>
+
+        <section class="answer-panel" aria-live="polite">
+          <span>AI 导游回答</span>
+          <p id="answer-text">启动数字人后，回答会在这里同步显示并由形象播报。</p>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

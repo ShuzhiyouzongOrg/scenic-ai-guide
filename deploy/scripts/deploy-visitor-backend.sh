@@ -18,7 +18,15 @@ required_files=(
   server/src/app.mjs
   server/src/config.mjs
   server/src/http/request.mjs
+  server/src/services/digitalHumanWeb.mjs
   server/src/services/voice.mjs
+  server/src/web/digital-human/index.html
+  server/src/web/digital-human/app.js
+  server/src/web/digital-human/styles.css
+  web/src/vm-sdk/avatar-sdk-web_3.1.1.1011/index.js
+  web/src/vm-sdk/avatar-sdk-web_3.1.1.1011/index-_37811BO.js
+  web/src/vm-sdk/avatar-sdk-web_3.1.1.1011/webrtc-player-6-MVvVqH.js
+  web/src/vm-sdk/avatar-sdk-web_3.1.1.1011/xrtc-player-BDn4MFE-.js
 )
 for relative_path in "${required_files[@]}"; do
   [[ -f "${PAYLOAD_ROOT}/${relative_path}" ]] || {
@@ -40,8 +48,13 @@ cp -a --reflink=auto "${old_release}/." "${new_release}/"
 
 for relative_path in "${required_files[@]}"; do
   target="${new_release}/${relative_path}"
+  install -d -o scenic-ai -g scenic-ai -m 0755 "$(dirname "${target}")"
   install -o scenic-ai -g scenic-ai -m 0644 "${PAYLOAD_ROOT}/${relative_path}" "${target}"
-  /usr/local/bin/node --check "${target}"
+  case "${relative_path}" in
+    *.mjs|server/src/web/digital-human/app.js)
+      /usr/local/bin/node --check "${target}"
+      ;;
+  esac
 done
 
 for name in XFYUN_APP_ID XFYUN_API_KEY XFYUN_API_SECRET; do
@@ -50,6 +63,14 @@ for name in XFYUN_APP_ID XFYUN_API_KEY XFYUN_API_SECRET; do
     exit 1
   }
 done
+avatar_session_secret="$(sed -n 's/^XFYUN_AVATAR_SESSION_SECRET=//p' "${new_release}/server/.env" | tail -n 1)"
+if [[ -z "${avatar_session_secret}" ]]; then
+  avatar_session_secret="$(sed -n 's/^JWT_SECRET=//p' "${new_release}/server/.env" | tail -n 1)"
+fi
+if [[ "${#avatar_session_secret}" -lt 32 ]]; then
+  echo "XFYUN_AVATAR_SESSION_SECRET (or JWT_SECRET fallback) must contain at least 32 characters." >&2
+  exit 1
+fi
 grep -qx 'ASR_PROVIDER=xfyun' "${new_release}/server/.env" || {
   echo "The copied production environment is not configured for XFYUN ASR." >&2
   exit 1
@@ -79,6 +100,13 @@ done
 if [[ "${healthy}" -ne 1 ]]; then
   rollback
   echo "The new backend did not become healthy; current was rolled back to ${old_release}." >&2
+  exit 1
+fi
+
+avatar_page="$(curl -fsS --max-time 5 http://127.0.0.1:5178/digital-human/ 2>/dev/null || true)"
+if ! grep -q '启动动态数字人' <<< "${avatar_page}"; then
+  rollback
+  echo "The controlled digital-human page did not become healthy; current was rolled back to ${old_release}." >&2
   exit 1
 fi
 

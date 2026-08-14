@@ -80,6 +80,19 @@
 					}
 				}
 			]
+		},
+		{
+			"root": "pages/digital-human",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationBarTitleText": "讯飞动态数字人",
+						"navigationBarBackgroundColor": "#062f68",
+						"navigationBarTextStyle": "white"
+					}
+				}
+			]
 		}
 	],
 	"tabBar": {

@@ -125,7 +125,7 @@
 		<view class="spot-sheet" :class="sheetExpanded ? 'spot-sheet-expanded' : 'spot-sheet-peek'">
 			<view class="sheet-handle-area" @click="toggleSheet"><view class="sheet-handle"></view><text class="sheet-toggle-text">{{ sheetExpanded ? '收起' : '展开' }}</text></view>
 			<template v-if="selectedSpot != null">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" @click="askGuide" />
+				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" action-text="动态形象" @click="openLiveAvatar" />
 				<view class="sheet-heading">
 					<view class="sheet-heading-copy">
 						<text class="sheet-label">{{ selectedSpot!.categoryName }}</text>
@@ -140,7 +140,7 @@
 				</view>
 			</template>
 			<view v-else class="sheet-empty">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" @click="askGuide" />
+				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" action-text="动态形象" @click="openLiveAvatar" />
 				<text class="sheet-empty-title">点击地图标记查看景点</text>
 				<text v-if="sheetExpanded" class="sheet-empty-copy">低缩放优先显示景点，放大后展示服务设施</text>
 				<view v-if="sheetExpanded" class="sheet-single-action" @click="askGuide"><text class="sheet-action-primary-text">问问我 · 规划游览</text></view>
@@ -151,7 +151,8 @@
 
 <script setup lang="uts">
 	import type { DigitalHumanConfig, GuideRoute, GuideRouteNode, MapGuideBootstrap, MapPoint, ScenicAreaId, ScenicSpot } from '@/domain/types.uts'
-	import { createDefaultDigitalHumanConfig, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchMapGuideBootstrap } from '@/services/guide-api.uts'
+	import { createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchMapGuideBootstrap } from '@/services/guide-api.uts'
+	import { resolveAssetUrl } from '@/services/http.uts'
 	import { consumeMapSpot, getActiveRoute, queueGuidePrompt } from '@/stores/navigation-context.uts'
 	import { getPreferredScenicArea, getSelectedDigitalHumanId, setPreferredScenicArea } from '@/stores/guide-preferences.uts'
 
@@ -602,6 +603,24 @@
 				uni.reLaunch({ url: targetUrl })
 			}
 		})
+	}
+
+	async function openLiveAvatar() {
+		const config = digitalHuman.value
+		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
+			uni.showToast({ title: '当前数字人形象不支持云端动态渲染', icon: 'none' })
+			return
+		}
+		uni.showLoading({ title: '创建动态会话' })
+		try {
+			const session = await createDigitalHumanWebSession(config.id)
+			uni.navigateTo({ url: '/pages/digital-human/index?src=' + encodeURIComponent(resolveAssetUrl(session.pageUrl)) })
+		} catch (error) {
+			console.error('open digital human failed', error)
+			uni.showToast({ title: '动态数字人暂时不可用', icon: 'none' })
+		} finally {
+			uni.hideLoading()
+		}
 	}
 
 	onLoad(() => {

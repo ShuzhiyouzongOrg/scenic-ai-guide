@@ -27,6 +27,10 @@ import {
   preloadDigitalHumanAssets,
   updateDigitalHumanConfig
 } from "./services/digitalHuman.mjs";
+import {
+  createDigitalHumanWebSession,
+  getDigitalHumanWebBootstrap
+} from "./services/digitalHumanWeb.mjs";
 import { faqCacheStats } from "./services/faqCache.mjs";
 import { clearMessages, getMessages } from "./services/conversation.mjs";
 import { createFeedback, listFeedback } from "./services/feedback.mjs";
@@ -72,6 +76,15 @@ getDb();
 
 const rootDir = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const publicDir = resolve(process.env.WEB_DIST_DIR || join(rootDir, "web", "dist"));
+const digitalHumanPageDir = resolve(join(rootDir, "server", "src", "web", "digital-human"));
+const digitalHumanSdkDir = resolve(join(rootDir, "web", "src", "vm-sdk", "avatar-sdk-web_3.1.1.1011"));
+const digitalHumanPageFiles = new Set(["index.html", "app.js", "styles.css"]);
+const digitalHumanSdkFiles = new Set([
+  "index.js",
+  "index-_37811BO.js",
+  "webrtc-player-6-MVvVqH.js",
+  "xrtc-player-BDn4MFE-.js"
+]);
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -483,6 +496,23 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/digital-human/web/session" && req.method === "POST") {
+    applyDigitalHumanApiHeaders(res);
+    const body = await readJson(req);
+    created(res, createDigitalHumanWebSession({
+      configId: body.configId,
+      visitorSessionId: body.visitorSessionId || body.sessionId
+    }));
+    return;
+  }
+
+  if (url.pathname === "/api/digital-human/web/bootstrap" && req.method === "GET") {
+    applyDigitalHumanApiHeaders(res);
+    const sessionToken = url.searchParams.get("session") || getBearerToken(req);
+    ok(res, getDigitalHumanWebBootstrap(sessionToken));
+    return;
+  }
+
   if (url.pathname.startsWith("/api/voice/tts/audio/") && req.method === "GET") {
     const id = decodeURIComponent(url.pathname.slice("/api/voice/tts/audio/".length));
     const clip = getAudioClip(id);
@@ -749,6 +779,16 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/digital-human" || url.pathname.startsWith("/digital-human/")) {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      applyDigitalHumanSecurityHeaders(res);
+      fail(res, 405, "METHOD_NOT_ALLOWED", "Only GET and HEAD are allowed for the digital-human runtime.");
+      return;
+    }
+    serveDigitalHumanStatic(res, url.pathname, req.method === "HEAD");
+    return;
+  }
+
   serveStatic(res, url.pathname);
 }
 
@@ -875,6 +915,81 @@ function serveStatic(res, pathname) {
     "cache-control": cacheControl
   });
   res.end(body);
+}
+
+function serveDigitalHumanStatic(res, pathname, headOnly = false) {
+  applyDigitalHumanSecurityHeaders(res);
+  if (pathname === "/digital-human") {
+    res.writeHead(308, {
+      location: "/digital-human/",
+      "cache-control": "private, no-store, no-cache, must-revalidate"
+    });
+    res.end();
+    return;
+  }
+
+  const relativePath = pathname.slice("/digital-human/".length);
+  let root;
+  let fileName;
+  let allowlist;
+  if (relativePath.startsWith("sdk/")) {
+    root = digitalHumanSdkDir;
+    fileName = relativePath.slice("sdk/".length);
+    allowlist = digitalHumanSdkFiles;
+  } else {
+    root = digitalHumanPageDir;
+    fileName = relativePath || "index.html";
+    allowlist = digitalHumanPageFiles;
+  }
+
+  let decodedFileName;
+  try {
+    decodedFileName = decodeURIComponent(fileName);
+  } catch {
+    fail(res, 400, "INVALID_PATH", "Resource path is invalid.");
+    return;
+  }
+  if (!allowlist.has(decodedFileName) || decodedFileName.includes("/") || decodedFileName.includes("\\")) {
+    fail(res, 404, "NOT_FOUND", "Resource not found.");
+    return;
+  }
+
+  const filePath = resolveStaticFilePath(root, decodedFileName);
+  if (!filePath || !existsSync(filePath)) {
+    fail(res, 404, "NOT_FOUND", "Resource not found.");
+    return;
+  }
+  const extension = extname(filePath);
+  const body = readFileSync(filePath);
+  res.writeHead(200, {
+    "content-type": mimeTypes[extension] || "application/octet-stream",
+    "content-length": body.length,
+    "cache-control": "private, no-store, no-cache, must-revalidate"
+  });
+  res.end(headOnly ? undefined : body);
+}
+
+function applyDigitalHumanApiHeaders(res) {
+  res.setHeader("cache-control", "private, no-store, no-cache, must-revalidate");
+  res.setHeader("pragma", "no-cache");
+  res.setHeader("x-content-type-options", "nosniff");
+  res.setHeader("referrer-policy", "no-referrer");
+}
+
+function applyDigitalHumanSecurityHeaders(res) {
+  applyDigitalHumanApiHeaders(res);
+  res.setHeader(
+    "content-security-policy",
+    // The official XRTC player currently creates a small runtime function and
+    // therefore requires unsafe-eval. Scripts remain restricted to this
+    // controlled same-origin allowlist; no third-party script origin is added.
+    "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+      + "connect-src 'self' https://*.xf-yun.com wss://*.xf-yun.com https://*.xfyun.cn wss://*.xfyun.cn https://*.iflytek.com wss://*.iflytek.com; "
+      + "media-src 'self' blob: data:; font-src 'self'; worker-src 'self' blob:; child-src blob:; "
+      + "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn"
+  );
+  res.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("x-permitted-cross-domain-policies", "none");
 }
 
 let listenPromise = null;

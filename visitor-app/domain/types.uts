@@ -196,6 +196,15 @@ export type DigitalHumanConfig = {
 	assetAvailable : boolean
 }
 
+export type DigitalHumanWebSession = {
+	token : string,
+	configId : string,
+	pageUrl : string,
+	sessionUrl : string,
+	bootstrapUrl : string,
+	expiresAt : string,
+}
+
 export type ConversationMessage = {
 	id : string,
 	sessionId : string,

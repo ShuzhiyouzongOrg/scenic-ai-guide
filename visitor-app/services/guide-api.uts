@@ -6,6 +6,7 @@ import type {
 	ChatAnswer,
 	ConversationMessage,
 	DigitalHumanConfig,
+	DigitalHumanWebSession,
 	FeedbackRecord,
 	GuideRoute,
 	MapGuideBootstrap,
@@ -42,6 +43,12 @@ export function fetchDigitalHumanConfig() : Promise<DigitalHumanConfig> {
 
 export function fetchDigitalHumanConfigs() : Promise<DigitalHumanConfig[]> {
 	return apiRequest<DigitalHumanConfig[]>('/api/digital-human/configs')
+}
+
+export function createDigitalHumanWebSession(configId : string) : Promise<DigitalHumanWebSession> {
+	return apiRequest<DigitalHumanWebSession>('/api/digital-human/web/session', 'POST', {
+		configId
+	})
 }
 
 export function createDefaultDigitalHumanConfig() : DigitalHumanConfig {

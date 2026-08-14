@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="guide-header">
-			<view class="guide-avatar">
+			<view class="guide-avatar" @click="openLiveAvatar">
 				<image class="guide-avatar-image" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
 				<view class="online-dot"></view>
 			</view>
@@ -20,7 +20,7 @@
 		<scroll-view class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget">
 			<view class="message-list">
 				<view class="welcome-card">
-					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" />
+					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" action-text="动态形象" @click="openLiveAvatar" />
 					<view class="welcome-top">
 						<text class="welcome-kicker">SMART GUIDE</text>
 						<text class="welcome-capability">知识库增强</text>
@@ -66,7 +66,7 @@
 
 <script setup lang="uts">
 	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
-	import { askQuestion, askVoice, createDefaultDigitalHumanConfig, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
+	import { askQuestion, askVoice, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { getSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
 	import { consumeGuidePrompt } from '@/stores/navigation-context.uts'
@@ -127,6 +127,24 @@
 	function useSuggestion(value : string) {
 		input.value = value
 		sendMessage()
+	}
+
+	async function openLiveAvatar() {
+		const config = digitalHuman.value
+		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
+			uni.showToast({ title: '当前数字人形象不支持云端动态渲染', icon: 'none' })
+			return
+		}
+		uni.showLoading({ title: '创建动态会话' })
+		try {
+			const session = await createDigitalHumanWebSession(config.id)
+			uni.navigateTo({ url: '/pages/digital-human/index?src=' + encodeURIComponent(resolveAssetUrl(session.pageUrl)) })
+		} catch (error) {
+			console.error('create digital human web session failed', error)
+			uni.showToast({ title: '动态数字人暂时不可用', icon: 'none' })
+		} finally {
+			uni.hideLoading()
+		}
 	}
 
 	async function sendMessage() {

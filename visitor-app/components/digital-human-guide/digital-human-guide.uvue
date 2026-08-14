@@ -13,7 +13,7 @@
 			<text class="digital-status">{{ statusText }}</text>
 			<text v-if="!compact" class="digital-message">{{ message }}</text>
 		</view>
-		<view v-if="compact" class="digital-action"><text class="digital-action-text">问问我</text><text class="digital-action-arrow">›</text></view>
+		<view v-if="compact" class="digital-action"><text class="digital-action-text">{{ actionText }}</text><text class="digital-action-arrow">›</text></view>
 	</view>
 </template>
 
@@ -24,7 +24,8 @@
 		state ?: string,
 		compact ?: boolean,
 		engine ?: string,
-		serviceStatus ?: string
+		serviceStatus ?: string,
+		actionText ?: string
 	}
 	const emit = defineEmits(['click'])
 
@@ -34,7 +35,8 @@
 		state: 'idle',
 		compact: false,
 		engine: 'xfyun',
-		serviceStatus: 'online'
+		serviceStatus: 'online',
+		actionText: '动态形象'
 	})
 
 	const engineBadge = computed<string>(() => {
