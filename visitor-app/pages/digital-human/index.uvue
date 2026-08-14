@@ -26,12 +26,11 @@
 
 	function handleError(event : WebViewErrorEvent) {
 		uni.hideLoading()
-		console.error('digital human webview failed', event.detail)
-		uni.showModal({
-			title: '动态形象加载失败',
-			content: '请确认网络可用，并已在微信后台配置 api.shuzhiyouzong.cn 为业务域名。',
-			showCancel: false
-		})
+		// HarmonyOS ArkWeb may report a recoverable sub-resource error after the
+		// controlled page has already rendered. Keep the page interactive and log
+		// the precise error instead of covering a working avatar session.
+		console.warn('digital human webview resource warning', event.detail.errCode, event.detail.errMsg, event.detail.fullUrl)
+		uni.showToast({ title: '部分资源正在重试', icon: 'none', duration: 1600 })
 	}
 
 	function handleMessage(event : UniWebViewMessageEvent) {

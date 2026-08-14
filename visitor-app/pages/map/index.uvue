@@ -125,7 +125,7 @@
 		<view class="spot-sheet" :class="sheetExpanded ? 'spot-sheet-expanded' : 'spot-sheet-peek'">
 			<view class="sheet-handle-area" @click="toggleSheet"><view class="sheet-handle"></view><text class="sheet-toggle-text">{{ sheetExpanded ? '收起' : '展开' }}</text></view>
 			<template v-if="selectedSpot != null">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" action-text="动态形象" @click="openLiveAvatar" />
+				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" @click="openLiveAvatar" />
 				<view class="sheet-heading">
 					<view class="sheet-heading-copy">
 						<text class="sheet-label">{{ selectedSpot!.categoryName }}</text>
@@ -140,7 +140,7 @@
 				</view>
 			</template>
 			<view v-else class="sheet-empty">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" action-text="动态形象" @click="openLiveAvatar" />
+				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" @click="openLiveAvatar" />
 				<text class="sheet-empty-title">点击地图标记查看景点</text>
 				<text v-if="sheetExpanded" class="sheet-empty-copy">低缩放优先显示景点，放大后展示服务设施</text>
 				<view v-if="sheetExpanded" class="sheet-single-action" @click="askGuide"><text class="sheet-action-primary-text">问问我 · 规划游览</text></view>
@@ -213,7 +213,26 @@
 
 	const activeAreaName = computed<string>(() => activeAreaId.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
-	const digitalHumanProviderStatus = computed<string>(() => digitalHuman.value?.engine == 'xfyun' && digitalHuman.value?.serviceStatus == 'online' ? '讯飞数字人在线' : '数字人降级')
+	const digitalHumanRenderEngine = computed<string>(() => {
+		let engine = digitalHuman.value?.engine ?? 'xfyun'
+		// #ifdef MP-WEIXIN
+		engine = 'local-xfyun'
+		// #endif
+		return engine
+	})
+	const digitalHumanActionText = computed<string>(() => {
+		let text = '动态形象'
+		// #ifdef MP-WEIXIN
+		text = '讯飞语音'
+		// #endif
+		return text
+	})
+	const digitalHumanProviderStatus = computed<string>(() => {
+		// #ifdef MP-WEIXIN
+		return digitalHuman.value?.serviceStatus == 'online' ? '本地动态形象 · 讯飞音色' : '数字人降级'
+		// #endif
+		return digitalHuman.value?.engine == 'xfyun' && digitalHuman.value?.serviceStatus == 'online' ? '讯飞数字人在线' : '数字人降级'
+	})
 	const activeArtworkSource = computed<string>(() => activeAreaId.value == 'nianhuawan' ? '/static/map/nianhuawan-artwork.webp' : '/static/map/lingshan-artwork.webp')
 	const artworkBackgroundColor = computed<string>(() => bootstrap.value?.config.artworkBackgroundColor ?? (activeAreaId.value == 'nianhuawan' ? '#90d070' : '#b0d8b8'))
 	const artworkRotation = computed<number>(() => bootstrap.value?.config.rotationDegrees ?? (activeAreaId.value == 'nianhuawan' ? 0 : 30))
@@ -606,6 +625,10 @@
 	}
 
 	async function openLiveAvatar() {
+		// #ifdef MP-WEIXIN
+		askGuide()
+		// #endif
+		// #ifndef MP-WEIXIN
 		const config = digitalHuman.value
 		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
 			uni.showToast({ title: '当前数字人形象不支持云端动态渲染', icon: 'none' })
@@ -621,6 +644,7 @@
 		} finally {
 			uni.hideLoading()
 		}
+		// #endif
 	}
 
 	onLoad(() => {

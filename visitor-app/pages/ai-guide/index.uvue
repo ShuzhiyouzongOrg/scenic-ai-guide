@@ -2,7 +2,7 @@
 	<view class="page">
 		<view class="guide-header">
 			<view class="guide-avatar" @click="openLiveAvatar">
-				<image class="guide-avatar-image" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
+				<image class="guide-avatar-image" :class="digitalHumanState == 'speaking' ? 'guide-avatar-image-speaking' : ''" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
 				<view class="online-dot"></view>
 			</view>
 			<view class="guide-heading">
@@ -20,7 +20,7 @@
 		<scroll-view class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget">
 			<view class="message-list">
 				<view class="welcome-card">
-					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" action-text="动态形象" @click="openLiveAvatar" />
+					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" @click="openLiveAvatar" />
 					<view class="welcome-top">
 						<text class="welcome-kicker">SMART GUIDE</text>
 						<text class="welcome-capability">知识库增强</text>
@@ -96,11 +96,33 @@
 	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线'])
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
 	const digitalHumanWelcome = computed<string>(() => digitalHuman.value?.welcomeText ?? '我可以介绍景点、规划路线，也能结合当前位置陪伴讲解。')
-	const digitalHumanEngineLabel = computed<string>(() => digitalHuman.value?.engine == 'xfyun' ? '讯飞云数字人' : 'AI 导游')
+	const digitalHumanRenderEngine = computed<string>(() => {
+		let engine = digitalHuman.value?.engine ?? 'xfyun'
+		// #ifdef MP-WEIXIN
+		engine = 'local-xfyun'
+		// #endif
+		return engine
+	})
+	const digitalHumanActionText = computed<string>(() => {
+		let text = '动态形象'
+		// #ifdef MP-WEIXIN
+		text = '讯飞语音'
+		// #endif
+		return text
+	})
+	const digitalHumanEngineLabel = computed<string>(() => {
+		// #ifdef MP-WEIXIN
+		return '本地动态数字人'
+		// #endif
+		return digitalHuman.value?.engine == 'xfyun' ? '讯飞云数字人' : 'AI 导游'
+	})
 	const digitalHumanProviderStatus = computed<string>(() => {
 		if (digitalHuman.value == null) return '正在载入数字人配置'
 		if (digitalHuman.value!.serviceStatus != 'online') return '数字人服务降级 · 文字问答仍可使用'
 		const voice = digitalHuman.value!.vcn.length > 0 ? '专属音色已接入' : '默认音色'
+		// #ifdef MP-WEIXIN
+		return '本地动态形象 · 讯飞' + voice
+		// #endif
 		return (digitalHuman.value!.engine == 'xfyun' ? '讯飞云服务在线' : '本地形象在线') + ' · ' + voice
 	})
 
@@ -130,6 +152,14 @@
 	}
 
 	async function openLiveAvatar() {
+		// #ifdef MP-WEIXIN
+		uni.showModal({
+			title: '微信个人版动态数字人',
+			content: '当前使用本地动态形象与讯飞云音色。直接提问或录音后，形象会随讯飞播报进入讲解状态。',
+			showCancel: false
+		})
+		// #endif
+		// #ifndef MP-WEIXIN
 		const config = digitalHuman.value
 		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
 			uni.showToast({ title: '当前数字人形象不支持云端动态渲染', icon: 'none' })
@@ -145,6 +175,7 @@
 		} finally {
 			uni.hideLoading()
 		}
+		// #endif
 	}
 
 	async function sendMessage() {
@@ -314,6 +345,7 @@
 	.guide-header { padding: 48px 16px 14px; flex-direction: row; align-items: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f2; }
 	.guide-avatar { position: relative; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
 	.guide-avatar-image { width: 72px; height: 52px; margin-top: 9px; }
+	.guide-avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.035); }
 	.online-dot { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border-radius: 6px; background-color: #49b583; border: 2px solid #ffffff; }
 	.guide-heading { flex: 1; margin-left: 11px; }
 	.guide-title-row { flex-direction: row; align-items: center; }
@@ -352,4 +384,8 @@
 	.record-button-active { background-color: #c45750; }
 	.send-button-active { background: linear-gradient(to bottom right, #0b68d0, #099fbd); }
 	.composer-tip { font-size: 10px; color: #99a4b4; text-align: center; margin-top: 7px; }
+	/* #ifdef MP-WEIXIN || WEB */
+	.guide-avatar-image-speaking { animation: guide-avatar-speak 0.62s ease-in-out infinite; }
+	@keyframes guide-avatar-speak { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.035); } }
+	/* #endif */
 </style>

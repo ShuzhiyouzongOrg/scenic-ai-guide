@@ -2,7 +2,12 @@
 	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''" @click="handleClick">
 		<view class="avatar-shell" :class="compact ? 'avatar-shell-compact' : ''">
 			<view class="avatar-glow" :class="state == 'speaking' ? 'avatar-glow-speaking' : ''"></view>
-			<image class="avatar-image" :class="compact ? 'avatar-image-compact' : ''" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
+			<image class="avatar-image" :class="avatarImageClass" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
+			<view v-if="state == 'speaking'" class="voice-wave">
+				<view class="voice-wave-bar voice-wave-bar-one"></view>
+				<view class="voice-wave-bar voice-wave-bar-two"></view>
+				<view class="voice-wave-bar voice-wave-bar-three"></view>
+			</view>
 			<view class="avatar-online"></view>
 		</view>
 		<view class="digital-copy">
@@ -41,17 +46,25 @@
 
 	const engineBadge = computed<string>(() => {
 		if (props.engine == 'xfyun') return '讯飞云'
+		if (props.engine == 'local-xfyun') return '讯飞音色'
 		if (props.engine == 'live2d') return '本地形象'
 		return '数字人'
 	})
 
 	const statusText = computed<string>(() => {
-		const provider = props.engine == 'xfyun' ? '讯飞数字人' : '本地数字人'
+		const provider = props.engine == 'xfyun' ? '讯飞数字人' : (props.engine == 'local-xfyun' ? '本地动态形象' : '本地数字人')
 		if (props.state == 'thinking') return provider + ' · 正在检索景区知识'
 		if (props.state == 'speaking') return provider + ' · 正在为你讲解'
 		if (props.state == 'guiding') return provider + ' · 正在进行景区导览'
 		if (props.serviceStatus != 'online') return provider + ' · 当前使用降级模式'
 		return provider + ' · 服务已接入'
+	})
+
+	const avatarImageClass = computed<string>(() => {
+		let className = props.compact ? 'avatar-image-compact' : ''
+		if (props.state == 'speaking') className += ' avatar-image-speaking'
+		else className += ' avatar-image-breathing'
+		return className.trim()
 	})
 
 	function handleClick() {
@@ -68,7 +81,13 @@
 	.avatar-glow-speaking { background-color: rgba(255,205,105,0.34); }
 	.avatar-image { position: absolute; width: 174px; height: 132px; bottom: -1px; }
 	.avatar-image-compact { width: 92px; height: 70px; bottom: -7px; }
+	.avatar-image-breathing { transform-origin: 50% 100%; }
+	.avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.025); }
 	.avatar-online { position: absolute; right: 8px; bottom: 8px; width: 11px; height: 11px; border-radius: 6px; background-color: #50d999; border: 2px solid #ffffff; }
+	.voice-wave { position: absolute; left: 8px; bottom: 8px; height: 22px; padding: 4px 6px; flex-direction: row; align-items: center; border-radius: 11px; background-color: rgba(4,44,92,0.78); }
+	.voice-wave-bar { width: 3px; height: 8px; margin: 0 1px; border-radius: 2px; background-color: #ffd885; }
+	.voice-wave-bar-two { height: 15px; }
+	.voice-wave-bar-three { height: 11px; }
 	.digital-copy { flex: 1; margin-left: 8px; }
 	.digital-title-row { flex-direction: row; align-items: center; }
 	.digital-name { font-size: 19px; font-weight: 800; color: #ffffff; }
@@ -79,4 +98,14 @@
 	.digital-action { flex-direction: row; align-items: center; margin-left: 8px; padding-left: 9px; border-left: 1px solid rgba(255,255,255,0.18); }
 	.digital-action-text { font-size: 11px; color: #ffffff; font-weight: 700; }
 	.digital-action-arrow { font-size: 19px; color: #ffd885; margin-left: 3px; }
+	/* #ifdef MP-WEIXIN || WEB */
+	.avatar-image-breathing { animation: avatar-breathe 2.8s ease-in-out infinite; }
+	.avatar-image-speaking { animation: avatar-speak 0.62s ease-in-out infinite; }
+	.voice-wave-bar { animation: voice-wave 0.72s ease-in-out infinite; }
+	.voice-wave-bar-two { animation-delay: 0.16s; }
+	.voice-wave-bar-three { animation-delay: 0.32s; }
+	@keyframes avatar-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.015); } }
+	@keyframes avatar-speak { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.025); } }
+	@keyframes voice-wave { 0%, 100% { height: 6px; opacity: 0.65; } 50% { height: 15px; opacity: 1; } }
+	/* #endif */
 </style>

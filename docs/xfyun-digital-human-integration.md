@@ -4,7 +4,7 @@
 
 ## 1. 当前采用的架构
 
-当前 uni-app x 项目使用 Vapor。测试阶段采用统一的受控 WebView 方案：
+当前 uni-app x 项目使用 Vapor。Android、iOS、HarmonyOS 与 Web 测试阶段采用统一的受控 WebView 方案：
 
 1. 游客端向 `POST /api/digital-human/web/session` 申请短期会话。
 2. Node 服务验证所选数字人必须为在线讯飞形象，并生成 30–300 秒的 HMAC 会话票据。
@@ -25,7 +25,7 @@
 
 讯飞确实提供微信原生 XRTC 方案，但官方说明该方案不支持 uni-app 等跨端框架，并要求企业主体、开放类目、`live-player/live-pusher` 权限、基础库 2.10 以上及真机调试。微信开发者工具不能完整验证原生实时音视频标签。
 
-因此本项目先使用同一个 HTTPS WebView 页面保证五端一致。微信公众平台还必须在“开发管理 → 开发设置 → 业务域名”加入：
+当前微信 AppID 是个人主体，无法配置业务域名，因此微信端不打开受控 WebView，而是使用本地形象呼吸/播报动画配合服务端讯飞 TTS 音色。若以后完成非个人主体变更，才使用同一个 HTTPS WebView 页面，并在微信公众平台“开发管理 → 开发设置 → 业务域名”加入：
 
 ```text
 https://api.shuzhiyouzong.cn
