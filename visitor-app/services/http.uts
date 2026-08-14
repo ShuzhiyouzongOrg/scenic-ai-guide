@@ -1,0 +1,76 @@
+import { getApiBaseUrl } from '@/config/env.uts'
+import type { ApiEnvelope } from '@/domain/types.uts'
+
+const AUTH_TOKEN_KEY = 'scenic-visitor-auth-token'
+
+function joinUrl(path : string) : string {
+	if (path.startsWith('http://') || path.startsWith('https://')) return path
+	return getApiBaseUrl().replace(/\/$/, '') + (path.startsWith('/') ? path : '/' + path)
+}
+
+function unwrap<T>(raw : any) : T {
+	const envelope = raw as ApiEnvelope<T>
+	if (envelope.data != null) return envelope.data as T
+	return raw as T
+}
+
+export function apiRequest<T>(path : string, method : RequestMethod = 'GET', data : any | null = null) : Promise<T> {
+	return new Promise<T>((resolve, reject) => {
+		const token = uni.getStorageSync(AUTH_TOKEN_KEY) as string
+		const header = {
+			'content-type': 'application/json'
+		} as UTSJSONObject
+		if (token.length > 0) header['authorization'] = 'Bearer ' + token
+		uni.request({
+			url: joinUrl(path),
+			method,
+			data: data,
+			timeout: 20000,
+			header,
+			success: (response : RequestSuccess<any>) => {
+				if (response.statusCode >= 200 && response.statusCode < 300) {
+					resolve(unwrap<T>(response.data))
+					return
+				}
+				reject(new Error('请求失败（' + response.statusCode + '）'))
+			},
+			fail: (error : RequestFail) => reject(new Error(error.errMsg))
+		})
+	})
+}
+
+export function apiUploadFile<T>(path : string, filePath : string, formData : UTSJSONObject = {}) : Promise<T> {
+	return new Promise<T>((resolve, reject) => {
+		const token = uni.getStorageSync(AUTH_TOKEN_KEY) as string
+		const header = {} as UTSJSONObject
+		if (token.length > 0) header['authorization'] = 'Bearer ' + token
+		uni.uploadFile({
+			url: joinUrl(path),
+			filePath,
+			// #ifdef MP-WEIXIN
+			name: 'audio',
+			// #endif
+			formData,
+			header,
+			timeout: 30000,
+			success: (response : UploadFileSuccess) => {
+				if (response.statusCode < 200 || response.statusCode >= 300) {
+					reject(new Error('上传失败（' + response.statusCode + '）'))
+					return
+				}
+				try {
+					const raw = JSON.parse<any>(response.data)
+					resolve(unwrap<T>(raw))
+				} catch (error) {
+					reject(new Error('服务响应格式错误'))
+				}
+			},
+			fail: (error : UploadFileFail) => reject(new Error(error.errMsg))
+		})
+	})
+}
+
+export function resolveAssetUrl(path : string) : string {
+	if (path.startsWith('http://') || path.startsWith('https://')) return path
+	return joinUrl(path)
+}

@@ -1,0 +1,110 @@
+import { apiRequest, apiUploadFile } from './http.uts'
+import type {
+	AuthLoginResult,
+	AuthProfile,
+	AuthRegisterResult,
+	ChatAnswer,
+	ConversationMessage,
+	FeedbackRecord,
+	GuideRoute,
+	MapGuideBootstrap,
+	RouteGraph,
+	RouteRecommendation,
+	RouteRecommendResult,
+	SavedRouteSelection,
+	ScenicSpot,
+	TtsResult,
+	VoiceAskResult,
+	VisitorSession
+} from '@/domain/types.uts'
+
+export function createVisitorSession() : Promise<VisitorSession> {
+	return apiRequest<VisitorSession>('/api/visitor/session', 'POST', {})
+}
+
+export function fetchMapGuideBootstrap(area : string = 'lingshan') : Promise<MapGuideBootstrap> {
+	return apiRequest<MapGuideBootstrap>('/api/map-guide/bootstrap?area=' + encodeURIComponent(area))
+}
+
+export function fetchScenicSpots() : Promise<ScenicSpot[]> {
+	return apiRequest<ScenicSpot[]>('/api/map-guide/spots?area=lingshan')
+}
+
+export function fetchGuideRoutes() : Promise<GuideRoute[]> {
+	return apiRequest<GuideRoute[]>('/api/map-guide/routes?area=lingshan')
+}
+
+export function askQuestion(question : string, sessionId : string = '') : Promise<ChatAnswer> {
+	return apiRequest<ChatAnswer>('/api/chat/ask', 'POST', {
+		question,
+		sessionId,
+		mode: 'hybrid',
+		locale: 'zh-CN'
+	})
+}
+
+export function fetchChatHistory(sessionId : string) : Promise<ConversationMessage[]> {
+	return apiRequest<ConversationMessage[]>('/api/chat/history?sessionId=' + encodeURIComponent(sessionId))
+}
+
+export function synthesizeSpeech(text : string) : Promise<TtsResult> {
+	return apiRequest<TtsResult>('/api/voice/tts', 'POST', {
+		text,
+		voice: 'guide_female',
+		speed: 1
+	})
+}
+
+export function askVoice(filePath : string, sessionId : string) : Promise<VoiceAskResult> {
+	return apiUploadFile<VoiceAskResult>('/api/voice/ask-upload', filePath, {
+		sessionId,
+		mode: 'hybrid',
+		locale: 'zh-CN'
+	} as UTSJSONObject)
+}
+
+export function recommendRoute(durationMinutes : number, interests : string[]) : Promise<RouteRecommendResult> {
+	return apiRequest<RouteRecommendResult>('/api/routes/recommend', 'POST', {
+		durationMinutes,
+		interests,
+		mobility: 'normal'
+	})
+}
+
+export function saveRoute(sessionId : string, routeId : string, route : RouteRecommendation | null) : Promise<UTSJSONObject> {
+	return apiRequest<UTSJSONObject>('/api/routes/save', 'POST', {
+		sessionId,
+		routeId,
+		route
+	})
+}
+
+export function fetchSavedRoutes(sessionId : string) : Promise<SavedRouteSelection[]> {
+	return apiRequest<SavedRouteSelection[]>('/api/routes/saved?sessionId=' + encodeURIComponent(sessionId))
+}
+
+export function fetchRouteGraph() : Promise<RouteGraph> {
+	return apiRequest<RouteGraph>('/api/routes/graph')
+}
+
+export function loginVisitor(username : string, password : string) : Promise<AuthLoginResult> {
+	return apiRequest<AuthLoginResult>('/api/auth/login', 'POST', { username, password })
+}
+
+export function registerVisitor(username : string, password : string) : Promise<AuthRegisterResult> {
+	return apiRequest<AuthRegisterResult>('/api/auth/register', 'POST', { username, password })
+}
+
+export function fetchAuthProfile() : Promise<AuthProfile> {
+	return apiRequest<AuthProfile>('/api/auth/me')
+}
+
+export function submitFeedback(sessionId : string, rating : number, comment : string) : Promise<FeedbackRecord> {
+	return apiRequest<FeedbackRecord>('/api/feedback', 'POST', {
+		sessionId,
+		rating,
+		comment,
+		vote: rating >= 4 ? 'up' : (rating <= 2 ? 'down' : ''),
+		emotion: rating >= 4 ? '满意' : (rating <= 2 ? '不满意' : '一般')
+	})
+}

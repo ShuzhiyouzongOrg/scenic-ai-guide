@@ -1,0 +1,142 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view class="profile-header">
+			<view class="profile-orb"></view>
+			<view class="profile-avatar">
+				<image class="profile-avatar-image" src="/static/logo.png" mode="aspectFit" />
+				<view class="profile-status-dot"></view>
+			</view>
+			<text class="profile-name">{{ displayName }}</text>
+			<text class="profile-copy">{{ authUser == null ? '当前使用本设备游客会话，导览功能可直接使用' : '游客账号已登录，本设备导览记录继续保留' }}</text>
+			<view class="auth-button" @click="handleAuth"><text class="auth-button-text">{{ authUser == null ? '登录 / 注册' : '退出登录' }}</text><text class="auth-button-arrow">→</text></view>
+		</view>
+
+		<view class="content">
+			<view class="stats-card">
+				<view class="stat-item"><text class="stat-value">{{ favoriteCount }}</text><text class="stat-label">收藏景点</text></view>
+				<view class="stat-divider"></view>
+				<view class="stat-item"><text class="stat-value">{{ savedRouteCount }}</text><text class="stat-label">保存行程</text></view>
+				<view class="stat-divider"></view>
+				<view class="stat-item"><text class="stat-value">{{ footprintCount }}</text><text class="stat-label">游览足迹</text></view>
+			</view>
+
+			<text class="menu-section-title">我的服务</text>
+			<view class="menu-card">
+				<view class="menu-item" @click="openTrip"><view class="menu-icon menu-icon-blue"><rice-icon name="calendar-fill" size="19" color="#0b68d0" /></view><view class="menu-copy"><text class="menu-title">我的行程</text><text class="menu-label">查看已保存和进行中的路线</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-divider"></view>
+				<view class="menu-item" @click="openFavorites"><view class="menu-icon menu-icon-gold"><rice-icon name="star-fill" size="19" color="#d88400" /></view><view class="menu-copy"><text class="menu-title">收藏与足迹</text><text class="menu-label">查看本设备保存的景点记录</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-divider"></view>
+				<view class="menu-item" @click="openGuide"><view class="menu-icon menu-icon-cyan"><rice-icon name="chat-fill" size="19" color="#087fbd" /></view><view class="menu-copy"><text class="menu-title">对话记录</text><text class="menu-label">继续本设备上的 AI 导游会话</text></view><text class="menu-arrow">›</text></view>
+				<view class="menu-divider"></view>
+				<view class="menu-item" @click="openFeedback"><view class="menu-icon menu-icon-rose"><rice-icon name="comments-fill" size="19" color="#e45b70" /></view><view class="menu-copy"><text class="menu-title">意见反馈</text><text class="menu-label">帮助我们改进导游服务</text></view><text class="menu-arrow">›</text></view>
+			</view>
+
+			<text class="menu-section-title menu-section-space">更多设置</text>
+			<view class="settings-card">
+				<view class="setting-item" @click="showPrivacy"><text class="setting-title">隐私与权限</text><text class="setting-label">定位、麦克风与数据使用说明</text><text class="menu-arrow">›</text></view>
+				<view class="menu-divider"></view>
+				<view class="setting-item" @click="showAbout"><text class="setting-title">关于应用</text><text class="setting-label">灵山AI导游 1.0.0</text><text class="menu-arrow">›</text></view>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import type { AuthUser } from '@/domain/types.uts'
+	import { fetchAuthProfile, fetchSavedRoutes } from '@/services/guide-api.uts'
+	import { clearAuthSession, getAuthToken, getCachedAuthUser, updateCachedAuthProfile } from '@/stores/auth.uts'
+	import { ensureVisitorSession } from '@/stores/session.uts'
+	import { getFavoriteSpotIds, getFootprintSpotIds } from '@/stores/visitor-activity.uts'
+
+	const savedRouteCount = ref<number>(0)
+	const favoriteCount = ref<number>(0)
+	const footprintCount = ref<number>(0)
+	const authUser = ref<AuthUser | null>(null)
+	const displayName = computed<string>(() => authUser.value?.displayName ?? '游客')
+
+	async function refreshProfileState() {
+		authUser.value = getCachedAuthUser()
+		favoriteCount.value = getFavoriteSpotIds().length
+		footprintCount.value = getFootprintSpotIds().length
+		const route = uni.getStorageSync('scenic-current-route') as string
+		savedRouteCount.value = route.length > 0 ? 1 : 0
+		try {
+			const sessionId = await ensureVisitorSession()
+			const routes = await fetchSavedRoutes(sessionId)
+			savedRouteCount.value = routes.length
+		} catch (error) {
+			console.error('load saved routes failed', error)
+		}
+		if (getAuthToken().length > 0) {
+			try {
+				const profile = await fetchAuthProfile()
+				updateCachedAuthProfile(profile)
+				authUser.value = getCachedAuthUser()
+			} catch (error) {
+				console.error('refresh auth profile failed', error)
+			}
+		}
+	}
+
+	function handleAuth() {
+		if (authUser.value == null) {
+			uni.navigateTo({ url: '/pages/auth/index' })
+			return
+		}
+		uni.showModal({
+			title: '退出登录',
+			content: '退出后本设备的行程、收藏、足迹和对话记录仍会保留。',
+			success: (result) => {
+				if (!result.confirm) return
+				clearAuthSession()
+				authUser.value = null
+				uni.showToast({ title: '已退出登录', icon: 'none' })
+			}
+		})
+	}
+	function showPrivacy() { uni.showModal({ title: '隐私与权限', content: '定位仅在地图页用于展示当前位置；麦克风仅在你主动点击语音提问时启用；账号、反馈和导览数据提交到当前项目后端。', showCancel: false }) }
+	function showAbout() { uni.showModal({ title: '灵山AI导游', content: '基于 uni-app x Vapor 构建的多端游客应用。', showCancel: false }) }
+	function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
+	function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
+	function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
+	function openFeedback() { uni.navigateTo({ url: '/pages/feedback/index' }) }
+
+	onShow(() => { refreshProfileState() })
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.profile-header { position: relative; overflow: hidden; padding: 58px 20px 50px; align-items: center; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
+	.profile-orb { position: absolute; right: -74px; top: -88px; width: 220px; height: 220px; border-radius: 110px; background-color: rgba(255,255,255,0.06); }
+	.profile-avatar { position: relative; width: 82px; height: 82px; border-radius: 27px; overflow: hidden; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.38); box-shadow: 0 12px 28px rgba(3,29,75,0.24); }
+	.profile-avatar-image { width: 80px; height: 80px; }
+	.profile-status-dot { position: absolute; right: -3px; bottom: -3px; width: 15px; height: 15px; border-radius: 8px; background-color: #37d0b8; border: 3px solid #075eb8; }
+	.profile-name { font-size: 24px; font-weight: 800; color: #ffffff; margin-top: 14px; }
+	.profile-copy { font-size: 12px; color: #d9efff; margin: 7px 0 16px; text-align: center; }
+	.auth-button { height: 36px; padding: 0 15px; flex-direction: row; align-items: center; border-radius: 18px; background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); }
+	.auth-button-text { font-size: 12px; color: #ffffff; font-weight: 600; }
+	.auth-button-arrow { font-size: 14px; color: #d9efff; margin-left: 7px; }
+	.content { padding: 0 16px 36px; }
+	.stats-card { flex-direction: row; align-items: center; margin-top: -23px; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 22px; padding: 18px 8px; box-shadow: 0 11px 28px rgba(18,61,115,0.11); }
+	.stat-item { flex: 1; align-items: center; }
+	.stat-value { font-size: 22px; font-weight: 800; color: #0b68d0; }
+	.stat-label { font-size: 11px; color: #7d899d; margin-top: 4px; }
+	.stat-divider { width: 1px; height: 28px; background-color: #e7ecf3; }
+	.menu-section-title { font-size: 14px; font-weight: 700; color: #24354d; margin: 24px 4px 10px; }
+	.menu-section-space { margin-top: 20px; }
+	.menu-card, .settings-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 3px 14px; overflow: hidden; box-shadow: 0 7px 20px rgba(24,62,110,0.04); }
+	.menu-item { min-height: 72px; flex-direction: row; align-items: center; }
+	.menu-icon { width: 38px; height: 38px; border-radius: 13px; align-items: center; justify-content: center; margin-right: 12px; }
+	.menu-icon-cyan { background-color: #e4f7fb; }
+	.menu-icon-gold { background-color: #faf0dc; }
+	.menu-icon-blue { background-color: #e7f1ff; }
+	.menu-icon-rose { background-color: #f7eaea; }
+	.menu-copy { flex: 1; }
+	.menu-title { font-size: 14px; font-weight: 700; color: #23344d; }
+	.menu-label { font-size: 10px; color: #8793a5; margin-top: 4px; }
+	.menu-arrow { font-size: 22px; color: #a2adbc; margin-left: 8px; }
+	.menu-divider { height: 1px; background-color: #eef1f5; margin-left: 50px; }
+	.setting-item { min-height: 64px; flex-direction: row; align-items: center; }
+	.setting-title { width: 86px; font-size: 13px; font-weight: 600; color: #26364f; }
+	.setting-label { flex: 1; font-size: 10px; color: #8793a5; }
+</style>

@@ -1,0 +1,48 @@
+const FAVORITE_KEY = 'scenic-visitor-favorite-spot-ids'
+const FOOTPRINT_KEY = 'scenic-visitor-footprint-spot-ids'
+const MAX_FOOTPRINTS = 50
+
+function readIds(key : string) : string[] {
+	const raw = uni.getStorageSync(key) as string
+	if (raw.length == 0) return []
+	try {
+		return JSON.parse<string[]>(raw) as string[]
+	} catch (error) {
+		console.error('parse visitor activity failed', error)
+		return []
+	}
+}
+
+function writeIds(key : string, ids : string[]) {
+	uni.setStorageSync(key, JSON.stringify(ids))
+}
+
+export function getFavoriteSpotIds() : string[] {
+	return readIds(FAVORITE_KEY)
+}
+
+export function isFavoriteSpot(spotId : string) : boolean {
+	return getFavoriteSpotIds().includes(spotId)
+}
+
+export function toggleFavoriteSpot(spotId : string) : boolean {
+	const ids = getFavoriteSpotIds()
+	const index = ids.indexOf(spotId)
+	if (index >= 0) ids.splice(index, 1)
+	else ids.unshift(spotId)
+	writeIds(FAVORITE_KEY, ids)
+	return index < 0
+}
+
+export function getFootprintSpotIds() : string[] {
+	return readIds(FOOTPRINT_KEY)
+}
+
+export function recordSpotFootprint(spotId : string) {
+	const ids = getFootprintSpotIds()
+	const index = ids.indexOf(spotId)
+	if (index >= 0) ids.splice(index, 1)
+	ids.unshift(spotId)
+	if (ids.length > MAX_FOOTPRINTS) ids.splice(MAX_FOOTPRINTS)
+	writeIds(FOOTPRINT_KEY, ids)
+}

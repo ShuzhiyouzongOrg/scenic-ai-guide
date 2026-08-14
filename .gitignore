@@ -12,11 +12,21 @@ web/.env
 server/.env
 *.local
 
+# Mobile signing credentials
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.mobileprovision
+
 # Build output
 dist/
 dist-ssr/
 desktop/dist/
 desktop/generated/
+visitor-app/unpackage/
+visitor-app/.hbuilderx/
+!visitor-app/docs/
 
 # Runtime data
 server/data/uploads/

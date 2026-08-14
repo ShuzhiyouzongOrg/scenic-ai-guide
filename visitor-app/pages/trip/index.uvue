@@ -1,0 +1,244 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view class="header">
+			<view class="header-badge"><text class="header-badge-text">AI ROUTE PLANNER</text></view>
+			<text class="header-title">规划今天的灵山行程</text>
+			<text class="header-copy">选择游览时长与兴趣，使用现有路线推荐服务生成真实行程。</text>
+			<view class="header-summary">
+				<view class="header-summary-item"><text class="header-summary-value">3</text><text class="header-summary-label">种时长</text></view>
+				<view class="header-summary-divider"></view>
+				<view class="header-summary-item"><text class="header-summary-value">5</text><text class="header-summary-label">类兴趣</text></view>
+				<view class="header-summary-divider"></view>
+				<view class="header-summary-item"><text class="header-summary-value">AI</text><text class="header-summary-label">智能匹配</text></view>
+			</view>
+		</view>
+
+		<view class="content">
+			<view class="form-card">
+				<view class="field-heading"><text class="field-index">01</text><text class="field-title">预计游览时长</text></view>
+				<view class="option-row">
+					<view v-for="item in durations" :key="item.value" class="option-pill" :class="duration == item.value ? 'option-pill-active' : ''" @click="selectDuration(item.value)">
+						<text class="option-text" :class="duration == item.value ? 'option-text-active' : ''">{{ item.label }}</text>
+					</view>
+				</view>
+
+				<view class="field-heading field-title-space"><text class="field-index">02</text><text class="field-title">游览兴趣</text></view>
+				<view class="option-row option-row-wrap">
+					<view v-for="item in interestOptions" :key="item.value" class="option-pill" :class="interests.includes(item.value) ? 'option-pill-active' : ''" @click="toggleInterest(item.value)">
+						<text class="option-text" :class="interests.includes(item.value) ? 'option-text-active' : ''">{{ item.label }}</text>
+					</view>
+				</view>
+
+				<view class="generate-button">
+					<rice-button :text="generating ? '正在生成...' : '生成专属行程'" type="primary" shape="round" size="large" :loading="generating" width="100%" @click="generateRoute" />
+				</view>
+			</view>
+
+			<app-section title="推荐结果" subtitle="路线节点可继续进入地图与 AI 讲解">
+				<view v-if="recommendation != null" class="result-card">
+					<view class="result-header">
+						<view>
+							<text class="result-label">AI 推荐</text>
+							<text class="result-title">{{ recommendation!.name }}</text>
+						</view>
+						<text class="result-duration">{{ recommendation!.durationMinutes }} 分钟</text>
+					</view>
+					<text class="result-copy">{{ recommendation!.explanation }}</text>
+					<view class="timeline">
+						<view v-for="(node, index) in recommendation!.nodes" :key="node.id" class="timeline-item">
+							<view class="timeline-rail">
+								<view class="timeline-dot" :class="index == 0 ? 'timeline-dot-active' : ''"></view>
+								<view v-if="index < recommendation!.nodes.length - 1" class="timeline-line"></view>
+							</view>
+							<view class="timeline-content">
+								<text class="timeline-name">{{ index + 1 }}. {{ node.name }}</text>
+								<text class="timeline-time">建议停留 {{ node.stayMinutes ?? node.minutes ?? 10 }} 分钟</text>
+							</view>
+						</view>
+					</view>
+					<view class="result-actions">
+						<rice-button text="保存行程" type="primary" shape="round" @click="saveCurrentRoute" />
+						<rice-button text="在地图查看" shape="round" plain @click="openMap" />
+					</view>
+				</view>
+				<empty-state v-else icon="↗" title="还没有生成行程" description="选择时长和兴趣后，AI 会从现有路线图谱中推荐最适合你的路线。" />
+			</app-section>
+
+			<app-section title="已保存行程" :subtitle="savedRoutes.length.toString() + ' 条记录'">
+				<view v-if="savedRoutes.length > 0" class="saved-card">
+					<rice-cell v-for="item in savedRoutes" :key="item.id" :title="item.routeName" :label="item.durationMinutes.toString() + ' 分钟 · 点击在地图恢复'" arrow @click="openSavedRoute(item)" />
+				</view>
+				<empty-state v-else icon="☆" title="还没有保存行程" description="生成路线后点击“保存行程”，下次进入仍可恢复到地图。" />
+			</app-section>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import type { GuideRouteNode, RouteGraphNode, RouteRecommendation, SavedRouteSelection } from '@/domain/types.uts'
+	import { fetchRouteGraph, fetchSavedRoutes, recommendRoute, saveRoute } from '@/services/guide-api.uts'
+	import { getActiveRoute, setActiveRoute } from '@/stores/navigation-context.uts'
+	import { ensureVisitorSession } from '@/stores/session.uts'
+
+	type SelectOption = { label : string, value : number }
+	type InterestOption = { label : string, value : string }
+
+	const durations = ref<SelectOption[]>([
+		{ label: '1 小时', value: 60 },
+		{ label: '半日', value: 180 },
+		{ label: '一日', value: 360 }
+	])
+	const interestOptions = ref<InterestOption[]>([
+		{ label: '历史文化', value: 'history' },
+		{ label: '亲子互动', value: 'family' },
+		{ label: '摄影打卡', value: 'photo' },
+		{ label: '佛教文化', value: 'buddhist' },
+		{ label: '轻松漫步', value: 'easy' }
+	])
+	const duration = ref<number>(180)
+	const interests = ref<string[]>(['history'])
+	const generating = ref<boolean>(false)
+	const recommendation = ref<RouteRecommendation | null>(null)
+	const savedRoutes = ref<SavedRouteSelection[]>([])
+	const graphNodes = ref<RouteGraphNode[]>([])
+
+	function selectDuration(value : number) {
+		duration.value = value
+	}
+
+	function toggleInterest(value : string) {
+		const index = interests.value.indexOf(value)
+		if (index >= 0) interests.value.splice(index, 1)
+		else interests.value.push(value)
+	}
+
+	async function generateRoute() {
+		generating.value = true
+		try {
+			const result = await recommendRoute(duration.value, interests.value)
+			recommendation.value = result.recommendation
+		} catch (error) {
+			console.error('recommend route failed', error)
+			uni.showToast({ title: '路线服务连接失败', icon: 'none' })
+		} finally {
+			generating.value = false
+		}
+	}
+
+	async function saveCurrentRoute() {
+		if (recommendation.value == null) return
+		try {
+			const sessionId = await ensureVisitorSession()
+			await saveRoute(sessionId, recommendation.value!.id, recommendation.value)
+			setActiveRoute(recommendation.value!)
+			await loadSavedRoutes()
+			uni.showToast({ title: '行程已保存', icon: 'success' })
+		} catch (error) {
+			console.error('save route failed', error)
+			uni.showToast({ title: '保存失败，请稍后重试', icon: 'none' })
+		}
+	}
+
+	async function loadSavedRoutes() {
+		try {
+			const sessionId = await ensureVisitorSession()
+			savedRoutes.value = await fetchSavedRoutes(sessionId)
+			if (graphNodes.value.length == 0) {
+				const graph = await fetchRouteGraph()
+				graphNodes.value = graph.nodes
+			}
+		} catch (error) {
+			console.error('load saved routes failed', error)
+		}
+	}
+
+	function openSavedRoute(item : SavedRouteSelection) {
+		const nodes = item.nodeIds
+			.map<GuideRouteNode | null>((id : string) : GuideRouteNode | null => {
+				const source = graphNodes.value.find((node : RouteGraphNode) : boolean => node.id == id) ?? null
+				if (source == null) return null
+				return {
+					id: source.id,
+					order: source.order,
+					spotId: source.spotId,
+					name: source.name,
+					coordinateSystem: 'gcj02',
+					stayMinutes: source.minutes,
+					minutes: source.minutes
+				} as GuideRouteNode
+			})
+			.filter((node : GuideRouteNode | null) : boolean => node != null)
+			.map<GuideRouteNode>((node : GuideRouteNode | null) : GuideRouteNode => node!)
+		if (nodes.length == 0) {
+			uni.showToast({ title: '该行程节点暂时无法恢复', icon: 'none' })
+			return
+		}
+		const route = {
+			id: item.routeId,
+			name: item.routeName,
+			routeType: item.routeType,
+			durationMinutes: item.durationMinutes,
+			tags: item.tags,
+			suitableFor: [],
+			nodes,
+			explanation: '已从保存记录恢复，可在地图中继续查看路线和景点。'
+		} as RouteRecommendation
+		recommendation.value = route
+		setActiveRoute(route)
+		uni.switchTab({ url: '/pages/map/index' })
+	}
+
+	function openMap() {
+		if (recommendation.value != null) setActiveRoute(recommendation.value!)
+		uni.switchTab({ url: '/pages/map/index' })
+	}
+
+	onShow(() => {
+		if (recommendation.value == null) recommendation.value = getActiveRoute()
+		loadSavedRoutes()
+	})
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.header { padding: 54px 20px 50px; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
+	.header-badge { align-self: flex-start; padding: 5px 9px; border-radius: 10px; background-color: rgba(255,180,46,0.18); border: 1px solid rgba(255,208,121,0.32); }
+	.header-badge-text { font-size: 8px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
+	.header-title { font-size: 29px; font-weight: 800; color: #ffffff; line-height: 39px; margin-top: 12px; }
+	.header-copy { font-size: 13px; color: #d8efff; line-height: 20px; margin-top: 10px; }
+	.header-summary { flex-direction: row; align-items: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.12); }
+	.header-summary-item { flex: 1; align-items: center; }
+	.header-summary-value { font-size: 15px; color: #ffffff; font-weight: 700; }
+	.header-summary-label { font-size: 9px; color: #bddcf3; margin-top: 4px; }
+	.header-summary-divider { width: 1px; height: 24px; background-color: rgba(255,255,255,0.13); }
+	.content { padding: 0 16px 38px; }
+	.form-card { margin-top: -24px; padding: 21px 17px; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 24px; box-shadow: 0 12px 30px rgba(18,63,120,0.11); }
+	.field-heading { flex-direction: row; align-items: center; }
+	.field-index { font-size: 10px; color: #0b68d0; background-color: #e7f1ff; padding: 4px 7px; border-radius: 8px; margin-right: 8px; }
+	.field-title { font-size: 15px; font-weight: 700; color: #26364f; }
+	.field-title-space { margin-top: 23px; }
+	.option-row { flex-direction: row; margin-top: 11px; }
+	.option-row-wrap { flex-wrap: wrap; }
+	.option-pill { padding: 10px 14px; margin-right: 8px; margin-bottom: 8px; background-color: #f2f5fa; border-radius: 16px; border: 1px solid #e2e8f1; }
+	.option-pill-active { background-color: #e7f1ff; border-color: #6aa5e5; }
+	.option-text { font-size: 13px; color: #6f7d92; }
+	.option-text-active { color: #0b68d0; font-weight: 700; }
+	.generate-button { margin-top: 23px; }
+	.result-card { padding: 20px 18px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 24px; box-shadow: 0 9px 26px rgba(18,61,114,0.07); }
+	.result-header { flex-direction: row; justify-content: space-between; align-items: flex-start; }
+	.result-label { font-size: 11px; color: #d17d00; }
+	.result-title { font-size: 20px; font-weight: 700; color: #1d2d46; margin-top: 5px; }
+	.result-duration { font-size: 11px; color: #087eb5; background-color: #e4f7fb; padding: 6px 9px; border-radius: 14px; }
+	.result-copy { font-size: 13px; color: #748198; line-height: 20px; margin-top: 12px; }
+	.timeline { margin-top: 18px; }
+	.timeline-item { flex-direction: row; min-height: 60px; }
+	.timeline-rail { width: 22px; align-items: center; }
+	.timeline-dot { width: 10px; height: 10px; border-radius: 5px; background-color: #b9c6d6; }
+	.timeline-dot-active { background-color: #ffad24; box-shadow: 0 0 0 4px rgba(255,173,36,0.16); }
+	.timeline-line { width: 2px; flex: 1; background-color: #dce4ef; }
+	.timeline-content { flex: 1; padding-left: 8px; }
+	.timeline-name { font-size: 14px; font-weight: 600; color: #2a3a53; }
+	.timeline-time { font-size: 11px; color: #8793a5; margin-top: 5px; }
+	.result-actions { flex-direction: row; justify-content: space-between; margin-top: 12px; }
+	.saved-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 4px 10px; overflow: hidden; }
+</style>

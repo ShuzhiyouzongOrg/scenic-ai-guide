@@ -1,0 +1,10 @@
+import { registerCustomProvider } from '@/uni_modules/uni-ai-x/sdk/provider-registry.uts'
+import { ScenicGuideProvider } from './scenic-provider.uts'
+
+let registered = false
+
+export function registerScenicAiProvider() {
+	if (registered) return
+	registerCustomProvider('scenic-guide', new ScenicGuideProvider())
+	registered = true
+}

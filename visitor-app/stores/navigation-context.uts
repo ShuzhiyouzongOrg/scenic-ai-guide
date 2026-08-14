@@ -1,0 +1,40 @@
+import type { RouteRecommendation } from '@/domain/types.uts'
+
+const GUIDE_PROMPT_KEY = 'scenic-guide-pending-prompt'
+const MAP_SPOT_KEY = 'scenic-map-pending-spot'
+const ACTIVE_ROUTE_KEY = 'scenic-current-route'
+
+export function queueGuidePrompt(prompt : string) {
+	uni.setStorageSync(GUIDE_PROMPT_KEY, prompt)
+}
+
+export function consumeGuidePrompt() : string {
+	const prompt = uni.getStorageSync(GUIDE_PROMPT_KEY) as string
+	if (prompt.length > 0) uni.removeStorageSync(GUIDE_PROMPT_KEY)
+	return prompt
+}
+
+export function queueMapSpot(spotId : string) {
+	uni.setStorageSync(MAP_SPOT_KEY, spotId)
+}
+
+export function consumeMapSpot() : string {
+	const spotId = uni.getStorageSync(MAP_SPOT_KEY) as string
+	if (spotId.length > 0) uni.removeStorageSync(MAP_SPOT_KEY)
+	return spotId
+}
+
+export function setActiveRoute(route : RouteRecommendation) {
+	uni.setStorageSync(ACTIVE_ROUTE_KEY, JSON.stringify(route))
+}
+
+export function getActiveRoute() : RouteRecommendation | null {
+	const raw = uni.getStorageSync(ACTIVE_ROUTE_KEY) as string
+	if (raw.length == 0) return null
+	try {
+		return JSON.parse<RouteRecommendation>(raw) as RouteRecommendation
+	} catch (error) {
+		console.error('parse active route failed', error)
+		return null
+	}
+}

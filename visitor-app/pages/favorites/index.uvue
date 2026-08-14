@@ -1,0 +1,68 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view class="header">
+			<text class="header-eyebrow">本设备记录</text>
+			<text class="header-title">收藏与游览足迹</text>
+			<text class="header-copy">收藏便于稍后查看；足迹会按最近打开景点的顺序保存。</text>
+		</view>
+		<view class="content">
+			<app-section title="我的收藏" :subtitle="favorites.length.toString() + ' 个景点'">
+				<view v-if="favorites.length > 0" class="list-card">
+					<rice-cell v-for="item in favorites" :key="item.id" :title="item.name" :label="item.categoryName" arrow @click="openSpot(item.id)" />
+				</view>
+				<empty-state v-else icon="♡" title="还没有收藏" description="进入景点详情，点击收藏即可添加到这里。" />
+			</app-section>
+
+			<app-section title="最近足迹" :subtitle="footprints.length.toString() + ' 个景点'">
+				<view v-if="footprints.length > 0" class="list-card">
+					<rice-cell v-for="item in footprints" :key="item.id" :title="item.name" :label="item.categoryName" arrow @click="openSpot(item.id)" />
+				</view>
+				<empty-state v-else icon="⌖" title="还没有足迹" description="打开任一景点详情后会自动记录在本设备。" />
+			</app-section>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import type { ScenicSpot } from '@/domain/types.uts'
+	import { fetchScenicSpots } from '@/services/guide-api.uts'
+	import { getFavoriteSpotIds, getFootprintSpotIds } from '@/stores/visitor-activity.uts'
+
+	const favorites = ref<ScenicSpot[]>([])
+	const footprints = ref<ScenicSpot[]>([])
+
+	async function loadActivity() {
+		try {
+			const spots = await fetchScenicSpots()
+			const favoriteIds = getFavoriteSpotIds()
+			const footprintIds = getFootprintSpotIds()
+			favorites.value = favoriteIds
+				.map<ScenicSpot | null>((id : string) : ScenicSpot | null => spots.find((spot : ScenicSpot) : boolean => spot.id == id) ?? null)
+				.filter((spot : ScenicSpot | null) : boolean => spot != null)
+				.map<ScenicSpot>((spot : ScenicSpot | null) : ScenicSpot => spot!)
+			footprints.value = footprintIds
+				.map<ScenicSpot | null>((id : string) : ScenicSpot | null => spots.find((spot : ScenicSpot) : boolean => spot.id == id) ?? null)
+				.filter((spot : ScenicSpot | null) : boolean => spot != null)
+				.map<ScenicSpot>((spot : ScenicSpot | null) : ScenicSpot => spot!)
+		} catch (error) {
+			console.error('load favorites failed', error)
+			uni.showToast({ title: '景点数据连接失败', icon: 'none' })
+		}
+	}
+
+	function openSpot(id : string) {
+		uni.navigateTo({ url: '/pages/spot/detail?id=' + encodeURIComponent(id) })
+	}
+
+	onShow(() => { loadActivity() })
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.header { padding: 40px 20px 52px; background: linear-gradient(to bottom right, #061f55, #0b68d0 62%, #0a9fc1); border-radius: 0 0 34px 34px; }
+	.header-eyebrow { font-size: 9px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
+	.header-title { font-size: 28px; font-weight: 800; color: #ffffff; margin-top: 9px; }
+	.header-copy { font-size: 13px; color: #d9e9ff; line-height: 20px; margin-top: 9px; }
+	.content { padding: 0 16px 36px; }
+	.list-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 4px 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(17,65,120,0.07); }
+</style>

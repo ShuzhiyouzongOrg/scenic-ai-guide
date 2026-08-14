@@ -1,0 +1,220 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view class="hero">
+			<view class="hero-orb hero-orb-large"></view>
+			<view class="hero-orb hero-orb-small"></view>
+			<view class="hero-top">
+				<view class="brand-row">
+					<view class="brand-mark"><image class="brand-mark-image" src="/static/logo.png" mode="aspectFit" /></view>
+					<view>
+						<text class="brand-name">灵山智慧游</text>
+						<text class="brand-location">无锡 · 灵山胜境</text>
+					</view>
+				</view>
+				<view class="weather-pill">
+					<rice-icon name="sun" size="14" color="#ffd279" />
+					<text class="weather-text">24°</text>
+				</view>
+			</view>
+
+			<view class="hero-main">
+				<text class="hero-kicker">YOUR AI TRAVEL COMPANION</text>
+				<text class="hero-title">一部手机，智游灵山</text>
+				<text class="hero-copy">从景点讲解到路线规划，让懂你的 AI 导游陪伴每一段旅程。</text>
+			</view>
+
+			<view class="hero-actions">
+				<view class="hero-button hero-button-primary" @click="openGuide">
+					<rice-icon name="chat-fill" size="17" color="#0b68d0" />
+					<text class="hero-button-primary-text">开启 AI 导览</text>
+				</view>
+				<view class="hero-button hero-button-ghost" @click="openMap">
+					<text class="hero-button-ghost-text">打开地图</text>
+					<text class="hero-button-arrow">→</text>
+				</view>
+			</view>
+
+			<view class="hero-insights">
+				<view class="insight-item">
+					<text class="insight-value">40+</text>
+					<text class="insight-label">智慧点位</text>
+				</view>
+				<view class="insight-divider"></view>
+				<view class="insight-item">
+					<text class="insight-value">5 min</text>
+					<text class="insight-label">快速规划</text>
+				</view>
+				<view class="insight-divider"></view>
+				<view class="insight-item">
+					<text class="insight-value">AI</text>
+					<text class="insight-label">随行讲解</text>
+				</view>
+			</view>
+		</view>
+
+		<view class="page-content">
+			<view class="quick-panel">
+				<view class="quick-row">
+					<view class="quick-item quick-item-space" @click="openMap">
+						<view class="quick-icon quick-icon-cyan"><rice-icon name="location-fill" size="20" color="#087fbd" /></view>
+						<view class="quick-copy-block">
+							<text class="quick-title">景区地图</text>
+							<text class="quick-copy">点位与路线一图掌握</text>
+						</view>
+						<text class="quick-arrow">›</text>
+					</view>
+					<view class="quick-item" @click="openGuide">
+						<view class="quick-icon quick-icon-gold"><rice-icon name="chat-fill" size="20" color="#d88400" /></view>
+						<view class="quick-copy-block">
+							<text class="quick-title">AI 导游</text>
+							<text class="quick-copy">随时提问与语音讲解</text>
+						</view>
+						<text class="quick-arrow">›</text>
+					</view>
+				</view>
+				<view class="quick-row quick-row-space">
+					<view class="quick-item quick-item-space" @click="openTrip">
+						<view class="quick-icon quick-icon-blue"><rice-icon name="calendar-fill" size="20" color="#0b68d0" /></view>
+						<view class="quick-copy-block">
+							<text class="quick-title">定制行程</text>
+							<text class="quick-copy">按时间与兴趣生成</text>
+						</view>
+						<text class="quick-arrow">›</text>
+					</view>
+					<view class="quick-item" @click="openFavorites">
+						<view class="quick-icon quick-icon-rose"><rice-icon name="star-fill" size="20" color="#e45b70" /></view>
+						<view class="quick-copy-block">
+							<text class="quick-title">旅行收藏</text>
+							<text class="quick-copy">重温景点与游览足迹</text>
+						</view>
+						<text class="quick-arrow">›</text>
+					</view>
+				</view>
+			</view>
+
+			<app-section title="人气景点" subtitle="精选灵山文化与自然看点" action-text="地图查看" @action="openMap">
+				<view v-if="loading" class="loading-card">
+					<rice-loading mode="circle" color="#0b68d0" />
+					<text class="loading-text">正在加载景区数据</text>
+				</view>
+				<scroll-view v-else-if="spots.length > 0" class="spot-scroll" direction="horizontal" :show-scrollbar="false">
+					<view class="spot-row">
+						<spot-card v-for="spot in spots" :key="spot.id" :spot="spot" />
+					</view>
+				</scroll-view>
+				<empty-state v-else icon="景" title="景点数据尚未连接" description="确认 Node 服务与当前设备网络连通后，重新进入页面即可载入真实景点。" />
+			</app-section>
+
+			<app-section title="今日推荐" subtitle="经典文化线 · 适合首次到访" action-text="重新规划" @action="openTrip">
+				<view class="route-card" @click="openTrip">
+					<view class="route-visual">
+						<text class="route-number">03</text>
+						<text class="route-number-copy">个核心景点</text>
+					</view>
+					<view class="route-content">
+						<view class="route-top">
+							<text class="route-label">半日精选 · 约 3 小时</text>
+							<text class="route-arrow">↗</text>
+						</view>
+						<text class="route-title">灵山文化经典线</text>
+						<text class="route-copy">九龙灌浴 · 祥符禅寺 · 灵山大佛 · 梵宫</text>
+						<view class="route-progress">
+							<view class="route-progress-fill"></view>
+						</view>
+					</view>
+				</view>
+			</app-section>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import type { ScenicSpot } from '@/domain/types.uts'
+	import { fetchScenicSpots } from '@/services/guide-api.uts'
+
+	const loading = ref<boolean>(true)
+	const spots = ref<ScenicSpot[]>([])
+
+	async function loadSpots() {
+		loading.value = true
+		try {
+			const data = await fetchScenicSpots()
+			spots.value = data.filter((item : ScenicSpot) : boolean => item.kind == 'scenic').slice(0, 8)
+		} catch (error) {
+			console.error('load scenic spots failed', error)
+			spots.value = []
+		} finally {
+			loading.value = false
+		}
+	}
+
+	function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
+	function openMap() { uni.switchTab({ url: '/pages/map/index' }) }
+	function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
+	function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
+
+	onLoad(() => { loadSpots() })
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.hero { position: relative; overflow: hidden; padding: 54px 20px 26px; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
+	.hero-orb { position: absolute; border-radius: 999px; background-color: rgba(255,255,255,0.06); }
+	.hero-orb-large { width: 230px; height: 230px; right: -92px; top: -76px; }
+	.hero-orb-small { width: 112px; height: 112px; left: -48px; bottom: 96px; background-color: rgba(255,184,52,0.14); }
+	.hero-top { position: relative; flex-direction: row; justify-content: space-between; align-items: center; }
+	.brand-row { flex-direction: row; align-items: center; }
+	.brand-mark { width: 42px; height: 42px; border-radius: 14px; align-items: center; justify-content: center; overflow: hidden; background-color: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); margin-right: 10px; }
+	.brand-mark-image { width: 40px; height: 40px; }
+	.brand-name { font-size: 14px; font-weight: 700; color: #ffffff; }
+	.brand-location { font-size: 10px; color: #c9e7ff; margin-top: 3px; }
+	.weather-pill { flex-direction: row; align-items: center; padding: 7px 11px; border-radius: 18px; background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.12); }
+	.weather-text { font-size: 12px; font-weight: 600; color: #ffffff; margin-left: 5px; }
+	.hero-main { position: relative; margin-top: 32px; }
+	.hero-kicker { font-size: 9px; letter-spacing: 2px; color: #ffd279; font-weight: 700; }
+	.hero-title { font-size: 31px; line-height: 41px; font-weight: 800; color: #ffffff; margin-top: 9px; }
+	.hero-copy { width: 300px; font-size: 14px; line-height: 23px; color: #d8efff; margin-top: 10px; }
+	.hero-actions { position: relative; flex-direction: row; align-items: center; margin-top: 22px; }
+	.hero-button { height: 46px; border-radius: 23px; flex-direction: row; align-items: center; justify-content: center; }
+	.hero-button-primary { flex: 1; background-color: #ffffff; margin-right: 10px; box-shadow: 0 8px 20px rgba(2,31,82,0.18); }
+	.hero-button-ghost { width: 128px; border: 1px solid rgba(255,255,255,0.42); background-color: rgba(255,255,255,0.06); }
+	.hero-button-primary-text { font-size: 14px; color: #0b68d0; font-weight: 700; margin-left: 7px; }
+	.hero-button-ghost-text { font-size: 13px; color: #ffffff; }
+	.hero-button-arrow { font-size: 16px; color: #d9efff; margin-left: 7px; }
+	.hero-insights { position: relative; flex-direction: row; align-items: center; margin-top: 24px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,0.12); }
+	.insight-item { flex: 1; align-items: center; }
+	.insight-value { font-size: 15px; font-weight: 700; color: #ffffff; }
+	.insight-label { font-size: 9px; color: #bcdcf4; margin-top: 4px; }
+	.insight-divider { width: 1px; height: 25px; background-color: rgba(255,255,255,0.12); }
+	.page-content { padding: 0 16px 44px; }
+	.quick-panel { margin-top: 16px; }
+	.quick-row { flex-direction: row; }
+	.quick-row-space { margin-top: 10px; }
+	.quick-item { flex: 1; min-height: 88px; padding: 13px 12px; flex-direction: row; align-items: center; background-color: #ffffff; border: 1px solid #e4eaf4; border-radius: 20px; box-shadow: 0 8px 22px rgba(25,65,120,0.07); }
+	.quick-item-space { margin-right: 10px; }
+	.quick-icon { width: 38px; height: 38px; border-radius: 13px; align-items: center; justify-content: center; margin-right: 10px; }
+	.quick-icon-cyan { background-color: #e4f7fb; }
+	.quick-icon-gold { background-color: #faf0dc; }
+	.quick-icon-blue { background-color: #e7f1ff; }
+	.quick-icon-rose { background-color: #f7eaea; }
+	.quick-copy-block { flex: 1; }
+	.quick-title { font-size: 14px; font-weight: 700; color: #182941; }
+	.quick-copy { font-size: 9px; line-height: 14px; color: #7d899c; margin-top: 4px; }
+	.quick-arrow { font-size: 20px; color: #9aa6b7; margin-left: 4px; }
+	.loading-card { height: 130px; align-items: center; justify-content: center; background-color: #ffffff; border: 1px solid #e4eaf4; border-radius: 24px; }
+	.loading-text { font-size: 12px; color: #77849a; margin-top: 10px; }
+	.spot-scroll { height: 298px; }
+	.spot-row { flex-direction: row; padding: 2px 2px 14px; }
+	.route-card { flex-direction: row; overflow: hidden; background-color: #ffffff; border: 1px solid #e3eaf5; border-radius: 24px; box-shadow: 0 10px 28px rgba(21,65,124,0.08); }
+	.route-visual { width: 88px; min-height: 150px; align-items: center; justify-content: center; background: linear-gradient(to bottom, #17b7c3, #087ab8); }
+	.route-number { font-size: 30px; font-weight: 800; color: #ffffff; }
+	.route-number-copy { font-size: 9px; color: #e4fbff; margin-top: 5px; }
+	.route-content { flex: 1; padding: 17px 16px; }
+	.route-top { flex-direction: row; align-items: center; justify-content: space-between; }
+	.route-label { font-size: 10px; color: #d17d00; }
+	.route-arrow { font-size: 17px; color: #0b68d0; }
+	.route-title { font-size: 18px; font-weight: 700; color: #1a2a43; margin-top: 7px; }
+	.route-copy { font-size: 11px; line-height: 18px; color: #748198; margin-top: 9px; }
+	.route-progress { height: 5px; background-color: #edf1ee; border-radius: 3px; margin-top: 13px; overflow: hidden; }
+	.route-progress-fill { width: 68%; height: 5px; background: linear-gradient(to right, #0b68d0, #14b6c4); border-radius: 3px; }
+</style>

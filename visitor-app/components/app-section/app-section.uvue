@@ -1,0 +1,86 @@
+<template>
+	<view class="section">
+		<view class="section-header">
+			<view class="section-heading">
+				<view class="section-title-row">
+					<view class="section-accent"></view>
+					<text class="section-title">{{ title }}</text>
+				</view>
+				<text v-if="subtitle.length > 0" class="section-subtitle">{{ subtitle }}</text>
+			</view>
+			<text v-if="actionText.length > 0" class="section-action" @click="emitAction">{{ actionText }}</text>
+		</view>
+		<slot />
+	</view>
+</template>
+
+<script setup lang="uts">
+	type AppSectionProps = {
+		title : string,
+		subtitle ?: string,
+		actionText ?: string
+	}
+
+	const props = withDefaults(defineProps<AppSectionProps>(), {
+		subtitle: '',
+		actionText: ''
+	})
+
+	const emit = defineEmits<{
+		action: []
+	}>()
+
+	function emitAction() {
+		emit('action')
+	}
+</script>
+
+<style>
+	.section {
+		margin-top: 28px;
+	}
+
+	.section-header {
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-between;
+		margin-bottom: 12px;
+	}
+
+	.section-heading {
+		flex: 1;
+	}
+
+	.section-title-row {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.section-accent {
+		width: 4px;
+		height: 18px;
+		border-radius: 2px;
+		background: linear-gradient(to bottom, #ffb229, #08a8c1);
+		margin-right: 9px;
+	}
+
+	.section-title {
+		font-size: 21px;
+		font-weight: 700;
+		color: #15243c;
+	}
+
+	.section-subtitle {
+		font-size: 12px;
+		color: #748198;
+		margin-top: 5px;
+		margin-left: 13px;
+	}
+
+	.section-action {
+		font-size: 14px;
+		color: #0b68d0;
+		font-weight: 600;
+		padding: 6px 0 6px 12px;
+	}
+</style>

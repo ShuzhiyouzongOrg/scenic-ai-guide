@@ -1,0 +1,84 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view class="hero">
+			<view class="avatar"><image class="avatar-image" src="/static/logo.png" mode="aspectFit" /></view>
+			<text class="hero-title">{{ mode == 'login' ? '欢迎回来' : '创建游客账号' }}</text>
+			<text class="hero-copy">登录用于识别游客身份；当前导览记录仍以本设备游客会话保存。</text>
+		</view>
+		<view class="form-card">
+			<view class="mode-row">
+				<view class="mode-item" :class="mode == 'login' ? 'mode-item-active' : ''" @click="setMode('login')"><text class="mode-text">登录</text></view>
+				<view class="mode-item" :class="mode == 'register' ? 'mode-item-active' : ''" @click="setMode('register')"><text class="mode-text">注册</text></view>
+			</view>
+			<text class="field-label">用户名</text>
+			<input class="field-input" v-model="username" placeholder="3-20 个字符" maxlength="20" />
+			<text class="field-label field-space">密码</text>
+			<input class="field-input" v-model="password" type="password" placeholder="至少 6 个字符" maxlength="128" confirm-type="done" @confirm="submit" />
+			<view class="submit-button">
+				<rice-button :text="submitting ? '处理中...' : (mode == 'login' ? '登录' : '注册并登录')" type="primary" shape="round" size="large" width="100%" :loading="submitting" @click="submit" />
+			</view>
+			<text class="form-tip">账号密码仅提交到当前项目后端，请勿与其他重要账号共用密码。</text>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { loginVisitor, registerVisitor } from '@/services/guide-api.uts'
+	import { saveAuthSession } from '@/stores/auth.uts'
+
+	const mode = ref<string>('login')
+	const username = ref<string>('')
+	const password = ref<string>('')
+	const submitting = ref<boolean>(false)
+
+	function setMode(value : string) {
+		if (submitting.value) return
+		mode.value = value
+	}
+
+	async function submit() {
+		const name = username.value.trim()
+		if (name.length < 3 || name.length > 20) {
+			uni.showToast({ title: '用户名需为 3-20 个字符', icon: 'none' })
+			return
+		}
+		if (password.value.length < 6) {
+			uni.showToast({ title: '密码至少需要 6 个字符', icon: 'none' })
+			return
+		}
+		submitting.value = true
+		try {
+			if (mode.value == 'register') await registerVisitor(name, password.value)
+			const result = await loginVisitor(name, password.value)
+			saveAuthSession(result.token, result.user)
+			uni.showToast({ title: mode.value == 'register' ? '注册成功' : '登录成功', icon: 'success' })
+			setTimeout(() => {
+				uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/profile/index' }) })
+			}, 350)
+		} catch (error) {
+			console.error('visitor auth failed', error)
+			uni.showToast({ title: mode.value == 'register' ? '注册失败，用户名可能已存在' : '用户名或密码错误', icon: 'none' })
+		} finally {
+			submitting.value = false
+		}
+	}
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.hero { padding: 44px 24px 72px; align-items: center; background: linear-gradient(to bottom right, #061f55, #0b68d0 62%, #0a9fc1); }
+	.avatar { width: 76px; height: 76px; border-radius: 25px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.96); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 12px 28px rgba(4,24,62,0.24); overflow: hidden; }
+	.avatar-image { width: 68px; height: 68px; }
+	.hero-title { font-size: 27px; font-weight: 800; color: #ffffff; margin-top: 15px; }
+	.hero-copy { font-size: 12px; line-height: 19px; color: #d9e9ff; text-align: center; margin-top: 8px; }
+	.form-card { margin: -32px 16px 30px; padding: 21px 18px 25px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 24px; box-shadow: 0 12px 30px rgba(17,65,120,0.11); }
+	.mode-row { flex-direction: row; padding: 4px; border-radius: 18px; background-color: #edf3fb; margin-bottom: 22px; }
+	.mode-item { flex: 1; padding: 10px; border-radius: 15px; align-items: center; }
+	.mode-item-active { background-color: #ffffff; box-shadow: 0 4px 12px rgba(26,75,133,0.10); }
+	.mode-text { font-size: 14px; font-weight: 600; color: #24517f; }
+	.field-label { font-size: 13px; font-weight: 600; color: #344861; }
+	.field-space { margin-top: 17px; }
+	.field-input { height: 48px; margin-top: 8px; padding: 0 14px; border-radius: 15px; background-color: #f5f8fc; border: 1px solid #dfe7f1; font-size: 14px; color: #15243c; }
+	.submit-button { margin-top: 24px; }
+	.form-tip { font-size: 10px; line-height: 16px; color: #8a98aa; text-align: center; margin-top: 13px; }
+</style>

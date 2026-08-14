@@ -1,0 +1,71 @@
+<script setup lang="uts">
+	import { registerScenicAiProvider } from '@/adapters/ai/register.uts'
+
+	// #ifdef APP-ANDROID || APP-HARMONY
+	let firstBackTime = 0
+	// #endif
+
+	onLaunch(() => {
+		registerScenicAiProvider()
+		console.log('App Launch')
+	})
+
+	onAppShow(() => {
+		console.log('App Show')
+	})
+
+	onAppHide(() => {
+		console.log('App Hide')
+	})
+
+	// #ifdef APP-ANDROID || APP-HARMONY
+	onLastPageBackPress(() => {
+		console.log('App LastPageBackPress')
+		if (firstBackTime == 0) {
+			uni.showToast({
+				title: '再按一次退出应用',
+				position: 'bottom',
+			})
+			firstBackTime = Date.now()
+			setTimeout(() => {
+				firstBackTime = 0
+			}, 2000)
+		} else if (Date.now() - firstBackTime < 2000) {
+			firstBackTime = Date.now()
+			uni.exit()
+		}
+	})
+
+	onExit(() => {
+		console.log('App Exit')
+	})
+	// #endif
+</script>
+
+<style>
+	@import '@/uni_modules/rice-ui/libs/style/index.css';
+
+	page {
+		background-color: #f3f6fb;
+		color: #15243c;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+	}
+
+	.rice-theme-light {
+		--rice-primary-color: #0b68d0;
+		--rice-primary-color-1: #e8f2ff;
+		--rice-primary-color-7: #084f9f;
+		--rice-text-color: #15243c;
+		--rice-text-color-2: #738198;
+		--rice-border-color: #e2e8f2;
+		--rice-background: #f3f6fb;
+	}
+
+	.uni-row {
+		flex-direction: row;
+	}
+
+	.uni-column {
+		flex-direction: column;
+	}
+</style>

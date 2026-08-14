@@ -1,0 +1,204 @@
+export type VisitorSession = {
+	id : string,
+	createdAt : string
+}
+
+export type AuthUser = {
+	id : string,
+	username : string,
+	displayName : string,
+	role : string
+}
+
+export type AuthLoginResult = {
+	token : string,
+	user : AuthUser
+}
+
+export type AuthRegisterResult = {
+	userId : string,
+	userName : string,
+	avatar : string,
+	role : string
+}
+
+export type AuthProfile = {
+	userId : string,
+	userName : string,
+	realName ?: string,
+	nickname ?: string,
+	avatar ?: string,
+	email ?: string,
+	phone ?: string,
+	roles : string[]
+}
+
+export type ApiEnvelope<T> = {
+	ok ?: boolean,
+	data ?: T,
+	error ?: UTSJSONObject
+}
+
+export type ScenicSpot = {
+	id : string,
+	name : string,
+	aliases : string[],
+	categoryId : string,
+	categoryName : string,
+	kind : string,
+	latitude : number,
+	longitude : number,
+	coordinateSystem : string,
+	description ?: string,
+	detail ?: string,
+	media : UTSJSONObject,
+	panoramaIds : string[]
+}
+
+export type GuideRouteNode = {
+	id : string,
+	order : number,
+	spotId ?: string,
+	name : string,
+	latitude ?: number,
+	longitude ?: number,
+	coordinateSystem : string,
+	stayMinutes ?: number,
+	minutes ?: number,
+	narrationText ?: string
+}
+
+export type MapPoint = {
+	latitude : number,
+	longitude : number
+}
+
+export type GuideRoute = {
+	id : string,
+	name : string,
+	description ?: string,
+	recommendationReason ?: string,
+	durationMinutes ?: number,
+	distanceMeters ?: number,
+	tags : string[],
+	polyline : UTSJSONObject[],
+	nodes : GuideRouteNode[],
+	isOfficial : boolean
+}
+
+export type MapGuideBootstrap = {
+	version : string,
+	generatedAt : string,
+	area : UTSJSONObject,
+	config : UTSJSONObject,
+	categories : UTSJSONObject[],
+	spots : ScenicSpot[],
+	routes : GuideRoute[],
+	panoramas : UTSJSONObject[]
+}
+
+export type ChatSource = {
+	documentName ?: string,
+	sectionTitle ?: string,
+	scenicSpotName ?: string
+}
+
+export type ChatAnswer = {
+	answer : string,
+	label ?: string,
+	emotion ?: string,
+	scenario ?: string,
+	sources ?: ChatSource[],
+	cached ?: boolean
+}
+
+export type ConversationMessage = {
+	id : string,
+	sessionId : string,
+	role : string,
+	content : string,
+	intentLabel ?: string,
+	emotionLabel ?: string,
+	latencyMs ?: number,
+	createdAt : string
+}
+
+export type TtsSegment = {
+	id : string,
+	text : string,
+	audioUrl : string,
+	mimeType : string,
+	durationMs : number
+}
+
+export type TtsResult = {
+	provider : string,
+	voice : string,
+	speed : number,
+	segments : TtsSegment[],
+	audioUrl ?: string,
+	latencyMs : number
+}
+
+export type VoiceAskResult = {
+	transcript : string,
+	answer : ChatAnswer,
+	tts : TtsResult,
+	latency : UTSJSONObject
+}
+
+export type RouteRecommendation = {
+	id : string,
+	name : string,
+	routeType : string,
+	durationMinutes : number,
+	tags : string[],
+	suitableFor : string[],
+	nodes : GuideRouteNode[],
+	explanation : string
+}
+
+export type RouteRecommendResult = {
+	preferences : UTSJSONObject,
+	recommendation : RouteRecommendation,
+	alternatives : RouteRecommendation[],
+	message : string
+}
+
+export type SavedRouteSelection = {
+	id : string,
+	sessionId : string,
+	routeId : string,
+	routeName : string,
+	routeType : string,
+	durationMinutes : number,
+	nodeIds : string[],
+	tags : string[],
+	preferences : UTSJSONObject,
+	createdAt : string
+}
+
+export type RouteGraphNode = {
+	id : string,
+	name : string,
+	spotId ?: string,
+	order : number,
+	minutes : number,
+	tags : string[]
+}
+
+export type RouteGraph = {
+	nodes : RouteGraphNode[],
+	templates : UTSJSONObject[]
+}
+
+export type FeedbackRecord = {
+	id : string,
+	sessionId : string,
+	messageId : string,
+	rating ?: number,
+	vote : string,
+	emotion : string,
+	comment : string,
+	createdAt : string
+}

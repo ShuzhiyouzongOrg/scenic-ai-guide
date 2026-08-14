@@ -1,0 +1,82 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view class="header">
+			<text class="header-eyebrow">服务反馈</text>
+			<text class="header-title">这次导览体验怎么样？</text>
+			<text class="header-copy">你的评分和建议会提交到现有服务质量后台，用于改进景区知识与导览流程。</text>
+		</view>
+		<view class="form-card">
+			<text class="field-title">整体评分</text>
+			<view class="rating-row">
+				<view v-for="value in ratings" :key="value" class="rating-item" :class="rating == value ? 'rating-item-active' : ''" @click="selectRating(value)">
+					<text class="rating-value">{{ value }}</text>
+					<text class="rating-label">{{ ratingLabel(value) }}</text>
+				</view>
+			</view>
+			<text class="field-title field-space">意见或建议</text>
+			<textarea class="comment-input" v-model="comment" placeholder="例如：路线说明是否清楚、AI 回答是否准确、希望增加哪些功能……" maxlength="500" :adjust-position="false" />
+			<text class="counter">{{ comment.length }}/500</text>
+			<view class="submit-button">
+				<rice-button :text="submitting ? '正在提交...' : '提交反馈'" type="primary" shape="round" size="large" width="100%" :loading="submitting" @click="submit" />
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { submitFeedback } from '@/services/guide-api.uts'
+	import { ensureVisitorSession } from '@/stores/session.uts'
+
+	const ratings = ref<number[]>([1, 2, 3, 4, 5])
+	const rating = ref<number>(5)
+	const comment = ref<string>('')
+	const submitting = ref<boolean>(false)
+
+	function selectRating(value : number) { rating.value = value }
+	function ratingLabel(value : number) : string {
+		if (value == 1) return '很差'
+		if (value == 2) return '较差'
+		if (value == 3) return '一般'
+		if (value == 4) return '满意'
+		return '很好'
+	}
+
+	async function submit() {
+		if (comment.value.trim().length == 0 && rating.value < 4) {
+			uni.showToast({ title: '请告诉我们哪里需要改进', icon: 'none' })
+			return
+		}
+		submitting.value = true
+		try {
+			const sessionId = await ensureVisitorSession()
+			await submitFeedback(sessionId, rating.value, comment.value.trim())
+			uni.showToast({ title: '感谢你的反馈', icon: 'success' })
+			comment.value = ''
+			setTimeout(() => { uni.navigateBack() }, 500)
+		} catch (error) {
+			console.error('submit feedback failed', error)
+			uni.showToast({ title: '反馈提交失败，请稍后重试', icon: 'none' })
+		} finally {
+			submitting.value = false
+		}
+	}
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.header { padding: 40px 20px 70px; background: linear-gradient(to bottom right, #061f55, #0b68d0 62%, #0a9fc1); }
+	.header-eyebrow { font-size: 9px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
+	.header-title { font-size: 28px; line-height: 38px; font-weight: 800; color: #ffffff; margin-top: 9px; }
+	.header-copy { font-size: 13px; color: #d9e9ff; line-height: 20px; margin-top: 9px; }
+	.form-card { margin: -31px 16px 32px; padding: 22px 17px 25px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 24px; box-shadow: 0 12px 30px rgba(17,65,120,0.11); }
+	.field-title { font-size: 15px; font-weight: 700; color: #24364d; }
+	.field-space { margin-top: 23px; }
+	.rating-row { flex-direction: row; justify-content: space-between; margin-top: 13px; }
+	.rating-item { width: 56px; padding: 10px 2px; align-items: center; border-radius: 15px; background-color: #f4f7fb; border: 1px solid #e1e8f2; }
+	.rating-item-active { background-color: #fff5df; border-color: #ffc55f; box-shadow: 0 5px 14px rgba(216,132,0,0.12); }
+	.rating-value { font-size: 18px; font-weight: 800; color: #d88400; }
+	.rating-label { font-size: 10px; color: #718197; margin-top: 3px; }
+	.comment-input { height: 154px; margin-top: 10px; padding: 14px; border-radius: 17px; background-color: #f5f8fc; border: 1px solid #dfe7f1; font-size: 14px; line-height: 21px; color: #24364d; }
+	.counter { font-size: 10px; color: #8a98aa; text-align: right; margin-top: 6px; }
+	.submit-button { margin-top: 20px; }
+</style>

@@ -12,12 +12,17 @@
     },
     "/api/auth/login": {
       "post": {
-        "summary": "Admin login"
+        "summary": "Login for an administrator, operator or registered visitor"
       }
     },
     "/api/auth/register": {
       "post": {
         "summary": "Register a visitor account with a selected default avatar"
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Return the authenticated account profile"
       }
     },
     "/api/visitor/session": {
@@ -147,6 +152,11 @@
         "summary": "Voice pipeline: ASR, RAG answer, segmented TTS and latency breakdown"
       }
     },
+    "/api/voice/ask-upload": {
+      "post": {
+        "summary": "Voice pipeline accepting a multipart audio file from mobile and mini-program clients"
+      }
+    },
     "/api/voice/tts/audio/{id}": {
       "get": {
         "summary": "Return a generated TTS audio segment"
@@ -175,6 +185,14 @@
     "/api/routes/node/narrate": {
       "post": {
         "summary": "Generate narration for a selected route node"
+      }
+    },
+    "/api/feedback": {
+      "get": {
+        "summary": "List feedback, optionally filtered by visitor session"
+      },
+      "post": {
+        "summary": "Submit visitor satisfaction feedback"
       }
     },
     "/api/digital-human/config": {

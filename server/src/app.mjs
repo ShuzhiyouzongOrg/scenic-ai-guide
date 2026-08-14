@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { config } from "./config.mjs";
 import { logError, logInfo } from "./logger.mjs";
 import { fail, ok, created } from "./http/response.mjs";
-import { getBearerToken, readJson } from "./http/request.mjs";
+import { getBearerToken, readJson, readMultipartForm } from "./http/request.mjs";
 import { resolveStaticFilePath } from "./http/staticPath.mjs";
 import { createVisitorSession, login, register, verifyToken } from "./services/auth.mjs";
 import {
@@ -93,9 +93,35 @@ const mimeTypes = {
   ".wav": "audio/wav"
 };
 
+const localCorsOrigins = new Set([
+  "http://127.0.0.1:5173",
+  "http://localhost:5173",
+  ...String(process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+]);
+
+function applyCorsHeaders(req, res) {
+  const origin = String(req.headers.origin || "");
+  if (!origin || !localCorsOrigins.has(origin)) return;
+  res.setHeader("access-control-allow-origin", origin);
+  res.setHeader("access-control-allow-methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("access-control-allow-headers", "authorization,content-type");
+  res.setHeader("access-control-max-age", "600");
+  res.setHeader("vary", "Origin");
+}
+
 export const server = createServer(async (req, res) => {
   const start = Date.now();
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
+
+  applyCorsHeaders(req, res);
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
 
   try {
     await route(req, res, url);
@@ -409,6 +435,27 @@ async function route(req, res, url) {
     }));
     return;
   }
+
+	if (url.pathname === "/api/voice/ask-upload" && req.method === "POST") {
+		const { fields, files } = await readMultipartForm(req);
+		const audio = files.audio || files.file || Object.values(files)[0];
+		if (!audio?.buffer?.length) {
+			const error = new Error("An audio file is required.");
+			error.statusCode = 400;
+			error.code = "AUDIO_FILE_REQUIRED";
+			throw error;
+		}
+		ok(res, await voiceAsk({
+			audioBase64: audio.buffer.toString("base64"),
+			mimeType: audio.mimeType,
+			transcript: fields.transcript || "",
+			question: fields.question || "",
+			sessionId: fields.sessionId || "",
+			mode: fields.mode || "hybrid",
+			locale: fields.locale || "zh-CN"
+		}));
+		return;
+	}
 
   if (url.pathname === "/api/digital-human/config" && req.method === "GET") {
     ok(res, getActiveDigitalHumanConfig());

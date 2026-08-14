@@ -1,0 +1,246 @@
+<template>
+	<view class="page">
+		<view class="map-header">
+			<view class="map-title-row">
+				<view class="map-title-group">
+					<view class="map-brand-icon"><image class="map-brand-image" src="/static/logo.png" mode="aspectFit" /></view>
+					<view>
+						<text class="map-eyebrow">LINGSHAN MAP</text>
+						<text class="map-title">景区探索</text>
+					</view>
+				</view>
+				<view class="location-button" @click="locateMe"><rice-icon name="location-fill" size="14" color="#ffffff" /><text class="location-button-text">定位</text></view>
+			</view>
+			<rice-search v-model="keyword" placeholder="搜索景点或服务设施" shape="round" @change="filterSpots" />
+			<view class="map-meta-row">
+				<text class="map-meta">已载入 {{ visibleSpots.length }} 个景区点位</text>
+				<text v-if="polylines.length > 0" class="route-meta">● 路线已绘制</text>
+			</view>
+		</view>
+
+		<map
+			id="scenic-map"
+			class="map-view"
+			:latitude="centerLatitude"
+			:longitude="centerLongitude"
+			:scale="mapScale"
+			:markers="markers"
+			:polyline="polylines"
+			:show-location="true"
+			:enable-zoom="true"
+			:enable-scroll="true"
+			:show-compass="true"
+			@markertap="onMarkerTap"
+		/>
+
+		<view class="map-controls">
+			<view class="map-control" @click="zoomIn"><rice-icon name="plus" size="21" color="#24517f" /></view>
+			<view class="map-control" @click="zoomOut"><rice-icon name="minus" size="21" color="#24517f" /></view>
+		</view>
+
+		<view class="spot-sheet">
+			<view class="sheet-handle"></view>
+			<template v-if="selectedSpot != null">
+				<view class="sheet-heading">
+					<view>
+						<text class="sheet-label">{{ selectedSpot!.categoryName }}</text>
+						<text class="sheet-title">{{ selectedSpot!.name }}</text>
+					</view>
+					<text class="sheet-distance">景区内</text>
+				</view>
+				<text class="sheet-copy">{{ selectedSpot!.description ?? selectedSpot!.detail ?? '点击查看景点详情与智能讲解。' }}</text>
+				<view class="sheet-actions">
+					<rice-button text="景点详情" type="primary" shape="round" @click="openSpot" />
+					<rice-button text="问问导游" shape="round" plain @click="askGuide" />
+				</view>
+			</template>
+			<view v-else class="sheet-empty">
+				<text class="sheet-empty-title">点击地图标记查看景点</text>
+				<text class="sheet-empty-copy">当前显示 {{ visibleSpots.length }} 个景区点位</text>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import type { GuideRoute, GuideRouteNode, MapPoint, ScenicSpot } from '@/domain/types.uts'
+	import { fetchGuideRoutes, fetchScenicSpots } from '@/services/guide-api.uts'
+	import { consumeMapSpot, getActiveRoute, queueGuidePrompt } from '@/stores/navigation-context.uts'
+
+	const centerLatitude = ref<number>(31.426019)
+	const centerLongitude = ref<number>(120.099528)
+	const mapScale = ref<number>(16)
+	const keyword = ref<string>('')
+	const spots = ref<ScenicSpot[]>([])
+	const visibleSpots = ref<ScenicSpot[]>([])
+	const routes = ref<GuideRoute[]>([])
+	const markers = ref<Marker[]>([])
+	const polylines = ref<Polyline[]>([])
+	const selectedSpot = ref<ScenicSpot | null>(null)
+
+	function buildMarkers(source : ScenicSpot[]) {
+		visibleSpots.value = source.slice(0, 80)
+		markers.value = visibleSpots.value.map<Marker>((spot : ScenicSpot, index : number) : Marker => {
+			return {
+				id: index + 1,
+				latitude: spot.latitude,
+				longitude: spot.longitude,
+				title: spot.name,
+				iconPath: '/static/logo.png',
+				width: 30,
+				height: 30,
+				anchor: { x: 0.5, y: 1.0 },
+				callout: {
+					content: spot.name,
+					color: '#164473',
+					fontSize: 12,
+					borderRadius: 8,
+					bgColor: '#ffffff',
+					padding: 6,
+					display: 'BYCLICK'
+				} as MapMarkerCallout
+			} as Marker
+		})
+	}
+
+	function buildRouteNodes(nodes : GuideRouteNode[]) {
+		if (nodes.length == 0) {
+			polylines.value = []
+			return
+		}
+		const points = nodes
+			.map<MapPoint | null>((node : GuideRouteNode) : MapPoint | null => {
+				if (node.latitude != null && node.longitude != null) {
+					return { latitude: node.latitude!, longitude: node.longitude! } as MapPoint
+				}
+				const spot = spots.value.find((item : ScenicSpot) : boolean => {
+					return ((node.spotId ?? '').length > 0 && item.id == node.spotId) || item.name == node.name
+				}) ?? null
+				return spot == null ? null : { latitude: spot.latitude, longitude: spot.longitude } as MapPoint
+			})
+			.filter((point : MapPoint | null) : boolean => point != null)
+			.map<MapPoint>((point : MapPoint | null) : MapPoint => point!)
+		polylines.value = points.length > 1 ? [{
+			points,
+			color: '#0b68d0dd',
+			width: 6,
+			arrowLine: true,
+			borderColor: '#ffffff',
+			borderWidth: 2
+		} as Polyline] : []
+	}
+
+	async function loadMapData() {
+		try {
+			const spotData = await fetchScenicSpots()
+			spots.value = spotData
+			buildMarkers(spotData)
+			if (spotData.length > 0 && selectedSpot.value == null) selectedSpot.value = spotData[0]
+			const routeData = await fetchGuideRoutes()
+			routes.value = routeData
+			const activeRoute = getActiveRoute()
+			buildRouteNodes(activeRoute != null ? activeRoute.nodes : (routeData.length > 0 ? routeData[0].nodes : []))
+			applyPendingSpot()
+		} catch (error) {
+			console.error('load map data failed', error)
+			uni.showToast({ title: '地图数据连接失败', icon: 'none' })
+		}
+	}
+
+	function applyPendingSpot() {
+		const spotId = consumeMapSpot()
+		if (spotId.length == 0) return
+		const target = spots.value.find((spot : ScenicSpot) : boolean => spot.id == spotId) ?? null
+		if (target == null) return
+		selectedSpot.value = target
+		centerLatitude.value = target.latitude
+		centerLongitude.value = target.longitude
+		mapScale.value = 18
+	}
+
+	function filterSpots() {
+		const value = keyword.value.trim()
+		if (value.length == 0) {
+			buildMarkers(spots.value)
+			return
+		}
+		const result = spots.value.filter((spot : ScenicSpot) : boolean => spot.name.includes(value) || spot.categoryName.includes(value))
+		buildMarkers(result)
+		if (result.length > 0) {
+			selectedSpot.value = result[0]
+			centerLatitude.value = result[0].latitude
+			centerLongitude.value = result[0].longitude
+		}
+	}
+
+	function onMarkerTap(event : UniMapMarkerTapEvent) {
+		const markerId = event.detail?.markerId
+		if (markerId == null) return
+		const index = markerId - 1
+		if (index >= 0 && index < visibleSpots.value.length) selectedSpot.value = visibleSpots.value[index]
+	}
+
+	function locateMe() {
+		uni.showLoading({ title: '定位中' })
+		uni.getLocation({
+			type: 'gcj02',
+			isHighAccuracy: true,
+			success: (result) => {
+				centerLatitude.value = result.latitude
+				centerLongitude.value = result.longitude
+			},
+			fail: (error) => uni.showToast({ title: error.errMsg, icon: 'none' }),
+			complete: () => uni.hideLoading()
+		})
+	}
+
+	function zoomIn() { mapScale.value = Math.min(19, mapScale.value + 1) }
+	function zoomOut() { mapScale.value = Math.max(5, mapScale.value - 1) }
+	function openSpot() {
+		if (selectedSpot.value == null) return
+		uni.navigateTo({ url: '/pages/spot/detail?id=' + encodeURIComponent(selectedSpot.value!.id) })
+	}
+	function askGuide() {
+		if (selectedSpot.value != null) queueGuidePrompt('请介绍' + selectedSpot.value!.name + '，并告诉我现在最值得看的内容。')
+		uni.switchTab({ url: '/pages/ai-guide/index' })
+	}
+
+	onLoad(() => { loadMapData() })
+	onShow(() => {
+		if (spots.value.length > 0) {
+			const activeRoute = getActiveRoute()
+			if (activeRoute != null) buildRouteNodes(activeRoute.nodes)
+			applyPendingSpot()
+		}
+	})
+</script>
+
+	<style>
+	.page { flex: 1; background-color: #e7eef8; }
+	.map-header { position: absolute; left: 14px; right: 14px; top: 48px; z-index: 10; padding: 13px 13px 10px; background-color: rgba(255,255,255,0.97); border-radius: 22px; border: 1px solid #dfe7f2; box-shadow: 0 12px 30px rgba(18,61,115,0.15); }
+	.map-title-row { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+	.map-title-group { flex-direction: row; align-items: center; }
+	.map-brand-icon { width: 42px; height: 42px; border-radius: 14px; align-items: center; justify-content: center; overflow: hidden; background-color: #e7f2ff; margin-right: 10px; }
+	.map-brand-image { width: 40px; height: 40px; }
+	.map-eyebrow { font-size: 8px; color: #d58000; letter-spacing: 1px; }
+	.map-title { font-size: 21px; font-weight: 800; color: #15243c; margin-top: 2px; }
+	.location-button { height: 34px; padding: 0 13px; border-radius: 17px; flex-direction: row; align-items: center; justify-content: center; background: linear-gradient(to right, #0b68d0, #099fbd); }
+	.location-button-text { font-size: 12px; font-weight: 600; color: #ffffff; margin-left: 4px; }
+	.map-meta-row { flex-direction: row; align-items: center; justify-content: space-between; padding: 8px 3px 1px; }
+	.map-meta { font-size: 9px; color: #7b879b; }
+	.route-meta { font-size: 9px; color: #0b68d0; font-weight: 600; }
+	.map-view { width: 100%; height: 100%; }
+	.map-controls { position: absolute; right: 16px; top: 236px; z-index: 10; border-radius: 15px; overflow: hidden; border: 1px solid #dfe7f2; box-shadow: 0 8px 20px rgba(26,68,120,0.16); }
+	.map-control { width: 42px; height: 42px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.98); border-bottom: 1px solid #edf1f6; }
+	.spot-sheet { position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 12; background-color: rgba(255,255,255,0.98); border: 1px solid #dfe7f2; border-radius: 26px; padding: 10px 18px 19px; box-shadow: 0 16px 40px rgba(16,56,108,0.20); }
+	.sheet-handle { width: 38px; height: 4px; border-radius: 2px; background-color: #d5deeb; align-self: center; margin-bottom: 12px; }
+	.sheet-heading { flex-direction: row; justify-content: space-between; align-items: flex-start; }
+	.sheet-label { font-size: 10px; color: #d17d00; letter-spacing: 1px; }
+	.sheet-title { font-size: 22px; font-weight: 800; color: #172741; margin-top: 4px; }
+	.sheet-distance { font-size: 11px; color: #087eb5; background-color: #e4f7fb; padding: 6px 10px; border-radius: 14px; }
+	.sheet-copy { font-size: 13px; color: #738198; line-height: 20px; margin-top: 10px; max-height: 40px; overflow: hidden; }
+	.sheet-actions { flex-direction: row; justify-content: space-between; margin-top: 14px; }
+	.sheet-empty { align-items: center; padding: 8px 0 4px; }
+	.sheet-empty-title { font-size: 16px; font-weight: 700; color: #1c2d46; }
+	.sheet-empty-copy { font-size: 12px; color: #8491a4; margin-top: 6px; }
+</style>
