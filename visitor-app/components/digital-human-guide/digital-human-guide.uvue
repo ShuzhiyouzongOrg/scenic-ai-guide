@@ -1,5 +1,5 @@
 <template>
-	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''">
+	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''" @click="handleClick">
 		<view class="avatar-shell" :class="compact ? 'avatar-shell-compact' : ''">
 			<view class="avatar-glow" :class="state == 'speaking' ? 'avatar-glow-speaking' : ''"></view>
 			<image class="avatar-image" :class="compact ? 'avatar-image-compact' : ''" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
@@ -8,7 +8,7 @@
 		<view class="digital-copy">
 			<view class="digital-title-row">
 				<text class="digital-name" :class="compact ? 'digital-name-compact' : ''">{{ title }}</text>
-				<text class="digital-badge">数字人</text>
+				<text class="digital-badge">{{ engineBadge }}</text>
 			</view>
 			<text class="digital-status">{{ statusText }}</text>
 			<text v-if="!compact" class="digital-message">{{ message }}</text>
@@ -22,22 +22,39 @@
 		title ?: string,
 		message ?: string,
 		state ?: string,
-		compact ?: boolean
+		compact ?: boolean,
+		engine ?: string,
+		serviceStatus ?: string
 	}
+	const emit = defineEmits(['click'])
 
 	const props = withDefaults(defineProps<DigitalHumanGuideProps>(), {
 		title: '灵小游',
 		message: '我可以为你讲解景点、规划路线，也能跟随当前位置提供导览。',
 		state: 'idle',
-		compact: false
+		compact: false,
+		engine: 'xfyun',
+		serviceStatus: 'online'
+	})
+
+	const engineBadge = computed<string>(() => {
+		if (props.engine == 'xfyun') return '讯飞云'
+		if (props.engine == 'live2d') return '本地形象'
+		return '数字人'
 	})
 
 	const statusText = computed<string>(() => {
-		if (props.state == 'thinking') return '正在检索景区知识'
-		if (props.state == 'speaking') return '正在为你讲解'
-		if (props.state == 'guiding') return '正在进行景区导览'
-		return '在线 · 随时为你服务'
+		const provider = props.engine == 'xfyun' ? '讯飞数字人' : '本地数字人'
+		if (props.state == 'thinking') return provider + ' · 正在检索景区知识'
+		if (props.state == 'speaking') return provider + ' · 正在为你讲解'
+		if (props.state == 'guiding') return provider + ' · 正在进行景区导览'
+		if (props.serviceStatus != 'online') return provider + ' · 当前使用降级模式'
+		return provider + ' · 服务已接入'
 	})
+
+	function handleClick() {
+		emit('click')
+	}
 </script>
 
 <style>

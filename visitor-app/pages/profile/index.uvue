@@ -21,7 +21,21 @@
 			</view>
 
 			<text class="menu-section-title">我的服务</text>
-			<view class="menu-card">
+			<view class="preference-card">
+				<view class="preference-item" @click="chooseScenicArea">
+					<view class="menu-icon menu-icon-blue"><rice-icon name="location-fill" size="19" color="#0b68d0" /></view>
+					<view class="menu-copy"><text class="menu-title">当前景区</text><text class="menu-label">{{ scenicAreaName }} · 地图与行程将同步切换</text></view>
+					<text class="preference-value">切换</text><text class="menu-arrow">›</text>
+				</view>
+				<view class="menu-divider"></view>
+				<view class="preference-item" @click="chooseDigitalHuman">
+					<view class="menu-icon menu-icon-cyan"><rice-icon name="voice" size="19" color="#087fbd" /></view>
+					<view class="menu-copy"><text class="menu-title">数字人导游</text><text class="menu-label">{{ selectedDigitalHumanName }} · {{ selectedDigitalHumanStatus }}</text></view>
+					<text class="preference-value">切换</text><text class="menu-arrow">›</text>
+				</view>
+			</view>
+
+			<view class="menu-card service-menu-card">
 				<view class="menu-item" @click="openTrip"><view class="menu-icon menu-icon-blue"><rice-icon name="calendar-fill" size="19" color="#0b68d0" /></view><view class="menu-copy"><text class="menu-title">我的行程</text><text class="menu-label">查看已保存和进行中的路线</text></view><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
 				<view class="menu-item" @click="openFavorites"><view class="menu-icon menu-icon-gold"><rice-icon name="star-fill" size="19" color="#d88400" /></view><view class="menu-copy"><text class="menu-title">收藏与足迹</text><text class="menu-label">查看本设备保存的景点记录</text></view><text class="menu-arrow">›</text></view>
@@ -42,9 +56,10 @@
 </template>
 
 <script setup lang="uts">
-	import type { AuthUser } from '@/domain/types.uts'
-	import { fetchAuthProfile, fetchSavedRoutes } from '@/services/guide-api.uts'
+	import type { AuthUser, DigitalHumanConfig } from '@/domain/types.uts'
+	import { createDefaultDigitalHumanConfig, fetchAuthProfile, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchSavedRoutes } from '@/services/guide-api.uts'
 	import { clearAuthSession, getAuthToken, getCachedAuthUser, updateCachedAuthProfile } from '@/stores/auth.uts'
+	import { getPreferredScenicArea, getSelectedDigitalHumanId, setPreferredScenicArea, setSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
 	import { getFavoriteSpotIds, getFootprintSpotIds } from '@/stores/visitor-activity.uts'
 
@@ -52,9 +67,33 @@
 	const favoriteCount = ref<number>(0)
 	const footprintCount = ref<number>(0)
 	const authUser = ref<AuthUser | null>(null)
+	const scenicArea = ref<string>('lingshan')
+	const digitalHumans = ref<DigitalHumanConfig[]>([createDefaultDigitalHumanConfig()])
+	const selectedDigitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
 	const displayName = computed<string>(() => authUser.value?.displayName ?? '游客')
+	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
+	const selectedDigitalHumanName = computed<string>(() => selectedDigitalHuman.value?.name ?? '云觉·大佛文化使（女）')
+	const selectedDigitalHumanStatus = computed<string>(() => selectedDigitalHuman.value?.engine == 'xfyun' ? '讯飞云音色已接入' : '本地形象模式')
+
+	async function refreshGuidePreferences() {
+		scenicArea.value = getPreferredScenicArea()
+		try {
+			let configs = await fetchDigitalHumanConfigs()
+			configs = configs.filter((item : DigitalHumanConfig) : boolean => item.engine == 'xfyun' && item.serviceStatus == 'online')
+			if (configs.length == 0) configs = [await fetchDigitalHumanConfig()]
+			digitalHumans.value = configs
+			const selectedId = getSelectedDigitalHumanId()
+			selectedDigitalHuman.value = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId) ?? configs[0]
+		} catch (error) {
+			console.error('load guide preferences failed', error)
+			const fallback = createDefaultDigitalHumanConfig()
+			digitalHumans.value = [fallback]
+			selectedDigitalHuman.value = fallback
+		}
+	}
 
 	async function refreshProfileState() {
+		refreshGuidePreferences()
 		authUser.value = getCachedAuthUser()
 		favoriteCount.value = getFavoriteSpotIds().length
 		footprintCount.value = getFootprintSpotIds().length
@@ -76,6 +115,34 @@
 				console.error('refresh auth profile failed', error)
 			}
 		}
+	}
+
+	function chooseScenicArea() {
+		uni.showActionSheet({
+			itemList: ['灵山胜境', '拈花湾'],
+			success: (result) => {
+				const nextArea = result.tapIndex == 1 ? 'nianhuawan' : 'lingshan'
+				setPreferredScenicArea(nextArea)
+				scenicArea.value = nextArea
+				uni.showToast({ title: '已切换到' + scenicAreaName.value, icon: 'none' })
+			}
+		})
+	}
+
+	function chooseDigitalHuman() {
+		if (digitalHumans.value.length == 0) {
+			uni.showToast({ title: '数字人配置暂未载入', icon: 'none' })
+			return
+		}
+		uni.showActionSheet({
+			itemList: digitalHumans.value.map<string>((item : DigitalHumanConfig) : string => item.name),
+			success: (result) => {
+				const selected = digitalHumans.value[result.tapIndex]
+				selectedDigitalHuman.value = selected
+				setSelectedDigitalHumanId(selected.id)
+				uni.showToast({ title: '已切换为' + selected.name, icon: 'none' })
+			}
+		})
 	}
 
 	function handleAuth() {
@@ -106,7 +173,7 @@
 
 <style>
 	.page { flex: 1; background-color: #f3f6fb; }
-	.profile-header { position: relative; overflow: hidden; padding: 58px 20px 50px; align-items: center; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
+	.profile-header { position: relative; overflow: hidden; padding: 58px 20px 72px; align-items: center; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
 	.profile-orb { position: absolute; right: -74px; top: -88px; width: 220px; height: 220px; border-radius: 110px; background-color: rgba(255,255,255,0.06); }
 	.profile-avatar { position: relative; width: 82px; height: 82px; border-radius: 27px; overflow: hidden; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.38); box-shadow: 0 12px 28px rgba(3,29,75,0.24); }
 	.profile-avatar-image { width: 80px; height: 80px; }
@@ -116,16 +183,19 @@
 	.auth-button { height: 36px; padding: 0 15px; flex-direction: row; align-items: center; border-radius: 18px; background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); }
 	.auth-button-text { font-size: 12px; color: #ffffff; font-weight: 600; }
 	.auth-button-arrow { font-size: 14px; color: #d9efff; margin-left: 7px; }
-	.content { padding: 0 16px 36px; }
-	.stats-card { flex-direction: row; align-items: center; margin-top: -23px; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 22px; padding: 18px 8px; box-shadow: 0 11px 28px rgba(18,61,115,0.11); }
+	.content { position: relative; z-index: 2; margin-top: -34px; padding: 0 16px 36px; }
+	.stats-card { flex-direction: row; align-items: center; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 22px; padding: 18px 8px; box-shadow: 0 11px 28px rgba(18,61,115,0.11); }
 	.stat-item { flex: 1; align-items: center; }
 	.stat-value { font-size: 22px; font-weight: 800; color: #0b68d0; }
 	.stat-label { font-size: 11px; color: #7d899d; margin-top: 4px; }
 	.stat-divider { width: 1px; height: 28px; background-color: #e7ecf3; }
 	.menu-section-title { font-size: 14px; font-weight: 700; color: #24354d; margin: 24px 4px 10px; }
 	.menu-section-space { margin-top: 20px; }
-	.menu-card, .settings-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 3px 14px; overflow: hidden; box-shadow: 0 7px 20px rgba(24,62,110,0.04); }
+	.menu-card, .settings-card, .preference-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 3px 14px; overflow: hidden; box-shadow: 0 7px 20px rgba(24,62,110,0.04); }
 	.menu-item { min-height: 72px; flex-direction: row; align-items: center; }
+	.preference-item { min-height: 72px; flex-direction: row; align-items: center; }
+	.service-menu-card { margin-top: 10px; }
+	.preference-value { font-size: 10px; color: #0b68d0; background-color: #e7f1ff; padding: 5px 8px; border-radius: 10px; }
 	.menu-icon { width: 38px; height: 38px; border-radius: 13px; align-items: center; justify-content: center; margin-right: 12px; }
 	.menu-icon-cyan { background-color: #e4f7fb; }
 	.menu-icon-gold { background-color: #faf0dc; }

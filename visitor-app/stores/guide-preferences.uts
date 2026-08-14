@@ -1,0 +1,25 @@
+import type { ScenicAreaId } from '@/domain/types.uts'
+
+const PREFERRED_SCENIC_AREA_KEY = 'scenic-guide-preferred-area'
+const SELECTED_DIGITAL_HUMAN_KEY = 'scenic-guide-selected-digital-human'
+
+export function normalizeScenicAreaId(value : string) : ScenicAreaId {
+	return value == 'nianhuawan' ? 'nianhuawan' : 'lingshan'
+}
+
+export function getPreferredScenicArea() : ScenicAreaId {
+	const stored = uni.getStorageSync(PREFERRED_SCENIC_AREA_KEY) as string
+	return normalizeScenicAreaId(stored)
+}
+
+export function setPreferredScenicArea(areaId : string) {
+	uni.setStorageSync(PREFERRED_SCENIC_AREA_KEY, normalizeScenicAreaId(areaId))
+}
+
+export function getSelectedDigitalHumanId() : string {
+	return uni.getStorageSync(SELECTED_DIGITAL_HUMAN_KEY) as string
+}
+
+export function setSelectedDigitalHumanId(id : string) {
+	uni.setStorageSync(SELECTED_DIGITAL_HUMAN_KEY, id)
+}

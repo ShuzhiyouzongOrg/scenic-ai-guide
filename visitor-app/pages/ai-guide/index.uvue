@@ -7,10 +7,10 @@
 			</view>
 			<view class="guide-heading">
 				<view class="guide-title-row">
-					<text class="guide-title">灵小游</text>
-					<text class="guide-mode">AI 导游</text>
+					<text class="guide-title">{{ digitalHumanTitle }}</text>
+					<text class="guide-mode">{{ digitalHumanEngineLabel }}</text>
 				</view>
-				<text class="guide-status">在线 · 景区知识与路线已接入</text>
+				<text class="guide-status">{{ digitalHumanProviderStatus }}</text>
 			</view>
 			<view class="voice-toggle" @click="toggleNarration">
 				<rice-icon :name="autoNarration ? 'volume-up-fill' : 'volume-mute-fill'" size="19" color="#0b68d0" />
@@ -20,7 +20,7 @@
 		<scroll-view class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget">
 			<view class="message-list">
 				<view class="welcome-card">
-					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" />
+					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" :engine="digitalHuman?.engine ?? 'xfyun'" :service-status="digitalHuman?.serviceStatus ?? 'online'" />
 					<view class="welcome-top">
 						<text class="welcome-kicker">SMART GUIDE</text>
 						<text class="welcome-capability">知识库增强</text>
@@ -66,8 +66,9 @@
 
 <script setup lang="uts">
 	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
-	import { askQuestion, askVoice, fetchChatHistory, fetchDigitalHumanConfig, synthesizeSpeech } from '@/services/guide-api.uts'
+	import { askQuestion, askVoice, createDefaultDigitalHumanConfig, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
+	import { getSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
 	import { consumeGuidePrompt } from '@/stores/navigation-context.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
 
@@ -83,7 +84,7 @@
 	const recording = ref<boolean>(false)
 	const autoNarration = ref<boolean>(true)
 	const initialized = ref<boolean>(false)
-	const digitalHuman = ref<DigitalHumanConfig | null>(null)
+	const digitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
 	const digitalHumanState = ref<string>('idle')
 	const scrollTarget = ref<string>('message-bottom')
 	const sessionId = ref<string>('')
@@ -95,6 +96,28 @@
 	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线'])
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
 	const digitalHumanWelcome = computed<string>(() => digitalHuman.value?.welcomeText ?? '我可以介绍景点、规划路线，也能结合当前位置陪伴讲解。')
+	const digitalHumanEngineLabel = computed<string>(() => digitalHuman.value?.engine == 'xfyun' ? '讯飞云数字人' : 'AI 导游')
+	const digitalHumanProviderStatus = computed<string>(() => {
+		if (digitalHuman.value == null) return '正在载入数字人配置'
+		if (digitalHuman.value!.serviceStatus != 'online') return '数字人服务降级 · 文字问答仍可使用'
+		const voice = digitalHuman.value!.vcn.length > 0 ? '专属音色已接入' : '默认音色'
+		return (digitalHuman.value!.engine == 'xfyun' ? '讯飞云服务在线' : '本地形象在线') + ' · ' + voice
+	})
+
+	async function loadDigitalHumanPreference() {
+		try {
+			const configs = await fetchDigitalHumanConfigs()
+			const selectedId = getSelectedDigitalHumanId()
+			const selected = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId) ?? null
+			if (selected != null) {
+				digitalHuman.value = selected
+				return
+			}
+		} catch (error) {
+			console.error('load digital human list failed', error)
+		}
+		try { digitalHuman.value = await fetchDigitalHumanConfig() } catch (error) { console.error('load digital human failed', error) }
+	}
 
 	function scrollToBottom() {
 		scrollTarget.value = ''
@@ -135,7 +158,7 @@
 
 	async function requestTts(text : string) {
 		try {
-			const result = await synthesizeSpeech(text)
+			const result = await synthesizeSpeech(text, digitalHuman.value?.vcn ?? 'x6_jingqudaolannvsheng_mini', digitalHuman.value?.speechRate ?? 1)
 			ttsQueue.value = result.segments
 			ttsQueueIndex.value = 0
 			digitalHumanState.value = 'speaking'
@@ -158,7 +181,11 @@
 			const sources = (result.answer.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '景区知识库')
 			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer.answer, sources })
 			if (autoNarration.value) {
-				ttsQueue.value = result.tts.segments
+				const preferredVoice = digitalHuman.value?.vcn ?? ''
+				const speech = preferredVoice.length == 0 || result.tts.voice == preferredVoice
+					? result.tts
+					: await synthesizeSpeech(result.answer.answer, preferredVoice, digitalHuman.value?.speechRate ?? 1)
+				ttsQueue.value = speech.segments
 				ttsQueueIndex.value = 0
 				playNextTtsSegment()
 			} else digitalHumanState.value = 'idle'
@@ -224,7 +251,7 @@
 	}
 
 	onLoad(async () => {
-		try { digitalHuman.value = await fetchDigitalHumanConfig() } catch (error) { console.error('load digital human failed', error) }
+		await loadDigitalHumanPreference()
 		try { await restoreHistory() } catch (error) { console.error('restore chat history failed', error) }
 		// #ifndef WEB
 		recorderManager.value = uni.getRecorderManager()
@@ -252,7 +279,10 @@
 	})
 
 	onShow(() => {
-		if (initialized.value) applyPendingPrompt()
+		if (initialized.value) {
+			loadDigitalHumanPreference()
+			applyPendingPrompt()
+		}
 	})
 
 	onUnload(() => {

@@ -41,9 +41,12 @@ export type ApiEnvelope<T> = {
 
 export type ScenicSpot = {
 	id : string,
+	sourcePointId ?: string,
+	targetSpotId ?: string,
 	name : string,
 	aliases : string[],
 	categoryId : string,
+	categoryIds ?: string[],
 	categoryName : string,
 	kind : string,
 	latitude : number,
@@ -52,7 +55,9 @@ export type ScenicSpot = {
 	description ?: string,
 	detail ?: string,
 	media : UTSJSONObject,
-	panoramaIds : string[]
+	panoramaIds : string[],
+	pointLevel ?: number,
+	manualReview ?: boolean
 }
 
 export type GuideRouteNode = {
@@ -63,6 +68,8 @@ export type GuideRouteNode = {
 	latitude ?: number,
 	longitude ?: number,
 	coordinateSystem : string,
+	sourcePointId ?: string,
+	sourceRouteAnchor ?: MapPoint,
 	stayMinutes ?: number,
 	minutes ?: number,
 	narrationText ?: string
@@ -70,7 +77,56 @@ export type GuideRouteNode = {
 
 export type MapPoint = {
 	latitude : number,
-	longitude : number
+	longitude : number,
+	coordinateSystem ?: string
+}
+
+export type ScenicAreaId = 'lingshan' | 'nianhuawan'
+
+export type MapCoordinateBounds = {
+	southwest : MapPoint,
+	northeast : MapPoint
+}
+
+export type HandDrawnTile = {
+	id : string,
+	index : number,
+	row : number,
+	column : number,
+	url : string,
+	width : number,
+	height : number,
+	sizeBytes : number,
+	bounds : MapCoordinateBounds
+}
+
+export type HandDrawnLayerConfig = {
+	enabled : boolean,
+	rows : number,
+	columns : number,
+	concurrency : number,
+	retries : number,
+	bounds : MapCoordinateBounds,
+	tiles : HandDrawnTile[]
+}
+
+export type MapGuideConfig = {
+	center : MapPoint,
+	visitorCenter : MapPoint,
+	artworkBackgroundColor ?: string,
+	rotationDegrees : number,
+	minZoom : number,
+	maxZoom : number,
+	highDpiMaxZoom ?: number,
+	initialZoom : number,
+	tileLayer : HandDrawnLayerConfig
+}
+
+export type ScenicAreaSummary = {
+	id : ScenicAreaId,
+	name : string,
+	shortName : string,
+	sourceProject : string
 }
 
 export type GuideRoute = {
@@ -81,16 +137,20 @@ export type GuideRoute = {
 	durationMinutes ?: number,
 	distanceMeters ?: number,
 	tags : string[],
-	polyline : UTSJSONObject[],
+	polyline : MapPoint[],
 	nodes : GuideRouteNode[],
-	isOfficial : boolean
+	isOfficial : boolean,
+	isPreciseNavigation ?: boolean,
+	geometryKind ?: string,
+	source ?: string,
+	baseRouteId ?: string
 }
 
 export type MapGuideBootstrap = {
 	version : string,
 	generatedAt : string,
-	area : UTSJSONObject,
-	config : UTSJSONObject,
+	area : ScenicAreaSummary,
+	config : MapGuideConfig,
 	categories : UTSJSONObject[],
 	spots : ScenicSpot[],
 	routes : GuideRoute[],
@@ -126,6 +186,7 @@ export type DigitalHumanConfig = {
 	engine : string,
 	avatarId : string,
 	vcn : string,
+	speechRate ?: number,
 	modelId : string,
 	characterAsset : string,
 	welcomeText : string,

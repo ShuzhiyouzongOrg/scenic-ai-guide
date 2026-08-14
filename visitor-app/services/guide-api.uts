@@ -13,6 +13,7 @@ import type {
 	RouteRecommendation,
 	RouteRecommendResult,
 	SavedRouteSelection,
+	ScenicAreaId,
 	ScenicSpot,
 	TtsResult,
 	VoiceAskResult,
@@ -23,20 +24,42 @@ export function createVisitorSession() : Promise<VisitorSession> {
 	return apiRequest<VisitorSession>('/api/visitor/session', 'POST', {})
 }
 
-export function fetchMapGuideBootstrap(area : string = 'lingshan') : Promise<MapGuideBootstrap> {
+export function fetchMapGuideBootstrap(area : ScenicAreaId = 'lingshan') : Promise<MapGuideBootstrap> {
 	return apiRequest<MapGuideBootstrap>('/api/map-guide/bootstrap?area=' + encodeURIComponent(area))
 }
 
-export function fetchScenicSpots() : Promise<ScenicSpot[]> {
-	return apiRequest<ScenicSpot[]>('/api/map-guide/spots?area=lingshan')
+export function fetchScenicSpots(area : ScenicAreaId = 'lingshan') : Promise<ScenicSpot[]> {
+	return apiRequest<ScenicSpot[]>('/api/map-guide/spots?area=' + encodeURIComponent(area))
 }
 
-export function fetchGuideRoutes() : Promise<GuideRoute[]> {
-	return apiRequest<GuideRoute[]>('/api/map-guide/routes?area=lingshan')
+export function fetchGuideRoutes(area : ScenicAreaId = 'lingshan') : Promise<GuideRoute[]> {
+	return apiRequest<GuideRoute[]>('/api/map-guide/routes?area=' + encodeURIComponent(area))
 }
 
 export function fetchDigitalHumanConfig() : Promise<DigitalHumanConfig> {
 	return apiRequest<DigitalHumanConfig>('/api/digital-human/config')
+}
+
+export function fetchDigitalHumanConfigs() : Promise<DigitalHumanConfig[]> {
+	return apiRequest<DigitalHumanConfig[]>('/api/digital-human/configs')
+}
+
+export function createDefaultDigitalHumanConfig() : DigitalHumanConfig {
+	return {
+		id: 'dh_xf_daolan_female_a',
+		name: '云觉·大佛文化使（女）',
+		engine: 'xfyun',
+		avatarId: 'cnrmkf0e2000000006',
+		vcn: 'x6_jingqudaolannvsheng_mini',
+		speechRate: 1,
+		modelId: '',
+		characterAsset: '',
+		welcomeText: '您好，我是灵山胜境 AI 导游，可以为您讲解景点、规划路线并回答游览问题。',
+		emotionStyle: 'warm',
+		serviceStatus: 'online',
+		enabled: true,
+		assetAvailable: true
+	} as DigitalHumanConfig
 }
 
 export function askQuestion(question : string, sessionId : string = '') : Promise<ChatAnswer> {
@@ -52,11 +75,11 @@ export function fetchChatHistory(sessionId : string) : Promise<ConversationMessa
 	return apiRequest<ConversationMessage[]>('/api/chat/history?sessionId=' + encodeURIComponent(sessionId))
 }
 
-export function synthesizeSpeech(text : string) : Promise<TtsResult> {
+export function synthesizeSpeech(text : string, voice : string = 'x6_jingqudaolannvsheng_mini', speed : number = 1) : Promise<TtsResult> {
 	return apiRequest<TtsResult>('/api/voice/tts', 'POST', {
 		text,
-		voice: 'guide_female',
-		speed: 1
+		voice,
+		speed
 	})
 }
 

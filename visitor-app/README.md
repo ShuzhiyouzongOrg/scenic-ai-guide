@@ -59,7 +59,7 @@ Set-Location ..\server
 npm start
 ```
 
-再在 HBuilderX 中打开 `visitor-app`。开发者工具模拟器可以访问电脑的 `127.0.0.1`；手机真机不能把它当作电脑地址。真机、体验版和正式版必须切换到 `https://api.shuzhiyouzong.cn`，并在微信公众平台配置 `request` 与 `uploadFile` 合法域名。当前 `runtimeEnvironment` 仍保持 `development`，避免本地测评误连尚未完成反向代理的公网入口。
+再在 HBuilderX 中打开 `visitor-app`。开发者工具模拟器可以访问电脑的 `127.0.0.1`；手机真机不能把它当作电脑地址。当前评测构建已切换到 `https://api.shuzhiyouzong.cn`，微信公众平台也已配置 `request` 与 `uploadFile` 合法域名。该公网入口已完成独立 TLS 证书和 `/api/*` 反向代理；如需纯本地联调，可临时把 `config/env.uts` 改回 `development`。
 
 - HBuilderX：`D:\HBuilderX.5.15.2026070915\HBuilderX`（目录名为历史名称，应用版本为 5.24）
 - 微信开发者工具：`D:\WeChatDevelopTool`
@@ -90,10 +90,10 @@ npm start
 
 ## 已知限制
 
-- 当前没有独立 APK/AAB。`launch app-android --compile true` 不是打包；HBuilderX 的 `android_base.apk` 也不是本项目 APK。DCloud 公共测试证书已经下线，独立包必须选择 DCloud 云证书或自有 keystore 后执行云打包。当前 manifest AppID 与团队 DCloud 控制台截图中的 AppID 不一致，云证书绑定 AppID，因此打包前必须先冻结唯一 AppID。
+- `launch app-android --compile true` 不是独立 APK 打包；HBuilderX 的 `android_base.apk` 也不是本项目 APK。DCloud 公共测试证书已经下线，独立包必须选择 DCloud 云证书或自有 keystore 后执行云打包。本轮按用户确认继续使用当前 manifest AppID，不再切换到旧截图中的 AppID。
 - 微信原生 `<map>` 的底图、marker 和 polyline 不需要腾讯 WebService Key；POI 搜索、地址解析和腾讯算路才需要。生产环境建议由本项目 HTTPS 后端保管 Key/SK 并代理请求。
 - HarmonyOS Pura 90 模拟器已安装镜像并成功运行应用；手绘地图作为 x86_64 可用的正式降级路径。腾讯原生地图 `libmapengine.so` 仍只有 `arm64-v8a`，导航地图最终需用 arm64 真机复测。
-- 微信后台已配置 `request` 与 `uploadFile` 合法域名，但公网 API 当前证书不受系统信任，且 `/api/health` 在忽略证书校验时返回 nginx HTML 而不是服务端 JSON。必须先为 `api.shuzhiyouzong.cn` 配置匹配证书，并把 `/api/*` 反向代理到 Node 服务，再切换生产环境。
-- 仓库原有讯飞 Web IAT 示例曾跟踪硬编码凭证，工作树中的三个无业务引用示例文件已删除；对应凭证仍应在讯飞控制台轮换，并另行清理 Git 历史。
+- 微信后台已配置 `request` 与 `uploadFile` 合法域名；公网 API 已配置匹配证书与 `/api/*` 反向代理。若服务器迁移或证书异常，可从仓库根目录运行 `deploy/scripts/verify-public-api.sh` 复检。
+- 仓库原有讯飞 Web IAT 供应商示例按本轮评测要求保持不动；游客端没有新增或复制任何讯飞密钥。正式公开前仍应轮换历史凭据并另行清理 Git 历史。
 
 平台账号、签名与地图 Key 的获取方式见 `../docs/multi-platform-credentials-and-map-keys.md`。

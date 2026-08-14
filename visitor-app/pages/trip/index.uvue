@@ -2,8 +2,8 @@
 	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
 		<view class="header">
 			<view class="header-badge"><text class="header-badge-text">AI ROUTE PLANNER</text></view>
-			<text class="header-title">规划今天的灵山行程</text>
-			<text class="header-copy">选择游览时长与兴趣，使用现有路线推荐服务生成真实行程。</text>
+			<text class="header-title">规划今天的{{ scenicAreaName }}行程</text>
+			<text class="header-copy">当前景区为 {{ scenicAreaName }}，选择游览时长与兴趣，使用现有路线推荐服务生成真实行程。</text>
 			<view class="header-summary">
 				<view class="header-summary-item"><text class="header-summary-value">3</text><text class="header-summary-label">种时长</text></view>
 				<view class="header-summary-divider"></view>
@@ -77,6 +77,7 @@
 <script setup lang="uts">
 	import type { GuideRouteNode, RouteGraphNode, RouteRecommendation, SavedRouteSelection } from '@/domain/types.uts'
 	import { fetchRouteGraph, fetchSavedRoutes, recommendRoute, saveRoute } from '@/services/guide-api.uts'
+	import { getPreferredScenicArea } from '@/stores/guide-preferences.uts'
 	import { getActiveRoute, setActiveRoute } from '@/stores/navigation-context.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
 
@@ -101,6 +102,8 @@
 	const recommendation = ref<RouteRecommendation | null>(null)
 	const savedRoutes = ref<SavedRouteSelection[]>([])
 	const graphNodes = ref<RouteGraphNode[]>([])
+	const scenicArea = ref<string>('lingshan')
+	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
 
 	function selectDuration(value : number) {
 		duration.value = value
@@ -194,6 +197,7 @@
 	}
 
 	onShow(() => {
+		scenicArea.value = getPreferredScenicArea()
 		if (recommendation.value == null) recommendation.value = getActiveRoute()
 		loadSavedRoutes()
 	})
@@ -201,7 +205,7 @@
 
 <style>
 	.page { flex: 1; background-color: #f3f6fb; }
-	.header { padding: 54px 20px 50px; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
+	.header { padding: 54px 20px 78px; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
 	.header-badge { align-self: flex-start; padding: 5px 9px; border-radius: 10px; background-color: rgba(255,180,46,0.18); border: 1px solid rgba(255,208,121,0.32); }
 	.header-badge-text { font-size: 8px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
 	.header-title { font-size: 29px; font-weight: 800; color: #ffffff; line-height: 39px; margin-top: 12px; }
@@ -211,8 +215,8 @@
 	.header-summary-value { font-size: 15px; color: #ffffff; font-weight: 700; }
 	.header-summary-label { font-size: 9px; color: #bddcf3; margin-top: 4px; }
 	.header-summary-divider { width: 1px; height: 24px; background-color: rgba(255,255,255,0.13); }
-	.content { padding: 0 16px 38px; }
-	.form-card { margin-top: -24px; padding: 21px 17px; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 24px; box-shadow: 0 12px 30px rgba(18,63,120,0.11); }
+	.content { position: relative; z-index: 2; margin-top: -34px; padding: 0 16px 38px; }
+	.form-card { padding: 21px 17px; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 24px; box-shadow: 0 12px 30px rgba(18,63,120,0.11); }
 	.field-heading { flex-direction: row; align-items: center; }
 	.field-index { font-size: 10px; color: #0b68d0; background-color: #e7f1ff; padding: 4px 7px; border-radius: 8px; margin-right: 8px; }
 	.field-title { font-size: 15px; font-weight: 700; color: #26364f; }
