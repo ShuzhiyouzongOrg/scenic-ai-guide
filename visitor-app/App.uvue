@@ -1,12 +1,9 @@
 <script setup lang="uts">
-	import { registerScenicAiProvider } from '@/adapters/ai/register.uts'
-
 	// #ifdef APP-ANDROID || APP-HARMONY
 	let firstBackTime = 0
 	// #endif
 
 	onLaunch(() => {
-		registerScenicAiProvider()
 		console.log('App Launch')
 	})
 

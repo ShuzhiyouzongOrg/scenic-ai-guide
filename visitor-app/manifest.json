@@ -46,13 +46,13 @@
 		"distribute": {
 			"icons": {
 				"android": {
-					"hdpi": "static/brand/android/icon-72.png",
-					"xhdpi": "static/brand/android/icon-96.png",
-					"xxhdpi": "static/brand/android/icon-144.png",
-					"xxxhdpi": "static/brand/android/icon-192.png"
+					"hdpi": "native-assets/brand/android/icon-72.png",
+					"xhdpi": "native-assets/brand/android/icon-96.png",
+					"xxhdpi": "native-assets/brand/android/icon-144.png",
+					"xxxhdpi": "native-assets/brand/android/icon-192.png"
 				},
 				"ios": {
-					"appstore": "static/brand/ios/appstore-1024.png"
+					"appstore": "native-assets/brand/ios/appstore-1024.png"
 				}
 			}
 		}
@@ -70,10 +70,10 @@
 				}
 			},
 			"icons": {
-				"hdpi": "static/brand/android/icon-72.png",
-				"xhdpi": "static/brand/android/icon-96.png",
-				"xxhdpi": "static/brand/android/icon-144.png",
-				"xxxhdpi": "static/brand/android/icon-192.png"
+				"hdpi": "native-assets/brand/android/icon-72.png",
+				"xhdpi": "native-assets/brand/android/icon-96.png",
+				"xxhdpi": "native-assets/brand/android/icon-144.png",
+				"xxxhdpi": "native-assets/brand/android/icon-192.png"
 			},
 			"splashScreens": {
 				"default": {}
@@ -93,7 +93,7 @@
 				}
 			},
 			"icons": {
-				"appstore": "static/brand/ios/appstore-1024.png"
+				"appstore": "native-assets/brand/ios/appstore-1024.png"
 			},
 			"splashScreens": {}
 		}

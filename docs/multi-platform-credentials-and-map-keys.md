@@ -17,7 +17,9 @@
 - [项目成员管理](https://uniapp.dcloud.net.cn/dev/app/add-member.html)
 - [uni-app x manifest 配置](https://doc.dcloud.net.cn/uni-app-x/collocation/manifest.html)
 
-操作：使用长期归属团队的 DCloud 账号登录 HBuilderX，在 `manifest.json → 基础配置` 中“重新获取”或创建应用。当前 `visitor-app/manifest.json` 已写入 DCloud 开发者中心创建的真实 AppID；微信 AppID 仍是另一项独立配置，不能互相替代。
+操作：使用长期归属团队的 DCloud 账号登录 HBuilderX，在 `manifest.json → 基础配置` 中“重新获取”或创建应用。微信 AppID 仍是另一项独立配置，不能互相替代。
+
+当前存在必须在 Android 云打包前解决的标识冲突：`visitor-app/manifest.json` 为 `__UNI__87D2500`，团队 DCloud 控制台截图中的“数智游踪”为 `__UNI__801F118`。云证书与 AppID 绑定，必须由团队确认唯一长期 AppID 后再打包，不能直接把两个值混用。
 
 只有 AppID 所有者或被添加为项目成员的账号才能提交云打包。不要手工伪造或随意更换 AppID。
 
@@ -34,13 +36,22 @@ com.scenic.guide.visitor
 - [Android applicationId 官方说明](https://developer.android.com/build/configure-app-module?hl=zh-cn)
 - [uni-app x Android/iOS 云打包](https://doc.dcloud.net.cn/uni-app-x/tutorial/app-package.html)
 
-## 3. Android release keystore
+## 3. Android 签名证书
 
-Keystore 由项目方在本地生成，不是从 DCloud 下载。可使用本机 JDK 的 `keytool`：
+DCloud 公共测试证书已经下线，不应继续寻找或使用。独立 APK/自定义调试基座必须使用以下二选一：
+
+- DCloud 云证书：在云打包界面按冻结后的 AppID 自动生成，适合开发测评，可在开发者中心查看和下载。
+- 自有 keystore：适合长期发布，私钥完全由项目方保存。
+
+- [DCloud 当前 Android 证书说明](https://ask.dcloud.net.cn/article/35985)
+- [uni-app x 云打包与云证书](https://doc.dcloud.net.cn/uni-app-x/tutorial/app-package.html)
+
+自有 keystore 可使用 HBuilderX 内置 JDK 的 `keytool` 免费生成：
 
 ```powershell
-keytool -genkey -alias lingshanvisitor -keyalg RSA -keysize 2048 -validity 36500 -keystore <仓库外安全目录>\visitor-release.keystore
-keytool -list -v -keystore <仓库外安全目录>\visitor-release.keystore
+& 'D:\HBuilderX.5.15.2026070915\HBuilderX\plugins\amazon-corretto\bin\keytool.exe' `
+  -genkeypair -alias lingshanvisitor -keyalg RSA -keysize 2048 -validity 36500 `
+  -keystore 'D:\secure-signing\lingshan-visitor.keystore'
 ```
 
 管理要求：
@@ -75,7 +86,7 @@ Vapor 当前没有可用于 Android Studio 本地独立打包的已发布离线 
 - [HBuilderX CLI 云打包](https://hx.dcloud.net.cn/cli/pack)
 - [uni-app x Android 离线 SDK 状态](https://doc.dcloud.net.cn/uni-app-x/native/download/android.html)
 
-云打包会把构建材料发送给外部 DCloud 构建服务。必须在负责人明确授权某一次上传后才能执行，本项目当前未执行云打包。
+云打包会把构建材料发送给外部 DCloud 构建服务。本项目当前未执行云打包；应先解决 AppID 冲突并选择云证书或自有 keystore，再单独执行。
 
 ## 5. 腾讯位置服务统一入口
 
@@ -116,9 +127,9 @@ https://apis.map.qq.com
 
 生产环境更建议：小程序只请求本项目的 HTTPS 后端，由后端保存腾讯 WebService Key/SK 并调用腾讯接口。这样 Key/SK 不会进入可被提取的小程序包，微信后台也只需配置本项目 API 域名。
 
-微信后台当前 `request` 合法域名已包含 `https://api.healthtrack.top` 与 `https://apis.map.qq.com`。但语音问答使用 `uni.uploadFile`，截图中的 `uploadFile` 合法域名仍为空，必须再加入实际 API 域名。若音频或文件改为 `uni.downloadFile`，也应同步配置 `downloadFile` 合法域名。
+微信后台当前 `request` 合法域名已包含 `https://api.shuzhiyouzong.cn` 与 `https://apis.map.qq.com`，`uploadFile` 合法域名也已配置为 `https://api.shuzhiyouzong.cn`。若音频或文件改为 `uni.downloadFile`，还应同步配置 `downloadFile` 合法域名。
 
-当前开发 API 为 `http://127.0.0.1:5178`，只适合电脑开发者工具；Pura 90/Android 模拟器使用局域网地址。`config/env.uts` 的 production 地址仍是占位值，只有在 `https://api.healthtrack.top` 确实部署了游客端 `/api/*` 接口后，才能切换并进行真机闭环。
+当前开发 API 为 `http://127.0.0.1:5178`，只适合电脑开发者工具；Pura 90/Android 模拟器使用局域网地址。`config/env.uts` 的 production 地址已设为 `https://api.shuzhiyouzong.cn`，但 2026-08-14 实测存在两个服务器问题：系统不信任当前 TLS 证书；忽略证书校验后 `/api/health` 返回 nginx HTML，而不是 Node 服务的 JSON。需先安装与域名匹配的完整证书链，并把 `/api/*` 反向代理到 Node 服务，才能切换 `runtimeEnvironment=production` 做真机闭环。
 
 ## 8. Android Key
 
@@ -163,11 +174,12 @@ module.metadata[name=TENCENT_MAP_KEY].value
 
 - [x] 团队负责人创建并保存 DCloud AppID。
 - [x] 测评包已统一使用 `com.scenic.guide.visitor`（iOS 正式 Bundle ID 仍需在打包前复核）。
-- [ ] 在仓库外生成并备份 Android release keystore。
+- [ ] 确认唯一 DCloud AppID，解决 manifest 与控制台截图不一致。
+- [ ] 选择并备份 DCloud 云证书，或在仓库外生成并备份 Android release keystore。
 - [x] 已复用桌面端品牌图标生成各端测评图标。
 - [x] 已配置测评用腾讯地图 Key；正式发布前建议拆分平台 Key。
 - [ ] 在后端环境变量保存 WebService Key/SK，前端不保存 SK。
-- [ ] 部署/核验游客端公网 HTTPS API；微信 request 已配置，uploadFile 仍需配置。
+- [ ] 修复公网 API 的 TLS 证书与 nginx `/api/*` 反向代理；微信 request/uploadFile 已配置。
 - [ ] 公开发布前与 DCloud/腾讯复核 HarmonyOS Key、额度和商业授权。
 - [ ] 明确授权后再执行 DCloud Android 云打包。
 - [ ] 正式商业发布前核对腾讯位置服务商业授权和调用额度。

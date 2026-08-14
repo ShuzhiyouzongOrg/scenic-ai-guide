@@ -109,7 +109,30 @@ export type ChatAnswer = {
 	emotion ?: string,
 	scenario ?: string,
 	sources ?: ChatSource[],
-	cached ?: boolean
+	cached ?: boolean,
+	digitalHuman ?: DigitalHumanState
+}
+
+export type DigitalHumanState = {
+	expression : string,
+	action : string,
+	state : string,
+	ttsEmotion ?: string
+}
+
+export type DigitalHumanConfig = {
+	id : string,
+	name : string,
+	engine : string,
+	avatarId : string,
+	vcn : string,
+	modelId : string,
+	characterAsset : string,
+	welcomeText : string,
+	emotionStyle : string,
+	serviceStatus : string,
+	enabled : boolean,
+	assetAvailable : boolean
 }
 
 export type ConversationMessage = {

@@ -29,7 +29,8 @@
     "test:demo-data": "node scripts/test-demo-data.mjs",
     "test:concurrency": "node scripts/test-concurrency.mjs",
     "test:demo-mode": "node scripts/test-demo-mode.mjs",
-    "test:xfyun-tts": "node scripts/test-xfyun-tts.mjs"
+    "test:xfyun-tts": "node scripts/test-xfyun-tts.mjs",
+    "test:xfyun-asr": "node scripts/test-xfyun-asr.mjs"
   },
   "engines": {
     "node": ">=20"

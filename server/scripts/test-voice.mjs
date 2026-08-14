@@ -3,7 +3,7 @@ import { transcribeAudio, synthesizeSpeech, voiceAsk, splitForTts, getAudioClip 
 
 const asr = await transcribeAudio({ transcript: "灵山大佛有多高？", mimeType: "audio/webm" });
 assert.equal(asr.text, "灵山大佛有多高？");
-assert.equal(asr.provider, "mock");
+assert.equal(asr.provider, "provided-transcript");
 
 const parts = splitForTts("第一句很短。第二句也很短。");
 assert.equal(parts.length, 2);

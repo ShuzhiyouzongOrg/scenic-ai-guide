@@ -12,13 +12,18 @@
 				<view class="location-button" @click="locateMe"><rice-icon name="location-fill" size="14" color="#ffffff" /><text class="location-button-text">定位</text></view>
 			</view>
 			<rice-search v-model="keyword" placeholder="搜索景点或服务设施" shape="round" @change="filterSpots" />
+			<view class="map-mode-switch">
+				<view class="map-mode-item" :class="mapMode == 'artwork' ? 'map-mode-item-active' : ''" @click="setMapMode('artwork')"><text class="map-mode-text" :class="mapMode == 'artwork' ? 'map-mode-text-active' : ''">手绘导览</text></view>
+				<view class="map-mode-item" :class="mapMode == 'native' ? 'map-mode-item-active' : ''" @click="setMapMode('native')"><text class="map-mode-text" :class="mapMode == 'native' ? 'map-mode-text-active' : ''">导航地图</text></view>
+			</view>
 			<view class="map-meta-row">
 				<text class="map-meta">已载入 {{ visibleSpots.length }} 个景区点位</text>
-				<text v-if="polylines.length > 0" class="route-meta">● 路线已绘制</text>
+				<text v-if="polylines.length > 0" class="route-meta">● {{ activeRouteName }}</text>
 			</view>
 		</view>
 
 		<map
+			v-if="mapMode == 'native'"
 			id="scenic-map"
 			class="map-view"
 			:latitude="centerLatitude"
@@ -33,6 +38,62 @@
 			@markertap="onMarkerTap"
 		/>
 
+		<!-- #ifndef APP -->
+		<movable-area v-else class="artwork-area" scale-area>
+			<movable-view
+				class="artwork-stage"
+				direction="all"
+				inertia
+				scale
+				:scale-min="0.65"
+				:scale-max="2.4"
+				:scale-value="artworkScale"
+				:x="artworkX"
+				:y="artworkY"
+			>
+				<image class="artwork-image" src="/static/map/lingshan-artwork.webp" mode="scaleToFill" />
+				<view
+					v-for="marker in artworkMarkers"
+					:key="marker.spotId"
+					class="artwork-marker"
+					:class="selectedSpot?.id == marker.spotId ? 'artwork-marker-active' : ''"
+					:style="'left:' + marker.x + 'px;top:' + marker.y + 'px;'"
+					@click="selectArtworkSpot(marker.spotId)"
+				>
+					<text v-if="marker.routeOrder > 0" class="artwork-route-number">{{ marker.routeOrder }}</text>
+					<view v-else class="artwork-marker-dot" :class="selectedSpot?.id == marker.spotId ? 'artwork-marker-dot-active' : ''"></view>
+					<text v-if="selectedSpot?.id == marker.spotId" class="artwork-marker-label">{{ marker.name }}</text>
+				</view>
+			</movable-view>
+			<view class="artwork-tip"><text class="artwork-tip-text">双指缩放 · 拖动探索 · 点击点位讲解</text></view>
+		</movable-area>
+		<!-- #endif -->
+
+		<!-- #ifdef APP -->
+		<view v-else class="artwork-app-area">
+			<scroll-view class="artwork-area" direction="vertical" :show-scrollbar="false" :scroll-top="120">
+				<scroll-view class="artwork-scroll-x" direction="horizontal" :show-scrollbar="false" :scroll-left="120" :style="artworkStageSizeStyle">
+					<view class="artwork-stage" :style="artworkStageSizeStyle">
+						<image class="artwork-image" :style="artworkStageSizeStyle" src="/static/map/lingshan-artwork.webp" mode="scaleToFill" />
+						<view
+							v-for="marker in artworkMarkers"
+							:key="marker.spotId"
+							class="artwork-marker"
+							:class="selectedSpot?.id == marker.spotId ? 'artwork-marker-active' : ''"
+							:style="artworkMarkerStyle(marker)"
+							@click="selectArtworkSpot(marker.spotId)"
+						>
+							<text v-if="marker.routeOrder > 0" class="artwork-route-number">{{ marker.routeOrder }}</text>
+							<view v-else class="artwork-marker-dot" :class="selectedSpot?.id == marker.spotId ? 'artwork-marker-dot-active' : ''"></view>
+							<text v-if="selectedSpot?.id == marker.spotId" class="artwork-marker-label">{{ marker.name }}</text>
+						</view>
+					</view>
+				</scroll-view>
+			</scroll-view>
+			<view class="artwork-tip"><text class="artwork-tip-text">滑动探索 · ± 缩放 · 点击点位讲解</text></view>
+		</view>
+		<!-- #endif -->
+
 		<view class="map-controls">
 			<view class="map-control" @click="zoomIn"><rice-icon name="plus" size="21" color="#24517f" /></view>
 			<view class="map-control" @click="zoomOut"><rice-icon name="minus" size="21" color="#24517f" /></view>
@@ -41,6 +102,7 @@
 		<view class="spot-sheet">
 			<view class="sheet-handle"></view>
 			<template v-if="selectedSpot != null">
+				<digital-human-guide class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" @click="askGuide" />
 				<view class="sheet-heading">
 					<view>
 						<text class="sheet-label">{{ selectedSpot!.categoryName }}</text>
@@ -55,6 +117,7 @@
 				</view>
 			</template>
 			<view v-else class="sheet-empty">
+				<digital-human-guide class="sheet-guide" compact :title="digitalHumanTitle" state="idle" @click="askGuide" />
 				<text class="sheet-empty-title">点击地图标记查看景点</text>
 				<text class="sheet-empty-copy">当前显示 {{ visibleSpots.length }} 个景区点位</text>
 			</view>
@@ -63,20 +126,64 @@
 </template>
 
 <script setup lang="uts">
-	import type { GuideRoute, GuideRouteNode, MapPoint, ScenicSpot } from '@/domain/types.uts'
-	import { fetchGuideRoutes, fetchScenicSpots } from '@/services/guide-api.uts'
+	import type { DigitalHumanConfig, GuideRoute, GuideRouteNode, MapPoint, ScenicSpot } from '@/domain/types.uts'
+	import { fetchDigitalHumanConfig, fetchGuideRoutes, fetchScenicSpots } from '@/services/guide-api.uts'
 	import { consumeMapSpot, getActiveRoute, queueGuidePrompt } from '@/stores/navigation-context.uts'
 
+	type ArtworkMarkerItem = {
+		spotId : string,
+		name : string,
+		x : number,
+		y : number,
+		routeOrder : number
+	}
+
+	const artworkWest = 120.089882
+	const artworkEast = 120.109759
+	const artworkSouth = 31.418236
+	const artworkNorth = 31.433837
+	const artworkWidth = 620
+	const artworkHeight = 572
 	const centerLatitude = ref<number>(31.426019)
 	const centerLongitude = ref<number>(120.099528)
 	const mapScale = ref<number>(16)
 	const keyword = ref<string>('')
+	const mapMode = ref<string>('artwork')
+	const artworkScale = ref<number>(1.0)
+	const artworkX = ref<number>(-120)
+	const artworkY = ref<number>(198)
 	const spots = ref<ScenicSpot[]>([])
 	const visibleSpots = ref<ScenicSpot[]>([])
 	const routes = ref<GuideRoute[]>([])
 	const markers = ref<Marker[]>([])
 	const polylines = ref<Polyline[]>([])
 	const selectedSpot = ref<ScenicSpot | null>(null)
+	const digitalHuman = ref<DigitalHumanConfig | null>(null)
+	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
+	const artworkStageSizeStyle = computed<string>(() => {
+		return 'width:' + Math.round(artworkWidth * artworkScale.value) + 'px;height:' + Math.round(artworkHeight * artworkScale.value) + 'px;'
+	})
+	const activeRouteName = computed<string>(() => {
+		const activeRoute = getActiveRoute()
+		if (activeRoute != null) return activeRoute.name
+		return routes.value.length > 0 ? routes.value[0].name : '推荐路线'
+	})
+	const artworkMarkers = computed<ArtworkMarkerItem[]>(() => {
+		const activeRoute = getActiveRoute()
+		const routeNodes = activeRoute != null ? activeRoute.nodes : (routes.value.length > 0 ? routes.value[0].nodes : [])
+		return visibleSpots.value.slice(0, 60).map<ArtworkMarkerItem>((spot : ScenicSpot) : ArtworkMarkerItem => {
+			const routeIndex = routeNodes.findIndex((node : GuideRouteNode) : boolean => ((node.spotId ?? '').length > 0 && node.spotId == spot.id) || node.name == spot.name)
+			const ratioX = Math.max(0, Math.min(1, (spot.longitude - artworkWest) / (artworkEast - artworkWest)))
+			const ratioY = Math.max(0, Math.min(1, (artworkNorth - spot.latitude) / (artworkNorth - artworkSouth)))
+			return {
+				spotId: spot.id,
+				name: spot.name,
+				x: Math.round(ratioX * artworkWidth) - 12,
+				y: Math.round(ratioY * artworkHeight) - 22,
+				routeOrder: routeIndex >= 0 ? routeIndex + 1 : 0
+			}
+		})
+	})
 
 	function buildMarkers(source : ScenicSpot[]) {
 		visibleSpots.value = source.slice(0, 80)
@@ -132,6 +239,7 @@
 
 	async function loadMapData() {
 		try {
+			try { digitalHuman.value = await fetchDigitalHumanConfig() } catch (error) { console.error('load digital human failed', error) }
 			const spotData = await fetchScenicSpots()
 			spots.value = spotData
 			buildMarkers(spotData)
@@ -173,6 +281,22 @@
 		}
 	}
 
+	function setMapMode(mode : string) {
+		mapMode.value = mode
+	}
+
+	function selectArtworkSpot(spotId : string) {
+		const target = visibleSpots.value.find((spot : ScenicSpot) : boolean => spot.id == spotId) ?? null
+		if (target == null) return
+		selectedSpot.value = target
+		centerLatitude.value = target.latitude
+		centerLongitude.value = target.longitude
+	}
+
+	function artworkMarkerStyle(marker : ArtworkMarkerItem) : string {
+		return 'left:' + Math.round(marker.x * artworkScale.value) + 'px;top:' + Math.round(marker.y * artworkScale.value) + 'px;'
+	}
+
 	function onMarkerTap(event : UniMapMarkerTapEvent) {
 		const markerId = event.detail?.markerId
 		if (markerId == null) return
@@ -188,20 +312,40 @@
 			success: (result) => {
 				centerLatitude.value = result.latitude
 				centerLongitude.value = result.longitude
+				if (mapMode.value == 'artwork' && spots.value.length > 0) {
+					let nearest = spots.value[0]
+					let nearestDistance = Math.abs(nearest.latitude - result.latitude) + Math.abs(nearest.longitude - result.longitude)
+					spots.value.forEach((spot : ScenicSpot) => {
+						const distance = Math.abs(spot.latitude - result.latitude) + Math.abs(spot.longitude - result.longitude)
+						if (distance < nearestDistance) {
+							nearest = spot
+							nearestDistance = distance
+						}
+					})
+					selectedSpot.value = nearest
+					uni.showToast({ title: '已定位到附近点位', icon: 'none' })
+				}
 			},
 			fail: (error) => uni.showToast({ title: error.errMsg, icon: 'none' }),
 			complete: () => uni.hideLoading()
 		})
 	}
 
-	function zoomIn() { mapScale.value = Math.min(19, mapScale.value + 1) }
-	function zoomOut() { mapScale.value = Math.max(5, mapScale.value - 1) }
+	function zoomIn() {
+		if (mapMode.value == 'artwork') artworkScale.value = Math.min(2.4, artworkScale.value + 0.2)
+		else mapScale.value = Math.min(19, mapScale.value + 1)
+	}
+	function zoomOut() {
+		if (mapMode.value == 'artwork') artworkScale.value = Math.max(0.65, artworkScale.value - 0.2)
+		else mapScale.value = Math.max(5, mapScale.value - 1)
+	}
 	function openSpot() {
 		if (selectedSpot.value == null) return
 		uni.navigateTo({ url: '/pages/spot/detail?id=' + encodeURIComponent(selectedSpot.value!.id) })
 	}
 	function askGuide() {
-		if (selectedSpot.value != null) queueGuidePrompt('请介绍' + selectedSpot.value!.name + '，并告诉我现在最值得看的内容。')
+		if (selectedSpot.value != null) queueGuidePrompt('请作为数字人导游介绍' + selectedSpot.value!.name + '，并告诉我现在最值得看的内容。')
+		else queueGuidePrompt('请作为数字人导游介绍灵山胜境，并推荐一条适合首次到访的路线。')
 		uni.switchTab({ url: '/pages/ai-guide/index' })
 	}
 
@@ -227,12 +371,31 @@
 	.location-button { height: 34px; padding: 0 13px; border-radius: 17px; flex-direction: row; align-items: center; justify-content: center; background: linear-gradient(to right, #0b68d0, #099fbd); }
 	.location-button-text { font-size: 12px; font-weight: 600; color: #ffffff; margin-left: 4px; }
 	.map-meta-row { flex-direction: row; align-items: center; justify-content: space-between; padding: 8px 3px 1px; }
+	.map-mode-switch { height: 36px; flex-direction: row; align-items: center; padding: 3px; border-radius: 13px; background-color: #eef3f9; }
+	.map-mode-item { flex: 1; height: 30px; align-items: center; justify-content: center; border-radius: 10px; }
+	.map-mode-item-active { background-color: #ffffff; box-shadow: 0 4px 10px rgba(22,67,117,0.10); }
+	.map-mode-text { font-size: 11px; color: #76849a; }
+	.map-mode-text-active { color: #0b68d0; font-weight: 700; }
 	.map-meta { font-size: 9px; color: #7b879b; }
 	.route-meta { font-size: 9px; color: #0b68d0; font-weight: 600; }
 	.map-view { width: 100%; height: 100%; }
-	.map-controls { position: absolute; right: 16px; top: 236px; z-index: 10; border-radius: 15px; overflow: hidden; border: 1px solid #dfe7f2; box-shadow: 0 8px 20px rgba(26,68,120,0.16); }
+	.artwork-area { width: 100%; height: 100%; overflow: hidden; background-color: #b0d8b8; }
+	.artwork-app-area { width: 100%; height: 100%; overflow: hidden; background-color: #b0d8b8; }
+	.artwork-scroll-x { width: 100%; }
+	.artwork-stage { position: relative; width: 620px; height: 572px; overflow: visible; background-color: #b0d8b8; }
+	.artwork-image { position: absolute; left: 0; top: 0; width: 620px; height: 572px; }
+	.artwork-marker { position: absolute; width: 28px; min-height: 30px; align-items: center; z-index: 4; }
+	.artwork-marker-dot { width: 14px; height: 14px; border-radius: 7px; background-color: #0b68d0; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(12,57,105,0.30); }
+	.artwork-route-number { min-width: 22px; height: 22px; padding: 0 4px; border-radius: 11px; text-align: center; line-height: 22px; font-size: 10px; font-weight: 800; color: #ffffff; background-color: #df8b11; border: 2px solid #ffffff; }
+	.artwork-marker-active { z-index: 8; }
+	.artwork-marker-dot-active { width: 20px; height: 20px; border-radius: 10px; background-color: #e05f55; }
+	.artwork-marker-label { position: absolute; top: 25px; min-width: 72px; padding: 5px 7px; border-radius: 9px; text-align: center; font-size: 9px; color: #174674; background-color: rgba(255,255,255,0.96); box-shadow: 0 4px 10px rgba(18,55,94,0.18); }
+	.artwork-tip { position: absolute; left: 50%; bottom: 232px; transform: translateX(-50%); padding: 7px 11px; border-radius: 13px; background-color: rgba(7,48,91,0.76); }
+	.artwork-tip-text { font-size: 9px; color: #ffffff; }
+	.map-controls { position: absolute; right: 16px; top: 284px; z-index: 10; border-radius: 15px; overflow: hidden; border: 1px solid #dfe7f2; box-shadow: 0 8px 20px rgba(26,68,120,0.16); }
 	.map-control { width: 42px; height: 42px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.98); border-bottom: 1px solid #edf1f6; }
 	.spot-sheet { position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 12; background-color: rgba(255,255,255,0.98); border: 1px solid #dfe7f2; border-radius: 26px; padding: 10px 18px 19px; box-shadow: 0 16px 40px rgba(16,56,108,0.20); }
+	.sheet-guide { margin-bottom: 13px; }
 	.sheet-handle { width: 38px; height: 4px; border-radius: 2px; background-color: #d5deeb; align-self: center; margin-bottom: 12px; }
 	.sheet-heading { flex-direction: row; justify-content: space-between; align-items: flex-start; }
 	.sheet-label { font-size: 10px; color: #d17d00; letter-spacing: 1px; }

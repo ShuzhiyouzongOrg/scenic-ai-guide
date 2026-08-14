@@ -5,6 +5,7 @@ import type {
 	AuthRegisterResult,
 	ChatAnswer,
 	ConversationMessage,
+	DigitalHumanConfig,
 	FeedbackRecord,
 	GuideRoute,
 	MapGuideBootstrap,
@@ -32,6 +33,10 @@ export function fetchScenicSpots() : Promise<ScenicSpot[]> {
 
 export function fetchGuideRoutes() : Promise<GuideRoute[]> {
 	return apiRequest<GuideRoute[]>('/api/map-guide/routes?area=lingshan')
+}
+
+export function fetchDigitalHumanConfig() : Promise<DigitalHumanConfig> {
+	return apiRequest<DigitalHumanConfig>('/api/digital-human/config')
 }
 
 export function askQuestion(question : string, sessionId : string = '') : Promise<ChatAnswer> {

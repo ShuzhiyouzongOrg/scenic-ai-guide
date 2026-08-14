@@ -2,7 +2,7 @@
 	<view class="page">
 		<view class="guide-header">
 			<view class="guide-avatar">
-				<image class="guide-avatar-image" src="/static/logo.png" mode="aspectFit" />
+				<image class="guide-avatar-image" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
 				<view class="online-dot"></view>
 			</view>
 			<view class="guide-heading">
@@ -20,6 +20,7 @@
 		<scroll-view class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget">
 			<view class="message-list">
 				<view class="welcome-card">
+					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" />
 					<view class="welcome-top">
 						<text class="welcome-kicker">SMART GUIDE</text>
 						<text class="welcome-capability">知识库增强</text>
@@ -32,7 +33,7 @@
 				</view>
 
 				<view v-for="item in messages" :key="item.id" :id="'message-' + item.id" class="message-item" :class="item.role == 'user' ? 'message-item-user' : 'message-item-assistant'">
-					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" src="/static/logo.png" mode="aspectFit" /></view>
+					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" src="/static/digital-human/guide-haru.png" mode="aspectFit" /></view>
 					<view class="message-bubble" :class="item.role == 'user' ? 'message-bubble-user' : 'message-bubble-assistant'">
 						<text class="message-text" :class="item.role == 'user' ? 'message-text-user' : ''">{{ item.content }}</text>
 						<view v-if="item.sources.length > 0" class="source-list">
@@ -64,8 +65,8 @@
 </template>
 
 <script setup lang="uts">
-	import type { ConversationMessage, TtsSegment } from '@/domain/types.uts'
-	import { askQuestion, askVoice, fetchChatHistory, synthesizeSpeech } from '@/services/guide-api.uts'
+	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
+	import { askQuestion, askVoice, fetchChatHistory, fetchDigitalHumanConfig, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { consumeGuidePrompt } from '@/stores/navigation-context.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
@@ -82,6 +83,8 @@
 	const recording = ref<boolean>(false)
 	const autoNarration = ref<boolean>(true)
 	const initialized = ref<boolean>(false)
+	const digitalHuman = ref<DigitalHumanConfig | null>(null)
+	const digitalHumanState = ref<string>('idle')
 	const scrollTarget = ref<string>('message-bottom')
 	const sessionId = ref<string>('')
 	const recorderManager = ref<RecorderManager | null>(null)
@@ -90,6 +93,8 @@
 	const ttsQueueIndex = ref<number>(0)
 	const messages = ref<ChatMessageItem[]>([])
 	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线'])
+	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
+	const digitalHumanWelcome = computed<string>(() => digitalHuman.value?.welcomeText ?? '我可以介绍景点、规划路线，也能结合当前位置陪伴讲解。')
 
 	function scrollToBottom() {
 		scrollTarget.value = ''
@@ -107,18 +112,23 @@
 		input.value = ''
 		messages.value.push({ id: Date.now(), role: 'user', content: question, sources: [] })
 		sending.value = true
+		digitalHumanState.value = 'thinking'
 		scrollToBottom()
 		try {
 			if (sessionId.value.length == 0) sessionId.value = await ensureVisitorSession()
 			const result = await askQuestion(question, sessionId.value)
 			const sources = (result.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '景区知识库')
 			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer, sources })
+			digitalHumanState.value = result.digitalHuman?.state ?? 'speaking'
 			if (autoNarration.value) requestTts(result.answer)
+			else digitalHumanState.value = 'idle'
 		} catch (error) {
 			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: '暂时无法连接导游服务，请确认本地 Node 服务与 API 地址配置。', sources: [] })
+			digitalHumanState.value = 'idle'
 			console.error('ask guide failed', error)
 		} finally {
 			sending.value = false
+			if (!autoNarration.value) digitalHumanState.value = 'idle'
 			scrollToBottom()
 		}
 	}
@@ -128,8 +138,10 @@
 			const result = await synthesizeSpeech(text)
 			ttsQueue.value = result.segments
 			ttsQueueIndex.value = 0
+			digitalHumanState.value = 'speaking'
 			playNextTtsSegment()
 		} catch (error) {
+			digitalHumanState.value = 'idle'
 			console.error('tts request failed', error)
 		}
 	}
@@ -137,6 +149,7 @@
 	async function submitRecordedVoice(filePath : string) {
 		if (filePath.length == 0 || sending.value) return
 		sending.value = true
+		digitalHumanState.value = 'thinking'
 		uni.showLoading({ title: '识别并思考中' })
 		try {
 			if (sessionId.value.length == 0) sessionId.value = await ensureVisitorSession()
@@ -148,8 +161,9 @@
 				ttsQueue.value = result.tts.segments
 				ttsQueueIndex.value = 0
 				playNextTtsSegment()
-			}
+			} else digitalHumanState.value = 'idle'
 		} catch (error) {
+			digitalHumanState.value = 'idle'
 			console.error('voice ask failed', error)
 			uni.showToast({ title: '语音提问失败，请改用文字输入', icon: 'none' })
 		} finally {
@@ -160,7 +174,10 @@
 	}
 
 	function playNextTtsSegment() {
-		if (!autoNarration.value || audioContext.value == null || ttsQueueIndex.value >= ttsQueue.value.length) return
+		if (!autoNarration.value || audioContext.value == null || ttsQueueIndex.value >= ttsQueue.value.length) {
+			digitalHumanState.value = 'idle'
+			return
+		}
 		const segment = ttsQueue.value[ttsQueueIndex.value]
 		audioContext.value!.src = resolveAssetUrl(segment.audioUrl)
 		audioContext.value!.play()
@@ -191,6 +208,7 @@
 			audioContext.value?.stop()
 			ttsQueue.value = []
 			ttsQueueIndex.value = 0
+			digitalHumanState.value = 'idle'
 		}
 	}
 
@@ -206,6 +224,7 @@
 	}
 
 	onLoad(async () => {
+		try { digitalHuman.value = await fetchDigitalHumanConfig() } catch (error) { console.error('load digital human failed', error) }
 		try { await restoreHistory() } catch (error) { console.error('restore chat history failed', error) }
 		// #ifndef WEB
 		recorderManager.value = uni.getRecorderManager()
@@ -224,7 +243,10 @@
 			ttsQueueIndex.value += 1
 			playNextTtsSegment()
 		})
-		audioContext.value?.onError((error) => console.error('audio failed', error))
+		audioContext.value?.onError((error) => {
+			digitalHumanState.value = 'idle'
+			console.error('audio failed', error)
+		})
 		initialized.value = true
 		applyPendingPrompt()
 	})
@@ -243,7 +265,7 @@
 	.page { flex: 1; background-color: #f3f6fb; }
 	.guide-header { padding: 48px 16px 14px; flex-direction: row; align-items: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f2; }
 	.guide-avatar { position: relative; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
-	.guide-avatar-image { width: 46px; height: 46px; }
+	.guide-avatar-image { width: 72px; height: 52px; margin-top: 9px; }
 	.online-dot { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border-radius: 6px; background-color: #49b583; border: 2px solid #ffffff; }
 	.guide-heading { flex: 1; margin-left: 11px; }
 	.guide-title-row { flex-direction: row; align-items: center; }
@@ -254,7 +276,7 @@
 	.message-scroll { flex: 1; }
 	.message-list { padding: 17px 14px 28px; }
 	.welcome-card { padding: 19px; border-radius: 24px; background: linear-gradient(to bottom right, #e5f1ff, #e7fbfa 58%, #fff5e4); border: 1px solid #dce8f6; margin-bottom: 22px; }
-	.welcome-top { flex-direction: row; align-items: center; justify-content: space-between; }
+	.welcome-top { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 16px; }
 	.welcome-kicker { font-size: 8px; color: #d17d00; font-weight: 700; letter-spacing: 1px; }
 	.welcome-capability { font-size: 9px; color: #0b68d0; background-color: rgba(255,255,255,0.78); padding: 5px 8px; border-radius: 10px; }
 	.welcome-title { font-size: 21px; font-weight: 800; color: #174a7e; margin-top: 12px; }
@@ -264,7 +286,7 @@
 	.message-item-user { justify-content: flex-end; }
 	.message-item-assistant { justify-content: flex-start; }
 	.message-mini-avatar { width: 31px; height: 31px; border-radius: 11px; overflow: hidden; background-color: #0b68d0; align-items: center; justify-content: center; margin-right: 8px; }
-	.message-mini-avatar-image { width: 30px; height: 30px; }
+	.message-mini-avatar-image { width: 44px; height: 34px; margin-top: 5px; }
 	.message-bubble { max-width: 270px; padding: 13px 15px; border-radius: 19px; }
 	.message-bubble-user { background: linear-gradient(to bottom right, #0b68d0, #087fb4); border-bottom-right-radius: 6px; box-shadow: 0 7px 18px rgba(11,104,208,0.18); }
 	.message-bubble-assistant { background-color: #ffffff; border: 1px solid #e1e8f2; border-bottom-left-radius: 6px; box-shadow: 0 5px 14px rgba(30,65,110,0.04); }

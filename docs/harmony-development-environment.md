@@ -177,7 +177,7 @@ Set-Location 'D:\harmony-build\scenic-visitor-dev'
 5. 执行 `devices list --platform app-harmony` 确认设备可见。
 6. 在 HBuilderX 选择目标设备运行。
 
-地图、系统定位、麦克风、音频和网络请求必须进行真机验收；模拟器通过不能代替真机验收。
+手绘导览、页面布局和基础业务可在 x86_64 模拟器验收；腾讯原生地图、系统定位、麦克风、音频和公网网络请求仍必须进行 arm64 真机验收。
 
 ## 8. 签名与 AGC
 
@@ -219,7 +219,7 @@ HBuilderX 5.24 可以在运行对话框中自动申请调试证书。如果自�
 - HarmonyOS phone/arm64-v8a；
 - Bundle Name。
 
-测评用 DCloud AppID、Web/Android/iOS/HarmonyOS 腾讯地图 Key、各端包标识和图标均已填写。仍需后续完成：正式 HTTPS API 地址、Key 最小权限/白名单策略、arm64 鸿蒙真机地图验证、AGC 应用及签名材料、隐私政策和启动体验定稿。
+测评用 DCloud AppID、Web/Android/iOS/HarmonyOS 腾讯地图 Key、各端包标识和图标均已填写。手绘导览在 App 端使用官方支持的嵌套 `scroll-view` 实现平移和按钮缩放；`movable-view` 只保留在 Web/微信，因为 DCloud 兼容表明确其在 Android、iOS、HarmonyOS 不受支持。仍需后续完成：公网 HTTPS 证书和反向代理、Key 最小权限/白名单策略、arm64 鸿蒙真机地图验证、AGC 应用及签名材料、隐私政策和启动体验定稿。
 
 定位统一使用 GCJ-02。国内地图服务与 GPS/WGS84 数据混用时必须先转换坐标，否则会产生位置偏移。
 
@@ -279,16 +279,16 @@ HBuilderX 5.24 可以在运行对话框中自动申请调试证书。如果自�
 - HBuilderX 已完成 9 个产品页面的鸿蒙 UTS 编译，并生成完整 DevEco 原生工程 `D:\harmony-build\scenic-visitor-dev`；
 - 使用 DevEco 内置 Node/OHPM 执行 `ohpm install` 后，`@dcloudio/uni-app-x-runtime`、`@uni_modules/uni-map-tencent` 和 `@uni_modules/uni-location-system` 的链接已恢复；
 - DevEco Hvigor 已完成 ArkTS、CMake/Ninja、资源和 HAP 全链路构建，产物为 `D:\harmony-build\scenic-visitor-dev\entry\build\default\outputs\default\entry-default-unsigned.hap`；
-- 最新品牌化业务代码对应的未签名 HAP 大小为 `102,706,377` 字节，SHA-256 为 `A04B28B9BEF0996C5A927BA7A592B84B5AD0D6DEC69D0804107F667BD8CD4A3C`；
+- 最新业务代码对应的未签名 HAP 大小为 `87,076,885` 字节，SHA-256 为 `F3E26E30EAA71B4E41A82AA2A96C6C5FC73B32792EC88663C34242563E1A6EE2`；
 - 两项 HarmonyOS 协议均已接受，Pura 90 系统镜像已完整安装到本机 SDK；
 - Pura 90 模拟器正在运行（HarmonyOS 6.1.1 / API 24 / x86_64），HDC 目标为 `127.0.0.1:5555`；
-- 最新未签名 HAP 已通过 `hdc install -r` 安装，`EntryAbility` 启动成功，`com.scenic.guide.visitor` 进程运行正常；模拟器包信息显示 `appProvisionType=debug`、`appSignType=none`；
+- 最新未签名 HAP 已通过 `hdc install -r` 安装，`EntryAbility` 启动成功，`com.scenic.guide.visitor` 进程运行正常；模拟器包信息显示 `appProvisionType=debug`、`appSignType=none`；手绘地图、横向平移、数字人和景点卡片均通过 Pura 90 设备截图复核；
 - `visitor-app/manifest.json` 已配置真实 DCloud AppID；本地未签名构建不依赖云打包；
 - 鸿蒙调试/发行签名材料尚未配置。
 
 因此 DevEco、SDK、Pura 90 和本地未签名 HAP 的编译—安装—启动链已经完成。下一步是用 arm64 HarmonyOS 真机验证地图、定位、麦克风、音频与 HTTPS 接口，并在需要真机/发行时配置华为证书与 Profile。
 
-当前腾讯地图原生 `libmapengine.so` 只有 `arm64-v8a`，而 Pura 90 模拟器是 `x86_64`。即使应用已经安装并启动，地图页仍可能因原生库架构不兼容而失败，因此地图必须在 arm64 HarmonyOS 真机进行最终验收。项目已在 `visitor-app/harmony-configs/entry/src/main/module.json5` 配置网络、精确/模糊位置、麦克风权限和测评用 `TENCENT_MAP_KEY`。腾讯控制台的当前 Key 编辑界面已明确显示“地图 SDK（Android/iOS/HarmonyOS NEXT）”并绑定本项目 appIdentifier；正式发布前仍应按生产应用、授权与密钥隔离策略复核。
+当前腾讯地图原生 `libmapengine.so` 只有 `arm64-v8a`，而 Pura 90 模拟器是 `x86_64`。因此腾讯“导航地图”必须在 arm64 HarmonyOS 真机最终验收；Pura 90 使用已验证的本地手绘地图作为降级路径。项目已在 `visitor-app/harmony-configs/entry/src/main/module.json5` 配置网络、精确/模糊位置、麦克风权限和测评用 `TENCENT_MAP_KEY`。腾讯控制台的当前 Key 编辑界面已明确显示“地图 SDK（Android/iOS/HarmonyOS NEXT）”并绑定本项目 appIdentifier；正式发布前仍应按生产应用、授权与密钥隔离策略复核。
 
 不要将 DCloud/华为账号密码、证书密码、Secret Key 或私钥写入命令历史和仓库。DCloud AppID 的所有权和项目成员权限应由团队账号长期维护。
 

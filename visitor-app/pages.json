@@ -34,30 +34,52 @@
 				"navigationStyle": "custom",
 				"navigationBarTitleText": "我的"
 			}
+		}
+	],
+	"subPackages": [
+		{
+			"root": "pages/spot",
+			"pages": [
+				{
+					"path": "detail",
+					"style": {
+						"navigationBarTitleText": "景点详情"
+					}
+				}
+			]
 		},
 		{
-			"path": "pages/spot/detail",
-			"style": {
-				"navigationBarTitleText": "景点详情"
-			}
+			"root": "pages/auth",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationBarTitleText": "游客账号"
+					}
+				}
+			]
 		},
 		{
-			"path": "pages/auth/index",
-			"style": {
-				"navigationBarTitleText": "游客账号"
-			}
+			"root": "pages/favorites",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationBarTitleText": "收藏与足迹"
+					}
+				}
+			]
 		},
 		{
-			"path": "pages/favorites/index",
-			"style": {
-				"navigationBarTitleText": "收藏与足迹"
-			}
-		},
-		{
-			"path": "pages/feedback/index",
-			"style": {
-				"navigationBarTitleText": "意见反馈"
-			}
+			"root": "pages/feedback",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationBarTitleText": "意见反馈"
+					}
+				}
+			]
 		}
 	],
 	"tabBar": {

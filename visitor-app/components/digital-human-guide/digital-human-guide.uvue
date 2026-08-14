@@ -1,0 +1,63 @@
+<template>
+	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''">
+		<view class="avatar-shell" :class="compact ? 'avatar-shell-compact' : ''">
+			<view class="avatar-glow" :class="state == 'speaking' ? 'avatar-glow-speaking' : ''"></view>
+			<image class="avatar-image" :class="compact ? 'avatar-image-compact' : ''" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
+			<view class="avatar-online"></view>
+		</view>
+		<view class="digital-copy">
+			<view class="digital-title-row">
+				<text class="digital-name" :class="compact ? 'digital-name-compact' : ''">{{ title }}</text>
+				<text class="digital-badge">数字人</text>
+			</view>
+			<text class="digital-status">{{ statusText }}</text>
+			<text v-if="!compact" class="digital-message">{{ message }}</text>
+		</view>
+		<view v-if="compact" class="digital-action"><text class="digital-action-text">问问我</text><text class="digital-action-arrow">›</text></view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	type DigitalHumanGuideProps = {
+		title ?: string,
+		message ?: string,
+		state ?: string,
+		compact ?: boolean
+	}
+
+	const props = withDefaults(defineProps<DigitalHumanGuideProps>(), {
+		title: '灵小游',
+		message: '我可以为你讲解景点、规划路线，也能跟随当前位置提供导览。',
+		state: 'idle',
+		compact: false
+	})
+
+	const statusText = computed<string>(() => {
+		if (props.state == 'thinking') return '正在检索景区知识'
+		if (props.state == 'speaking') return '正在为你讲解'
+		if (props.state == 'guiding') return '正在进行景区导览'
+		return '在线 · 随时为你服务'
+	})
+</script>
+
+<style>
+	.digital-human { min-height: 154px; flex-direction: row; align-items: center; overflow: hidden; padding: 13px 15px 13px 8px; border-radius: 24px; background: linear-gradient(to bottom right, #083f82, #087eaa 62%, #12a8aa); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 12px 28px rgba(8,70,132,0.20); }
+	.digital-human-compact { min-height: 76px; padding: 7px 11px 7px 5px; border-radius: 20px; background: linear-gradient(to right, rgba(5,54,110,0.97), rgba(7,128,159,0.97)); }
+	.avatar-shell { position: relative; width: 116px; height: 132px; flex-shrink: 0; align-items: center; justify-content: flex-end; overflow: hidden; }
+	.avatar-shell-compact { width: 62px; height: 62px; border-radius: 18px; background-color: rgba(255,255,255,0.10); }
+	.avatar-glow { position: absolute; left: 8px; right: 8px; bottom: 0; height: 86px; border-radius: 48px; background-color: rgba(109,235,230,0.22); }
+	.avatar-glow-speaking { background-color: rgba(255,205,105,0.34); }
+	.avatar-image { position: absolute; width: 174px; height: 132px; bottom: -1px; }
+	.avatar-image-compact { width: 92px; height: 70px; bottom: -7px; }
+	.avatar-online { position: absolute; right: 8px; bottom: 8px; width: 11px; height: 11px; border-radius: 6px; background-color: #50d999; border: 2px solid #ffffff; }
+	.digital-copy { flex: 1; margin-left: 8px; }
+	.digital-title-row { flex-direction: row; align-items: center; }
+	.digital-name { font-size: 19px; font-weight: 800; color: #ffffff; }
+	.digital-name-compact { font-size: 15px; }
+	.digital-badge { font-size: 9px; color: #704900; padding: 4px 7px; border-radius: 9px; margin-left: 7px; background-color: #ffd885; }
+	.digital-status { font-size: 10px; color: #bdeff2; margin-top: 5px; }
+	.digital-message { font-size: 12px; line-height: 19px; color: #e8f7ff; margin-top: 9px; }
+	.digital-action { flex-direction: row; align-items: center; margin-left: 8px; padding-left: 9px; border-left: 1px solid rgba(255,255,255,0.18); }
+	.digital-action-text { font-size: 11px; color: #ffffff; font-weight: 700; }
+	.digital-action-arrow { font-size: 19px; color: #ffd885; margin-left: 3px; }
+</style>

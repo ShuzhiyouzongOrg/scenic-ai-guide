@@ -98,9 +98,7 @@
 					<text class="loading-text">正在加载景区数据</text>
 				</view>
 				<scroll-view v-else-if="spots.length > 0" class="spot-scroll" direction="horizontal" :show-scrollbar="false">
-					<view class="spot-row">
-						<spot-card v-for="spot in spots" :key="spot.id" :spot="spot" />
-					</view>
+					<spot-card v-for="spot in spots" :key="spot.id" :spot="spot" />
 				</scroll-view>
 				<empty-state v-else icon="景" title="景点数据尚未连接" description="确认 Node 服务与当前设备网络连通后，重新进入页面即可载入真实景点。" />
 			</app-section>
@@ -203,8 +201,7 @@
 	.quick-arrow { font-size: 20px; color: #9aa6b7; margin-left: 4px; }
 	.loading-card { height: 130px; align-items: center; justify-content: center; background-color: #ffffff; border: 1px solid #e4eaf4; border-radius: 24px; }
 	.loading-text { font-size: 12px; color: #77849a; margin-top: 10px; }
-	.spot-scroll { height: 298px; }
-	.spot-row { flex-direction: row; padding: 2px 2px 14px; }
+	.spot-scroll { height: 298px; flex-direction: row; padding: 2px 2px 14px; }
 	.route-card { flex-direction: row; overflow: hidden; background-color: #ffffff; border: 1px solid #e3eaf5; border-radius: 24px; box-shadow: 0 10px 28px rgba(21,65,124,0.08); }
 	.route-visual { width: 88px; min-height: 150px; align-items: center; justify-content: center; background: linear-gradient(to bottom, #17b7c3, #087ab8); }
 	.route-number { font-size: 30px; font-weight: 800; color: #ffffff; }
