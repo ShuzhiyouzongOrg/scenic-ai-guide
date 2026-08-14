@@ -19,7 +19,7 @@
 
 操作：使用长期归属团队的 DCloud 账号登录 HBuilderX，在 `manifest.json → 基础配置` 中“重新获取”或创建应用。微信 AppID 仍是另一项独立配置，不能互相替代。
 
-当前存在必须在 Android 云打包前解决的标识冲突：`visitor-app/manifest.json` 为 `__UNI__87D2500`，团队 DCloud 控制台截图中的“数智游踪”为 `__UNI__801F118`。云证书与 AppID 绑定，必须由团队确认唯一长期 AppID 后再打包，不能直接把两个值混用。
+团队已确认本轮及后续游客端测评构建继续使用 `visitor-app/manifest.json` 中的 `__UNI__87D2500`。2026-08-14 的 Android 云证书评测包也已按该 AppID 构建；控制台截图中的其他 AppID 不得混入本项目配置。
 
 只有 AppID 所有者或被添加为项目成员的账号才能提交云打包。不要手工伪造或随意更换 AppID。
 
@@ -129,7 +129,7 @@ https://apis.map.qq.com
 
 微信后台当前 `request` 合法域名已包含 `https://api.shuzhiyouzong.cn` 与 `https://apis.map.qq.com`，`uploadFile` 合法域名也已配置为 `https://api.shuzhiyouzong.cn`。若音频或文件改为 `uni.downloadFile`，还应同步配置 `downloadFile` 合法域名。
 
-当前开发 API 为 `http://127.0.0.1:5178`，只适合电脑开发者工具；Pura 90/Android 模拟器使用局域网地址。`config/env.uts` 的 production 地址已设为 `https://api.shuzhiyouzong.cn`，但 2026-08-14 实测存在两个服务器问题：系统不信任当前 TLS 证书；忽略证书校验后 `/api/health` 返回 nginx HTML，而不是 Node 服务的 JSON。需先安装与域名匹配的完整证书链，并把 `/api/*` 反向代理到 Node 服务，才能切换 `runtimeEnvironment=production` 做真机闭环。
+当前开发 API 为 `http://127.0.0.1:5178`，只适合电脑开发者工具；Pura 90/Android 模拟器可使用局域网地址。生产地址为 `https://api.shuzhiyouzong.cn`。2026-08-14 已为该子域签发独立 Let's Encrypt 证书，并将 `/api/*` 反向代理到 `127.0.0.1:5178`；严格 TLS 下的健康检查、双景区地图、数字人、问答、讯飞 TTS、讯飞 ASR、语音文件上传与 SSE 均已通过公网验证。服务器配置、回滚步骤及只读复检脚本位于 `deploy/`。
 
 ## 8. Android Key
 
