@@ -18,7 +18,8 @@ export function updateCachedAuthProfile(profile : AuthProfile) {
 		id: profile.userId,
 		username: profile.userName,
 		displayName,
-		role
+		role,
+		avatar: profile.avatar ?? ''
 	} as AuthUser
 	uni.setStorageSync(AUTH_USER_KEY, JSON.stringify(user))
 }

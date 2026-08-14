@@ -2,8 +2,8 @@
 	"name": "灵山AI导游",
 	"appid": "__UNI__87D2500",
 	"description": "面向游客的多端智能导游应用",
-	"versionName": "1.0.0",
-	"versionCode": "100",
+	"versionName": "1.0.1",
+	"versionCode": "101",
 	"uni-app-x": {
 		"vapor": true,
 		"styleIsolationVersion": "2",

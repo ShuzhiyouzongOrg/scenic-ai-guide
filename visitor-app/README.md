@@ -78,13 +78,13 @@ npm start
 ## 当前验证结果
 
 - Web：10 个页面编译成功；受控讯飞动态数字人页面已通过真实 XRTC 连接、动态形象、欢迎播报和知识库问答驱动验证。
-- 微信小程序：10 个页面完整编译成功；主包仅保留 5 个 tab 页面，景点详情、账号、收藏、反馈与动态数字人拆为分包。
+- 微信小程序：9 个当前启用页面完整编译成功；主包仅保留 5 个 tab 页面，景点详情、账号、收藏与反馈拆为 4 个分包；受个人主体业务域名限制，不打包动态数字人 WebView 页。
 - Android：Vapor 原生资源与字节码严格编译成功。
 - iOS：Vapor 模拟器目标原生资源与字节码严格编译成功；安装、签名和发行仍需 macOS/Xcode。
 - HarmonyOS：UTS、ArkTS、CMake/Ninja、资源和 HAP 全链路构建成功，并已在 Pura 90（API 24、x86_64）模拟器免签安装、启动；受控 WebView 已成功建立讯飞云会话并渲染动态人物画面，手绘地图、平移和业务卡片也通过设备截图复核。最新未签名 HAP：
   `D:\harmony-build\scenic-visitor-dev\entry\build\default\outputs\default\entry-default-unsigned.hap`
-  （87,569,368 字节，SHA-256：`EDEC010C0DE0324054EBB726068FDAC4DA210EE057D619D50975FDD2F1A83E3E`）。
-- 后端：`npm run check`、`npm run test:routes`、`npm run test:voice` 和真实 `npm run test:xfyun-asr` 均通过。
+  （87,391,123 字节，SHA-256：`EDF557D4E0AEA7C3A1907CF9B458B498DA3EB5EC84A43447CEF21B8C3543FB3E`）。
+- 后端：`npm run check`、`npm run test:routes`、`npm run test:digital-human`、`npm run test:profile-avatar`、`npm run test:voice` 和真实 `npm run test:xfyun-asr` 均通过。
 
 项目已为 Android、iOS 和 HarmonyOS 配置网络、前台定位与麦克风用途声明，并已写入测评用 DCloud AppID、腾讯地图 Key、各端包标识与应用图标。Key、签名和域名限制仍需在公开发布前按生产安全策略拆分与收紧。
 
@@ -93,6 +93,7 @@ npm start
 - `launch app-android --compile true` 不是独立 APK 打包；HBuilderX 的 `android_base.apk` 也不是本项目 APK。DCloud 公共测试证书已经下线，独立包必须选择 DCloud 云证书或自有 keystore 后执行云打包。本轮按用户确认继续使用当前 manifest AppID，不再切换到旧截图中的 AppID。
 - 微信原生 `<map>` 的底图、marker 和 polyline 不需要腾讯 WebService Key；POI 搜索、地址解析和腾讯算路才需要。生产环境建议由本项目 HTTPS 后端保管 Key/SK 并代理请求。
 - HarmonyOS Pura 90 模拟器已安装镜像并成功运行应用；手绘地图作为 x86_64 可用的正式降级路径。腾讯原生地图 `libmapengine.so` 仍只有 `arm64-v8a`，导航地图最终需用 arm64 真机复测。
+- HarmonyOS 模拟器已确认讯飞云人物显示和公网知识库问答闭环；`web-view @message` 的 `ready/speaking/idle` 状态回传及云端实时口型仍需在 arm64 真机动态复核。状态桥接异常时，客户端会尝试重连，并回退到本地讯飞 TTS 播报。
 - 微信后台已配置 `request` 与 `uploadFile` 合法域名；公网 API 已配置匹配证书与 `/api/*` 反向代理。若服务器迁移或证书异常，可从仓库根目录运行 `deploy/scripts/verify-public-api.sh` 复检。
 - 讯飞原生微信 XRTC 文档明确不支持 uni-app，且当前微信 AppID 为个人主体，不能配置 WebView 业务域名；微信端采用本地动态形象 + 讯飞云音色，其他四端使用受控 HTTPS WebView。iOS/Android 原生 SDK 可作为后续增强，但必须先取得讯飞对应端 SDK 包与虚拟人商业授权。详见 `../docs/xfyun-digital-human-integration.md`。
 - 仓库原有讯飞 Web IAT 供应商示例按本轮评测要求保持不动；游客端没有新增或复制任何讯飞密钥。正式公开前仍应轮换历史凭据并另行清理 Git 历史。

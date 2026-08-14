@@ -57,17 +57,19 @@ The ASR helper backs up `.env`, changes only `ASR_PROVIDER`, probes the resolved
 Node configuration, restarts the service and automatically rolls back if the
 strict local health check does not report `asr=xfyun`.
 
-When the production server predates the visitor upload/XFYUN-ASR endpoints,
-prepare a payload containing only the four committed server files named by the
-script, then deploy them as a new immutable release:
+When production predates the visitor upload, XFYUN ASR, profile-avatar or
+controlled digital-human endpoints, prepare a payload containing the exact
+allowlisted runtime and avatar SDK files named by the script, then deploy them
+as a new immutable release:
 
 ```bash
 sudo bash deploy/scripts/deploy-visitor-backend.sh /path/to/payload-root
 ```
 
-This copies the current release, replaces only `app.mjs`, `config.mjs`,
-`http/request.mjs` and `services/voice.mjs`, atomically switches `current`, and
-rolls back the symlink if the service health check fails. It does not copy an
+This copies the current release, replaces only the allowlisted API contracts,
+request/auth/voice/avatar services, controlled digital-human page and bundled
+avatar SDK assets, atomically switches `current`, and rolls back the symlink if
+the service or controlled page health check fails. It does not copy an
 environment file or database from the operator machine.
 
 For testing before public DNS propagation, the verification script pins curl

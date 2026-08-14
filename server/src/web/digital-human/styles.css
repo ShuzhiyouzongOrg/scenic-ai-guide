@@ -251,6 +251,116 @@ input {
   background: linear-gradient(145deg, #f5f9ff, #f7fcf9);
 }
 
+/* Compact stage embedded in the uni-app x AI guide card. The regular full-page
+   runtime remains unchanged when embed=1 is absent. */
+body.embed-mode {
+  min-height: 100vh;
+  overflow: hidden;
+  background: #fff;
+}
+
+body.embed-mode .app-shell {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+  display: block;
+}
+
+body.embed-mode .stage-card {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+body.embed-mode .avatar-stage {
+  background: #fff;
+}
+
+body.embed-mode .stage-placeholder {
+  background: #fff;
+  color: #173c65;
+}
+
+body.embed-mode .stage-placeholder span:last-child {
+  color: #74869b;
+}
+
+body.embed-mode .brand-mark {
+  border-color: #dce7f2;
+  background: #eef6ff;
+  box-shadow: none;
+  color: #0b68d0;
+}
+
+body.embed-mode .avatar-stage > video,
+body.embed-mode .avatar-stage > div:not(.stage-placeholder),
+body.embed-mode .avatar-stage > div:not(.stage-placeholder) video {
+  background: #fff !important;
+}
+
+body.embed-mode .avatar-stage video {
+  object-fit: contain !important;
+  transition: opacity 180ms ease;
+}
+
+body.embed-mode:not(.avatar-stream-ready) .avatar-stage video {
+  opacity: 0;
+}
+
+body.embed-mode .stage-toolbar {
+  min-height: 42px;
+  padding: 7px 10px;
+  background: rgb(244 248 252 / 96%);
+  color: #26445f;
+}
+
+body.embed-mode .provider-badge {
+  padding: 5px 8px;
+  background: #fff3d8;
+  color: #9b6500;
+  font-size: 11px;
+}
+
+body.embed-mode .text-button {
+  border-color: #d6e1ec;
+  color: #1d5f99;
+  font-size: 11px;
+}
+
+body.embed-mode .control-card {
+  position: fixed;
+  z-index: 12;
+  left: 14px;
+  right: 14px;
+  bottom: 52px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.embed-mode .control-card .intro-copy,
+body.embed-mode .control-card .question-form,
+body.embed-mode .control-card .answer-panel {
+  display: none;
+}
+
+body.embed-mode .primary-button {
+  min-height: 44px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgb(29 87 143 / 20%);
+}
+
+body.embed-mode .primary-button[hidden] {
+  display: none;
+}
+
 @media (max-width: 720px) {
   .app-shell {
     min-height: auto;

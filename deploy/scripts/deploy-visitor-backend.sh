@@ -17,8 +17,11 @@ fi
 required_files=(
   server/src/app.mjs
   server/src/config.mjs
+  server/src/contracts/openapi.json
   server/src/http/request.mjs
+  server/src/services/auth.mjs
   server/src/services/digitalHumanWeb.mjs
+  server/src/services/profileAvatar.mjs
   server/src/services/voice.mjs
   server/src/web/digital-human/index.html
   server/src/web/digital-human/app.js

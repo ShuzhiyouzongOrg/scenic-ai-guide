@@ -2,9 +2,10 @@
 	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
 		<view class="profile-header">
 			<view class="profile-orb"></view>
-			<view class="profile-avatar">
-				<image class="profile-avatar-image" src="/static/logo.png" mode="aspectFit" />
+			<view class="profile-avatar" @click="chooseProfileAvatar">
+				<image class="profile-avatar-image" :src="profileAvatarSource" mode="aspectFill" />
 				<view class="profile-status-dot"></view>
+				<view class="profile-avatar-edit"><text class="profile-avatar-edit-text">{{ avatarUploading ? '上传中' : '更换头像' }}</text></view>
 			</view>
 			<text class="profile-name">{{ displayName }}</text>
 			<text class="profile-copy">{{ authUser == null ? '当前使用本设备游客会话，导览功能可直接使用' : '游客账号已登录，本设备导览记录继续保留' }}</text>
@@ -57,7 +58,8 @@
 
 <script setup lang="uts">
 	import type { AuthUser, DigitalHumanConfig } from '@/domain/types.uts'
-	import { createDefaultDigitalHumanConfig, fetchAuthProfile, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchSavedRoutes } from '@/services/guide-api.uts'
+	import { createDefaultDigitalHumanConfig, fetchAuthProfile, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchSavedRoutes, uploadProfileAvatar } from '@/services/guide-api.uts'
+	import { resolveAssetUrl } from '@/services/http.uts'
 	import { clearAuthSession, getAuthToken, getCachedAuthUser, updateCachedAuthProfile } from '@/stores/auth.uts'
 	import { getPreferredScenicArea, getSelectedDigitalHumanId, setPreferredScenicArea, setSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
@@ -67,10 +69,15 @@
 	const favoriteCount = ref<number>(0)
 	const footprintCount = ref<number>(0)
 	const authUser = ref<AuthUser | null>(null)
+	const avatarUploading = ref<boolean>(false)
 	const scenicArea = ref<string>('lingshan')
 	const digitalHumans = ref<DigitalHumanConfig[]>([createDefaultDigitalHumanConfig()])
 	const selectedDigitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
 	const displayName = computed<string>(() => authUser.value?.displayName ?? '游客')
+	const profileAvatarSource = computed<string>(() => {
+		const avatar = authUser.value?.avatar ?? ''
+		return avatar.length > 0 ? resolveAssetUrl(avatar) : '/static/logo.png'
+	})
 	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
 	const selectedDigitalHumanName = computed<string>(() => selectedDigitalHuman.value?.name ?? '云觉·大佛文化使（女）')
 	const selectedDigitalHumanStatus = computed<string>(() => selectedDigitalHuman.value?.engine == 'xfyun' ? '讯飞云音色已接入' : '本地形象模式')
@@ -161,7 +168,57 @@
 			}
 		})
 	}
-	function showPrivacy() { uni.showModal({ title: '隐私与权限', content: '定位仅在地图页用于展示当前位置；麦克风仅在你主动点击语音提问时启用；账号、反馈和导览数据提交到当前项目后端。', showCancel: false }) }
+
+	function chooseProfileAvatar() {
+		if (avatarUploading.value) return
+		if (authUser.value == null || getAuthToken().length == 0) {
+			uni.showModal({
+				title: '登录后设置头像',
+				content: '头像将安全保存到你的游客账号，可在各端登录后同步显示。',
+				confirmText: '去登录',
+				success: (result) => {
+					if (result.confirm) uni.navigateTo({ url: '/pages/auth/index' })
+				}
+			})
+			return
+		}
+		uni.chooseImage({
+			count: 1,
+			sizeType: ['compressed'],
+			sourceType: ['album', 'camera'],
+			success: (result) => {
+				if (result.tempFiles.length == 0) return
+				const file = result.tempFiles[0]
+				handleProfileAvatarUpload(file.path, file.size)
+			},
+			fail: (error) => {
+				if (!error.errMsg.includes('cancel')) uni.showToast({ title: '未能读取所选图片', icon: 'none' })
+			}
+		})
+	}
+
+	async function handleProfileAvatarUpload(filePath : string, fileSize : number) {
+		if (fileSize > 5 * 1024 * 1024) {
+			uni.showToast({ title: '请选择不超过 5 MB 的图片', icon: 'none' })
+			return
+		}
+		avatarUploading.value = true
+		uni.showLoading({ title: '正在上传', mask: true })
+		try {
+			const profile = await uploadProfileAvatar(filePath)
+			updateCachedAuthProfile(profile)
+			authUser.value = getCachedAuthUser()
+			uni.showToast({ title: '头像已更新', icon: 'success' })
+		} catch (error) {
+			console.error('upload profile avatar failed', error)
+			uni.showToast({ title: '头像上传失败，请稍后重试', icon: 'none' })
+		} finally {
+			uni.hideLoading()
+			avatarUploading.value = false
+		}
+	}
+
+	function showPrivacy() { uni.showModal({ title: '隐私与权限', content: '定位仅在地图页用于展示当前位置；麦克风仅在你主动点击语音提问时启用；相册或相机仅在你主动更换头像时启用；账号、反馈和导览数据提交到当前项目后端。', showCancel: false }) }
 	function showAbout() { uni.showModal({ title: '灵山AI导游', content: '基于 uni-app x Vapor 构建的多端游客应用。', showCancel: false }) }
 	function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
 	function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
@@ -177,7 +234,9 @@
 	.profile-orb { position: absolute; right: -74px; top: -88px; width: 220px; height: 220px; border-radius: 110px; background-color: rgba(255,255,255,0.06); }
 	.profile-avatar { position: relative; width: 82px; height: 82px; border-radius: 27px; overflow: hidden; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.38); box-shadow: 0 12px 28px rgba(3,29,75,0.24); }
 	.profile-avatar-image { width: 80px; height: 80px; }
-	.profile-status-dot { position: absolute; right: -3px; bottom: -3px; width: 15px; height: 15px; border-radius: 8px; background-color: #37d0b8; border: 3px solid #075eb8; }
+	.profile-status-dot { position: absolute; right: 6px; bottom: 20px; width: 12px; height: 12px; border-radius: 7px; background-color: #37d0b8; border: 2px solid #ffffff; }
+	.profile-avatar-edit { position: absolute; left: 0; right: 0; bottom: 0; height: 20px; align-items: center; justify-content: center; background-color: rgba(2,23,57,0.66); }
+	.profile-avatar-edit-text { font-size: 9px; font-weight: 600; color: #ffffff; }
 	.profile-name { font-size: 24px; font-weight: 800; color: #ffffff; margin-top: 14px; }
 	.profile-copy { font-size: 12px; color: #d9efff; margin: 7px 0 16px; text-align: center; }
 	.auth-button { height: 36px; padding: 0 15px; flex-direction: row; align-items: center; border-radius: 18px; background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); }

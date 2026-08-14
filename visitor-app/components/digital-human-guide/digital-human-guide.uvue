@@ -2,7 +2,8 @@
 	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''" @click="handleClick">
 		<view class="avatar-shell" :class="compact ? 'avatar-shell-compact' : ''">
 			<view class="avatar-glow" :class="state == 'speaking' ? 'avatar-glow-speaking' : ''"></view>
-			<image class="avatar-image" :class="avatarImageClass" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
+			<image class="avatar-image" :class="avatarImageClass" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" />
+			<view v-if="state == 'speaking'" class="avatar-mouth" :class="mouthClass"><view class="avatar-mouth-core"></view></view>
 			<view v-if="state == 'speaking'" class="voice-wave">
 				<view class="voice-wave-bar voice-wave-bar-one"></view>
 				<view class="voice-wave-bar voice-wave-bar-two"></view>
@@ -33,6 +34,8 @@
 		actionText ?: string
 	}
 	const emit = defineEmits(['click'])
+	const mouthOpen = ref<boolean>(false)
+	let mouthTimer : number | null = null
 
 	const props = withDefaults(defineProps<DigitalHumanGuideProps>(), {
 		title: '灵小游',
@@ -67,6 +70,30 @@
 		return className.trim()
 	})
 
+	const mouthClass = computed<string>(() => {
+		let className = props.compact ? 'avatar-mouth-compact' : ''
+		if (mouthOpen.value) className += ' avatar-mouth-open'
+		return className.trim()
+	})
+
+	function stopMouthAnimation() {
+		if (mouthTimer != null) {
+			clearInterval(mouthTimer!)
+			mouthTimer = null
+		}
+		mouthOpen.value = false
+	}
+
+	watch(() : string => props.state, (state : string) => {
+		stopMouthAnimation()
+		if (state == 'speaking') {
+			mouthOpen.value = true
+			mouthTimer = setInterval(() => { mouthOpen.value = !mouthOpen.value }, 170)
+		}
+	})
+
+	onUnmounted(() => { stopMouthAnimation() })
+
 	function handleClick() {
 		emit('click')
 	}
@@ -83,6 +110,11 @@
 	.avatar-image-compact { width: 92px; height: 70px; bottom: -7px; }
 	.avatar-image-breathing { transform-origin: 50% 100%; }
 	.avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.025); }
+	.avatar-mouth { position: absolute; left: 54px; top: 28px; width: 10px; height: 6px; border-radius: 5px; align-items: center; justify-content: center; background-color: rgba(87,34,48,0.78); }
+	.avatar-mouth-open { top: 26px; height: 10px; }
+	.avatar-mouth-core { width: 5px; height: 2px; border-radius: 2px; background-color: #f3a7ad; }
+	.avatar-mouth-compact { left: 27px; top: 14px; width: 7px; height: 4px; }
+	.avatar-mouth-compact.avatar-mouth-open { top: 12px; height: 7px; }
 	.avatar-online { position: absolute; right: 8px; bottom: 8px; width: 11px; height: 11px; border-radius: 6px; background-color: #50d999; border: 2px solid #ffffff; }
 	.voice-wave { position: absolute; left: 8px; bottom: 8px; height: 22px; padding: 4px 6px; flex-direction: row; align-items: center; border-radius: 11px; background-color: rgba(4,44,92,0.78); }
 	.voice-wave-bar { width: 3px; height: 8px; margin: 0 1px; border-radius: 2px; background-color: #ffd885; }

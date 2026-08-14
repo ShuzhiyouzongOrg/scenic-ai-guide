@@ -196,6 +196,18 @@ try {
   assert.match(pageHeadResponse.headers.get("content-type"), /^text\/html/);
   assert.equal(await pageHeadResponse.text(), "");
 
+  const runtimeResponse = await fetch(`${origin}/digital-human/app.js`);
+  assert.equal(runtimeResponse.status, 200);
+  assert.match(runtimeResponse.headers.get("content-type"), /^text\/javascript/);
+  const runtimeSource = await runtimeResponse.text();
+  assert.match(runtimeSource, /const MAX_AUTO_RETRIES = 3;/);
+  assert.match(runtimeSource, /let pendingExternalSpeech = \[\];/);
+  assert.match(runtimeSource, /pendingExternalSpeech\.unshift\(activeSpeech\)/);
+  assert.match(runtimeSource, /bootstrap = await fetchBootstrap\(\);/);
+  assert.match(runtimeSource, /scheduleAutoRetry\(message\);/);
+  assert.match(runtimeSource, /scheduleStableConnectionReset\(instance\);/);
+  assert.doesNotMatch(runtimeSource, /\bapiKey\b|\bapiSecret\b/);
+
   const sdkResponse = await fetch(`${origin}/digital-human/sdk/index.js`);
   assert.equal(sdkResponse.status, 200);
   assert.match(sdkResponse.headers.get("content-type"), /^text\/javascript/);

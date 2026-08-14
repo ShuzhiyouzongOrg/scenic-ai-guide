@@ -39,7 +39,7 @@ export function apiRequest<T>(path : string, method : RequestMethod = 'GET', dat
 	})
 }
 
-export function apiUploadFile<T>(path : string, filePath : string, formData : UTSJSONObject = {}) : Promise<T> {
+export function apiUploadFile<T>(path : string, filePath : string, formData : UTSJSONObject = {}, fieldName : string = 'file') : Promise<T> {
 	return new Promise<T>((resolve, reject) => {
 		const token = uni.getStorageSync(AUTH_TOKEN_KEY) as string
 		const header = {} as UTSJSONObject
@@ -47,9 +47,7 @@ export function apiUploadFile<T>(path : string, filePath : string, formData : UT
 		uni.uploadFile({
 			url: joinUrl(path),
 			filePath,
-			// #ifdef MP-WEIXIN
-			name: 'audio',
-			// #endif
+			name: fieldName,
 			formData,
 			header,
 			timeout: 30000,

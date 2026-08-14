@@ -25,6 +25,16 @@
         "summary": "Return the authenticated account profile"
       }
     },
+    "/api/auth/avatar": {
+      "post": {
+        "summary": "Upload an authenticated visitor avatar as multipart JPEG, PNG or WebP (5 MB maximum)"
+      }
+    },
+    "/api/auth/avatar/{fileName}": {
+      "get": {
+        "summary": "Return an immutable uploaded visitor avatar image"
+      }
+    },
     "/api/visitor/session": {
       "post": {
         "summary": "Create anonymous visitor session"

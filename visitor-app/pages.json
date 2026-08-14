@@ -81,6 +81,7 @@
 				}
 			]
 		},
+		// #ifndef MP-WEIXIN
 		{
 			"root": "pages/digital-human",
 			"pages": [
@@ -94,6 +95,7 @@
 				}
 			]
 		}
+		// #endif
 	],
 	"tabBar": {
 		"color": "#8a96a8",

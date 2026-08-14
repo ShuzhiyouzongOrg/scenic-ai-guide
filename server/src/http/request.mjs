@@ -39,7 +39,7 @@ export function readBodyBuffer(req, maxBytes = 15 * 1024 * 1024) {
   });
 }
 
-export async function readMultipartForm(req) {
+export async function readMultipartForm(req, maxBytes = 15 * 1024 * 1024) {
 	const contentType = String(req.headers["content-type"] || "");
 	const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
 	if (!boundaryMatch) {
@@ -50,7 +50,7 @@ export async function readMultipartForm(req) {
 	}
 
 	const boundary = Buffer.from(`--${boundaryMatch[1] || boundaryMatch[2]}`);
-	const body = await readBodyBuffer(req);
+	const body = await readBodyBuffer(req, maxBytes);
 	const fields = {};
 	const files = {};
 	let cursor = 0;

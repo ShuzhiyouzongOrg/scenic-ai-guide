@@ -2,13 +2,13 @@
 	<view class="page">
 		<view class="guide-header">
 			<view class="guide-avatar" @click="openLiveAvatar">
-				<image class="guide-avatar-image" :class="digitalHumanState == 'speaking' ? 'guide-avatar-image-speaking' : ''" src="/static/digital-human/guide-haru.png" mode="aspectFit" />
+				<image class="guide-avatar-image" :class="digitalHumanState == 'speaking' ? 'guide-avatar-image-speaking' : ''" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" />
 				<view class="online-dot"></view>
 			</view>
 			<view class="guide-heading">
 				<view class="guide-title-row">
 					<text class="guide-title">{{ digitalHumanTitle }}</text>
-					<text class="guide-mode">{{ digitalHumanEngineLabel }}</text>
+					<text class="guide-mode" @click="toggleDigitalHumanMode">{{ digitalHumanMode == 'xfyun' ? '讯飞 · 切换' : '本地形象 · 切换' }}</text>
 				</view>
 				<text class="guide-status">{{ digitalHumanProviderStatus }}</text>
 			</view>
@@ -20,20 +20,60 @@
 		<scroll-view class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget">
 			<view class="message-list">
 				<view class="welcome-card">
-					<digital-human-guide :title="digitalHumanTitle" :message="digitalHumanWelcome" :state="digitalHumanState" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" @click="openLiveAvatar" />
+					<view class="avatar-mode-header">
+						<view>
+							<text class="avatar-mode-kicker">DIGITAL GUIDE</text>
+							<text class="avatar-mode-title">选择陪伴形象</text>
+						</view>
+						<view class="avatar-mode-switch">
+							<view class="avatar-mode-option" :class="digitalHumanMode == 'xfyun' ? 'avatar-mode-option-active' : ''" @click="selectDigitalHumanMode('xfyun')"><text class="avatar-mode-option-text" :class="digitalHumanMode == 'xfyun' ? 'avatar-mode-option-text-active' : ''">讯飞</text></view>
+							<view class="avatar-mode-option" :class="digitalHumanMode == 'live2d' ? 'avatar-mode-option-active' : ''" @click="selectDigitalHumanMode('live2d')"><text class="avatar-mode-option-text" :class="digitalHumanMode == 'live2d' ? 'avatar-mode-option-text-active' : ''">本地</text></view>
+						</view>
+					</view>
+
+					<view class="embedded-avatar-shell">
+						<!-- #ifndef MP-WEIXIN -->
+						<web-view
+							v-if="digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length > 0 && !embeddedAvatarFailed"
+							id="ai-avatar-webview"
+							class="embedded-avatar-webview"
+							:src="embeddedAvatarUrl"
+							:ios-allows-inline-media-playback="true"
+							@load="handleEmbeddedAvatarLoad"
+							@error="handleEmbeddedAvatarError"
+							@message="handleEmbeddedAvatarMessage"
+						/>
+						<!-- #endif -->
+						<view v-if="showLocalAvatarStage" class="local-avatar-stage">
+							<view class="local-avatar-halo" :class="digitalHumanState == 'speaking' ? 'local-avatar-halo-speaking' : ''"></view>
+							<image class="local-avatar-image" :class="mouthOpen ? 'local-avatar-image-speaking' : ''" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" />
+							<view class="local-avatar-mouth" :class="mouthOpen ? 'local-avatar-mouth-open' : ''"><view class="local-avatar-mouth-core"></view></view>
+							<view v-if="digitalHumanState == 'speaking'" class="local-speaking-badge"><view class="local-speaking-dot"></view><text class="local-speaking-text">正在同步口型与讯飞音色</text></view>
+						</view>
+						<view v-if="digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length == 0 && !embeddedAvatarFailed && !showLocalAvatarStage" class="avatar-stage-loading">
+							<rice-loading mode="circle" color="#0b68d0" size="26" />
+							<text class="avatar-stage-loading-text">正在建立讯飞动态形象会话</text>
+						</view>
+						<view v-if="embeddedAvatarFailed && digitalHumanMode == 'xfyun'" class="avatar-stage-fallback" @click="initializeEmbeddedAvatar(true)"><text class="avatar-stage-fallback-text">云端舞台暂不可用，当前已切换本地口型 · 点击重试</text></view>
+					</view>
+
+					<view class="avatar-stage-meta">
+						<view><text class="avatar-stage-name">{{ digitalHumanTitle }}</text><text class="avatar-stage-status">{{ digitalHumanProviderStatus }}</text></view>
+						<text class="avatar-stage-action" @click="openLiveAvatar">{{ digitalHumanActionText }}</text>
+					</view>
 					<view class="welcome-top">
 						<text class="welcome-kicker">SMART GUIDE</text>
 						<text class="welcome-capability">知识库增强</text>
 					</view>
 					<text class="welcome-title">今天想怎么玩？</text>
 					<text class="welcome-copy">我可以介绍景点、查询开放信息、推荐路线，也能结合当前位置陪伴讲解。</text>
-					<view class="suggestion-row">
-						<rice-tag v-for="item in suggestions" :key="item" :text="item" type="primary" round plain-fill @click="useSuggestion(item)" />
+					<view class="suggestion-grid">
+						<view v-for="item in suggestions" :key="item" class="suggestion-pill" @click="useSuggestion(item)"><text class="suggestion-pill-text">{{ item }}</text></view>
 					</view>
 				</view>
 
 				<view v-for="item in messages" :key="item.id" :id="'message-' + item.id" class="message-item" :class="item.role == 'user' ? 'message-item-user' : 'message-item-assistant'">
-					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" src="/static/digital-human/guide-haru.png" mode="aspectFit" /></view>
+					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" src="/static/digital-human/guide-haru-transparent.png" mode="aspectFit" /></view>
 					<view class="message-bubble" :class="item.role == 'user' ? 'message-bubble-user' : 'message-bubble-assistant'">
 						<text class="message-text" :class="item.role == 'user' ? 'message-text-user' : ''">{{ item.content }}</text>
 						<view v-if="item.sources.length > 0" class="source-list">
@@ -68,7 +108,7 @@
 	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
 	import { askQuestion, askVoice, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
-	import { getSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
+	import { getDigitalHumanRenderMode, getSelectedDigitalHumanId, setDigitalHumanRenderMode } from '@/stores/guide-preferences.uts'
 	import { consumeGuidePrompt } from '@/stores/navigation-context.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
 
@@ -85,7 +125,17 @@
 	const autoNarration = ref<boolean>(true)
 	const initialized = ref<boolean>(false)
 	const digitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
+	const digitalHumanConfigs = ref<DigitalHumanConfig[]>([])
+	const digitalHumanMode = ref<string>(getDigitalHumanRenderMode())
 	const digitalHumanState = ref<string>('idle')
+	const embeddedAvatarUrl = ref<string>('')
+	const embeddedAvatarLoaded = ref<boolean>(false)
+	const embeddedAvatarPageLoaded = ref<boolean>(false)
+	const embeddedAvatarFailed = ref<boolean>(false)
+	const embeddedAvatarCreating = ref<boolean>(false)
+	const embeddedAvatarRuntimeStatus = ref<string>('正在连接讯飞动态形象')
+	const embeddedAvatarRuntimeObserved = ref<boolean>(false)
+	const mouthOpen = ref<boolean>(false)
 	const scrollTarget = ref<string>('message-bottom')
 	const sessionId = ref<string>('')
 	const recorderManager = ref<RecorderManager | null>(null)
@@ -93,52 +143,63 @@
 	const ttsQueue = ref<TtsSegment[]>([])
 	const ttsQueueIndex = ref<number>(0)
 	const messages = ref<ChatMessageItem[]>([])
-	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线'])
+	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线', '哪些地方适合拍照'])
+	const currentInstance = getCurrentInstance()
+	let avatarWebViewContext = null as WebviewContext | null
+	let mouthAnimationTimer : number | null = null
+	let embeddedSpeechResetTimer : number | null = null
+	let pendingEmbeddedSpeech = ''
+	let activeEmbeddedSpeech = ''
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
-	const digitalHumanWelcome = computed<string>(() => digitalHuman.value?.welcomeText ?? '我可以介绍景点、规划路线，也能结合当前位置陪伴讲解。')
-	const digitalHumanRenderEngine = computed<string>(() => {
-		let engine = digitalHuman.value?.engine ?? 'xfyun'
-		// #ifdef MP-WEIXIN
-		engine = 'local-xfyun'
-		// #endif
-		return engine
-	})
 	const digitalHumanActionText = computed<string>(() => {
-		let text = '动态形象'
+		let text = digitalHumanMode.value == 'xfyun' ? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台') : '本地口型'
 		// #ifdef MP-WEIXIN
-		text = '讯飞语音'
+		text = digitalHumanMode.value == 'xfyun' ? '讯飞语音' : '本地形象'
 		// #endif
 		return text
 	})
-	const digitalHumanEngineLabel = computed<string>(() => {
+	const showLocalAvatarStage = computed<boolean>(() => {
+		let show = digitalHumanMode.value == 'live2d' || embeddedAvatarFailed.value
 		// #ifdef MP-WEIXIN
-		return '本地动态数字人'
+		show = true
 		// #endif
-		return digitalHuman.value?.engine == 'xfyun' ? '讯飞云数字人' : 'AI 导游'
+		return show
 	})
 	const digitalHumanProviderStatus = computed<string>(() => {
 		if (digitalHuman.value == null) return '正在载入数字人配置'
 		if (digitalHuman.value!.serviceStatus != 'online') return '数字人服务降级 · 文字问答仍可使用'
 		const voice = digitalHuman.value!.vcn.length > 0 ? '专属音色已接入' : '默认音色'
 		// #ifdef MP-WEIXIN
-		return '本地动态形象 · 讯飞' + voice
+		return (digitalHumanMode.value == 'xfyun' ? '本地动态形象 · 讯飞' : '本地口型形象 · ') + voice
 		// #endif
-		return (digitalHuman.value!.engine == 'xfyun' ? '讯飞云服务在线' : '本地形象在线') + ' · ' + voice
+		if (digitalHumanMode.value == 'xfyun') return embeddedAvatarRuntimeStatus.value + ' · ' + voice
+		return '本地动态形象 · ' + voice
 	})
 
 	async function loadDigitalHumanPreference() {
 		try {
 			const configs = await fetchDigitalHumanConfigs()
-			const selectedId = getSelectedDigitalHumanId()
-			const selected = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId) ?? null
-			if (selected != null) {
-				digitalHuman.value = selected
-				return
-			}
+			digitalHumanConfigs.value = configs
+			applyDigitalHumanConfigForMode()
+			return
 		} catch (error) {
 			console.error('load digital human list failed', error)
 		}
 		try { digitalHuman.value = await fetchDigitalHumanConfig() } catch (error) { console.error('load digital human failed', error) }
+	}
+
+	function applyDigitalHumanConfigForMode() {
+		const configs = digitalHumanConfigs.value
+		if (configs.length == 0) return
+		const selectedId = getSelectedDigitalHumanId()
+		const desiredEngine = digitalHumanMode.value
+		let selected = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId && item.engine == desiredEngine) ?? null
+		if (selected == null) {
+			const preferredId = desiredEngine == 'xfyun' ? 'dh_xf_daolan_female_a' : 'dh_l2d_haru'
+			selected = configs.find((item : DigitalHumanConfig) : boolean => item.id == preferredId) ?? null
+		}
+		if (selected == null) selected = configs.find((item : DigitalHumanConfig) : boolean => item.engine == desiredEngine && item.serviceStatus == 'online') ?? null
+		if (selected != null) digitalHuman.value = selected
 	}
 
 	function scrollToBottom() {
@@ -151,6 +212,236 @@
 		sendMessage()
 	}
 
+	async function selectDigitalHumanMode(mode : string) {
+		const nextMode = mode == 'live2d' ? 'live2d' : 'xfyun'
+		if (digitalHumanMode.value != nextMode) {
+			digitalHumanMode.value = nextMode
+			setDigitalHumanRenderMode(nextMode)
+			applyDigitalHumanConfigForMode()
+		}
+		if (nextMode == 'xfyun') await initializeEmbeddedAvatar(false)
+		else resetEmbeddedAvatar()
+	}
+
+	function toggleDigitalHumanMode() {
+		selectDigitalHumanMode(digitalHumanMode.value == 'xfyun' ? 'live2d' : 'xfyun')
+	}
+
+	function resetEmbeddedAvatar() {
+		interruptEmbeddedAvatar()
+		embeddedAvatarUrl.value = ''
+		embeddedAvatarLoaded.value = false
+		embeddedAvatarPageLoaded.value = false
+		embeddedAvatarFailed.value = false
+		embeddedAvatarCreating.value = false
+		embeddedAvatarRuntimeStatus.value = '正在连接讯飞动态形象'
+		embeddedAvatarRuntimeObserved.value = false
+		avatarWebViewContext = null
+	}
+
+	async function initializeEmbeddedAvatar(force : boolean) {
+		// #ifdef MP-WEIXIN
+		return
+		// #endif
+		// #ifndef MP-WEIXIN
+		if (digitalHumanMode.value != 'xfyun' || embeddedAvatarCreating.value) return
+		if (!force && embeddedAvatarUrl.value.length > 0) return
+		const config = digitalHuman.value
+		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
+			embeddedAvatarFailed.value = true
+			return
+		}
+		embeddedAvatarCreating.value = true
+		if (force) {
+			embeddedAvatarUrl.value = ''
+			embeddedAvatarLoaded.value = false
+			embeddedAvatarPageLoaded.value = false
+			avatarWebViewContext = null
+		}
+		embeddedAvatarFailed.value = false
+		embeddedAvatarRuntimeStatus.value = '正在创建讯飞安全会话'
+		try {
+			const session = await createDigitalHumanWebSession(config.id)
+			const pageUrl = resolveAssetUrl(session.pageUrl)
+			const separator = pageUrl.indexOf('?') >= 0 ? '&' : '?'
+			embeddedAvatarUrl.value = pageUrl + separator + 'embed=1&autostart=1'
+		} catch (error) {
+			embeddedAvatarFailed.value = true
+			embeddedAvatarRuntimeStatus.value = '讯飞动态形象暂不可用'
+			fallbackEmbeddedSpeech()
+			console.error('create embedded digital human failed', error)
+		} finally {
+			embeddedAvatarCreating.value = false
+		}
+		// #endif
+	}
+
+	function handleEmbeddedAvatarLoad() {
+		embeddedAvatarPageLoaded.value = true
+		embeddedAvatarFailed.value = false
+		embeddedAvatarRuntimeStatus.value = '讯飞页面已载入，正在启动形象'
+		// #ifdef APP
+		avatarWebViewContext = uni.createWebViewContext('ai-avatar-webview', currentInstance?.proxy)
+		avatarWebViewContext?.evalJS('window.scenicAvatarPing && window.scenicAvatarPing()')
+		flushPendingEmbeddedSpeech()
+		// #endif
+	}
+
+	function handleEmbeddedAvatarError(event : WebViewErrorEvent) {
+		console.warn('embedded digital human resource warning', event.detail.errCode, event.detail.errMsg, event.detail.fullUrl)
+		// ArkWeb also reports recoverable SDK sub-resource warnings through this
+		// event. Only a failure of the top-level document should replace the stage.
+		if (!embeddedAvatarPageLoaded.value && event.detail.url == embeddedAvatarUrl.value) {
+			embeddedAvatarFailed.value = true
+			embeddedAvatarRuntimeStatus.value = '讯飞页面载入失败'
+			fallbackEmbeddedSpeech()
+		}
+	}
+
+	function handleEmbeddedAvatarMessage(event : UniWebViewMessageEvent) {
+		const packets = event.detail.data
+		packets.forEach((packet : UTSJSONObject) => {
+			if (packet.getString('source', '') != 'scenic-digital-human') return
+			embeddedAvatarRuntimeObserved.value = true
+			const type = packet.getString('type', '')
+			if (type == 'page-loaded') {
+				embeddedAvatarPageLoaded.value = true
+				embeddedAvatarRuntimeStatus.value = '讯飞页面已载入，正在启动形象'
+				flushPendingEmbeddedSpeech()
+				return
+			}
+			if (type == 'starting' || type == 'connected') {
+				embeddedAvatarLoaded.value = false
+				embeddedAvatarRuntimeStatus.value = type == 'connected' ? '讯飞已连接，正在加载画面' : '讯飞动态形象正在启动'
+				return
+			}
+			if (type == 'ready' || (type == 'runtime-state' && packet.getBoolean('ready', false))) {
+				embeddedAvatarLoaded.value = true
+				embeddedAvatarFailed.value = false
+				embeddedAvatarRuntimeStatus.value = '讯飞云动态形象在线'
+				flushPendingEmbeddedSpeech()
+				return
+			}
+			if (type == 'speech-accepted' || type == 'speech-dispatched') {
+				embeddedAvatarRuntimeStatus.value = '回答已送达讯飞，等待播报'
+				return
+			}
+			if (type == 'speaking') {
+				digitalHumanState.value = 'speaking'
+				embeddedAvatarRuntimeStatus.value = '讯飞数字人正在讲解'
+				return
+			}
+			if (type == 'idle') {
+				if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
+				embeddedSpeechResetTimer = null
+				digitalHumanState.value = 'idle'
+				activeEmbeddedSpeech = ''
+				embeddedAvatarRuntimeStatus.value = '讯飞云动态形象在线'
+				return
+			}
+			if (type == 'disconnected') {
+				embeddedAvatarLoaded.value = false
+				const retrying = packet.getBoolean('retrying', false)
+				embeddedAvatarRuntimeStatus.value = retrying ? '讯飞连接中断，正在自动重连' : '讯飞连接已中断'
+				if (!retrying) failEmbeddedAvatar()
+				return
+			}
+			if (type == 'error' || type == 'fatal') {
+				embeddedAvatarRuntimeStatus.value = packet.getString('message', '讯飞动态形象暂不可用')
+				failEmbeddedAvatar()
+			}
+		})
+	}
+
+	function speakThroughEmbeddedAvatar(text : string) : boolean {
+		if (digitalHumanMode.value != 'xfyun' || embeddedAvatarFailed.value) return false
+		pendingEmbeddedSpeech = text.length > 1200 ? text.slice(0, 1200) : text
+		activeEmbeddedSpeech = pendingEmbeddedSpeech
+		let delegated = false
+		// #ifdef APP
+		delegated = embeddedAvatarUrl.value.length > 0 || embeddedAvatarCreating.value
+		if (embeddedAvatarPageLoaded.value && avatarWebViewContext != null) {
+			flushPendingEmbeddedSpeech()
+			delegated = true
+		}
+		if (!delegated) {
+			initializeEmbeddedAvatar(false)
+			delegated = !embeddedAvatarFailed.value
+		}
+		// #endif
+		// #ifndef APP
+		pendingEmbeddedSpeech = ''
+		activeEmbeddedSpeech = ''
+		return false
+		// #endif
+		if (!delegated) {
+			pendingEmbeddedSpeech = ''
+			activeEmbeddedSpeech = ''
+		}
+		if (delegated) scheduleEmbeddedSpeechReset(text)
+		return delegated
+	}
+
+	function flushPendingEmbeddedSpeech() {
+		// #ifdef APP
+		if (!embeddedAvatarPageLoaded.value || avatarWebViewContext == null || pendingEmbeddedSpeech.length == 0) return
+		const payload = JSON.stringify(pendingEmbeddedSpeech) as string
+		avatarWebViewContext!.evalJS('window.scenicAvatarSpeak && window.scenicAvatarSpeak(' + payload + ')')
+		pendingEmbeddedSpeech = ''
+		// #endif
+	}
+
+	function interruptEmbeddedAvatar() {
+		// #ifdef APP
+		avatarWebViewContext?.evalJS('window.scenicAvatarInterrupt && window.scenicAvatarInterrupt()')
+		// #endif
+		activeEmbeddedSpeech = ''
+		pendingEmbeddedSpeech = ''
+	}
+
+	function failEmbeddedAvatar() {
+		fallbackEmbeddedSpeech()
+		interruptEmbeddedAvatar()
+		embeddedAvatarLoaded.value = false
+		embeddedAvatarFailed.value = true
+	}
+
+	function fallbackEmbeddedSpeech() {
+		const text = activeEmbeddedSpeech.length > 0 ? activeEmbeddedSpeech : pendingEmbeddedSpeech
+		activeEmbeddedSpeech = ''
+		pendingEmbeddedSpeech = ''
+		if (text.length > 0 && autoNarration.value) requestTts(text)
+	}
+
+	function scheduleEmbeddedSpeechReset(text : string) {
+		if (embeddedAvatarRuntimeObserved.value) return
+		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
+		const duration = Math.max(3200, Math.min(18000, text.length * 180))
+		embeddedSpeechResetTimer = setTimeout(() => {
+			digitalHumanState.value = 'idle'
+			embeddedSpeechResetTimer = null
+		}, duration)
+	}
+
+	function startMouthAnimation() {
+		if (mouthAnimationTimer != null) return
+		mouthOpen.value = true
+		mouthAnimationTimer = setInterval(() => { mouthOpen.value = !mouthOpen.value }, 180)
+	}
+
+	function stopMouthAnimation() {
+		if (mouthAnimationTimer != null) {
+			clearInterval(mouthAnimationTimer!)
+			mouthAnimationTimer = null
+		}
+		mouthOpen.value = false
+	}
+
+	watch(digitalHumanState, (state : string) => {
+		if (state == 'speaking') startMouthAnimation()
+		else stopMouthAnimation()
+	})
+
 	async function openLiveAvatar() {
 		// #ifdef MP-WEIXIN
 		uni.showModal({
@@ -160,21 +451,12 @@
 		})
 		// #endif
 		// #ifndef MP-WEIXIN
-		const config = digitalHuman.value
-		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
-			uni.showToast({ title: '当前数字人形象不支持云端动态渲染', icon: 'none' })
+		if (digitalHumanMode.value != 'xfyun') {
+			uni.showToast({ title: '当前为本地动态口型模式', icon: 'none' })
 			return
 		}
-		uni.showLoading({ title: '创建动态会话' })
-		try {
-			const session = await createDigitalHumanWebSession(config.id)
-			uni.navigateTo({ url: '/pages/digital-human/index?src=' + encodeURIComponent(resolveAssetUrl(session.pageUrl)) })
-		} catch (error) {
-			console.error('create digital human web session failed', error)
-			uni.showToast({ title: '动态数字人暂时不可用', icon: 'none' })
-		} finally {
-			uni.hideLoading()
-		}
+		await initializeEmbeddedAvatar(embeddedAvatarFailed.value)
+		uni.showToast({ title: embeddedAvatarLoaded.value ? '讯飞舞台已嵌入当前页面' : '讯飞舞台正在连接', icon: 'none' })
 		// #endif
 	}
 
@@ -191,9 +473,11 @@
 			const result = await askQuestion(question, sessionId.value)
 			const sources = (result.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '景区知识库')
 			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer, sources })
-			digitalHumanState.value = result.digitalHuman?.state ?? 'speaking'
-			if (autoNarration.value) requestTts(result.answer)
-			else digitalHumanState.value = 'idle'
+			digitalHumanState.value = 'idle'
+			if (autoNarration.value) {
+				const delegated = speakThroughEmbeddedAvatar(result.answer)
+				if (!delegated) requestTts(result.answer)
+			} else digitalHumanState.value = 'idle'
 		} catch (error) {
 			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: '暂时无法连接导游服务，请确认本地 Node 服务与 API 地址配置。', sources: [] })
 			digitalHumanState.value = 'idle'
@@ -210,7 +494,6 @@
 			const result = await synthesizeSpeech(text, digitalHuman.value?.vcn ?? 'x6_jingqudaolannvsheng_mini', digitalHuman.value?.speechRate ?? 1)
 			ttsQueue.value = result.segments
 			ttsQueueIndex.value = 0
-			digitalHumanState.value = 'speaking'
 			playNextTtsSegment()
 		} catch (error) {
 			digitalHumanState.value = 'idle'
@@ -230,13 +513,17 @@
 			const sources = (result.answer.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '景区知识库')
 			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer.answer, sources })
 			if (autoNarration.value) {
-				const preferredVoice = digitalHuman.value?.vcn ?? ''
-				const speech = preferredVoice.length == 0 || result.tts.voice == preferredVoice
-					? result.tts
-					: await synthesizeSpeech(result.answer.answer, preferredVoice, digitalHuman.value?.speechRate ?? 1)
-				ttsQueue.value = speech.segments
-				ttsQueueIndex.value = 0
-				playNextTtsSegment()
+				digitalHumanState.value = 'idle'
+				const delegated = speakThroughEmbeddedAvatar(result.answer.answer)
+				if (!delegated) {
+					const preferredVoice = digitalHuman.value?.vcn ?? ''
+					const speech = preferredVoice.length == 0 || result.tts.voice == preferredVoice
+						? result.tts
+						: await synthesizeSpeech(result.answer.answer, preferredVoice, digitalHuman.value?.speechRate ?? 1)
+					ttsQueue.value = speech.segments
+					ttsQueueIndex.value = 0
+					playNextTtsSegment()
+				}
 			} else digitalHumanState.value = 'idle'
 		} catch (error) {
 			digitalHumanState.value = 'idle'
@@ -281,6 +568,7 @@
 	function toggleNarration() {
 		autoNarration.value = !autoNarration.value
 		if (!autoNarration.value) {
+			interruptEmbeddedAvatar()
 			audioContext.value?.stop()
 			ttsQueue.value = []
 			ttsQueueIndex.value = 0
@@ -301,6 +589,7 @@
 
 	onLoad(async () => {
 		await loadDigitalHumanPreference()
+		await initializeEmbeddedAvatar(false)
 		try { await restoreHistory() } catch (error) { console.error('restore chat history failed', error) }
 		// #ifndef WEB
 		recorderManager.value = uni.getRecorderManager()
@@ -315,6 +604,9 @@
 		})
 		// #endif
 		audioContext.value = uni.createInnerAudioContext()
+		audioContext.value?.onPlay(() => { digitalHumanState.value = 'speaking' })
+		audioContext.value?.onPause(() => { digitalHumanState.value = 'idle' })
+		audioContext.value?.onStop(() => { digitalHumanState.value = 'idle' })
 		audioContext.value?.onEnded(() => {
 			ttsQueueIndex.value += 1
 			playNextTtsSegment()
@@ -327,9 +619,10 @@
 		applyPendingPrompt()
 	})
 
-	onShow(() => {
+	onShow(async () => {
 		if (initialized.value) {
-			loadDigitalHumanPreference()
+			await loadDigitalHumanPreference()
+			await initializeEmbeddedAvatar(false)
 			applyPendingPrompt()
 		}
 	})
@@ -337,6 +630,11 @@
 	onUnload(() => {
 		recorderManager.value?.stop()
 		audioContext.value?.destroy()
+		interruptEmbeddedAvatar()
+		stopMouthAnimation()
+		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
+		embeddedSpeechResetTimer = null
+		avatarWebViewContext = null
 	})
 </script>
 
@@ -355,13 +653,44 @@
 	.voice-toggle { width: 40px; height: 40px; border-radius: 14px; background-color: #e7f1ff; align-items: center; justify-content: center; }
 	.message-scroll { flex: 1; }
 	.message-list { padding: 17px 14px 28px; }
-	.welcome-card { padding: 19px; border-radius: 24px; background: linear-gradient(to bottom right, #e5f1ff, #e7fbfa 58%, #fff5e4); border: 1px solid #dce8f6; margin-bottom: 22px; }
-	.welcome-top { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 16px; }
+	.welcome-card { padding: 17px; border-radius: 24px; background-color: #ffffff; border: 1px solid #dce8f6; margin-bottom: 22px; box-shadow: 0 12px 30px rgba(38,79,124,0.08); }
+	.avatar-mode-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 13px; }
+	.avatar-mode-kicker { font-size: 8px; color: #d17d00; font-weight: 800; letter-spacing: 1px; }
+	.avatar-mode-title { margin-top: 3px; font-size: 16px; color: #163d67; font-weight: 800; }
+	.avatar-mode-switch { flex-direction: row; padding: 3px; border-radius: 14px; background-color: #eef3f9; }
+	.avatar-mode-option { min-width: 58px; height: 31px; border-radius: 11px; align-items: center; justify-content: center; }
+	.avatar-mode-option-active { background-color: #ffffff; box-shadow: 0 4px 10px rgba(28,70,116,0.10); }
+	.avatar-mode-option-text { font-size: 11px; color: #7a899c; font-weight: 700; }
+	.avatar-mode-option-text-active { color: #0b68d0; }
+	.embedded-avatar-shell { position: relative; height: 238px; overflow: hidden; border-radius: 21px; background-color: #ffffff; border: 1px solid #e1e9f2; }
+	.embedded-avatar-webview { width: 100%; height: 238px; background-color: #ffffff; }
+	.local-avatar-stage { position: relative; width: 100%; height: 238px; overflow: hidden; align-items: center; justify-content: flex-end; background: linear-gradient(to bottom, #ffffff, #f3f9ff); }
+	.local-avatar-halo { position: absolute; width: 190px; height: 190px; left: 25%; top: 27px; border-radius: 96px; background-color: rgba(52,157,213,0.08); }
+	.local-avatar-halo-speaking { background-color: rgba(255,208,103,0.16); }
+	.local-avatar-image { position: absolute; width: 216px; height: 248px; bottom: -24px; transform-origin: 50% 100%; }
+	.local-avatar-image-speaking { transform: translateY(-2px) scale(1.012); }
+	.local-avatar-mouth { position: absolute; left: 49%; top: 65px; width: 12px; height: 4px; border-radius: 6px; align-items: center; justify-content: center; background-color: #6f3042; }
+	.local-avatar-mouth-open { height: 10px; top: 62px; border-radius: 6px; }
+	.local-avatar-mouth-core { width: 6px; height: 2px; border-radius: 2px; background-color: #f5a9ae; }
+	.local-speaking-badge { position: absolute; left: 12px; bottom: 12px; flex-direction: row; align-items: center; padding: 7px 10px; border-radius: 13px; background-color: rgba(8,63,119,0.88); }
+	.local-speaking-dot { width: 7px; height: 7px; border-radius: 4px; background-color: #67e1ca; margin-right: 6px; }
+	.local-speaking-text { font-size: 9px; color: #ffffff; }
+	.avatar-stage-loading { width: 100%; height: 238px; align-items: center; justify-content: center; background-color: #ffffff; }
+	.avatar-stage-loading-text { margin-top: 11px; color: #718299; font-size: 11px; }
+	.avatar-stage-fallback { position: absolute; left: 12px; right: 12px; bottom: 12px; min-height: 34px; padding: 8px 11px; border-radius: 13px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.92); border: 1px solid #dce5ef; }
+	.avatar-stage-fallback-text { color: #557089; font-size: 10px; text-align: center; }
+	.avatar-stage-meta { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 11px; padding: 0 2px 2px; }
+	.avatar-stage-name { color: #173c65; font-size: 14px; font-weight: 800; }
+	.avatar-stage-status { margin-top: 3px; color: #74869b; font-size: 9px; }
+	.avatar-stage-action { color: #0b68d0; font-size: 10px; font-weight: 800; padding: 7px 10px; border-radius: 12px; background-color: #e9f3ff; }
+	.welcome-top { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 18px; }
 	.welcome-kicker { font-size: 8px; color: #d17d00; font-weight: 700; letter-spacing: 1px; }
 	.welcome-capability { font-size: 9px; color: #0b68d0; background-color: rgba(255,255,255,0.78); padding: 5px 8px; border-radius: 10px; }
 	.welcome-title { font-size: 21px; font-weight: 800; color: #174a7e; margin-top: 12px; }
 	.welcome-copy { font-size: 13px; line-height: 20px; color: #5d718c; margin-top: 7px; }
-	.suggestion-row { flex-direction: row; flex-wrap: wrap; margin-top: 14px; }
+	.suggestion-grid { flex-direction: row; flex-wrap: wrap; justify-content: space-between; margin-top: 14px; }
+	.suggestion-pill { width: 48%; min-height: 38px; margin-bottom: 9px; padding: 8px 9px; border-radius: 19px; align-items: center; justify-content: center; background-color: #eef6ff; border: 1px solid #cfe2f8; }
+	.suggestion-pill-text { color: #1768b8; font-size: 11px; font-weight: 700; text-align: center; }
 	.message-item { flex-direction: row; margin-bottom: 14px; align-items: flex-start; }
 	.message-item-user { justify-content: flex-end; }
 	.message-item-assistant { justify-content: flex-start; }
@@ -386,6 +715,9 @@
 	.composer-tip { font-size: 10px; color: #99a4b4; text-align: center; margin-top: 7px; }
 	/* #ifdef MP-WEIXIN || WEB */
 	.guide-avatar-image-speaking { animation: guide-avatar-speak 0.62s ease-in-out infinite; }
+	.welcome-copy, .message-text { user-select: text; }
+	.local-avatar-halo-speaking { animation: local-avatar-pulse 1.2s ease-in-out infinite; }
 	@keyframes guide-avatar-speak { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.035); } }
+	@keyframes local-avatar-pulse { 0%, 100% { transform: scale(0.96); opacity: 0.7; } 50% { transform: scale(1.04); opacity: 1; } }
 	/* #endif */
 </style>

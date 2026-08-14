@@ -2,6 +2,7 @@ import type { ScenicAreaId } from '@/domain/types.uts'
 
 const PREFERRED_SCENIC_AREA_KEY = 'scenic-guide-preferred-area'
 const SELECTED_DIGITAL_HUMAN_KEY = 'scenic-guide-selected-digital-human'
+const DIGITAL_HUMAN_RENDER_MODE_KEY = 'scenic-guide-digital-human-render-mode'
 
 export function normalizeScenicAreaId(value : string) : ScenicAreaId {
 	return value == 'nianhuawan' ? 'nianhuawan' : 'lingshan'
@@ -22,4 +23,17 @@ export function getSelectedDigitalHumanId() : string {
 
 export function setSelectedDigitalHumanId(id : string) {
 	uni.setStorageSync(SELECTED_DIGITAL_HUMAN_KEY, id)
+}
+
+export function normalizeDigitalHumanRenderMode(value : string) : string {
+	return value == 'live2d' ? 'live2d' : 'xfyun'
+}
+
+export function getDigitalHumanRenderMode() : string {
+	const stored = uni.getStorageSync(DIGITAL_HUMAN_RENDER_MODE_KEY) as string
+	return normalizeDigitalHumanRenderMode(stored)
+}
+
+export function setDigitalHumanRenderMode(mode : string) {
+	uni.setStorageSync(DIGITAL_HUMAN_RENDER_MODE_KEY, normalizeDigitalHumanRenderMode(mode))
 }

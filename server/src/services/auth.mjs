@@ -67,7 +67,8 @@ export function login(username, password) {
       id: user.id,
       username: user.username,
       displayName: user.display_name,
-      role: user.role
+      role: user.role,
+      avatar: user.avatar || ""
     }
   };
 }

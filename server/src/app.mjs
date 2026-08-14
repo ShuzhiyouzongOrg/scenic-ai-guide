@@ -8,6 +8,7 @@ import { fail, ok, created } from "./http/response.mjs";
 import { getBearerToken, readJson, readMultipartForm } from "./http/request.mjs";
 import { resolveStaticFilePath } from "./http/staticPath.mjs";
 import { createVisitorSession, login, register, verifyToken } from "./services/auth.mjs";
+import { getProfileAvatar, MAX_PROFILE_AVATAR_BYTES, saveProfileAvatar } from "./services/profileAvatar.mjs";
 import {
   createUpload,
   getUploadContent,
@@ -707,6 +708,32 @@ async function route(req, res, url) {
 
   if (url.pathname === "/api/auth/register" && req.method === "POST") {
     created(res, register(await readJson(req)));
+    return;
+  }
+
+  if (url.pathname === "/api/auth/avatar" && req.method === "POST") {
+    const payload = requireAuthPayload(req, res);
+    if (!payload) return;
+    const { files } = await readMultipartForm(req, MAX_PROFILE_AVATAR_BYTES + 64 * 1024);
+    const avatar = files.avatar || files.file;
+    created(res, toAuthUser(saveProfileAvatar(payload.uid, avatar)));
+    return;
+  }
+
+  if (url.pathname.startsWith("/api/auth/avatar/") && req.method === "GET") {
+    const fileName = url.pathname.slice("/api/auth/avatar/".length);
+    const avatar = getProfileAvatar(fileName);
+    if (!avatar) {
+      fail(res, 404, "AVATAR_NOT_FOUND", "Avatar image not found.");
+      return;
+    }
+    res.writeHead(200, {
+      "content-type": avatar.mimeType,
+      "content-length": avatar.buffer.length,
+      "cache-control": "public, max-age=31536000, immutable",
+      "x-content-type-options": "nosniff"
+    });
+    res.end(avatar.buffer);
     return;
   }
 
