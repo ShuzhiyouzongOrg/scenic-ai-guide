@@ -7,7 +7,7 @@
 				<view class="brand-row">
 					<view class="brand-mark"><image class="brand-mark-image" src="/static/logo.png" mode="aspectFit" /></view>
 					<view>
-						<text class="brand-name">灵山智慧游</text>
+						<text class="brand-name">数智游踪</text>
 						<text class="brand-location">无锡 · 灵山胜境</text>
 					</view>
 				</view>
