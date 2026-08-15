@@ -23,16 +23,23 @@
 				<view class="area-switch-item" :class="activeAreaId == 'nianhuawan' ? 'area-switch-item-active' : ''" @click="switchScenicArea('nianhuawan')"><text class="area-switch-text" :class="activeAreaId == 'nianhuawan' ? 'area-switch-text-active' : ''">拈花湾</text></view>
 			</view>
 
-			<rice-search v-if="headerExpanded" v-model="keyword" placeholder="搜索景点或服务设施" shape="round" @change="filterSpots" />
+			<rice-search v-if="headerExpanded" v-model="keyword" placeholder="搜索景点" shape="round" @change="filterSpots" />
 			<view v-if="headerExpanded" class="map-mode-switch">
 				<view class="map-mode-item" :class="mapMode == 'artwork' ? 'map-mode-item-active' : ''" @click="setMapMode('artwork')"><text class="map-mode-text" :class="mapMode == 'artwork' ? 'map-mode-text-active' : ''">手绘导览</text></view>
 				<view class="map-mode-item" :class="mapMode == 'native' ? 'map-mode-item-active' : ''" @click="setMapMode('native')"><text class="map-mode-text" :class="mapMode == 'native' ? 'map-mode-text-active' : ''">导航地图</text></view>
 			</view>
+			<scroll-view v-if="headerExpanded && routeOptions.length > 0" class="route-switch" direction="horizontal" :show-scrollbar="false">
+				<view class="route-switch-track">
+					<view v-for="route in routeOptions" :key="route.id" class="route-switch-item" :class="activeGuideRoute?.id == route.id ? 'route-switch-item-active' : ''" @click="selectGuideRoute(route.id)">
+						<text class="route-switch-item-text" :class="activeGuideRoute?.id == route.id ? 'route-switch-item-text-active' : ''">{{ route.name }}</text>
+					</view>
+				</view>
+			</scroll-view>
 			<view v-if="headerExpanded" class="map-meta-row">
-				<text class="map-meta">{{ visibleSpots.length }} / {{ spots.length }} 个点位</text>
+				<text class="map-meta">{{ visibleSpots.length }} / {{ scenicSpotCount }} 个景点</text>
 				<view class="map-meta-right">
 					<text class="digital-provider-meta">{{ digitalHumanProviderStatus }}</text>
-					<text v-if="activeGuideRoute != null" class="route-meta">推荐游线 · 示意</text>
+					<text v-if="activeGuideRoute != null" class="route-meta">{{ activeGuideRoute.name }}</text>
 				</view>
 			</view>
 		</view>
@@ -226,8 +233,13 @@
 	const artworkViewportHeight = ref<number>(720)
 	const spots = ref<ScenicSpot[]>([])
 	const visibleSpots = ref<ScenicSpot[]>([])
+	const scenicSpotCount = computed<number>(() => spots.value.filter((spot : ScenicSpot) : boolean => spot.kind == 'scenic').length)
 	const routes = ref<GuideRoute[]>([])
 	const activeGuideRoute = ref<GuideRoute | null>(null)
+	const routeOptions = computed<GuideRoute[]>(() => {
+		const officialRoutes = routes.value.filter((route : GuideRoute) : boolean => route.source == 'official' || route.isOfficial)
+		return officialRoutes.length > 0 ? officialRoutes : routes.value
+	})
 	const markers = ref<Marker[]>([])
 	const markerBindings = ref<MarkerSpotBinding[]>([])
 	const polylines = ref<Polyline[]>([])
@@ -422,13 +434,16 @@
 
 	function refreshVisibleSpots() {
 		const query = keyword.value.trim()
-		const level = detailLevel()
 		visibleSpots.value = spots.value.filter((spot : ScenicSpot) : boolean => {
+			// The visitor map intentionally focuses on attraction points. Facility
+			// POIs are available from the detail/search APIs but should not crowd the
+			// hand-drawn map at any zoom level.
+			if (spot.kind != 'scenic') return false
 			if (!spotMatchesQuery(spot, query)) return false
-			if (query.length > 0 || selectedSpot.value?.id == spot.id) return true
-			const pointLevel = spot.pointLevel ?? 15
-			if (spot.kind == 'facility' && level < 17) return false
-			return pointLevel <= level
+			// Keep every scenic point visible regardless of zoom. This makes the
+			// official point inventory discoverable on both scenic areas and keeps
+			// marker numbering stable while switching routes.
+			return true
 		})
 		buildNativeMarkers()
 	}
@@ -483,12 +498,19 @@
 		let chosen : GuideRoute | null = null
 		if (recommendation != null) {
 			const curatedId = 'curated-' + recommendation.id
-			chosen = routes.value.find((route : GuideRoute) : boolean => route.id == curatedId || route.id == recommendation.id || route.baseRouteId == recommendation.id) ?? null
+			chosen = routeOptions.value.find((route : GuideRoute) : boolean => route.id == curatedId || route.id == recommendation.id || route.baseRouteId == recommendation.id) ?? null
 		}
-		if (chosen == null) chosen = routes.value.find((route : GuideRoute) : boolean => route.source == 'official' || route.isOfficial) ?? null
-		if (chosen == null && routes.value.length > 0) chosen = routes.value[0]
+		if (chosen == null) chosen = routeOptions.value[0] ?? null
 		activeGuideRoute.value = chosen
 		rebuildRoute()
+	}
+
+	function selectGuideRoute(routeId : string) {
+		const selected = routeOptions.value.find((route : GuideRoute) : boolean => route.id == routeId) ?? null
+		if (selected == null || selected.id == activeGuideRoute.value?.id) return
+		activeGuideRoute.value = selected
+		rebuildRoute()
+		refreshVisibleSpots()
 	}
 
 	async function loadMapData(areaId : ScenicAreaId) {
@@ -892,10 +914,16 @@
 	.map-mode-item-active { background-color: #ffffff; box-shadow: 0 4px 10px rgba(22,67,117,0.10); }
 	.map-mode-text { font-size: 11px; color: #76849a; }
 	.map-mode-text-active { color: #0b68d0; font-weight: 700; }
+	.route-switch { width: 100%; height: 34px; margin-top: 8px; }
+	.route-switch-track { flex-direction: row; align-items: center; padding-right: 4px; }
+	.route-switch-item { flex-shrink: 0; height: 30px; margin-right: 7px; padding: 0 11px; border-radius: 15px; align-items: center; justify-content: center; background-color: #fbf5ea; border: 1px solid #ead9b8; }
+	.route-switch-item-active { background-color: #9c6722; border-color: #9c6722; box-shadow: 0 4px 10px rgba(156,103,34,0.18); }
+	.route-switch-item-text { font-size: 10px; color: #966721; font-weight: 700; }
+	.route-switch-item-text-active { color: #ffffff; }
 	.map-meta { font-size: 9px; color: #7b879b; }
-	.map-meta-right { flex-direction: row; align-items: center; }
+	.map-meta-right { flex: 1; min-width: 0; flex-direction: row; align-items: center; justify-content: flex-end; }
 	.digital-provider-meta { font-size: 9px; color: #087f87; font-weight: 700; margin-right: 8px; }
-	.route-meta { font-size: 9px; color: #9c6722; font-weight: 700; }
+	.route-meta { max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; color: #9c6722; font-weight: 700; }
 	.map-view { width: 100%; height: 100%; }
 	.map-loading { position: absolute; left: 50%; top: 286px; z-index: 20; transform: translateX(-50%); height: 34px; padding: 0 14px; flex-direction: row; align-items: center; border-radius: 17px; background-color: rgba(20,55,88,0.88); }
 	.map-loading-header-collapsed { top: 108px; }

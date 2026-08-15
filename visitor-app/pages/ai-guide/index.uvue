@@ -873,15 +873,15 @@
 <style>
 	.page { flex: 1; background-color: #f3f6fb; }
 	.guide-header { padding: 48px 16px 14px; flex-direction: row; align-items: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f2; }
-	.guide-avatar { position: relative; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
-	.guide-avatar-image { width: 72px; height: 52px; margin-top: 9px; }
+	.guide-avatar { position: relative; flex-shrink: 0; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
+	.guide-avatar-image { width: 54px; height: 54px; margin-top: 0; }
 	.guide-avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.035); }
-	.guide-heading { flex: 1; margin-left: 11px; }
-	.guide-title-row { flex-direction: row; align-items: center; }
-	.guide-title { font-size: 18px; font-weight: 800; color: #172741; }
-	.guide-mode { font-size: 9px; color: #d17d00; background-color: #fff2d8; padding: 4px 7px; border-radius: 9px; margin-left: 8px; }
+	.guide-heading { flex: 1; min-width: 0; margin-left: 11px; }
+	.guide-title-row { flex: 1; min-width: 0; flex-direction: row; align-items: center; }
+	.guide-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; font-weight: 800; color: #172741; }
+	.guide-mode { flex-shrink: 0; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; color: #d17d00; background-color: #fff2d8; padding: 4px 7px; border-radius: 9px; margin-left: 8px; }
 	.guide-status { font-size: 11px; color: #738198; margin-top: 4px; }
-	.voice-toggle { width: 40px; height: 40px; border-radius: 14px; background-color: #e7f1ff; align-items: center; justify-content: center; }
+	.voice-toggle { flex-shrink: 0; width: 40px; height: 40px; border-radius: 14px; background-color: #e7f1ff; align-items: center; justify-content: center; }
 	.message-scroll { flex: 1; }
 	.message-list { padding: 17px 14px 28px; }
 	.welcome-card { padding: 17px; border-radius: 24px; background-color: #ffffff; border: 1px solid #dce8f6; margin-bottom: 22px; box-shadow: 0 12px 30px rgba(38,79,124,0.08); }
