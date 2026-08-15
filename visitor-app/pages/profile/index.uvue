@@ -238,8 +238,11 @@
 			itemList: ['简体中文', 'English', '繁體中文'],
 			success: (result) => {
 				const locale = result.tapIndex == 1 ? 'en' : (result.tapIndex == 2 ? 'zh-Hant' : 'zh-Hans')
-				setAppLocale(locale)
+				// Update the page-local reactive state first. Native `uni.setLocale`
+				// and tab-bar updates are platform services and must not be allowed
+				// to abort the visible language change if a host rejects one call.
 				currentLocale.value = locale
+				setAppLocale(locale)
 				uni.showToast({ title: t('语言已切换', 'Language updated', '語言已切換'), icon: 'none' })
 			}
 		})

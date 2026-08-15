@@ -8,16 +8,24 @@ export function normalizeAppLocale(value : string) : string {
 }
 
 export function getAppLocale() : string {
-	const storedValue = uni.getStorageSync(APP_LOCALE_KEY)
-	const stored = storedValue == null ? '' : storedValue as string
-	if (stored.length > 0) return normalizeAppLocale(stored)
-	return normalizeAppLocale(uni.getLocale())
+	try {
+		const storedValue = uni.getStorageSync(APP_LOCALE_KEY)
+		const stored = storedValue == null ? '' : storedValue as string
+		if (stored.length > 0) return normalizeAppLocale(stored)
+	} catch (error) {
+		// Locale storage is optional; a fresh native install must still mount.
+	}
+	try {
+		return normalizeAppLocale(uni.getLocale())
+	} catch (error) {
+		return 'zh-Hans'
+	}
 }
 
 export function setAppLocale(value : string) {
 	const locale = normalizeAppLocale(value)
-	uni.setStorageSync(APP_LOCALE_KEY, locale)
-	uni.setLocale(locale)
+	try { uni.setStorageSync(APP_LOCALE_KEY, locale) } catch (error) { }
+	try { uni.setLocale(locale) } catch (error) { }
 	applyLocalizedTabBar(locale)
 }
 
@@ -41,12 +49,12 @@ export function applyLocalizedTabBar(value : string) {
 		? ['Home', 'Map', 'AI Guide', 'Trips', 'Profile']
 		: (locale == 'zh-Hant' ? ['首頁', '地圖', 'AI導遊', '行程', '我的'] : ['首页', '地图', 'AI导游', '行程', '我的'])
 	labels.forEach((label : string, index : number) => {
-		uni.setTabBarItem({ index, text: label })
+		try { uni.setTabBarItem({ index, text: label }) } catch (error) { }
 	})
 }
 
 export function initializeAppLocale() {
 	const locale = getAppLocale()
-	uni.setLocale(locale)
+	try { uni.setLocale(locale) } catch (error) { }
 	applyLocalizedTabBar(locale)
 }
