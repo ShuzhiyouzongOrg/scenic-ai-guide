@@ -38,6 +38,13 @@
 					</view>
 
 					<view class="embedded-avatar-shell">
+						<!-- #ifdef MP-WEIXIN -->
+						<scenic-live2d
+							class="embedded-avatar-webview"
+							model="Haru"
+							:speaking="digitalHumanState == 'speaking'"
+						/>
+						<!-- #endif -->
 						<!-- #ifndef MP-WEIXIN -->
 						<web-view
 							v-if="digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length > 0 && !embeddedAvatarFailed"
@@ -60,6 +67,7 @@
 							@message="handleLive2dAvatarMessage"
 						/>
 						<!-- #endif -->
+						<!-- #ifndef MP-WEIXIN -->
 						<view v-if="showLocalAvatarStage" class="local-avatar-stage">
 							<view class="local-avatar-halo" :class="digitalHumanState == 'speaking' ? 'local-avatar-halo-speaking' : ''"></view>
 									<image class="local-avatar-image" :class="mouthOpen ? 'local-avatar-image-speaking' : ''" :src="digitalHumanAvatarSource" mode="aspectFit" />
@@ -75,6 +83,7 @@
 							<text class="avatar-stage-loading-text">正在加载 Live2D 模型</text>
 						</view>
 						<view v-if="embeddedAvatarFailed && digitalHumanMode == 'xfyun'" class="avatar-stage-fallback" @click="initializeEmbeddedAvatar(true)"><text class="avatar-stage-fallback-text">云端舞台暂不可用，当前已切换本地口型 · 点击重试</text></view>
+						<!-- #endif -->
 					</view>
 
 					<view class="avatar-stage-meta">
