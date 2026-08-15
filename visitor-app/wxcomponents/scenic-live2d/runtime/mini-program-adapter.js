@@ -207,6 +207,45 @@ function emitPacket(packet) {
   if (typeof onPacket === 'function') onPacket(packet)
 }
 
+// The WeChat developer tools expose a browser-like global whose `window`
+// property is an accessor without a setter. Assigning `globalThis.window`
+// unconditionally therefore throws before Cubism has a chance to initialise:
+// `Cannot set property window ... which has only a getter`. Keep the native
+// object when it is already available and only define missing globals.
+function resolveRuntimeWindow() {
+  const root = globalThis
+  try {
+    return root.window || root
+  } catch (error) {
+    return root
+  }
+}
+
+function exposeGlobal(name, value, runtimeWindow) {
+  const targets = [globalThis]
+  if (runtimeWindow && runtimeWindow !== globalThis) targets.push(runtimeWindow)
+  targets.forEach((target) => {
+    try {
+      target[name] = value
+      return
+    } catch (error) {
+      // Fall through to defineProperty for hosts that expose a configurable
+      // accessor but reject ordinary assignment.
+    }
+    try {
+      Object.defineProperty(target, name, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value
+      })
+    } catch (error) {
+      // A platform-owned immutable value is kept as-is. The shared runtime
+      // can use the native implementation in that case.
+    }
+  })
+}
+
 function installEnvironment(options) {
   const canvasNode = options.canvas
   const system = wx.getWindowInfo
@@ -255,54 +294,57 @@ function installEnvironment(options) {
     }
   }
 
-  globalThis.window = globalThis
-  globalThis.document = miniDocument
-  globalThis.devicePixelRatio = pixelRatio
-  globalThis.location = {
+  const runtimeWindow = resolveRuntimeWindow()
+  // On older WeChat runtimes `window` may be absent altogether. On newer
+  // runtimes this call is a no-op because the platform getter is preserved.
+  exposeGlobal('window', runtimeWindow, runtimeWindow)
+  exposeGlobal('document', miniDocument, runtimeWindow)
+  exposeGlobal('devicePixelRatio', pixelRatio, runtimeWindow)
+  exposeGlobal('location', {
     href: API_ROOT + '?model=' + encodeURIComponent(model),
     search: '?model=' + encodeURIComponent(model),
     origin: 'https://api.shuzhiyouzong.cn'
-  }
-  globalThis.parent = {
+  }, runtimeWindow)
+  exposeGlobal('parent', {
     postMessage(packet) {
       emitPacket(packet)
     }
-  }
-  globalThis.uni = {
+  }, runtimeWindow)
+  exposeGlobal('uni', {
     postMessage(payload) {
       if (payload && payload.data) emitPacket(payload.data)
     }
-  }
-  globalThis.URL = MiniUrl
-  globalThis.URLSearchParams = MiniUrlSearchParams
-  globalThis.ResizeObserver = MiniResizeObserver
-  globalThis.AudioContext = MiniAudioContext
-  globalThis.webkitAudioContext = MiniAudioContext
-  globalThis.alert = function miniProgramAlert(message) {
+  }, runtimeWindow)
+  exposeGlobal('URL', MiniUrl, runtimeWindow)
+  exposeGlobal('URLSearchParams', MiniUrlSearchParams, runtimeWindow)
+  exposeGlobal('ResizeObserver', MiniResizeObserver, runtimeWindow)
+  exposeGlobal('AudioContext', MiniAudioContext, runtimeWindow)
+  exposeGlobal('webkitAudioContext', MiniAudioContext, runtimeWindow)
+  exposeGlobal('alert', function miniProgramAlert(message) {
     console.warn('[Live2D]', message)
-  }
-  globalThis.fetch = requestArrayBuffer
-  globalThis.Image = function MiniImage() {
+  }, runtimeWindow)
+  exposeGlobal('fetch', requestArrayBuffer, runtimeWindow)
+  exposeGlobal('Image', function MiniImage() {
     return createEventTarget(canvasNode.createImage())
-  }
-  globalThis.requestAnimationFrame = function requestAnimationFrame(callback) {
+  }, runtimeWindow)
+  exposeGlobal('requestAnimationFrame', function requestAnimationFrame(callback) {
     if (typeof canvasNode.requestAnimationFrame === 'function') {
       return canvasNode.requestAnimationFrame(callback)
     }
     return setTimeout(() => callback(Date.now()), 16)
-  }
-  globalThis.cancelAnimationFrame = function cancelAnimationFrame(id) {
+  }, runtimeWindow)
+  exposeGlobal('cancelAnimationFrame', function cancelAnimationFrame(id) {
     if (typeof canvasNode.cancelAnimationFrame === 'function') {
       return canvasNode.cancelAnimationFrame(id)
     }
     clearTimeout(id)
-  }
-  globalThis.addEventListener = function addEventListener(type, callback) {
+  }, runtimeWindow)
+  exposeGlobal('addEventListener', function addEventListener(type, callback) {
     windowListeners[type] = callback
-  }
-  globalThis.removeEventListener = function removeEventListener(type, callback) {
+  }, runtimeWindow)
+  exposeGlobal('removeEventListener', function removeEventListener(type, callback) {
     if (!callback || windowListeners[type] === callback) delete windowListeners[type]
-  }
+  }, runtimeWindow)
 }
 
 function mount(options) {
