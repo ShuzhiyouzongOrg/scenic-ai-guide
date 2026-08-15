@@ -16,7 +16,8 @@ function unwrap<T>(raw : any) : T {
 
 export function apiRequest<T>(path : string, method : RequestMethod = 'GET', data : any | null = null) : Promise<T> {
 	return new Promise<T>((resolve, reject) => {
-		const token = uni.getStorageSync(AUTH_TOKEN_KEY) as string
+		const storedToken = uni.getStorageSync(AUTH_TOKEN_KEY)
+		const token = storedToken == null ? '' : storedToken as string
 		const header = {
 			'content-type': 'application/json'
 		} as UTSJSONObject
@@ -41,7 +42,8 @@ export function apiRequest<T>(path : string, method : RequestMethod = 'GET', dat
 
 export function apiUploadFile<T>(path : string, filePath : string, formData : UTSJSONObject = {}, fieldName : string = 'file') : Promise<T> {
 	return new Promise<T>((resolve, reject) => {
-		const token = uni.getStorageSync(AUTH_TOKEN_KEY) as string
+		const storedToken = uni.getStorageSync(AUTH_TOKEN_KEY)
+		const token = storedToken == null ? '' : storedToken as string
 		const header = {} as UTSJSONObject
 		if (token.length > 0) header['authorization'] = 'Bearer ' + token
 		uni.uploadFile({

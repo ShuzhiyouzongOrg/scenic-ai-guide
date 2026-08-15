@@ -52,7 +52,7 @@
 			<view class="settings-card">
 				<view class="setting-item" @click="showPrivacy"><text class="setting-title">{{ t('隐私与权限', 'Privacy', '隱私與權限') }}</text><text class="setting-label">{{ t('定位、麦克风与数据使用说明', 'Location, microphone and data usage', '定位、麥克風與資料使用說明') }}</text><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
-				<view class="setting-item" @click="showAbout"><text class="setting-title">{{ t('关于应用', 'About', '關於應用程式') }}</text><text class="setting-label">{{ t('灵山AI导游', 'Lingshan AI Guide', '靈山AI導遊') }} 1.0.2</text><text class="menu-arrow">›</text></view>
+				<view class="setting-item" @click="showAbout"><text class="setting-title">{{ t('关于应用', 'About', '關於應用程式') }}</text><text class="setting-label">{{ t('数智游踪', 'Shuzhi Youzong', '數智遊蹤') }} 1.0.2</text><text class="menu-arrow">›</text></view>
 			</view>
 		</view>
 	</scroll-view>
@@ -73,7 +73,10 @@
 	const footprintCount = ref<number>(0)
 	const authUser = ref<AuthUser | null>(null)
 	const avatarUploading = ref<boolean>(false)
-	const currentLocale = ref<string>(getAppLocale())
+	// Native storage may return null for a key that has not been written yet.
+	// Keep the first render synchronous and use a guarded read in onShow so a
+	// fresh Android/Harmony install cannot abort the profile page before mount.
+	const currentLocale = ref<string>('zh-Hans')
 	const scenicArea = ref<string>('lingshan')
 	const initialDigitalHuman = createProfileDefaultDigitalHuman()
 	const digitalHumans = ref<DigitalHumanConfig[]>([initialDigitalHuman])
@@ -90,6 +93,50 @@
 
 	function t(simplified : string, english : string, traditional : string) : string {
 		return localize(currentLocale.value, simplified, english, traditional)
+	}
+
+	function safeAppLocale() : string {
+		try {
+			return getAppLocale()
+		} catch (error) {
+			console.warn('read app locale failed, using simplified Chinese', error)
+			return 'zh-Hans'
+		}
+	}
+
+	function safeCachedAuthUser() : AuthUser | null {
+		try {
+			return getCachedAuthUser()
+		} catch (error) {
+			console.warn('read cached auth user failed', error)
+			return null
+		}
+	}
+
+	function safeFavoriteCount() : number {
+		try {
+			return getFavoriteSpotIds().length
+		} catch (error) {
+			console.warn('read local activity failed', error)
+			return 0
+		}
+	}
+
+	function safeFootprintCount() : number {
+		try {
+			return getFootprintSpotIds().length
+		} catch (error) {
+			console.warn('read local activity failed', error)
+			return 0
+		}
+	}
+
+	function safeAuthToken() : string {
+		try {
+			return getAuthToken()
+		} catch (error) {
+			return ''
+		}
 	}
 
 	function createProfileDefaultDigitalHuman() : DigitalHumanConfig {
@@ -128,10 +175,16 @@
 
 	async function refreshProfileState() {
 		refreshGuidePreferences()
-		authUser.value = getCachedAuthUser()
-		favoriteCount.value = getFavoriteSpotIds().length
-		footprintCount.value = getFootprintSpotIds().length
-		const route = uni.getStorageSync('scenic-current-route') as string
+		authUser.value = safeCachedAuthUser()
+		favoriteCount.value = safeFavoriteCount()
+		footprintCount.value = safeFootprintCount()
+		let route = ''
+		try {
+			const storedRoute = uni.getStorageSync('scenic-current-route')
+			if (storedRoute != null) route = storedRoute as string
+		} catch (error) {
+			console.warn('read current route failed', error)
+		}
 		savedRouteCount.value = route.length > 0 ? 1 : 0
 		try {
 			const sessionId = await ensureVisitorSession()
@@ -140,11 +193,11 @@
 		} catch (error) {
 			console.error('load saved routes failed', error)
 		}
-		if (getAuthToken().length > 0) {
+		if (safeAuthToken().length > 0) {
 			try {
 				const profile = await fetchAuthProfile()
 				updateCachedAuthProfile(profile)
-				authUser.value = getCachedAuthUser()
+				authUser.value = safeCachedAuthUser()
 			} catch (error) {
 				console.error('refresh auth profile failed', error)
 			}
@@ -259,14 +312,14 @@
 	}
 
 	function showPrivacy() { uni.showModal({ title: '隐私与权限', content: '定位仅在地图页用于展示当前位置；麦克风仅在你主动点击语音提问时启用；相册或相机仅在你主动更换头像时启用；账号、反馈和导览数据提交到当前项目后端。', showCancel: false }) }
-	function showAbout() { uni.showModal({ title: '灵山AI导游', content: '基于 uni-app x Vapor 构建的多端游客应用。', showCancel: false }) }
+	function showAbout() { uni.showModal({ title: '数智游踪', content: '基于 uni-app x Vapor 构建的多端游客应用。', showCancel: false }) }
 	function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
 	function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
 	function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
 	function openFeedback() { uni.navigateTo({ url: '/pages/feedback/index' }) }
 
 	onShow(() => {
-		currentLocale.value = getAppLocale()
+		currentLocale.value = safeAppLocale()
 		refreshProfileState()
 	})
 </script>

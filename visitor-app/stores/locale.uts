@@ -8,7 +8,8 @@ export function normalizeAppLocale(value : string) : string {
 }
 
 export function getAppLocale() : string {
-	const stored = uni.getStorageSync(APP_LOCALE_KEY) as string
+	const storedValue = uni.getStorageSync(APP_LOCALE_KEY)
+	const stored = storedValue == null ? '' : storedValue as string
 	if (stored.length > 0) return normalizeAppLocale(stored)
 	return normalizeAppLocale(uni.getLocale())
 }

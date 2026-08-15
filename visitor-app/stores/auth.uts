@@ -25,11 +25,14 @@ export function updateCachedAuthProfile(profile : AuthProfile) {
 }
 
 export function getAuthToken() : string {
-	return uni.getStorageSync(AUTH_TOKEN_KEY) as string
+	const stored = uni.getStorageSync(AUTH_TOKEN_KEY)
+	return stored == null ? '' : stored as string
 }
 
 export function getCachedAuthUser() : AuthUser | null {
-	const raw = uni.getStorageSync(AUTH_USER_KEY) as string
+	const stored = uni.getStorageSync(AUTH_USER_KEY)
+	if (stored == null) return null
+	const raw = stored as string
 	if (raw.length == 0) return null
 	try {
 		return JSON.parse<AuthUser>(raw) as AuthUser

@@ -3,7 +3,9 @@ const FOOTPRINT_KEY = 'scenic-visitor-footprint-spot-ids'
 const MAX_FOOTPRINTS = 50
 
 function readIds(key : string) : string[] {
-	const raw = uni.getStorageSync(key) as string
+	const stored = uni.getStorageSync(key)
+	if (stored == null) return []
+	const raw = stored as string
 	if (raw.length == 0) return []
 	try {
 		return JSON.parse<string[]>(raw) as string[]

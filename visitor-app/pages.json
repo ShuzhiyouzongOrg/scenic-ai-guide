@@ -19,7 +19,12 @@
 			"path": "pages/ai-guide/index",
 			"style": {
 				"navigationStyle": "custom",
-				"navigationBarTitleText": "AI导游"
+				"navigationBarTitleText": "AI导游",
+				// #ifdef MP-WEIXIN
+				"usingComponents": {
+					"scenic-live2d": "/wxcomponents/scenic-live2d/index"
+				}
+				// #endif
 			}
 		},
 		{
@@ -139,7 +144,7 @@
 	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "灵山AI导游",
+		"navigationBarTitleText": "数智游踪",
 		"navigationBarBackgroundColor": "#ffffff",
 		"backgroundColor": "#f3f6fb",
 		"enablePullDownRefresh": false
