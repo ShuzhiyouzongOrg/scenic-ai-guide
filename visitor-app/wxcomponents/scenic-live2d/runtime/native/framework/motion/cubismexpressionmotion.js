@@ -1,0 +1,168 @@
+"use strict";
+/**
+ * Copyright(c) Live2D Inc. All rights reserved.
+ *
+ * Use of this source code is governed by the Live2D Open Software license
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Live2DCubismFramework = exports.ExpressionParameter = exports.ExpressionBlendType = exports.CubismExpressionMotion = void 0;
+const live2dcubismframework_1 = require("../live2dcubismframework");
+const csmvector_1 = require("../type/csmvector");
+const cubismjson_1 = require("../utils/cubismjson");
+const acubismmotion_1 = require("./acubismmotion");
+// exp3.jsonのキーとデフォルト
+const ExpressionKeyFadeIn = 'FadeInTime';
+const ExpressionKeyFadeOut = 'FadeOutTime';
+const ExpressionKeyParameters = 'Parameters';
+const ExpressionKeyId = 'Id';
+const ExpressionKeyValue = 'Value';
+const ExpressionKeyBlend = 'Blend';
+const BlendValueAdd = 'Add';
+const BlendValueMultiply = 'Multiply';
+const BlendValueOverwrite = 'Overwrite';
+const DefaultFadeTime = 1.0;
+/**
+ * 表情のモーション
+ *
+ * 表情のモーションクラス。
+ */
+class CubismExpressionMotion extends acubismmotion_1.ACubismMotion {
+    /**
+     * インスタンスを作成する。
+     * @param buffer expファイルが読み込まれているバッファ
+     * @param size バッファのサイズ
+     * @return 作成されたインスタンス
+     */
+    static create(buffer, size) {
+        const expression = new CubismExpressionMotion();
+        const json = cubismjson_1.CubismJson.create(buffer, size);
+        const root = json.getRoot();
+        expression.setFadeInTime(root.getValueByString(ExpressionKeyFadeIn).toFloat(DefaultFadeTime)); // フェードイン
+        expression.setFadeOutTime(root.getValueByString(ExpressionKeyFadeOut).toFloat(DefaultFadeTime)); // フェードアウト
+        // 各パラメータについて
+        const parameterCount = root
+            .getValueByString(ExpressionKeyParameters)
+            .getSize();
+        expression._parameters.prepareCapacity(parameterCount);
+        for (let i = 0; i < parameterCount; ++i) {
+            const param = root
+                .getValueByString(ExpressionKeyParameters)
+                .getValueByIndex(i);
+            const parameterId = live2dcubismframework_1.CubismFramework.getIdManager().getId(param.getValueByString(ExpressionKeyId).getRawString()); // パラメータID
+            const value = param
+                .getValueByString(ExpressionKeyValue)
+                .toFloat(); // 値
+            // 計算方法の設定
+            let blendType;
+            if (param.getValueByString(ExpressionKeyBlend).isNull() ||
+                param.getValueByString(ExpressionKeyBlend).getString() == BlendValueAdd) {
+                blendType = ExpressionBlendType.ExpressionBlendType_Add;
+            }
+            else if (param.getValueByString(ExpressionKeyBlend).getString() ==
+                BlendValueMultiply) {
+                blendType = ExpressionBlendType.ExpressionBlendType_Multiply;
+            }
+            else if (param.getValueByString(ExpressionKeyBlend).getString() ==
+                BlendValueOverwrite) {
+                blendType = ExpressionBlendType.ExpressionBlendType_Overwrite;
+            }
+            else {
+                // その他 仕様にない値を設定した時は加算モードにすることで復旧
+                blendType = ExpressionBlendType.ExpressionBlendType_Add;
+            }
+            // 設定オブジェクトを作成してリストに追加する
+            const item = new ExpressionParameter();
+            item.parameterId = parameterId;
+            item.blendType = blendType;
+            item.value = value;
+            expression._parameters.pushBack(item);
+        }
+        cubismjson_1.CubismJson.delete(json); // JSONデータは不要になったら削除する
+        return expression;
+    }
+    /**
+     * モデルのパラメータの更新の実行
+     * @param model 対象のモデル
+     * @param userTimeSeconds デルタ時間の積算値[秒]
+     * @param weight モーションの重み
+     * @param motionQueueEntry CubismMotionQueueManagerで管理されているモーション
+     */
+    doUpdateParameters(model, userTimeSeconds, weight, motionQueueEntry) {
+        for (let i = 0; i < this._parameters.getSize(); ++i) {
+            const parameter = this._parameters.at(i);
+            switch (parameter.blendType) {
+                case ExpressionBlendType.ExpressionBlendType_Add: {
+                    model.addParameterValueById(parameter.parameterId, parameter.value, weight);
+                    break;
+                }
+                case ExpressionBlendType.ExpressionBlendType_Multiply: {
+                    model.multiplyParameterValueById(parameter.parameterId, parameter.value, weight);
+                    break;
+                }
+                case ExpressionBlendType.ExpressionBlendType_Overwrite: {
+                    model.setParameterValueById(parameter.parameterId, parameter.value, weight);
+                    break;
+                }
+                default:
+                    // 仕様にない値を設定した時はすでに加算モードになっている
+                    break;
+            }
+        }
+    }
+    /**
+     * コンストラクタ
+     */
+    constructor() {
+        super();
+        this._parameters = new csmvector_1.csmVector();
+    }
+}
+exports.CubismExpressionMotion = CubismExpressionMotion;
+/**
+ * 表情パラメータ値の計算方式
+ */
+var ExpressionBlendType;
+(function (ExpressionBlendType) {
+    ExpressionBlendType[ExpressionBlendType["ExpressionBlendType_Add"] = 0] = "ExpressionBlendType_Add";
+    ExpressionBlendType[ExpressionBlendType["ExpressionBlendType_Multiply"] = 1] = "ExpressionBlendType_Multiply";
+    ExpressionBlendType[ExpressionBlendType["ExpressionBlendType_Overwrite"] = 2] = "ExpressionBlendType_Overwrite";
+})(ExpressionBlendType || (exports.ExpressionBlendType = ExpressionBlendType = {}));
+/**
+ * 表情のパラメータ情報
+ */
+class ExpressionParameter {
+}
+exports.ExpressionParameter = ExpressionParameter;
+// Namespace definition for compatibility.
+const $ = __importStar(require("./cubismexpressionmotion"));
+// eslint-disable-next-line @typescript-eslint/no-namespace
+var Live2DCubismFramework;
+(function (Live2DCubismFramework) {
+    Live2DCubismFramework.CubismExpressionMotion = $.CubismExpressionMotion;
+    Live2DCubismFramework.ExpressionBlendType = $.ExpressionBlendType;
+    Live2DCubismFramework.ExpressionParameter = $.ExpressionParameter;
+})(Live2DCubismFramework || (exports.Live2DCubismFramework = Live2DCubismFramework = {}));

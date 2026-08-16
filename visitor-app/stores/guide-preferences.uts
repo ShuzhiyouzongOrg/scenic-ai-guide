@@ -1,0 +1,42 @@
+import type { ScenicAreaId } from '@/domain/types.uts'
+
+const PREFERRED_SCENIC_AREA_KEY = 'scenic-guide-preferred-area'
+const SELECTED_DIGITAL_HUMAN_KEY = 'scenic-guide-selected-digital-human'
+const DIGITAL_HUMAN_RENDER_MODE_KEY = 'scenic-guide-digital-human-render-mode'
+
+export function normalizeScenicAreaId(value : string) : ScenicAreaId {
+	return value == 'nianhuawan' ? 'nianhuawan' : 'lingshan'
+}
+
+export function getPreferredScenicArea() : ScenicAreaId {
+	const stored = uni.getStorageSync(PREFERRED_SCENIC_AREA_KEY) as string
+	return normalizeScenicAreaId(stored)
+}
+
+export function setPreferredScenicArea(areaId : string) {
+	uni.setStorageSync(PREFERRED_SCENIC_AREA_KEY, normalizeScenicAreaId(areaId))
+}
+
+export function getSelectedDigitalHumanId() : string {
+	return uni.getStorageSync(SELECTED_DIGITAL_HUMAN_KEY) as string
+}
+
+export function setSelectedDigitalHumanId(id : string) {
+	uni.setStorageSync(SELECTED_DIGITAL_HUMAN_KEY, id)
+}
+
+export function normalizeDigitalHumanRenderMode(value : string) : string {
+	return value == 'live2d' ? 'live2d' : 'xfyun'
+}
+
+export function getDigitalHumanRenderMode() : string {
+	// #ifdef MP-WEIXIN
+	return 'live2d'
+	// #endif
+	const stored = uni.getStorageSync(DIGITAL_HUMAN_RENDER_MODE_KEY) as string
+	return normalizeDigitalHumanRenderMode(stored)
+}
+
+export function setDigitalHumanRenderMode(mode : string) {
+	uni.setStorageSync(DIGITAL_HUMAN_RENDER_MODE_KEY, normalizeDigitalHumanRenderMode(mode))
+}

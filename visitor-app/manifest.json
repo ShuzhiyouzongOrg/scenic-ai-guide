@@ -1,0 +1,127 @@
+{
+    "name" : "数智游踪",
+    "appid" : "__UNI__87D2500",
+    "description" : "面向游客的多端智能导游应用",
+    "versionName" : "1.0.2",
+    "versionCode" : "102",
+    "uni-app-x" : {
+        "vapor" : true,
+        "styleIsolationVersion" : "2",
+        "vapor-render-target" : "bytecode"
+    },
+    /* 快应用特有相关 */
+    "quickapp" : {},
+    /* 小程序特有相关 */
+    "mp-weixin" : {
+        "appid" : "wxc8dc4bac62076888",
+        "setting" : {
+            "urlCheck" : false,
+            "minified" : true
+        },
+        "usingComponents" : true,
+        "libVersion" : "3.7.1",
+        "requiredPrivateInfos" : [ "getLocation" ],
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "用于在景区地图中展示当前位置并规划游览路线"
+            }
+        }
+    },
+    "mp-alipay" : {
+        "usingComponents" : true
+    },
+    "mp-baidu" : {
+        "usingComponents" : true
+    },
+    "mp-toutiao" : {
+        "usingComponents" : true
+    },
+    "uniStatistics" : {
+        "enable" : false
+    },
+    "vueVersion" : "3",
+    "app" : {
+        "distribute" : {
+            "icons" : {
+                "android" : {
+                    "hdpi" : "native-assets/brand/android/icon-72.png",
+                    "xhdpi" : "native-assets/brand/android/icon-96.png",
+                    "xxhdpi" : "native-assets/brand/android/icon-144.png",
+                    "xxxhdpi" : "native-assets/brand/android/icon-192.png"
+                },
+                "ios" : {
+                    "appstore" : "native-assets/brand/ios/appstore-1024.png"
+                }
+            }
+        }
+    },
+    "app-android" : {
+        "distribute" : {
+            "modules" : {
+                "uni-location" : {
+                    "system" : {}
+                },
+                "uni-map" : {
+                    "tencent" : {
+                        "key" : "3QGBZ-7AV6B-UX6UY-JYJBW-THRCV-KXBGI"
+                    }
+                }
+            },
+            "icons" : {
+                "hdpi" : "native-assets/brand/android/icon-72.png",
+                "xhdpi" : "native-assets/brand/android/icon-96.png",
+                "xxhdpi" : "native-assets/brand/android/icon-144.png",
+                "xxxhdpi" : "native-assets/brand/android/icon-192.png"
+            },
+            "splashScreens" : {
+                "default" : {}
+            }
+        }
+    },
+    "app-ios" : {
+        "distribute" : {
+            "modules" : {
+                "uni-location" : {
+                    "system" : {}
+                },
+                "uni-map" : {
+                    "tencent" : {
+                        "key" : "3QGBZ-7AV6B-UX6UY-JYJBW-THRCV-KXBGI"
+                    }
+                }
+            },
+            "icons" : {
+                "appstore" : "native-assets/brand/ios/appstore-1024.png"
+            },
+            "splashScreens" : {}
+        }
+    },
+    "app-harmony" : {
+        "distribute" : {
+            "bundleName" : "com.scenic.guide.visitor",
+            "modules" : {
+                "uni-location" : {
+                    "system" : {}
+                },
+                "uni-map" : {
+                    "tencent" : {}
+                }
+            },
+            "deviceTypes" : [ "phone" ],
+            "deviceArchs" : [ "arm64-v8a" ]
+        }
+    },
+    "web" : {
+        "router" : {
+            "base" : "/",
+            "mode" : "history"
+        },
+        "sdkConfigs" : {
+            "maps" : {
+                "tencent" : {
+                    "key" : "3QGBZ-7AV6B-UX6UY-JYJBW-THRCV-KXBGI"
+                }
+            }
+        }
+    }
+}

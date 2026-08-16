@@ -13,11 +13,24 @@ function nowMs() {
 
 export async function transcribeAudio({ audioBase64 = "", mimeType = "", transcript = "", signal } = {}) {
   const started = nowMs();
-  const useMockAsr = config.providers.asr === "mock" || (config.demoMode && !process.env.ASR_API_KEY);
+  const suppliedTranscript = String(transcript || "").trim();
+  if (suppliedTranscript) {
+    return {
+      text: suppliedTranscript,
+      provider: "provided-transcript",
+      confidence: 0.98,
+      mimeType,
+      latencyMs: nowMs() - started
+    };
+  }
+
+  if (config.providers.asr === "xfyun" && hasXfyunAsrConfig()) {
+    return transcribeXfyunAudio({ audioBase64, mimeType, signal, started });
+  }
+
+  const useMockAsr = config.providers.asr === "mock" || (config.demoMode && !hasXfyunAsrConfig());
   if (!useMockAsr) {
     assertProviderKey("ASR_API_KEY", config.providers.asr);
-    // Placeholder contract for later cloud ASR integration. The mock path keeps
-    // the demo deterministic until an actual provider is configured.
     throw providerNotImplemented("ASR", config.providers.asr);
   }
 
@@ -25,14 +38,199 @@ export async function transcribeAudio({ audioBase64 = "", mimeType = "", transcr
     throw abortedError("ASR");
   }
 
-  const text = String(transcript || "").trim() || inferMockTranscript(audioBase64, mimeType);
+  const text = inferMockTranscript(audioBase64, mimeType);
   return {
     text,
     provider: "mock",
-    confidence: transcript ? 0.98 : 0.55,
+    confidence: 0.55,
     mimeType,
     latencyMs: nowMs() - started
   };
+}
+
+function hasXfyunAsrConfig() {
+  return Boolean(config.xfyun.appId && config.xfyun.apiKey && config.xfyun.apiSecret);
+}
+
+function xfyunAsrSignedUrl() {
+  const host = config.xfyun.asrHost;
+  const path = config.xfyun.asrPath;
+  const date = new Date().toUTCString();
+  const signatureOrigin = `host: ${host}\ndate: ${date}\nGET ${path} HTTP/1.1`;
+  const signature = createHmac("sha256", config.xfyun.apiSecret)
+    .update(signatureOrigin)
+    .digest("base64");
+  const authorizationOrigin = `api_key="${config.xfyun.apiKey}", algorithm="hmac-sha256", headers="host date request-line", signature="${signature}"`;
+  const authorization = Buffer.from(authorizationOrigin).toString("base64");
+  return `wss://${host}${path}?authorization=${encodeURIComponent(authorization)}&date=${encodeURIComponent(date)}&host=${encodeURIComponent(host)}`;
+}
+
+function prepareXfyunAsrAudio(audioBase64, mimeType) {
+  const buffer = Buffer.from(String(audioBase64 || ""), "base64");
+  if (!buffer.length) {
+    const error = new Error("Audio data is required.");
+    error.statusCode = 400;
+    error.code = "ASR_AUDIO_REQUIRED";
+    throw error;
+  }
+
+  const normalizedMime = String(mimeType || "").toLowerCase();
+  if (normalizedMime.includes("mpeg") || normalizedMime.includes("mp3")) {
+    return { buffer, encoding: "lame", format: "audio/L16;rate=16000" };
+  }
+
+  if (normalizedMime.includes("wav") || (buffer.length > 12 && buffer.toString("ascii", 0, 4) === "RIFF")) {
+    return parsePcmWav(buffer);
+  }
+
+  if (normalizedMime.includes("pcm") || normalizedMime.includes("l16") || normalizedMime === "application/octet-stream") {
+    return { buffer, encoding: "raw", format: normalizedMime.includes("8000") ? "audio/L16;rate=8000" : "audio/L16;rate=16000" };
+  }
+
+  const error = new Error(`Unsupported ASR audio type: ${mimeType || "unknown"}. Use 16 kHz mono MP3, WAV or PCM.`);
+  error.statusCode = 415;
+  error.code = "ASR_AUDIO_TYPE_UNSUPPORTED";
+  throw error;
+}
+
+function parsePcmWav(buffer) {
+  if (buffer.length < 44 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WAVE") {
+    const error = new Error("Invalid WAV audio.");
+    error.statusCode = 400;
+    error.code = "ASR_WAV_INVALID";
+    throw error;
+  }
+
+  let offset = 12;
+  let format = null;
+  let audio = null;
+  while (offset + 8 <= buffer.length) {
+    const chunkId = buffer.toString("ascii", offset, offset + 4);
+    const chunkSize = buffer.readUInt32LE(offset + 4);
+    const chunkStart = offset + 8;
+    const chunkEnd = Math.min(buffer.length, chunkStart + chunkSize);
+    if (chunkId === "fmt " && chunkSize >= 16) {
+      format = {
+        audioFormat: buffer.readUInt16LE(chunkStart),
+        channels: buffer.readUInt16LE(chunkStart + 2),
+        sampleRate: buffer.readUInt32LE(chunkStart + 4),
+        bitsPerSample: buffer.readUInt16LE(chunkStart + 14)
+      };
+    } else if (chunkId === "data") {
+      audio = buffer.subarray(chunkStart, chunkEnd);
+    }
+    offset = chunkStart + chunkSize + (chunkSize % 2);
+  }
+
+  if (!format || !audio || format.audioFormat !== 1 || format.channels !== 1 || format.bitsPerSample !== 16 || ![8000, 16000].includes(format.sampleRate)) {
+    const error = new Error("WAV must be mono 16-bit PCM at 8 kHz or 16 kHz.");
+    error.statusCode = 415;
+    error.code = "ASR_WAV_FORMAT_UNSUPPORTED";
+    throw error;
+  }
+
+  return { buffer: audio, encoding: "raw", format: `audio/L16;rate=${format.sampleRate}` };
+}
+
+function transcribeXfyunAudio({ audioBase64, mimeType, signal, started }) {
+  const prepared = prepareXfyunAsrAudio(audioBase64, mimeType);
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(xfyunAsrSignedUrl());
+    const fragments = new Map();
+    let settled = false;
+    let sendTimer = null;
+    const timeout = setTimeout(() => finish(asrServiceError("XFYUN ASR timed out.", "XFYUN_ASR_TIMEOUT")), config.xfyun.asrTimeoutMs);
+    const onAbort = () => finish(abortedError("ASR"));
+
+    if (signal) signal.addEventListener("abort", onAbort, { once: true });
+
+    function finish(error, result) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      if (sendTimer) clearTimeout(sendTimer);
+      if (signal) signal.removeEventListener("abort", onAbort);
+      try { ws.close(); } catch { /* ignore close failures */ }
+      if (error) reject(error);
+      else resolve(result);
+    }
+
+    ws.addEventListener("open", () => {
+      const chunkSize = prepared.encoding === "raw" ? 1280 : 1280;
+      let offset = 0;
+      let status = 0;
+
+      const sendNext = () => {
+        if (settled) return;
+        if (offset >= prepared.buffer.length) {
+          ws.send(JSON.stringify({ data: { status: 2, format: prepared.format, encoding: prepared.encoding, audio: "" } }));
+          return;
+        }
+
+        const end = Math.min(offset + chunkSize, prepared.buffer.length);
+        const payload = {
+          data: {
+            status,
+            format: prepared.format,
+            encoding: prepared.encoding,
+            audio: prepared.buffer.subarray(offset, end).toString("base64")
+          }
+        };
+        if (status === 0) {
+          payload.common = { app_id: config.xfyun.appId };
+          payload.business = { language: "zh_cn", domain: "iat", accent: "mandarin", eos: 5000, ptt: 1 };
+        }
+        ws.send(JSON.stringify(payload));
+        offset = end;
+        status = 1;
+        sendTimer = setTimeout(sendNext, 40);
+      };
+
+      sendNext();
+    });
+
+    ws.addEventListener("message", (event) => {
+      try {
+        const payload = JSON.parse(String(event.data));
+        if (payload.code !== 0) {
+          finish(asrServiceError(`XFYUN ASR error ${payload.code}: ${payload.message || "unknown error"}`, "XFYUN_ASR_ERROR"));
+          return;
+        }
+        const result = payload.data?.result;
+        if (result) {
+          const text = (result.ws || []).map((word) => word.cw?.[0]?.w || "").join("");
+          fragments.set(Number(result.sn ?? fragments.size), text);
+        }
+        if (payload.data?.status === 2) {
+          const text = [...fragments.entries()].sort((a, b) => a[0] - b[0]).map((entry) => entry[1]).join("").trim();
+          if (!text) {
+            finish(asrServiceError("XFYUN ASR returned no transcript.", "XFYUN_ASR_EMPTY"));
+            return;
+          }
+          finish(null, {
+            text,
+            provider: "xfyun",
+            confidence: 0.85,
+            mimeType,
+            latencyMs: nowMs() - started
+          });
+        }
+      } catch (error) {
+        finish(error);
+      }
+    });
+
+    ws.addEventListener("error", () => {
+      finish(asrServiceError("XFYUN ASR websocket connection failed.", "XFYUN_ASR_NETWORK_ERROR"));
+    });
+  });
+}
+
+function asrServiceError(message, code) {
+  const error = new Error(message);
+  error.statusCode = 502;
+  error.code = code;
+  return error;
 }
 
 export async function synthesizeSpeech({ text = "", voice = "guide_female", speed = 1, signal } = {}) {

@@ -1,0 +1,48 @@
+import type { AuthProfile, AuthUser } from '@/domain/types.uts'
+
+const AUTH_TOKEN_KEY = 'scenic-visitor-auth-token'
+const AUTH_USER_KEY = 'scenic-visitor-auth-user'
+
+export function saveAuthSession(token : string, user : AuthUser) {
+	uni.setStorageSync(AUTH_TOKEN_KEY, token)
+	uni.setStorageSync(AUTH_USER_KEY, JSON.stringify(user))
+}
+
+export function updateCachedAuthProfile(profile : AuthProfile) {
+	const current = getCachedAuthUser()
+	const displayName = (profile.nickname ?? '').length > 0
+		? profile.nickname!
+		: ((profile.realName ?? '').length > 0 ? profile.realName! : profile.userName)
+	const role = profile.roles.length > 0 ? profile.roles[profile.roles.length - 1] : (current?.role ?? 'visitor')
+	const user = {
+		id: profile.userId,
+		username: profile.userName,
+		displayName,
+		role,
+		avatar: profile.avatar ?? ''
+	} as AuthUser
+	uni.setStorageSync(AUTH_USER_KEY, JSON.stringify(user))
+}
+
+export function getAuthToken() : string {
+	const stored = uni.getStorageSync(AUTH_TOKEN_KEY)
+	return stored == null ? '' : stored as string
+}
+
+export function getCachedAuthUser() : AuthUser | null {
+	const stored = uni.getStorageSync(AUTH_USER_KEY)
+	if (stored == null) return null
+	const raw = stored as string
+	if (raw.length == 0) return null
+	try {
+		return JSON.parse<AuthUser>(raw) as AuthUser
+	} catch (error) {
+		console.error('parse auth user failed', error)
+		return null
+	}
+}
+
+export function clearAuthSession() {
+	uni.removeStorageSync(AUTH_TOKEN_KEY)
+	uni.removeStorageSync(AUTH_USER_KEY)
+}

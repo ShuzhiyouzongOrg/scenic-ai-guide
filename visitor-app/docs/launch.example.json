@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "configurations": [
+    {
+      "type": "uni-app:app-harmony",
+      "distPathDev": "D:/harmony-build/scenic-visitor-dev",
+      "distPathBuild": "D:/harmony-build/scenic-visitor-release"
+    }
+  ]
+}

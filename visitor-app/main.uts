@@ -1,0 +1,14 @@
+import App from './App.uvue'
+
+// RiceUI 在 Web + 样式隔离 2.0 下要求从 main.uts 引入基础样式。
+// #ifdef WEB
+import '@/uni_modules/rice-ui/libs/style/index.css'
+// #endif
+
+import { createSSRApp } from 'vue'
+export function createApp() {
+	const app = createSSRApp(App)
+	return {
+		app
+	}
+}

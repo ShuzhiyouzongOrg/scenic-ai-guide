@@ -1,0 +1,63 @@
+<template>
+	<view class="page">
+		<web-view
+			v-if="runtimeUrl.length > 0"
+			class="avatar-webview"
+			:src="runtimeUrl"
+			:ios-allows-inline-media-playback="true"
+			@load="handleLoad"
+			@error="handleError"
+			@message="handleMessage"
+		/>
+		<view v-else class="loading-state">
+			<view class="loading-orbit"><view class="loading-core"></view></view>
+			<text class="loading-title">正在连接讯飞动态数字人</text>
+			<text class="loading-copy">连接成功后请点击页面中的启动按钮，以允许视频与声音播放。</text>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const runtimeUrl = ref<string>('')
+
+	function handleLoad() {
+		uni.hideLoading()
+	}
+
+	function handleError(event : WebViewErrorEvent) {
+		uni.hideLoading()
+		// HarmonyOS ArkWeb may report a recoverable sub-resource error after the
+		// controlled page has already rendered. Keep the page interactive and log
+		// the precise error instead of covering a working avatar session.
+		console.warn('digital human webview resource warning', event.detail.errCode, event.detail.errMsg, event.detail.fullUrl)
+		uni.showToast({ title: '部分资源正在重试', icon: 'none', duration: 1600 })
+	}
+
+	function handleMessage(event : UniWebViewMessageEvent) {
+		console.log('digital human web message', event.detail)
+	}
+
+	onLoad((options : OnLoadOptions) => {
+		const value = options['src'] ?? ''
+		if (value.length == 0) {
+			uni.showToast({ title: '数字人会话地址无效', icon: 'none' })
+			return
+		}
+		runtimeUrl.value = decodeURIComponent(value)
+		uni.showLoading({ title: '连接动态形象' })
+	})
+
+	onUnload(() => {
+		uni.hideLoading()
+	})
+</script>
+
+<style>
+	.page { flex: 1; background-color: #062f68; }
+	.avatar-webview { flex: 1; width: 100%; }
+	.loading-state { flex: 1; align-items: center; justify-content: center; padding: 32px; }
+	.loading-orbit { width: 72px; height: 72px; border-radius: 36px; border: 2px solid rgba(120,221,236,0.42); align-items: center; justify-content: center; }
+	.loading-core { width: 34px; height: 34px; border-radius: 17px; background: linear-gradient(to bottom right, #49e0d0, #3b8bff); box-shadow: 0 0 24px rgba(73,224,208,0.56); }
+	.loading-title { margin-top: 22px; color: #ffffff; font-size: 18px; font-weight: 800; }
+	.loading-copy { margin-top: 10px; color: #b9d2ea; font-size: 12px; line-height: 20px; text-align: center; }
+</style>

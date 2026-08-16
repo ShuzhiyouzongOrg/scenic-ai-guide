@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Live2D 本地数字人</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="live2d-stage" aria-label="Live2D 本地数字人">
+      <canvas id="live2dCanvas"></canvas>
+      <div id="loading" class="stage-notice">
+        <span class="loading-ring" aria-hidden="true"></span>
+        <span id="status-text">正在加载 Live2D 模型</span>
+      </div>
+      <button id="audio-unlock" class="audio-unlock" type="button" hidden>
+        轻触启用数字人声音
+      </button>
+    </main>
+
+    <script src="./core/live2dcubismcore.min.js"></script>
+    <script src="./webgl-compat.js"></script>
+    <script type="module" src="./runtime.js"></script>
+  </body>
+</html>

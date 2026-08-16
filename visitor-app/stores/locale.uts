@@ -1,0 +1,60 @@
+const APP_LOCALE_KEY = 'scenic-guide-app-locale'
+
+export function normalizeAppLocale(value : string) : string {
+	const locale = value.toLowerCase().replace('_', '-')
+	if (locale == 'en' || locale.startsWith('en-')) return 'en'
+	if (locale == 'zh-hant' || locale == 'zh-tw' || locale == 'zh-hk' || locale == 'zh-mo') return 'zh-Hant'
+	return 'zh-Hans'
+}
+
+export function getAppLocale() : string {
+	try {
+		const storedValue = uni.getStorageSync(APP_LOCALE_KEY)
+		const stored = storedValue == null ? '' : storedValue as string
+		if (stored.length > 0) return normalizeAppLocale(stored)
+	} catch (error) {
+		// Locale storage is optional; a fresh native install must still mount.
+	}
+	try {
+		return normalizeAppLocale(uni.getLocale())
+	} catch (error) {
+		return 'zh-Hans'
+	}
+}
+
+export function setAppLocale(value : string) {
+	const locale = normalizeAppLocale(value)
+	try { uni.setStorageSync(APP_LOCALE_KEY, locale) } catch (error) { }
+	try { uni.setLocale(locale) } catch (error) { }
+	applyLocalizedTabBar(locale)
+}
+
+export function getAppLanguageName(value : string) : string {
+	const locale = normalizeAppLocale(value)
+	if (locale == 'en') return 'English'
+	if (locale == 'zh-Hant') return '繁體中文'
+	return '简体中文'
+}
+
+export function localize(value : string, simplified : string, english : string, traditional : string) : string {
+	const locale = normalizeAppLocale(value)
+	if (locale == 'en') return english
+	if (locale == 'zh-Hant') return traditional
+	return simplified
+}
+
+export function applyLocalizedTabBar(value : string) {
+	const locale = normalizeAppLocale(value)
+	const labels = locale == 'en'
+		? ['Home', 'Map', 'AI Guide', 'Trips', 'Profile']
+		: (locale == 'zh-Hant' ? ['首頁', '地圖', 'AI導遊', '行程', '我的'] : ['首页', '地图', 'AI导游', '行程', '我的'])
+	labels.forEach((label : string, index : number) => {
+		try { uni.setTabBarItem({ index, text: label }) } catch (error) { }
+	})
+}
+
+export function initializeAppLocale() {
+	const locale = getAppLocale()
+	try { uni.setLocale(locale) } catch (error) { }
+	applyLocalizedTabBar(locale)
+}

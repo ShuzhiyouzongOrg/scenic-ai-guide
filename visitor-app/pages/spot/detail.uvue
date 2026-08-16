@@ -1,0 +1,105 @@
+<template>
+	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
+		<view v-if="spot != null">
+			<view class="hero">
+				<image v-if="coverUrl.length > 0" class="hero-image" :src="coverUrl" mode="aspectFill" />
+				<view v-else class="hero-placeholder"><text class="hero-placeholder-text">景</text></view>
+				<view class="hero-overlay"></view>
+				<view class="hero-copy">
+					<text class="hero-category">{{ spot!.categoryName }}</text>
+					<text class="hero-title">{{ spot!.name }}</text>
+				</view>
+			</view>
+			<view class="content">
+				<view class="spot-meta-row">
+					<view class="spot-meta spot-meta-blue"><rice-icon name="chat-fill" size="13" color="#0b68d0" /><text class="spot-meta-text">AI 智慧讲解</text></view>
+					<view class="spot-meta spot-meta-cyan"><rice-icon name="location-fill" size="13" color="#087fbd" /><text class="spot-meta-text">地图定位</text></view>
+					<view class="spot-meta spot-meta-gold"><rice-icon name="star-fill" size="13" color="#d88400" /><text class="spot-meta-text">本地收藏</text></view>
+				</view>
+				<view class="section-heading"><view class="section-accent"></view><text class="section-title">景点介绍</text></view>
+				<text class="description">{{ spot!.detail ?? spot!.description ?? '景点详细内容正在由景区知识库补充。' }}</text>
+				<view class="action-row">
+					<rice-button text="AI 讲解" type="primary" shape="round" @click="openGuide" />
+					<rice-button text="地图定位" shape="round" plain @click="openMap" />
+				</view>
+				<view class="favorite-button">
+					<rice-button :text="favorite ? '已收藏此景点' : '收藏此景点'" :type="favorite ? 'primary' : 'default'" shape="round" plain width="100%" @click="toggleFavorite" />
+				</view>
+			</view>
+		</view>
+		<empty-state v-else icon="!" title="景点未找到" description="请返回地图重新选择景点。" />
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import type { ScenicSpot } from '@/domain/types.uts'
+	import { fetchScenicSpots } from '@/services/guide-api.uts'
+	import { resolveAssetUrl } from '@/services/http.uts'
+	import { queueGuidePrompt, queueMapSpot } from '@/stores/navigation-context.uts'
+	import { isFavoriteSpot, recordSpotFootprint, toggleFavoriteSpot } from '@/stores/visitor-activity.uts'
+
+	const spotId = ref<string>('')
+	const spot = ref<ScenicSpot | null>(null)
+	const favorite = ref<boolean>(false)
+	const coverUrl = computed<string>(() => {
+		if (spot.value == null) return ''
+		const path = spot.value!.media.getString('coverUrl', spot.value!.media.getString('sourceCoverUrl', ''))
+		return path.length > 0 ? resolveAssetUrl(path) : ''
+	})
+
+	async function loadSpot() {
+		try {
+			const spots = await fetchScenicSpots()
+			spot.value = spots.find((item : ScenicSpot) : boolean => item.id == spotId.value) ?? null
+			if (spot.value != null) {
+				favorite.value = isFavoriteSpot(spot.value!.id)
+				recordSpotFootprint(spot.value!.id)
+			}
+		} catch (error) { console.error(error) }
+	}
+	function toggleFavorite() {
+		if (spot.value == null) return
+		favorite.value = toggleFavoriteSpot(spot.value!.id)
+		uni.showToast({ title: favorite.value ? '已收藏' : '已取消收藏', icon: 'none' })
+	}
+	function openGuide() {
+		if (spot.value == null) return
+		queueGuidePrompt('请详细讲解' + spot.value!.name + '的历史、主要看点和游览建议。')
+		uni.switchTab({ url: '/pages/ai-guide/index' })
+	}
+	function openMap() {
+		if (spot.value == null) return
+		queueMapSpot(spot.value!.id)
+		uni.switchTab({ url: '/pages/map/index' })
+	}
+
+	onLoad((options : OnLoadOptions) => {
+		spotId.value = options['id'] ?? ''
+		loadSpot()
+	})
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f6fb; }
+	.hero { height: 340px; position: relative; }
+	.hero-image, .hero-placeholder { width: 100%; height: 340px; }
+	.hero-placeholder { background: linear-gradient(to bottom right, #d9eaff, #d7f3f7); align-items: center; justify-content: center; }
+	.hero-placeholder-text { font-size: 64px; color: #0b68d0; }
+	.hero-overlay { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(transparent, rgba(4,25,64,0.82)); }
+	.hero-copy { position: absolute; left: 20px; right: 20px; bottom: 40px; }
+	.hero-category { align-self: flex-start; font-size: 10px; color: #fff4d9; background-color: rgba(255,173,36,0.24); padding: 5px 9px; border-radius: 10px; border: 1px solid rgba(255,210,121,0.24); }
+	.hero-title { font-size: 32px; font-weight: 800; color: #ffffff; margin-top: 9px; }
+	.content { margin: -22px 14px 30px; padding: 18px 18px 24px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 25px; box-shadow: 0 12px 30px rgba(17,65,120,0.10); }
+	.spot-meta-row { flex-direction: row; align-items: center; justify-content: space-between; padding-bottom: 17px; border-bottom: 1px solid #e9eff7; }
+	.spot-meta { flex-direction: row; align-items: center; padding: 7px 8px; border-radius: 11px; }
+	.spot-meta-blue { background-color: #eaf3ff; }
+	.spot-meta-cyan { background-color: #e8f8fb; }
+	.spot-meta-gold { background-color: #fff6e5; }
+	.spot-meta-text { font-size: 9px; color: #53657c; margin-left: 4px; }
+	.section-heading { flex-direction: row; align-items: center; margin-top: 20px; }
+	.section-accent { width: 4px; height: 18px; border-radius: 2px; background-color: #d6a149; margin-right: 9px; }
+	.section-title { font-size: 20px; font-weight: 800; color: #15243c; }
+	.description { font-size: 15px; line-height: 25px; color: #607087; margin-top: 12px; }
+	.action-row { flex-direction: row; justify-content: space-between; margin-top: 26px; }
+	.favorite-button { margin-top: 12px; }
+</style>
