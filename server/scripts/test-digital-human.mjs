@@ -231,6 +231,7 @@ try {
   assert.match(pageResponse.headers.get("cache-control"), /no-store/);
   assert.match(pageResponse.headers.get("content-security-policy"), /default-src 'none'/);
   assert.match(pageResponse.headers.get("content-security-policy"), /script-src 'self' 'unsafe-eval'/);
+  assert.match(pageResponse.headers.get("content-security-policy"), /frame-ancestors[^;]*http:\/\/127\.0\.0\.1:5173/);
   assert.match(await pageResponse.text(), /启动动态数字人/);
 
   const pageHeadResponse = await fetch(`${origin}/digital-human/`, { method: "HEAD" });
@@ -264,6 +265,7 @@ try {
   assert.equal(live2dPageResponse.status, 200);
   assert.match(live2dPageResponse.headers.get("content-type"), /^text\/html/);
   assert.match(live2dPageResponse.headers.get("content-security-policy"), /script-src 'self'/);
+  assert.match(live2dPageResponse.headers.get("content-security-policy"), /frame-ancestors[^;]*http:\/\/localhost:5173/);
   assert.match(await live2dPageResponse.text(), /live2dCanvas/);
 
   const live2dRuntimeResponse = await fetch(`${origin}/live2d/runtime.js`);

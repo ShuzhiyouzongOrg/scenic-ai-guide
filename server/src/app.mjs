@@ -1059,6 +1059,13 @@ function applyDigitalHumanApiHeaders(res) {
   res.setHeader("referrer-policy", "no-referrer");
 }
 
+// The controlled avatar pages are embedded by production H5 and by the local
+// HBuilderX preview. Keep the development origins explicit so the public page
+// cannot be framed by arbitrary HTTP sites.
+const controlledAvatarFrameAncestors =
+  "'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn "
+  + "http://127.0.0.1:5173 http://localhost:5173";
+
 function applyDigitalHumanSecurityHeaders(res) {
   applyDigitalHumanApiHeaders(res);
   res.setHeader(
@@ -1069,7 +1076,7 @@ function applyDigitalHumanSecurityHeaders(res) {
     "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
       + "connect-src 'self' https://*.xf-yun.com wss://*.xf-yun.com https://*.xfyun.cn wss://*.xfyun.cn https://*.iflytek.com wss://*.iflytek.com; "
       + "media-src 'self' blob: data:; font-src 'self'; worker-src 'self' blob:; child-src blob:; "
-      + "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn"
+      + `object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors ${controlledAvatarFrameAncestors}`
   );
   res.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
   res.setHeader("x-permitted-cross-domain-policies", "none");
@@ -1084,7 +1091,7 @@ function applyLive2dSecurityHeaders(res) {
     // scripts or embed a remote frame.
     "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
       + "connect-src 'self'; media-src 'self' blob: data:; font-src 'self'; worker-src 'self' blob:; "
-      + "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn"
+      + `object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors ${controlledAvatarFrameAncestors}`
   );
   res.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
   res.setHeader("x-permitted-cross-domain-policies", "none");
