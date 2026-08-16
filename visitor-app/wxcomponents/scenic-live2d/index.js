@@ -1,4 +1,4 @@
-const runtime = require('./runtime/mini-program-adapter')
+const runtime = require('./runtime/native/index')
 
 Component({
   options: {

@@ -23,7 +23,7 @@
   position: absolute;
   left: 50%;
   bottom: 24rpx;
-  max-width: 76%;
+  max-width: 92%;
   padding: 10rpx 20rpx;
   border-radius: 999rpx;
   background: rgba(241, 246, 252, 0.94);
@@ -41,8 +41,8 @@
   font-size: 22rpx;
   line-height: 32rpx;
   text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-all;
+  white-space: normal;
 }
 
 .scenic-live2d__status--error .scenic-live2d__status-text {
