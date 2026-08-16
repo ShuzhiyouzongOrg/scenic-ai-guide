@@ -3,13 +3,12 @@
     id="scenic-live2d-canvas"
     class="scenic-live2d__canvas"
     type="webgl"
-    disable-scroll="true"
+    hidden="{{!visible}}"
     bindtouchstart="handleTouchStart"
-    bindtouchmove="handleTouchMove"
     bindtouchend="handleTouchEnd"
     bindtouchcancel="handleTouchCancel"
   ></canvas>
-  <view wx:if="{{loading || errorMessage}}" class="scenic-live2d__status {{errorMessage ? 'scenic-live2d__status--error' : ''}}">
+  <view wx:if="{{visible && (loading || errorMessage)}}" class="scenic-live2d__status {{errorMessage ? 'scenic-live2d__status--error' : ''}}">
     <text class="scenic-live2d__status-text">{{errorMessage || statusText}}</text>
   </view>
 </view>
