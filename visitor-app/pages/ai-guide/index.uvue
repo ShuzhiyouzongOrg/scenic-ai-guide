@@ -21,7 +21,22 @@
 			</view>
 		</view>
 
-		<scroll-view class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget">
+		<!-- #ifdef MP-WEIXIN -->
+		<view
+			class="wechat-live2d-overlay"
+			:class="wechatLive2dVisible ? '' : 'wechat-live2d-overlay-hidden'"
+			:style="wechatLive2dOverlayStyle"
+		>
+			<scenic-live2d
+				class="wechat-live2d-overlay-canvas"
+				model="Haru"
+				:speaking="digitalHumanState == 'speaking'"
+				:visible="wechatLive2dVisible"
+			/>
+		</view>
+		<!-- #endif -->
+
+		<scroll-view ref="messageScrollRef" class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget" @scroll="handleMessageScroll">
 			<view class="message-list">
 				<view class="welcome-card">
 					<view class="avatar-mode-header">
@@ -37,13 +52,9 @@
 						</view>
 					</view>
 
-					<view class="embedded-avatar-shell">
+					<view id="wechat-live2d-slot" ref="wechatLive2dSlotRef" class="embedded-avatar-shell">
 						<!-- #ifdef MP-WEIXIN -->
-						<scenic-live2d
-							class="embedded-avatar-webview"
-							model="Haru"
-							:speaking="digitalHumanState == 'speaking'"
-						/>
+						<image class="embedded-avatar-placeholder" :src="digitalHumanAvatarSource" mode="aspectFit" />
 						<!-- #endif -->
 						<!-- #ifndef MP-WEIXIN -->
 						<web-view
@@ -172,6 +183,13 @@
 	const live2dAvatarRuntimeStatus = ref<string>('正在加载 Live2D 模型')
 	const mouthOpen = ref<boolean>(false)
 	const scrollTarget = ref<string>('message-bottom')
+	const messageScrollRef = shallowRef<UniElement | null>(null)
+	const wechatLive2dSlotRef = shallowRef<UniElement | null>(null)
+	const wechatLive2dVisible = ref<boolean>(true)
+	const wechatLive2dLeft = ref<number>(31)
+	const wechatLive2dTop = ref<number>(195)
+	const wechatLive2dWidth = ref<number>(Math.max(1, uni.getWindowInfo().windowWidth - 62))
+	const wechatLive2dHeight = ref<number>(238)
 	const sessionId = ref<string>('')
 	const recorderManager = ref<RecorderManager | null>(null)
 	const audioContext = ref<InnerAudioContext | null>(null)
@@ -185,11 +203,20 @@
 	let live2dWebViewContext = null as WebviewContext | null
 	let mouthAnimationTimer : number | null = null
 	let embeddedSpeechResetTimer : number | null = null
+	let wechatLive2dSettleTimer : number | null = null
 	let pendingEmbeddedSpeech = ''
 	let activeEmbeddedSpeech = ''
 	let embeddedAvatarGeneration = 0
 	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
 	const digitalHumanAvatarSource = computed<string>(() => digitalHumanMode.value == 'xfyun' ? '/static/digital-human/guide-xfyun.webp' : '/static/digital-human/guide-haru-transparent.png')
+	const wechatLive2dOverlayStyle = computed<Map<string, string>>(() => {
+		const style = new Map<string, string>()
+		style.set('left', `${wechatLive2dLeft.value}px`)
+		style.set('top', `${wechatLive2dTop.value}px`)
+		style.set('width', `${wechatLive2dWidth.value}px`)
+		style.set('height', `${wechatLive2dHeight.value}px`)
+		return style
+	})
 	const digitalHumanActionText = computed<string>(() => {
 		let text = digitalHumanMode.value == 'xfyun'
 			? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台')
@@ -249,6 +276,34 @@
 	function scrollToBottom() {
 		scrollTarget.value = ''
 		nextTick(() => { scrollTarget.value = 'message-bottom' })
+	}
+
+	async function syncWeChatLive2dOverlay(showWhenVisible : boolean) {
+		// #ifdef MP-WEIXIN
+		await nextTick()
+		if (wechatLive2dSlotRef.value == null || messageScrollRef.value == null) return
+		const slotRect = await wechatLive2dSlotRef.value!.getBoundingClientRectAsync()
+		const scrollRect = await messageScrollRef.value!.getBoundingClientRectAsync()
+		if (slotRect == null || scrollRect == null) return
+		wechatLive2dLeft.value = slotRect.left
+		wechatLive2dTop.value = slotRect.top
+		wechatLive2dWidth.value = Math.max(1, slotRect.width)
+		wechatLive2dHeight.value = Math.max(1, slotRect.height)
+		wechatLive2dVisible.value = showWhenVisible &&
+			slotRect.top >= scrollRect.top &&
+			slotRect.bottom <= scrollRect.bottom
+		// #endif
+	}
+
+	function handleMessageScroll(_event : UniScrollEvent) {
+		// #ifdef MP-WEIXIN
+		wechatLive2dVisible.value = false
+		if (wechatLive2dSettleTimer != null) clearTimeout(wechatLive2dSettleTimer!)
+		wechatLive2dSettleTimer = setTimeout(() => {
+			wechatLive2dSettleTimer = null
+			syncWeChatLive2dOverlay(true)
+		}, 160)
+		// #endif
 	}
 
 	function useSuggestion(value : string) {
@@ -864,6 +919,11 @@
 			else await initializeLive2dAvatar(false)
 			applyPendingPrompt()
 		}
+		syncWeChatLive2dOverlay(true)
+	})
+
+	onReady(() => {
+		syncWeChatLive2dOverlay(true)
 	})
 
 	onUnload(() => {
@@ -875,13 +935,15 @@
 		stopMouthAnimation()
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
 		embeddedSpeechResetTimer = null
+		if (wechatLive2dSettleTimer != null) clearTimeout(wechatLive2dSettleTimer!)
+		wechatLive2dSettleTimer = null
 		avatarWebViewContext = null
 	})
 </script>
 
 <style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.guide-header { padding: 48px 16px 14px; flex-direction: row; align-items: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f2; }
+	.page { position: relative; flex: 1; overflow: hidden; background-color: #f3f6fb; }
+	.guide-header { position: relative; z-index: 6; padding: 48px 16px 14px; flex-direction: row; align-items: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f2; }
 	.guide-avatar { position: relative; flex-shrink: 0; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
 	.guide-avatar-image { width: 54px; height: 54px; margin-top: 0; }
 	.guide-avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.035); }
@@ -891,7 +953,7 @@
 	.guide-mode { flex-shrink: 0; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; color: #d17d00; background-color: #fff2d8; padding: 4px 7px; border-radius: 9px; margin-left: 8px; }
 	.guide-status { font-size: 11px; color: #738198; margin-top: 4px; }
 	.voice-toggle { flex-shrink: 0; width: 40px; height: 40px; border-radius: 14px; background-color: #e7f1ff; align-items: center; justify-content: center; }
-	.message-scroll { flex: 1; }
+	.message-scroll { position: relative; z-index: 1; flex: 1; }
 	.message-list { padding: 17px 14px 28px; }
 	.welcome-card { padding: 17px; border-radius: 24px; background-color: #ffffff; border: 1px solid #dce8f6; margin-bottom: 22px; box-shadow: 0 12px 30px rgba(38,79,124,0.08); }
 	.avatar-mode-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 13px; }
@@ -904,6 +966,10 @@
 	.avatar-mode-option-text-active { color: #0b68d0; }
 	.embedded-avatar-shell { position: relative; height: 238px; overflow: hidden; border-radius: 21px; background-color: #ffffff; border: 1px solid #e1e9f2; }
 	.embedded-avatar-webview { width: 100%; height: 238px; background-color: #ffffff; }
+	.embedded-avatar-placeholder { width: 100%; height: 238px; background-color: #ffffff; }
+	.wechat-live2d-overlay { position: absolute; z-index: 4; overflow: hidden; border-radius: 21px; background-color: #ffffff; }
+	.wechat-live2d-overlay-hidden { opacity: 0; pointer-events: none; }
+	.wechat-live2d-overlay-canvas { width: 100%; height: 100%; background-color: #ffffff; }
 	.local-avatar-stage { position: relative; width: 100%; height: 238px; overflow: hidden; align-items: center; justify-content: flex-end; background: linear-gradient(to bottom, #ffffff, #f3f9ff); }
 	.local-avatar-halo { position: absolute; width: 190px; height: 190px; left: 25%; top: 27px; border-radius: 96px; background-color: rgba(52,157,213,0.08); }
 	.local-avatar-halo-speaking { background-color: rgba(255,208,103,0.16); }
@@ -946,7 +1012,7 @@
 	.thinking-row { flex-direction: row; align-items: center; padding: 10px 0 16px 36px; }
 	.thinking-text { font-size: 12px; color: #77849a; margin-left: 8px; }
 	.message-bottom { height: 4px; }
-	.composer { background-color: #ffffff; padding: 10px 12px 12px; border-top: 1px solid #e2e8f2; }
+	.composer { position: relative; z-index: 6; background-color: #ffffff; padding: 10px 12px 12px; border-top: 1px solid #e2e8f2; }
 	.composer-main { flex-direction: row; align-items: flex-end; }
 	.composer-input { flex: 1; min-height: 44px; max-height: 112px; padding: 11px 13px; border-radius: 17px; background-color: #f0f4fa; border: 1px solid #e0e7f1; font-size: 14px; }
 	.record-button, .send-button { width: 42px; height: 42px; margin-left: 8px; border-radius: 15px; align-items: center; justify-content: center; background-color: #c8d3e1; }

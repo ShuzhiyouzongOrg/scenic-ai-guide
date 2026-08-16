@@ -84,7 +84,12 @@ class LAppDelegate {
         exports.gl.blendFunc(exports.gl.SRC_ALPHA, exports.gl.ONE_MINUS_SRC_ALPHA);
         exports.gl.viewport(0, 0, exports.canvas.width, exports.canvas.height);
         this._view.initialize();
-        this.initializeCubism();
+        if (!this.initializeCubism()) {
+            live2dcubismframework_1.CubismFramework.cleanUp();
+            exports.gl = null;
+            exports.canvas = null;
+            return false;
+        }
         this._initialized = true;
         return true;
     }
@@ -224,10 +229,16 @@ class LAppDelegate {
         live2dcubismframework_1.CubismFramework.startUp(this._cubismOption);
         // // initialize cubism
         live2dcubismframework_1.CubismFramework.initialize();
+        if (!live2dcubismframework_1.CubismFramework.isInitialized() ||
+            live2dcubismframework_1.CubismFramework.getIdManager() == null) {
+            lapppal_1.LAppPal.printMessage('CubismFramework failed to initialize the ID manager.');
+            return false;
+        }
         // // load model
         lapplive2dmanager_1.LAppLive2DManager.getInstance();
         lapppal_1.LAppPal.updateTime();
         this._view.initializeSprite();
+        return true;
     }
     /**
      * Resize the canvas to fill the screen.

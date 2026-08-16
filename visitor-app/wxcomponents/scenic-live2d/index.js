@@ -16,6 +16,10 @@ Component({
       observer(value) {
         runtime.setSpeaking(this, Boolean(value))
       }
+    },
+    visible: {
+      type: Boolean,
+      value: true
     }
   },
 
@@ -91,10 +95,6 @@ Component({
 
     handleTouchStart(event) {
       runtime.dispatchPointer(this, 'pointerdown', event)
-    },
-
-    handleTouchMove(event) {
-      runtime.dispatchPointer(this, 'pointermove', event)
     },
 
     handleTouchEnd(event) {

@@ -686,7 +686,6 @@ class LAppModel extends cubismusermodel_1.CubismUserModel {
         this._expressions = new csmmap_1.csmMap();
         this._hitArea = new csmvector_1.csmVector();
         this._userArea = new csmvector_1.csmVector();
-        console.log(live2dcubismframework_1.CubismFramework.getIdManager());
         this._idParamAngleX = live2dcubismframework_1.CubismFramework.getIdManager().getId(cubismdefaultparameterid_1.CubismDefaultParameterId.ParamAngleX);
         this._idParamAngleY = live2dcubismframework_1.CubismFramework.getIdManager().getId(cubismdefaultparameterid_1.CubismDefaultParameterId.ParamAngleY);
         this._idParamAngleZ = live2dcubismframework_1.CubismFramework.getIdManager().getId(cubismdefaultparameterid_1.CubismDefaultParameterId.ParamAngleZ);

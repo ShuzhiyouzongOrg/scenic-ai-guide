@@ -13,6 +13,7 @@ class NativeLive2dRuntime {
     this.frameId = null
     this.readyTimer = null
     this.disposed = false
+    this.ready = false
     this.speaking = false
     this.phase = 0
   }
@@ -50,6 +51,7 @@ class NativeLive2dRuntime {
     if (this.disposed) return
     const model = LAppLive2DManager.getInstance().getModel(0)
     if (model && typeof model.isCompleteSetup === 'function' && model.isCompleteSetup()) {
+      this.ready = true
       this.emit({ type: 'ready', model: 'Haru', realModel: true })
       return
     }
@@ -68,6 +70,7 @@ class NativeLive2dRuntime {
   }
 
   dispatchPointer(type, event) {
+    if (this.disposed || !this.ready) return
     const touch = event && event.changedTouches && event.changedTouches[0]
     if (!touch) return
     const view = LAppDelegate.getInstance().getView()
@@ -87,6 +90,7 @@ class NativeLive2dRuntime {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.ready = false
     if (this.readyTimer != null) clearTimeout(this.readyTimer)
     if (this.frameId != null && this.canvas && this.canvas.cancelAnimationFrame) {
       this.canvas.cancelAnimationFrame(this.frameId)
