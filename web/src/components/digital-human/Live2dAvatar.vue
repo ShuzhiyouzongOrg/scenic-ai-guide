@@ -22,8 +22,14 @@
           :class="{ 'is-error': live2d.status.value === 'error' }"
           aria-hidden="true"
         >
-          <span class="l2d-loading-orbit"></span>
-          <span class="l2d-loading-core"></span>
+          <img
+            class="l2d-loading-icon"
+            src="/live2d/ui/loading-lotus.webp"
+            alt=""
+            width="192"
+            height="192"
+            decoding="async"
+          />
         </div>
         <p class="l2d-fallback-name">{{ config?.name || $t('app.avatarGuideName') }}</p>
         <p class="l2d-fallback-tip">{{ fallbackTip }}</p>
@@ -226,59 +232,39 @@
     position: relative;
     display: grid;
     place-items: center;
-    width: 92px;
-    height: 92px;
-    margin-bottom: 18px;
-    background: radial-gradient(circle, rgb(255 255 255 / 16%) 0 38%, transparent 40%);
+    width: 128px;
+    height: 128px;
+    margin-bottom: 12px;
+    background: radial-gradient(circle, rgb(127 216 201 / 15%) 0 32%, transparent 68%);
     border-radius: 50%;
-    box-shadow: 0 12px 32px rgb(4 38 38 / 18%);
-  }
-
-  .l2d-loading-orbit {
-    position: absolute;
-    inset: 5px;
-    border: 2px solid rgb(255 255 255 / 20%);
-    border-top-color: #d4af37;
-    border-right-color: #7fd8c9;
-    border-radius: 50%;
-    animation: l2d-loading-spin 1s linear infinite;
-  }
-
-  .l2d-loading-core {
-    position: relative;
-    width: 34px;
-    height: 42px;
-    background: linear-gradient(160deg, #f4d875, #d4af37);
-    border-radius: 70% 70% 58% 58% / 78% 78% 42% 42%;
-    box-shadow: 0 0 18px rgb(212 175 55 / 35%);
-    transform: scale(0.72) rotate(45deg);
-
-    &::before,
-    &::after {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      content: '';
-      background: inherit;
-      border-radius: inherit;
-    }
 
     &::before {
-      transform: rotate(60deg);
+      position: absolute;
+      inset: 12px;
+      content: '';
+      border: 1px solid rgb(127 216 201 / 24%);
+      border-radius: 50%;
+      animation: l2d-loading-halo 1.4s ease-out infinite;
     }
+  }
 
-    &::after {
-      transform: rotate(-60deg);
-    }
+  .l2d-loading-icon {
+    position: relative;
+    z-index: 1;
+    width: 116px;
+    height: 116px;
+    object-fit: contain;
+    animation: l2d-loading-breathe 1.25s ease-in-out infinite;
   }
 
   .l2d-loading-visual.is-error {
-    filter: grayscale(0.55);
-
-    .l2d-loading-orbit {
-      border-top-color: #f0a3a3;
-      border-right-color: #f0a3a3;
+    &::before,
+    .l2d-loading-icon {
       animation: none;
+    }
+
+    .l2d-loading-icon {
+      filter: grayscale(0.65) opacity(0.72);
     }
   }
 
@@ -338,14 +324,34 @@
     }
   }
 
-  @keyframes l2d-loading-spin {
-    to {
-      transform: rotate(360deg);
+  @keyframes l2d-loading-breathe {
+    0%,
+    100% {
+      opacity: 0.92;
+      transform: scale(0.96);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes l2d-loading-halo {
+    0% {
+      opacity: 0.65;
+      transform: scale(0.82);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .l2d-loading-orbit {
+    .l2d-loading-visual::before,
+    .l2d-loading-icon {
       animation: none;
     }
   }

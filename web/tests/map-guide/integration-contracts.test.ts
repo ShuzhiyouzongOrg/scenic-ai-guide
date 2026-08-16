@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, statSync } from 'node:fs'
 import test from 'node:test'
 import { effectScope } from 'vue'
 import { guideRoutes } from '../../src/router/modules/guide'
@@ -131,10 +131,13 @@ test('live2d loading state uses a transparent themed animation', () => {
   )
 
   assert.match(source, /class="l2d-loading-visual"/)
-  assert.match(source, /class="l2d-loading-orbit"/)
-  assert.match(source, /class="l2d-loading-core"/)
+  assert.match(source, /class="l2d-loading-icon"/)
+  assert.match(source, /src="\/live2d\/ui\/loading-lotus\.webp"/)
   assert.doesNotMatch(source, /l2d-fallback-portrait/)
   assert.doesNotMatch(source, /\/live2d\/characters\/.*\.png/)
+
+  const loadingIcon = new URL('../../public/live2d/ui/loading-lotus.webp', import.meta.url)
+  assert.ok(statSync(loadingIcon).size <= 12 * 1024)
 })
 
 test('page resource cleanup is idempotent and runs every registered disposer', async () => {

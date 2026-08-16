@@ -20,6 +20,7 @@ export const projectChangeLog: ProjectChangeLog[] = [
       '优化：本地测试环境按规则展示超时问答响应时长',
       '修复：串行化 Live2D 运行时切换并阻止旧实例释放新模型',
       '修复：移除 Live2D 模型加载预览的黑色背景',
+      '优化：使用轻量主题图标呈现 Live2D 模型加载状态',
       '修复：游客端 Live2D 模型保持在导览舞台内',
       '修复：微信 iOS 端正确初始化 Live2D Cubism'
     ]
