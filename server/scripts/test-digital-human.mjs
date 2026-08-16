@@ -81,6 +81,11 @@ assert.match(
 );
 
 const catalog = listDigitalHumanConfigs();
+const receptionFemale = catalog.find((item) => item.id === "dh_xf_zhanting_female");
+assert.ok(receptionFemale, "the reception-female avatar is present in the catalog");
+assert.equal(receptionFemale.avatarId, "cnrfb86h2000000004");
+assert.equal(receptionFemale.vcn, "x6_jingqudaolannvsheng_mini");
+assert.equal(receptionFemale.voiceId, "x6_jingqudaolannvsheng_mini");
 for (const id of ["dh_l2d_kei", "dh_l2d_hibiki"]) {
   const live2d = catalog.find((item) => item.id === id);
   assert.ok(live2d, `${id} is present in the digital-human catalog`);
@@ -89,6 +94,43 @@ for (const id of ["dh_l2d_kei", "dh_l2d_hibiki"]) {
 }
 
 const db = getDb();
+const originalReceptionFemale = db
+  .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+  .get("dh_xf_zhanting_female");
+db.prepare(
+  "UPDATE digital_human_configs SET vcn = ?, voice_id = ?, welcome_text = ? WHERE id = ?"
+).run(
+  "x6_zhantingnvjiedai_pro",
+  "x6_zhantingnvjiedai_pro",
+  "管理员自定义欢迎语",
+  originalReceptionFemale.id
+);
+seedReferenceData(db);
+const customizedReceptionFemale = db
+  .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+  .get(originalReceptionFemale.id);
+assert.equal(
+  customizedReceptionFemale.vcn,
+  "x6_zhantingnvjiedai_pro",
+  "customized reception-female rows are not overwritten"
+);
+
+db.prepare(
+  "UPDATE digital_human_configs SET vcn = ?, voice_id = ?, welcome_text = ? WHERE id = ?"
+).run(
+  "x6_zhantingnvjiedai_pro",
+  "x6_zhantingnvjiedai_pro",
+  originalReceptionFemale.welcome_text,
+  originalReceptionFemale.id
+);
+seedReferenceData(db);
+const migratedReceptionFemale = db
+  .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+  .get(originalReceptionFemale.id);
+assert.equal(migratedReceptionFemale.avatar_id, "cnrfb86h2000000004");
+assert.equal(migratedReceptionFemale.vcn, "x6_jingqudaolannvsheng_mini");
+assert.equal(migratedReceptionFemale.voice_id, "x6_jingqudaolannvsheng_mini");
+
 const originalKei = db.prepare("SELECT * FROM digital_human_configs WHERE id = ?").get("dh_l2d_kei");
 db.prepare(
   "UPDATE digital_human_configs SET vcn = ?, voice_id = ?, welcome_text = ? WHERE id = ?"

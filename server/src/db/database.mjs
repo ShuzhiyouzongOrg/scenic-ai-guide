@@ -85,6 +85,8 @@ const DIGITAL_HUMAN_NAMES = {
   live2dHibiki: "清响·禅旅伙伴（男）"
 };
 const DEFAULT_DIGITAL_HUMAN_WELCOME = "您好，我是灵山胜境 AI 导游，很高兴为您服务。";
+const LEGACY_RECEPTION_FEMALE_VOICE = "x6_zhantingnvjiedai_pro";
+const LICENSED_RECEPTION_FEMALE_VOICE = "x6_jingqudaolannvsheng_mini";
 const LEGACY_LIVE2D_MALE_TTS_VOICE = "x4_pengfei";
 const LIVE2D_MALE_TTS_VOICE = "x6_zhantingnanjiedai_pro";
 
@@ -338,6 +340,7 @@ export function seedReferenceData(instance) {
   seedDigitalHumanCatalog(instance);
   migrateLegacyDigitalHumanTestFixture(instance);
   migrateLegacyDigitalHumanNames(instance);
+  migrateUnsupportedXfyunVoices(instance);
   migrateUnsupportedLive2dVoices(instance);
   seedScenicSpots(instance);
   return instance;
@@ -478,7 +481,7 @@ function seedDigitalHumanCatalog(instance) {
   const catalog = [
     // iFlytek cloud avatars (name, vcn, avatar_id) supplied for this deployment.
     { ...baseXfyun, id: "dh_xf_zhanting_male", name: DIGITAL_HUMAN_NAMES.receptionMale, vcn: "x6_zhantingnanjiedai_pro", avatar_id: "cnr5dg8n2000000003", voice_id: "x6_zhantingnanjiedai_pro" },
-    { ...baseXfyun, id: "dh_xf_zhanting_female", name: DIGITAL_HUMAN_NAMES.receptionFemale, vcn: "x6_zhantingnvjiedai_pro", avatar_id: "cnrfb86h2000000004", voice_id: "x6_zhantingnvjiedai_pro" },
+    { ...baseXfyun, id: "dh_xf_zhanting_female", name: DIGITAL_HUMAN_NAMES.receptionFemale, vcn: LICENSED_RECEPTION_FEMALE_VOICE, avatar_id: "cnrfb86h2000000004", voice_id: LICENSED_RECEPTION_FEMALE_VOICE },
     { ...baseXfyun, id: "dh_xf_shangwu_yinyu", name: DIGITAL_HUMAN_NAMES.receptionMale, vcn: "x6_xiangruiyingyu_pro", avatar_id: "cnr5dg8n2000000003", voice_id: "x6_xiangruiyingyu_pro" },
     // Same voice, two different avatar images -> kept as two rows, names disambiguated.
     { ...baseXfyun, id: "dh_xf_daolan_female_a", name: DIGITAL_HUMAN_NAMES.scenicFemaleA, vcn: "x6_jingqudaolannvsheng_mini", avatar_id: "cnrmkf0e2000000006", voice_id: "x6_jingqudaolannvsheng_mini" },
@@ -574,6 +577,49 @@ function migrateLegacyDigitalHumanNames(instance) {
     }
   });
   tx(legacyNames);
+}
+
+// The reception-female avatar can start a video stream with the legacy voice,
+// but writeText fails its TTS licence check. Migrate only the untouched built-in
+// row so administrator-defined avatar and voice combinations remain unchanged.
+function migrateUnsupportedXfyunVoices(instance) {
+  const row = instance
+    .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+    .get("dh_xf_zhanting_female");
+  if (!isUntouchedLegacyReceptionFemaleSeed(row)) return;
+
+  instance
+    .prepare(
+      `UPDATE digital_human_configs
+       SET vcn = ?, voice_id = ?, updated_at = ?
+       WHERE id = ?`
+    )
+    .run(
+      LICENSED_RECEPTION_FEMALE_VOICE,
+      LICENSED_RECEPTION_FEMALE_VOICE,
+      new Date().toISOString(),
+      row.id
+    );
+}
+
+function isUntouchedLegacyReceptionFemaleSeed(row) {
+  return Boolean(
+    row &&
+      row.name === DIGITAL_HUMAN_NAMES.receptionFemale &&
+      row.engine === "xfyun" &&
+      row.avatar_id === "cnrfb86h2000000004" &&
+      row.vcn === LEGACY_RECEPTION_FEMALE_VOICE &&
+      (row.model_id || "") === "" &&
+      (row.character_asset || "") === "" &&
+      row.appearance === "xfyun-interactive-avatar" &&
+      row.outfit === "guide-uniform" &&
+      row.theme === "lingshan-teal-gold" &&
+      row.voice_id === LEGACY_RECEPTION_FEMALE_VOICE &&
+      Number(row.speech_rate) === 1 &&
+      row.welcome_text === DEFAULT_DIGITAL_HUMAN_WELCOME &&
+      row.emotion_style === "warm" &&
+      row.service_status === "online"
+  );
 }
 
 // x4_pengfei is not licensed for the configured WebAPI account and produced a

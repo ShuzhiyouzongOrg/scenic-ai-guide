@@ -223,6 +223,7 @@
   import DigitalHumanAvatar from '@/components/digital-human/DigitalHumanAvatar.vue'
   import { mittBus } from '@/utils/sys'
   import { formatGuideAnswer } from '@/utils/guide-answer'
+  import { getDisplayedGuideLatency } from '@/utils/guide-latency'
   import {
     askQuestion,
     clearChatHistory,
@@ -251,6 +252,7 @@
   }
 
   const SESSION_KEY = 'scenic_visitor_session'
+  const MASK_LONG_LATENCY = import.meta.env.VITE_MASK_GUIDE_LATENCY === 'true'
 
   const avatarRef = ref<InstanceType<typeof DigitalHumanAvatar> | null>(null)
   const scrollRef = ref<{ setScrollTop: (n: number) => void; wrapRef?: HTMLElement } | null>(null)
@@ -401,7 +403,7 @@
         content: answer.answer,
         meta: {
           label: answer.label,
-          latency: answer.latency?.totalMs,
+          latency: getDisplayedGuideLatency(answer.latency?.totalMs, MASK_LONG_LATENCY),
           sources: answer.sources,
           emotion: answer.digitalHuman?.ttsEmotion
         }
