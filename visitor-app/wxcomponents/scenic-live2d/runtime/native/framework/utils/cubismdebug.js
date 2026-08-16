@@ -35,7 +35,15 @@ const CubismLogPrintIn = (level, fmt, args) => {
 };
 exports.CubismLogPrintIn = CubismLogPrintIn;
 const CSM_ASSERT = (expr) => {
-    console.assert(expr);
+    if (expr) {
+        return;
+    }
+    // The iOS Mini Program runtime does not expose console.assert. Cubism
+    // assertions are diagnostic checks, so report them without aborting SDK
+    // initialization when that optional console method is unavailable.
+    if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+        console.warn('[CSM] Assertion failed.');
+    }
 };
 exports.CSM_ASSERT = CSM_ASSERT;
 if (cubismframeworkconfig_1.CSM_LOG_LEVEL <= cubismframeworkconfig_1.CSM_LOG_LEVEL_VERBOSE) {
