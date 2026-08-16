@@ -17,7 +17,14 @@
 
       <!-- 降级 / 加载态 -->
       <div v-if="!isRendering" class="l2d-fallback">
-        <img class="l2d-fallback-portrait" :src="fallbackPortraitUrl" alt="" aria-hidden="true" />
+        <div
+          class="l2d-loading-visual"
+          :class="{ 'is-error': live2d.status.value === 'error' }"
+          aria-hidden="true"
+        >
+          <span class="l2d-loading-orbit"></span>
+          <span class="l2d-loading-core"></span>
+        </div>
         <p class="l2d-fallback-name">{{ config?.name || $t('app.avatarGuideName') }}</p>
         <p class="l2d-fallback-tip">{{ fallbackTip }}</p>
       </div>
@@ -71,10 +78,6 @@
   const live2d = useLive2dAvatar()
 
   const isRendering = computed(() => ['ready', 'speaking'].includes(live2d.status.value))
-  const fallbackPortraitUrl = computed(() => {
-    const modelId = config.value?.modelId || 'Haru'
-    return `/live2d/characters/${encodeURIComponent(modelId)}/${encodeURIComponent(modelId)}.png`
-  })
 
   const statusText = computed(() => {
     switch (live2d.status.value) {
@@ -219,12 +222,64 @@
     text-align: center;
   }
 
-  .l2d-fallback-portrait {
-    width: min(72%, 220px);
-    max-height: calc(100% - 70px);
-    margin-bottom: 8px;
-    object-fit: contain;
-    object-position: center bottom;
+  .l2d-loading-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 92px;
+    height: 92px;
+    margin-bottom: 18px;
+    background: radial-gradient(circle, rgb(255 255 255 / 16%) 0 38%, transparent 40%);
+    border-radius: 50%;
+    box-shadow: 0 12px 32px rgb(4 38 38 / 18%);
+  }
+
+  .l2d-loading-orbit {
+    position: absolute;
+    inset: 5px;
+    border: 2px solid rgb(255 255 255 / 20%);
+    border-top-color: #d4af37;
+    border-right-color: #7fd8c9;
+    border-radius: 50%;
+    animation: l2d-loading-spin 1s linear infinite;
+  }
+
+  .l2d-loading-core {
+    position: relative;
+    width: 34px;
+    height: 42px;
+    background: linear-gradient(160deg, #f4d875, #d4af37);
+    border-radius: 70% 70% 58% 58% / 78% 78% 42% 42%;
+    box-shadow: 0 0 18px rgb(212 175 55 / 35%);
+    transform: scale(0.72) rotate(45deg);
+
+    &::before,
+    &::after {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      content: '';
+      background: inherit;
+      border-radius: inherit;
+    }
+
+    &::before {
+      transform: rotate(60deg);
+    }
+
+    &::after {
+      transform: rotate(-60deg);
+    }
+  }
+
+  .l2d-loading-visual.is-error {
+    filter: grayscale(0.55);
+
+    .l2d-loading-orbit {
+      border-top-color: #f0a3a3;
+      border-right-color: #f0a3a3;
+      animation: none;
+    }
   }
 
   .l2d-fallback-name {
@@ -280,6 +335,18 @@
 
     &.dot-error {
       background: #f56c6c;
+    }
+  }
+
+  @keyframes l2d-loading-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .l2d-loading-orbit {
+      animation: none;
     }
   }
 </style>

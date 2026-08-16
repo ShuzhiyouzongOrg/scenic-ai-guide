@@ -41,6 +41,27 @@ const MOTION_SYNC_CORE_SCRIPT =
 /** 只加载一次 Cubism 核心运行时（挂到 window.Live2DCubismCore 全局） */
 let corePromise: Promise<void> | null = null
 let motionSyncCorePromise: Promise<void> | null = null
+let runtimeOperationQueue: Promise<void> = Promise.resolve()
+let activeRuntimeOwner: object | null = null
+
+function enqueueRuntimeOperation<T>(operation: () => Promise<T>): Promise<T> {
+  const queued = runtimeOperationQueue.then(operation, operation)
+  runtimeOperationQueue = queued.then(
+    () => undefined,
+    () => undefined
+  )
+  return queued
+}
+
+function releaseSharedRuntime(): void {
+  try {
+    LAppDelegate.releaseInstance()
+  } catch {
+    /* A partially initialized delegate still needs the audio manager released. */
+  }
+  Live2dManager.releaseInstance()
+}
+
 function loadCubismCore(): Promise<void> {
   if ((window as Window & { Live2DCubismCore?: unknown }).Live2DCubismCore) return Promise.resolve()
   if (corePromise) return corePromise
@@ -91,6 +112,7 @@ export function useLive2dAvatar() {
   let speechGeneration = 0
   let runtimeGeneration = 0
   let cancelReadyWait: (() => void) | null = null
+  const runtimeOwner = Object.freeze({})
 
   /** Live2D 属于本地资源，无需云端凭证 */
   const hasCredentials = true
@@ -98,74 +120,85 @@ export function useLive2dAvatar() {
   async function start(options: Live2dStartOptions): Promise<boolean> {
     const generation = ++runtimeGeneration
     cancelReadyWait?.()
-    if (initialized) {
-      releaseRuntime()
-      Live2dManager.releaseInstance()
-    }
-    try {
-      status.value = 'connecting'
-      errorMessage.value = ''
-      currentVcn = options.vcn || ''
-      currentSpeechRate = Number.isFinite(options.speechRate) ? Number(options.speechRate) : 1
+    status.value = 'connecting'
+    errorMessage.value = ''
+    currentVcn = options.vcn || ''
+    currentSpeechRate = Number.isFinite(options.speechRate) ? Number(options.speechRate) : 1
 
-      await loadCubismCore()
+    return enqueueRuntimeOperation(async () => {
+      if (generation !== runtimeGeneration) return false
+
+      // Live2D's Cubism framework is process-global. Always complete the previous
+      // teardown before claiming it for a new component/canvas.
+      releaseSharedRuntime()
+      activeRuntimeOwner = runtimeOwner
+      initialized = false
+
       try {
-        await loadMotionSyncCore()
-        if (!(await prepareOfficialMotionSync())) {
-          throw new Error('Live2D MotionSync Framework 初始化失败')
+        await loadCubismCore()
+        try {
+          await loadMotionSyncCore()
+          if (!(await prepareOfficialMotionSync())) {
+            throw new Error('Live2D MotionSync Framework 初始化失败')
+          }
+        } catch (motionSyncError) {
+          console.warn(
+            '[Live2D] Official MotionSync is unavailable; using audio analysis fallback.',
+            motionSyncError
+          )
         }
-      } catch (motionSyncError) {
-        console.warn(
-          '[Live2D] Official MotionSync is unavailable; using audio analysis fallback.',
-          motionSyncError
+        if (generation !== runtimeGeneration) {
+          releaseOwnedRuntime()
+          return false
+        }
+
+        if (!options.canvas.isConnected) throw new Error('Live2D 画布未就绪')
+        const delegate = LAppDelegate.getInstance()
+        if (delegate.initialize(options.canvas) === false) {
+          throw new Error('Live2D 初始化失败（WebGL 不可用？）')
+        }
+        initialized = true
+        delegate.run()
+
+        // 加载模型
+        const model = options.modelId || 'Haru'
+        const link = `${BASE}live2d/characters/${model}/${model}.model3.json`.replace(
+          /([^:])\/{2,}/g,
+          '$1/'
         )
-      }
-      if (generation !== runtimeGeneration) return false
+        const resource = {
+          resource_id: model,
+          name: model,
+          link,
+          viewTransform: resolveViewTransform(model, options.presentation || 'stage')
+        }
+        const manager = Live2dManager.getInstance()
+        let ready = false
+        let loadError = ''
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          manager.changeCharacter(resource)
+          ready = await waitReady(generation, 10000)
+          if (generation !== runtimeGeneration) {
+            releaseOwnedRuntime()
+            return false
+          }
+          if (ready) break
+          loadError = manager.getModelLoadError() || ''
+          if (attempt === 0) await waitForRetry(generation, 180)
+        }
+        if (!ready) throw new Error(loadError || `Live2D 模型 ${model} 加载超时`)
 
-      if (!options.canvas.isConnected) throw new Error('Live2D 画布未就绪')
-      const delegate = LAppDelegate.getInstance()
-      initialized = true
-      if (delegate.initialize(options.canvas) === false) {
-        throw new Error('Live2D 初始化失败（WebGL 不可用？）')
-      }
-      delegate.run()
-
-      // 加载模型
-      const model = options.modelId || 'Haru'
-      const link = `${BASE}live2d/characters/${model}/${model}.model3.json`.replace(
-        /([^:])\/{2,}/g,
-        '$1/'
-      )
-      const resource = {
-        resource_id: model,
-        name: model,
-        link,
-        viewTransform: resolveViewTransform(model, options.presentation || 'stage')
-      }
-      const manager = Live2dManager.getInstance()
-      let ready = false
-      let loadError = ''
-      for (let attempt = 0; attempt < 2; attempt += 1) {
-        manager.changeCharacter(resource)
-        ready = await waitReady(generation, 10000)
+        status.value = 'ready'
+        audioReady.value = manager.isAudioReady()
+        return true
+      } catch (err) {
+        releaseOwnedRuntime()
         if (generation !== runtimeGeneration) return false
-        if (ready) break
-        loadError = manager.getModelLoadError() || ''
-        if (attempt === 0) await waitForRetry(generation, 180)
+        status.value = 'error'
+        errorMessage.value = normalizeError(err)
+        return false
       }
-      if (!ready) throw new Error(loadError || `Live2D 模型 ${model} 加载超时`)
-
-      status.value = 'ready'
-      audioReady.value = Live2dManager.getInstance().isAudioReady()
-      return true
-    } catch (err) {
-      if (generation !== runtimeGeneration) return false
-      releaseRuntime()
-      Live2dManager.releaseInstance()
-      status.value = 'error'
-      errorMessage.value = normalizeError(err)
-      return false
-    }
+    })
   }
 
   function waitReady(generation: number, timeoutMs = 15000): Promise<boolean> {
@@ -204,7 +237,12 @@ export function useLive2dAvatar() {
   async function speak(text: string, opts: { emotion?: string } = {}): Promise<boolean> {
     void opts
     const content = String(text || '').trim()
-    if (!content || ['error', 'idle', 'connecting'].includes(status.value)) return false
+    if (
+      !content ||
+      !hasRuntimeOwnership() ||
+      ['error', 'idle', 'connecting'].includes(status.value)
+    )
+      return false
     const generation = ++speechGeneration
     stopPlayback()
     try {
@@ -236,7 +274,8 @@ export function useLive2dAvatar() {
   }
 
   async function speakAudio(url: string): Promise<boolean> {
-    if (!url || ['error', 'idle', 'connecting'].includes(status.value)) return false
+    if (!url || !hasRuntimeOwnership() || ['error', 'idle', 'connecting'].includes(status.value))
+      return false
     const generation = ++speechGeneration
     stopPlayback()
     await resumeAudioContext()
@@ -264,6 +303,11 @@ export function useLive2dAvatar() {
   function watchSpeakingEnd() {
     if (doneTimer) window.clearInterval(doneTimer)
     doneTimer = window.setInterval(() => {
+      if (!hasRuntimeOwnership()) {
+        if (doneTimer) window.clearInterval(doneTimer)
+        doneTimer = null
+        return
+      }
       const mgr = Live2dManager.getInstance()
       if (!mgr.isAudioPlaying() && !mgr.hasQueuedAudio()) {
         if (status.value === 'speaking') status.value = 'ready'
@@ -275,14 +319,17 @@ export function useLive2dAvatar() {
 
   /** 用户手势中恢复音频上下文 */
   async function enableAudio(): Promise<void> {
+    if (!hasRuntimeOwnership()) return
     await resumeAudioContext()
   }
 
   async function pause(): Promise<void> {
+    if (!hasRuntimeOwnership()) return
     await Live2dManager.getInstance().pauseAudio()
   }
 
   async function resume(): Promise<void> {
+    if (!hasRuntimeOwnership()) return
     await resumeAudioContext()
   }
 
@@ -294,7 +341,7 @@ export function useLive2dAvatar() {
   }
 
   function stopPlayback(): void {
-    Live2dManager.getInstance().stopAudio()
+    if (hasRuntimeOwnership()) Live2dManager.getInstance().stopAudio()
     if (doneTimer) {
       window.clearInterval(doneTimer)
       doneTimer = null
@@ -303,6 +350,7 @@ export function useLive2dAvatar() {
   }
 
   async function resumeAudioContext(): Promise<void> {
+    if (!hasRuntimeOwnership()) return
     try {
       const manager = Live2dManager.getInstance()
       await manager.resume()
@@ -320,25 +368,31 @@ export function useLive2dAvatar() {
       window.clearInterval(doneTimer)
       doneTimer = null
     }
-    releaseRuntime()
-    Live2dManager.releaseInstance()
+    initialized = false
+    void enqueueRuntimeOperation(async () => {
+      releaseOwnedRuntime()
+    })
     status.value = 'idle'
     audioReady.value = false
   }
 
-  function releaseRuntime(): void {
-    if (!initialized) return
-    try {
-      LAppDelegate.releaseInstance()
-    } catch {
-      /* ignore */
+  function hasRuntimeOwnership(): boolean {
+    return activeRuntimeOwner === runtimeOwner
+  }
+
+  function releaseOwnedRuntime(): void {
+    if (!hasRuntimeOwnership()) {
+      initialized = false
+      return
     }
+    releaseSharedRuntime()
+    activeRuntimeOwner = null
     initialized = false
   }
 
   // 供组件在 window resize 时调用（画布自适应）
   function onResize(): void {
-    if (initialized && LAppDefine.CanvasSize === 'auto') {
+    if (initialized && hasRuntimeOwnership() && LAppDefine.CanvasSize === 'auto') {
       LAppDelegate.getInstance().onResize()
     }
   }

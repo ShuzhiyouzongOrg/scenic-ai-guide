@@ -43,17 +43,18 @@ export class LAppDelegate {
    * クラスのインスタンス（シングルトン）を解放する。
    */
   public static releaseInstance(): void {
-    if (s_instance != null) {
-      s_instance.release();
-    }
-
+    const instance = s_instance;
+    // Detach the singleton first so re-entrant work can never receive an
+    // object whose vectors are being released.
     s_instance = null;
+    instance?.release();
   }
 
   /**
    * Resize canvas and re-initialize view.
    */
   public onResize(): void {
+    if (this._subdelegates == null) return;
     for (let i = 0; i < this._subdelegates.getSize(); i++) {
       this._subdelegates.at(i).onResize();
     }
@@ -105,9 +106,12 @@ export class LAppDelegate {
     }
 
     // Cubism SDKの解放
-    CubismFramework.dispose();
+    if (CubismFramework.isInitialized()) {
+      CubismFramework.dispose();
+    }
 
     this._cubismOption = null;
+    this._initialized = false;
   }
 
   /**
@@ -124,6 +128,11 @@ export class LAppDelegate {
    * Subdelegate を解放する
    */
   private releaseSubdelegates(): void {
+    if (this._subdelegates == null) {
+      this._canvases?.clear();
+      this._canvases = null;
+      return;
+    }
     for (
       let ite = this._subdelegates.begin();
       ite.notEqual(this._subdelegates.end());
@@ -134,17 +143,22 @@ export class LAppDelegate {
 
     this._subdelegates.clear();
     this._subdelegates = null;
+    this._canvases?.clear();
+    this._canvases = null;
   }
 
   /**
    * APPに必要な物を初期化する。
    */
   public initialize(canvas?: HTMLCanvasElement): boolean {
+    if (this._initialized) return true;
+
     // Cubism SDKの初期化
     this.initializeCubism();
 
     this.initializeSubdelegates(canvas);
     this.initializeEventListener();
+    this._initialized = true;
 
     return true;
   }
@@ -168,6 +182,7 @@ export class LAppDelegate {
     LAppPal.updateTime();
 
     // setup cubism
+    this._cubismOption ??= new Option();
     this._cubismOption.logFunction = LAppPal.printMessage;
     this._cubismOption.loggingLevel = LAppDefine.CubismLoggingLevel;
     CubismFramework.startUp(this._cubismOption);
@@ -193,6 +208,8 @@ export class LAppDelegate {
     if (LAppDefine.CanvasNum > 1) {
       throw new Error('CanvasNum > 1');
     }
+    this._canvases ??= new csmVector<HTMLCanvasElement>();
+    this._subdelegates ??= new csmVector<LAppSubdelegate>();
     this._canvases.prepareCapacity(LAppDefine.CanvasNum);
     this._subdelegates.prepareCapacity(LAppDefine.CanvasNum);
     for (let i = 0; i < LAppDefine.CanvasNum; i++) {
@@ -239,6 +256,7 @@ export class LAppDelegate {
     this._subdelegates = new csmVector<LAppSubdelegate>();
     this._canvases = new csmVector<HTMLCanvasElement>();
     this._animationFrameId = null;
+    this._initialized = false;
   }
 
   /**
@@ -258,6 +276,7 @@ export class LAppDelegate {
   private _subdelegates: csmVector<LAppSubdelegate>;
 
   private _animationFrameId: number | null;
+  private _initialized: boolean;
 }
 
 function onPointerBegan(e: PointerEvent): void {
