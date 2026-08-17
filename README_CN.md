@@ -1,12 +1,15 @@
 <p align="center">
   <img src="docs/readme-banner-cn-transparent.png" alt="数智游踪" width="900">
 </p>
-
 <p align="center">
   <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
 </p>
 
-# 数智游踪
+<div align="center">
+  <p><a href="https://www.shuzhiyouzong.cn">介绍站</a> | <a href="https://docs.shuzhiyouzong.cn">文档站</a> | <a href="https://www.shuzhiyouzong.cn/downloads">下载站</a></p>
+</div>
+
+# 数智游踪 - AI数字人景区导览
 
 ## 项目简介
 
@@ -188,8 +191,6 @@ npm run dist:mac:arm64
 5. 在行程页面生成、保存和恢复个性化游览计划。
 6. 在我的页面管理游客账号、头像、收藏、足迹、语言和意见反馈。
 
-微信小程序使用个人主体 AppID `wxc8dc4bac62076888`。由于个人主体对 WebView 业务域名存在限制，微信端默认使用本地 Live2D 形象和讯飞云音色；Android、iOS、HarmonyOS 和 H5 的讯飞动态数字人需要公网 HTTPS、正确的反向代理以及相应平台授权。
-
 ## 测试与质量保障
 
 网页端测试：
@@ -230,11 +231,6 @@ npm test
 - 腾讯地图 Key 应设置域名和平台限制；服务端代理的 WebService Key 不应写入客户端构建产物。
 - 发布前请备份 SQLite 数据库、游客上传文件和服务端环境配置，并使用 `deploy` 目录中的脚本进行检查。
 
-## 开发团队
-
-开发团队：数智游踪 A5 软件杯项目组。
-
-项目组负责景区知识库与内容整理、AI 问答与语音服务、数字人接入、地图与路线业务、网页端与移动端开发、桌面端封装、部署运维和质量验证。
 
 ## 许可证
 
@@ -245,3 +241,4 @@ npm test
 ## 安全与隐私
 
 请勿提交 API Key、API Secret、JWT 密钥、数据库文件、游客上传文件或包含个人信息的日志。发现凭据泄露时，应立即在对应服务平台吊销并轮换，同时清理构建产物和发布包中的敏感数据。
+
