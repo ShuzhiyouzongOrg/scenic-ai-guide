@@ -11,6 +11,7 @@ process.env.XFYUN_AVATAR_SESSION_TTL_SECONDS = "120";
 process.env.XFYUN_AVATAR_SERVER_URL = "wss://avatar.cn-huadong-1.xf-yun.com/v1/interact";
 
 const {
+  deleteDigitalHumanConfig,
   getActiveDigitalHumanConfig,
   listDigitalHumanConfigs,
   mapAnswerToDigitalHumanState,
@@ -193,6 +194,30 @@ assert.equal(added.assetAvailable, false);
 assert.equal(getActiveDigitalHumanConfig().id, "dh_test_text_only");
 assert.ok(listDigitalHumanConfigs().some((item) => item.id === "dh_test_text_only"));
 
+const removable = updateDigitalHumanConfig({
+  id: "dh_test_removable",
+  name: "待删除数字人",
+  serviceStatus: "text_only",
+  enabled: false
+});
+assert.equal(deleteDigitalHumanConfig(removable.id).id, removable.id);
+assert.ok(!listDigitalHumanConfigs().some((item) => item.id === removable.id));
+assert.throws(
+  () => deleteDigitalHumanConfig(removable.id),
+  (error) => error.statusCode === 404 && error.code === "DIGITAL_HUMAN_CONFIG_NOT_FOUND"
+);
+assert.throws(
+  () => deleteDigitalHumanConfig("dh_test_text_only"),
+  (error) => error.statusCode === 409 && error.code === "DIGITAL_HUMAN_CONFIG_ACTIVE"
+);
+
+const httpDeleteCandidate = updateDigitalHumanConfig({
+  id: "dh_test_http_delete",
+  name: "接口删除数字人",
+  serviceStatus: "text_only",
+  enabled: false
+});
+
 const preload = preloadDigitalHumanAssets();
 assert.equal(preload.ok, true);
 
@@ -206,6 +231,44 @@ const httpServer = await startServer({ host: "127.0.0.1", port: 0 });
 const address = httpServer.address();
 const origin = `http://127.0.0.1:${address.port}`;
 try {
+  const unauthorizedDeleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent(httpDeleteCandidate.id)}`,
+    { method: "DELETE" }
+  );
+  assert.equal(unauthorizedDeleteResponse.status, 401);
+
+  const loginResponse = await fetch(`${origin}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ username: "admin", password: "admin123" })
+  });
+  assert.equal(loginResponse.status, 200);
+  const loginPayload = await loginResponse.json();
+  const authorization = `Bearer ${loginPayload.data.token}`;
+
+  const activeDeleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent("dh_test_text_only")}`,
+    { method: "DELETE", headers: { authorization } }
+  );
+  assert.equal(activeDeleteResponse.status, 409);
+  assert.equal((await activeDeleteResponse.json()).error.code, "DIGITAL_HUMAN_CONFIG_ACTIVE");
+
+  const deleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent(httpDeleteCandidate.id)}`,
+    { method: "DELETE", headers: { authorization } }
+  );
+  assert.equal(deleteResponse.status, 200);
+  const deletePayload = await deleteResponse.json();
+  assert.equal(deletePayload.data.id, httpDeleteCandidate.id);
+  assert.ok(!listDigitalHumanConfigs().some((item) => item.id === httpDeleteCandidate.id));
+
+  const missingDeleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent(httpDeleteCandidate.id)}`,
+    { method: "DELETE", headers: { authorization } }
+  );
+  assert.equal(missingDeleteResponse.status, 404);
+  assert.equal((await missingDeleteResponse.json()).error.code, "DIGITAL_HUMAN_CONFIG_NOT_FOUND");
+
   const sessionResponse = await fetch(`${origin}/api/digital-human/web/session`, {
     method: "POST",
     headers: { "content-type": "application/json" },

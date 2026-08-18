@@ -32,7 +32,7 @@
           <span v-else class="muted">—</span>
         </template>
       </ElTableColumn>
-      <ElTableColumn :label="$t('app.actions')" width="250" fixed="right">
+      <ElTableColumn :label="$t('app.actions')" width="320" fixed="right">
         <template #default="{ row }">
           <ElButton size="small" text type="primary" @click="openEdit(row)">
             {{ $t('app.edit') }}
@@ -41,6 +41,17 @@
             {{ $t('app.dhSetActive') }}
           </ElButton>
           <ElButton size="small" text @click="preview(row)">{{ $t('app.dhPreview') }}</ElButton>
+          <ElButton
+            size="small"
+            text
+            type="danger"
+            :disabled="row.enabled"
+            :loading="deletingId === row.id"
+            :title="row.enabled ? $t('app.dhDeleteActive') : ''"
+            @click="remove(row)"
+          >
+            {{ $t('app.dhDelete') }}
+          </ElButton>
         </template>
       </ElTableColumn>
     </ElTable>
@@ -168,8 +179,23 @@
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">{{ $t('app.cancel') }}</ElButton>
-        <ElButton type="primary" :loading="saving" @click="save">{{ $t('app.save') }}</ElButton>
+        <div class="dialog-footer">
+          <ElButton
+            v-if="editing"
+            type="danger"
+            plain
+            :disabled="form.enabled"
+            :loading="deletingId === form.id"
+            :title="form.enabled ? $t('app.dhDeleteActive') : ''"
+            @click="remove(form)"
+          >
+            {{ $t('app.dhDelete') }}
+          </ElButton>
+          <div class="dialog-footer__actions">
+            <ElButton @click="dialogVisible = false">{{ $t('app.cancel') }}</ElButton>
+            <ElButton type="primary" :loading="saving" @click="save">{{ $t('app.save') }}</ElButton>
+          </div>
+        </div>
       </template>
     </ElDialog>
 
@@ -184,7 +210,9 @@
 <script setup lang="ts">
   import { computed, onMounted, reactive, ref } from 'vue'
   import { useI18n } from 'vue-i18n'
+  import { ElMessageBox } from 'element-plus'
   import {
+    deleteDigitalHumanConfig,
     fetchDigitalHumanConfigs,
     saveDigitalHumanConfig,
     type DigitalHumanConfig
@@ -200,6 +228,7 @@
   const dialogVisible = ref(false)
   const editing = ref(false)
   const saving = ref(false)
+  const deletingId = ref('')
   const pickerPanels = ref<string[]>([])
 
   // 内置 Live2D 模型（与 public/live2d/characters 及后端目录名一致）；
@@ -321,6 +350,39 @@
     }
   }
 
+  async function remove(row: Pick<DigitalHumanConfig, 'id' | 'name' | 'enabled'>) {
+    if (row.enabled) {
+      ElMessage.warning(t('app.dhDeleteActive'))
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        t('app.dhDeleteConfirm', { name: row.name }),
+        t('app.dhDeleteTitle'),
+        {
+          type: 'warning',
+          confirmButtonText: t('app.dhDelete'),
+          cancelButtonText: t('app.cancel')
+        }
+      )
+    } catch {
+      return
+    }
+
+    deletingId.value = row.id
+    try {
+      await deleteDigitalHumanConfig(row.id)
+      if (dialogVisible.value && form.id === row.id) dialogVisible.value = false
+      ElMessage.success(t('app.dhDeleted', { name: row.name }))
+      await load()
+    } catch {
+      ElMessage.error(t('app.dhDeleteFailed'))
+    } finally {
+      deletingId.value = ''
+    }
+  }
+
   // 轻量试听：使用浏览器语音合成朗读欢迎语（真实音色以游客端数字人为准）
   function preview(row: DigitalHumanConfig) {
     const synth = window.speechSynthesis
@@ -349,6 +411,19 @@
 
   .hint-card {
     margin-top: 12px;
+  }
+
+  .dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .dialog-footer__actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
   }
 
   .hint {

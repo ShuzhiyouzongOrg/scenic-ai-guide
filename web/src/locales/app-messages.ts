@@ -1822,6 +1822,42 @@ const catalog = {
   dhCurrent: ['当前启用', 'Active', '현재 활성', '目前啟用', '現在有効'],
   dhSetActive: ['设为启用', 'Set active', '활성화', '設為啟用', '有効にする'],
   dhPreview: ['试听', 'Preview', '미리 듣기', '試聽', '試聴'],
+  dhDelete: ['删除', 'Delete', '삭제', '刪除', '削除'],
+  dhDeleteTitle: [
+    '删除数字人',
+    'Delete digital human',
+    '디지털 휴먼 삭제',
+    '刪除數位人',
+    'デジタルヒューマンを削除'
+  ],
+  dhDeleteConfirm: [
+    '确定删除数字人「{name}」吗？删除后无法在页面恢复。',
+    'Delete “{name}”? This action cannot be undone from the page.',
+    '디지털 휴먼 “{name}”을(를) 삭제하시겠습니까? 페이지에서 복구할 수 없습니다.',
+    '確定刪除數位人「{name}」嗎？刪除後無法在頁面復原。',
+    'デジタルヒューマン「{name}」を削除しますか？ページ上では元に戻せません。'
+  ],
+  dhDeleteActive: [
+    '当前启用的数字人不能删除，请先启用其他数字人。',
+    'The active digital human cannot be deleted. Activate another one first.',
+    '현재 활성화된 디지털 휴먼은 삭제할 수 없습니다. 먼저 다른 디지털 휴먼을 활성화하세요.',
+    '目前啟用的數位人無法刪除，請先啟用其他數位人。',
+    '現在有効なデジタルヒューマンは削除できません。先に別の設定を有効にしてください。'
+  ],
+  dhDeleted: [
+    '已删除「{name}」',
+    'Deleted “{name}”.',
+    '“{name}” 삭제됨',
+    '已刪除「{name}」',
+    '「{name}」を削除しました。'
+  ],
+  dhDeleteFailed: [
+    '删除失败，请刷新后重试',
+    'Delete failed. Refresh the page and try again.',
+    '삭제하지 못했습니다. 페이지를 새로고침한 후 다시 시도하세요.',
+    '刪除失敗，請重新整理後再試。',
+    '削除に失敗しました。ページを更新してもう一度お試しください。'
+  ],
   dhNamePlaceholder: [
     '如：云觉·大佛文化使（女）',
     'e.g. Yunjue · Grand Buddha Storyteller (Female)',

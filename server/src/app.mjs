@@ -23,6 +23,7 @@ import { generateSpotNarration, generateAccompanyNarration } from "./services/na
 import { getRouteGraph, recommendRoute, saveRouteSelection, listSavedRoutes, narrateRouteNode } from "./services/routePlanner.mjs";
 import { transcribeAudio, synthesizeSpeech, voiceAsk, getAudioClip } from "./services/voice.mjs";
 import {
+  deleteDigitalHumanConfig,
   getActiveDigitalHumanConfig,
   listDigitalHumanConfigs,
   preloadDigitalHumanAssets,
@@ -483,6 +484,13 @@ async function route(req, res, url) {
 
   if (url.pathname === "/api/digital-human/configs" && req.method === "GET") {
     ok(res, listDigitalHumanConfigs());
+    return;
+  }
+
+  const digitalHumanConfigMatch = url.pathname.match(/^\/api\/digital-human\/configs\/([^/]+)$/);
+  if (digitalHumanConfigMatch && req.method === "DELETE") {
+    if (!requireAdmin(req, res)) return;
+    ok(res, deleteDigitalHumanConfig(decodeURIComponent(digitalHumanConfigMatch[1])));
     return;
   }
 

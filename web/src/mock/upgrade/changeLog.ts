@@ -11,6 +11,12 @@ export interface ProjectChangeLog {
 // 从本项目 Git 提交记录按日期整理；标题与条目仅保留中文，便于后续继续追加正式版本说明。
 export const projectChangeLog: ProjectChangeLog[] = [
   {
+    version: '2026-08-18',
+    date: '2026-08-18',
+    title: '数字人配置管理完善',
+    detail: ['新增：数字人配置支持安全删除、二次确认与启用项保护']
+  },
+  {
     version: '2026-08-16',
     date: '2026-08-16',
     title: '地图与数字人体验优化',
