@@ -13,6 +13,7 @@ defaults:
 env:
   NODE_VERSION: "22"
   PNPM_VERSION: "10.15.1"
+  DESKTOP_VERSION: "0.2.0"
 
 jobs:
   build-web:
@@ -114,6 +115,11 @@ jobs:
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm ci
+
+      - name: Verify desktop release version
+        working-directory: desktop
+        run: |
+          node -e "const { readFileSync } = require('node:fs'); const version = JSON.parse(readFileSync('package.json', 'utf8')).version; if (version !== process.env.DESKTOP_VERSION) { throw new Error('desktop/package.json version ' + version + ' does not match DESKTOP_VERSION ' + process.env.DESKTOP_VERSION); }"
 
       - name: Download web build
         uses: actions/download-artifact@v8
