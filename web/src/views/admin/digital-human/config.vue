@@ -32,7 +32,7 @@
           <span v-else class="muted">—</span>
         </template>
       </ElTableColumn>
-      <ElTableColumn :label="$t('app.actions')" width="320" fixed="right">
+      <ElTableColumn :label="$t('app.actions')" width="250" fixed="right">
         <template #default="{ row }">
           <ElButton size="small" text type="primary" @click="openEdit(row)">
             {{ $t('app.edit') }}
@@ -41,17 +41,6 @@
             {{ $t('app.dhSetActive') }}
           </ElButton>
           <ElButton size="small" text @click="preview(row)">{{ $t('app.dhPreview') }}</ElButton>
-          <ElButton
-            size="small"
-            text
-            type="danger"
-            :disabled="row.enabled"
-            :loading="deletingId === row.id"
-            :title="row.enabled ? $t('app.dhDeleteActive') : ''"
-            @click="remove(row)"
-          >
-            {{ $t('app.dhDelete') }}
-          </ElButton>
         </template>
       </ElTableColumn>
     </ElTable>
