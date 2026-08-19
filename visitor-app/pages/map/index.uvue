@@ -29,10 +29,8 @@
 				<view class="map-mode-item" :class="mapMode == 'native' ? 'map-mode-item-active' : ''" @click="setMapMode('native')"><text class="map-mode-text" :class="mapMode == 'native' ? 'map-mode-text-active' : ''">导航地图</text></view>
 			</view>
 			<scroll-view v-if="headerExpanded && routeOptions.length > 0" class="route-switch" direction="horizontal" :show-scrollbar="false">
-				<view class="route-switch-track">
-					<view v-for="route in routeOptions" :key="route.id" class="route-switch-item" :class="activeGuideRoute?.id == route.id ? 'route-switch-item-active' : ''" @click="selectGuideRoute(route.id)">
-						<text class="route-switch-item-text" :class="activeGuideRoute?.id == route.id ? 'route-switch-item-text-active' : ''">{{ route.name }}</text>
-					</view>
+				<view v-for="(route, routeIndex) in routeOptions" :key="route.id" class="route-switch-item" :class="[activeGuideRoute?.id == route.id ? 'route-switch-item-active' : '', routeIndex == routeOptions.length - 1 ? 'route-switch-item-tail' : '']" @click="selectGuideRoute(route.id)">
+					<text class="route-switch-item-text" :class="activeGuideRoute?.id == route.id ? 'route-switch-item-text-active' : ''">{{ route.name }}</text>
 				</view>
 			</scroll-view>
 			<view v-if="headerExpanded" class="map-meta-row">
@@ -914,9 +912,9 @@
 	.map-mode-item-active { background-color: #ffffff; box-shadow: 0 4px 10px rgba(22,67,117,0.10); }
 	.map-mode-text { font-size: 11px; color: #76849a; }
 	.map-mode-text-active { color: #0b68d0; font-weight: 700; }
-	.route-switch { width: 100%; height: 34px; margin-top: 8px; }
-	.route-switch-track { flex-direction: row; align-items: center; padding-right: 4px; }
+	.route-switch { width: 100%; height: 34px; margin-top: 8px; flex-direction: row; }
 	.route-switch-item { flex-shrink: 0; height: 30px; margin-right: 7px; padding: 0 11px; border-radius: 15px; align-items: center; justify-content: center; background-color: #fbf5ea; border: 1px solid #ead9b8; }
+	.route-switch-item-tail { margin-right: 20px; }
 	.route-switch-item-active { background-color: #9c6722; border-color: #9c6722; box-shadow: 0 4px 10px rgba(156,103,34,0.18); }
 	.route-switch-item-text { font-size: 10px; color: #966721; font-weight: 700; }
 	.route-switch-item-text-active { color: #ffffff; }

@@ -52,7 +52,7 @@
 			<view class="settings-card">
 				<view class="setting-item" @click="showPrivacy"><text class="setting-title">{{ t('隐私与权限', 'Privacy', '隱私與權限') }}</text><text class="setting-label">{{ t('定位、麦克风与数据使用说明', 'Location, microphone and data usage', '定位、麥克風與資料使用說明') }}</text><text class="menu-arrow">›</text></view>
 				<view class="menu-divider"></view>
-				<view class="setting-item" @click="showAbout"><text class="setting-title">{{ t('关于应用', 'About', '關於應用程式') }}</text><text class="setting-label">{{ t('数智游踪', 'Shuzhi Youzong', '數智遊蹤') }} 1.0.2</text><text class="menu-arrow">›</text></view>
+				<view class="setting-item" @click="showAbout"><text class="setting-title">{{ t('关于应用', 'About', '關於應用程式') }}</text><text class="setting-label">{{ t('数智游踪', 'Shuzhi Youzong', '數智遊蹤') }} 0.2.0</text><text class="menu-arrow">›</text></view>
 			</view>
 		</view>
 	</scroll-view>

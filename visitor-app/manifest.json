@@ -2,8 +2,8 @@
     "name" : "数智游踪",
     "appid" : "__UNI__87D2500",
     "description" : "面向游客的多端智能导游应用",
-    "versionName" : "1.0.2",
-    "versionCode" : "102",
+    "versionName" : "0.2.0",
+    "versionCode" : "200",
     "uni-app-x" : {
         "vapor" : true,
         "styleIsolationVersion" : "2",
