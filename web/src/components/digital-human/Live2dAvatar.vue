@@ -17,7 +17,20 @@
 
       <!-- 降级 / 加载态 -->
       <div v-if="!isRendering" class="l2d-fallback">
-        <img class="l2d-fallback-portrait" :src="fallbackPortraitUrl" alt="" aria-hidden="true" />
+        <div
+          class="l2d-loading-visual"
+          :class="{ 'is-error': live2d.status.value === 'error' }"
+          aria-hidden="true"
+        >
+          <img
+            class="l2d-loading-icon"
+            src="/live2d/ui/loading-lotus.webp"
+            alt=""
+            width="192"
+            height="192"
+            decoding="async"
+          />
+        </div>
         <p class="l2d-fallback-name">{{ config?.name || $t('app.avatarGuideName') }}</p>
         <p class="l2d-fallback-tip">{{ fallbackTip }}</p>
       </div>
@@ -71,10 +84,6 @@
   const live2d = useLive2dAvatar()
 
   const isRendering = computed(() => ['ready', 'speaking'].includes(live2d.status.value))
-  const fallbackPortraitUrl = computed(() => {
-    const modelId = config.value?.modelId || 'Haru'
-    return `/live2d/characters/${encodeURIComponent(modelId)}/${encodeURIComponent(modelId)}.png`
-  })
 
   const statusText = computed(() => {
     switch (live2d.status.value) {
@@ -219,12 +228,44 @@
     text-align: center;
   }
 
-  .l2d-fallback-portrait {
-    width: min(72%, 220px);
-    max-height: calc(100% - 70px);
-    margin-bottom: 8px;
+  .l2d-loading-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 128px;
+    height: 128px;
+    margin-bottom: 12px;
+    background: radial-gradient(circle, rgb(127 216 201 / 15%) 0 32%, transparent 68%);
+    border-radius: 50%;
+
+    &::before {
+      position: absolute;
+      inset: 12px;
+      content: '';
+      border: 1px solid rgb(127 216 201 / 24%);
+      border-radius: 50%;
+      animation: l2d-loading-halo 1.4s ease-out infinite;
+    }
+  }
+
+  .l2d-loading-icon {
+    position: relative;
+    z-index: 1;
+    width: 116px;
+    height: 116px;
     object-fit: contain;
-    object-position: center bottom;
+    animation: l2d-loading-breathe 1.25s ease-in-out infinite;
+  }
+
+  .l2d-loading-visual.is-error {
+    &::before,
+    .l2d-loading-icon {
+      animation: none;
+    }
+
+    .l2d-loading-icon {
+      filter: grayscale(0.65) opacity(0.72);
+    }
   }
 
   .l2d-fallback-name {
@@ -280,6 +321,38 @@
 
     &.dot-error {
       background: #f56c6c;
+    }
+  }
+
+  @keyframes l2d-loading-breathe {
+    0%,
+    100% {
+      opacity: 0.92;
+      transform: scale(0.96);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes l2d-loading-halo {
+    0% {
+      opacity: 0.65;
+      transform: scale(0.82);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .l2d-loading-visual::before,
+    .l2d-loading-icon {
+      animation: none;
     }
   }
 </style>

@@ -180,7 +180,7 @@
   // 切换到其他布局时通过 has-photo-bg 类淡出（见 theme.scss）。
   const isVerticalMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
   const sidebarBgStyle = computed(() => ({
-    '--sidebar-bg-image': `url("${import.meta.env.BASE_URL}images/sidebar-bg.png")`
+    '--sidebar-bg-image': `url("${import.meta.env.BASE_URL}images/sidebar-bg.webp")`
   }))
 
   // 移动端屏幕判断（使用 computed 避免重复计算）

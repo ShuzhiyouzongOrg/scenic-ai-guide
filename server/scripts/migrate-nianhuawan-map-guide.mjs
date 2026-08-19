@@ -36,16 +36,15 @@ const publicDataDir = join(
   "data",
   "nianhuawan",
 );
-const tileDir = join(
+const artworkPath = join(
   targetRoot,
   "web",
   "public",
   "map-guide",
   "areas",
   "nianhuawan",
-  "tiles",
+  "artwork.webp",
 );
-const downloadTiles = process.argv.includes("--download-tiles");
 
 const panoramaScenes = [
   ["50158908", "29546616", "航拍全景", -291.75091840583787, 19.079337297330802, 121.32357656931525],
@@ -156,116 +155,36 @@ function unique(values) {
   return [...new Set(values.filter(Boolean).map(String))];
 }
 
-function tileBounds(bounds, rows, columns, index) {
-  const row = Math.floor(index / columns);
-  const column = index % columns;
-  const latitudeStep =
-    (bounds.northeast.latitude - bounds.southwest.latitude) / rows;
-  const longitudeStep =
-    (bounds.northeast.longitude - bounds.southwest.longitude) / columns;
-  return {
+async function buildMapConfig(config) {
+  const overlay = config.map.handDrawnOverlay;
+  if (!existsSync(artworkPath)) {
+    throw new Error(`Complete Nianhuawan artwork is missing: ${artworkPath}`);
+  }
+  const artwork = await readFile(artworkPath);
+  const bounds = {
     southwest: {
-      latitude: bounds.northeast.latitude - (row + 1) * latitudeStep,
-      longitude: bounds.southwest.longitude + column * longitudeStep,
+      ...overlay.bounds.southwest,
       coordinateSystem: "GCJ02",
     },
     northeast: {
-      latitude: bounds.northeast.latitude - row * latitudeStep,
-      longitude: bounds.southwest.longitude + (column + 1) * longitudeStep,
+      ...overlay.bounds.northeast,
       coordinateSystem: "GCJ02",
     },
   };
-}
-
-function pngDimensions(buffer) {
-  const pngSignature = "89504e470d0a1a0a";
-  if (buffer.length < 24 || buffer.subarray(0, 8).toString("hex") !== pngSignature) {
-    throw new Error("Downloaded hand-drawn tile is not a valid PNG image");
-  }
-  return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
-}
-
-async function downloadTile(url, destination) {
-  let lastError;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
-    try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const dimensions = pngDimensions(buffer);
-      await mkdir(dirname(destination), { recursive: true });
-      await writeFile(destination, buffer);
-      return {
-        ...dimensions,
-        sizeBytes: buffer.byteLength,
-        sha256: createHash("sha256").update(buffer).digest("hex"),
-      };
-    } catch (error) {
-      lastError = error;
-    }
-  }
-  throw new Error(
-    `Unable to mirror tile ${url}: ${lastError instanceof Error ? lastError.message : String(lastError)}`,
-  );
-}
-
-async function inspectTile(destination) {
-  const buffer = await readFile(destination);
-  return {
-    ...pngDimensions(buffer),
-    sizeBytes: buffer.byteLength,
-    sha256: createHash("sha256").update(buffer).digest("hex"),
-  };
-}
-
-async function mapWithConcurrency(items, limit, mapper) {
-  const results = new Array(items.length);
-  let cursor = 0;
-  async function worker() {
-    while (cursor < items.length) {
-      const index = cursor;
-      cursor += 1;
-      results[index] = await mapper(items[index], index);
-    }
-  }
-  await Promise.all(
-    Array.from({ length: Math.min(limit, items.length) }, worker),
-  );
-  return results;
-}
-
-async function buildMapConfig(config) {
-  const overlay = config.map.handDrawnOverlay;
-  if (overlay.rows !== 4 || overlay.columns !== 4 || overlay.tiles.length !== 16) {
-    throw new Error("Nianhuawan artwork must remain a 4x4, 16-tile layer");
-  }
-  const tileMetadata = await mapWithConcurrency(
-    overlay.tiles,
-    4,
-    async (url, index) => {
-      const id = String(index + 1).padStart(2, "0");
-      const destination = join(tileDir, `${id}.png`);
-      if (downloadTiles || !existsSync(destination)) {
-        return downloadTile(url, destination);
-      }
-      return inspectTile(destination);
+  const tiles = [
+    {
+      id: "artwork",
+      index: 0,
+      row: 0,
+      column: 0,
+      url: "/map-guide/areas/nianhuawan/artwork.webp",
+      width: 5313,
+      height: 6144,
+      sizeBytes: artwork.byteLength,
+      sha256: createHash("sha256").update(artwork).digest("hex"),
+      bounds,
     },
-  );
-  const tiles = tileMetadata.map((metadata, index) => {
-    const id = String(index + 1).padStart(2, "0");
-    return {
-      id,
-      index,
-      row: Math.floor(index / overlay.columns),
-      column: index % overlay.columns,
-      url: `/map-guide/areas/nianhuawan/tiles/${id}.png`,
-      width: metadata.width,
-      height: metadata.height,
-      sizeBytes: metadata.sizeBytes,
-      sha256: metadata.sha256,
-      bounds: tileBounds(overlay.bounds, overlay.rows, overlay.columns, index),
-    };
-  });
+  ];
   return {
     center: { ...config.map.center, coordinateSystem: "GCJ02" },
     visitorCenter: {
@@ -280,20 +199,11 @@ async function buildMapConfig(config) {
     initialZoom: Number(config.map.initialScale),
     tileLayer: {
       enabled: true,
-      rows: overlay.rows,
-      columns: overlay.columns,
-      concurrency: 4,
+      rows: 1,
+      columns: 1,
+      concurrency: 1,
       retries: 2,
-      bounds: {
-        southwest: {
-          ...overlay.bounds.southwest,
-          coordinateSystem: "GCJ02",
-        },
-        northeast: {
-          ...overlay.bounds.northeast,
-          coordinateSystem: "GCJ02",
-        },
-      },
+      bounds,
       tiles,
     },
   };
@@ -521,7 +431,7 @@ function buildTileAnalysis(mapConfig) {
   const widths = unique(mapConfig.tileLayer.tiles.map((tile) => tile.width));
   const heights = unique(mapConfig.tileLayer.tiles.map((tile) => tile.height));
   return {
-    order: "row-major; rows north-to-south; columns west-to-east",
+    order: "single complete artwork",
     flipRequired: false,
     rotationDegrees: mapConfig.rotationDegrees,
     rows: mapConfig.tileLayer.rows,
@@ -533,8 +443,7 @@ function buildTileAnalysis(mapConfig) {
       0,
     ),
     bounds: mapConfig.tileLayer.bounds,
-    seamStrategy:
-      "Shared geographic edges plus the existing 1.2px DOM seam buffer; no CSS sharpening.",
+    seamStrategy: "A single artwork image removes runtime tile seams and grid drift.",
     maxZoom: mapConfig.maxZoom,
     upgradeRecommendation:
       "Generate a true multiresolution XYZ pyramid or source-authored @2x tiles before enabling zoom levels above the source maximum.",
@@ -688,13 +597,7 @@ async function main() {
     writeJson(join(reportDir, "panorama-inventory.json"), panoramas),
   ]);
 
-  const tileBytes = (
-    await Promise.all(
-      mapConfig.tileLayer.tiles.map((tile) =>
-        stat(join(tileDir, `${tile.id}.png`)),
-      ),
-    )
-  ).reduce((sum, entry) => sum + entry.size, 0);
+  const artworkBytes = (await stat(artworkPath)).size;
   console.log(
     JSON.stringify(
       {
@@ -703,8 +606,8 @@ async function main() {
         spots: spots.length,
         routes: routes.length,
         routeVertices: migrationReport.officialRoutePathVertexCount,
-        tiles: mapConfig.tileLayer.tiles.length,
-        tileBytes,
+        artworkImages: mapConfig.tileLayer.tiles.length,
+        artworkBytes,
         outputDir,
       },
       null,

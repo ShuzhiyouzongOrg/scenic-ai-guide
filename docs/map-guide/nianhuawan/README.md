@@ -9,7 +9,7 @@ nianhuawan-miniapp-rebuild
   -> migrate-nianhuawan-map-guide.mjs
      -> server/data/generated/map-guide/nianhuawan
      -> web/public/map-guide/data/nianhuawan/bootstrap.json
-     -> web/public/map-guide/areas/nianhuawan/tiles
+     -> web/public/map-guide/areas/nianhuawan/artwork.webp
      -> docs/map-guide/nianhuawan audit reports
 ```
 
@@ -50,14 +50,13 @@ nianhuawan-miniapp-rebuild
 
 已建立 5 个锚点审核项：游客中心、景区入口、拈花塔、五灯湖广场、微笑广场。浏览器验收确认它们与手绘建筑和路线节点一致；但尚未使用获授权卫星底图或现场测量完成 20 米误差确认，因此状态仍为 `manual-map-verification-required`，不能宣称人工坐标验收已完成。
 
-## 16 张图块
+## 单张完整手绘图
 
-- 排列：4 行 x 4 列，行优先；北到南、西到东。
-- 单张：`1771 x 2048` PNG；拼接：`7084 x 8192`。
-- 总大小：`11,208,770` 字节；单张范围约 `14 KB` 到 `1.66 MB`。
+- 来源素材为 4 行 x 4 列共 16 张 PNG，现已离线拼接并压缩为一张 `5313 x 6144` WebP。
+- 页面运行时只加载和变换这一张完整图片，不再维护 16 个网格单元。
 - 园区边界：SW `(31.407641, 120.063915)`，NE `(31.431446, 120.088033)`。
 - 方向：`rotationDegrees=0`，不翻转、不倾斜。
-- 缝隙：图块共享同一经纬边界，DOM 仅使用 1.2px 接缝缓冲，不做 CSS 锐化。
+- 缝隙：运行时不存在图块接缝，整张图片与点位共享同一经纬边界。
 - 视野：手绘模式恢复来源配置的最小缩放，不再按“铺满容器”额外抬高；透明像素和画布外围使用景区图源匹配底色遮罩，不会露出普通底图的道路或文字。
 
 | 验收尺寸    | DPR | 允许最大缩放 | 单张物理像素放大约值 |
@@ -78,7 +77,7 @@ nianhuawan-miniapp-rebuild
 ## 响应式与交互验收
 
 - `1920 x 1080`：景区切换器位于地图上沿中央；路线抽屉、详情、控制组和数字人互不遮挡。
-- `768 x 1024`：手绘图覆盖容器，切换后仍保持 16 图块和 31 个默认景点 Marker。
+- `768 x 1024`：完整手绘图覆盖容器，切换后仍保持 31 个默认景点 Marker。
 - `390 x 844`：景点侧栏默认折叠，无横向滚动；路线抽屉打开时隐藏地图控制和数字人，路线详情打开后数字人移至面板上方安全区。
 - 圆形数字人的 engine、host、avatar、stage 计算背景均为 `rgb(255, 255, 255)`。
 - 路线详情关闭后路线仍保留；只有“清除路线”会删除折线和路线状态。
@@ -104,7 +103,7 @@ pnpm dev
 
 ## 授权与未完成事项
 
-1. 16 张手绘图已本地化，但图片版权和再发布授权仍需景区确认。
+1. 来源 16 张手绘图已合成为单张本地图片，但图片版权和再发布授权仍需景区确认。
 2. 景点封面、13 条官方音频和部分分类图标仍是来源 CDN URL；生产环境不能把该 CDN 作为唯一来源，须获授权后镜像到受控存储。
 3. 720yun 场景属于第三方平台资产，产品过期状态、iframe 白名单、HTTPS、Cookie、全屏和陀螺仪权限均有可用性风险。
 4. 5 个坐标锚点仍需现场或获授权卫星底图人工验收。
@@ -119,7 +118,7 @@ pnpm dev
 | `server/src/services/mapGuide.mjs`                    | 按 `area` 读取独立数据目录和缓存                               | 灵山默认行为保留                     | API 数量检查、server check       |
 | `server/src/app.mjs`                                  | 为 bootstrap/spots/routes/panoramas 增加 `area` 查询参数       | 原接口路径不变                       | API smoke test                   |
 | `server/data/generated/map-guide/nianhuawan/`         | 277 点、10 分类、7 路线、15 全景和地图配置                     | 与灵山目录隔离                       | 迁移报告、单测                   |
-| `web/public/map-guide/areas/nianhuawan/tiles/`        | 托管 16 张受控本地图块                                         | 不依赖来源图块 CDN                   | 浏览器图块数量与画面检查         |
+| `web/public/map-guide/areas/nianhuawan/artwork.webp` | 托管单张完整手绘图                                             | 不依赖来源图块 CDN                   | 浏览器画面与点位同步检查         |
 | `web/public/map-guide/data/nianhuawan/bootstrap.json` | API 失败时的只读快照                                           | 灵山快照不变                         | 前端 fallback 测试               |
 | `web/src/api/map-guide.ts`                            | 发送景区参数并按景区读取本地快照                               | API 调用方式向后兼容                 | type-check、test                 |
 | `web/src/types/map-guide/map-guide.ts`                | 增加 `ScenicAreaId`、area 元数据和高 DPR 上限                  | 现有类型扩展                         | type-check                       |

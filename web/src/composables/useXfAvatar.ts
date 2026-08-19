@@ -193,6 +193,7 @@ export function useXfAvatar() {
       return true
     } catch (err) {
       errorMessage.value = normalizeError(err)
+      if (status.value === 'speaking') status.value = 'ready'
       return false
     }
   }

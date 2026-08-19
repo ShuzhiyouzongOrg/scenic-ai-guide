@@ -91,6 +91,7 @@ export class LAppModel extends CubismUserModel {
    * @param fileName
    */
   public loadAssets(dir: string, fileName: string): void {
+    this._released = false;
     this._modelHomeDir = dir;
     this._live2dManager.beginModelLoad(this);
     fetch(`${this._modelHomeDir}${fileName}`)
@@ -201,6 +202,7 @@ export class LAppModel extends CubismUserModel {
               }
             })
             .then(arrayBuffer => {
+              if (!this.isLoadActive()) return;
               const motion: ACubismMotion = this.loadExpression(
                 arrayBuffer,
                 arrayBuffer.byteLength,
@@ -252,6 +254,7 @@ export class LAppModel extends CubismUserModel {
             }
           })
           .then(arrayBuffer => {
+            if (!this.isLoadActive()) return;
             this.loadPhysics(arrayBuffer, arrayBuffer.byteLength);
 
             this._state = LoadStep.LoadPose;
@@ -285,6 +288,7 @@ export class LAppModel extends CubismUserModel {
             }
           })
           .then(arrayBuffer => {
+            if (!this.isLoadActive()) return;
             this.loadPose(arrayBuffer, arrayBuffer.byteLength);
 
             this._state = LoadStep.SetupEyeBlink;
@@ -365,6 +369,7 @@ export class LAppModel extends CubismUserModel {
             }
           })
           .then(arrayBuffer => {
+            if (!this.isLoadActive()) return;
             this.loadUserData(arrayBuffer, arrayBuffer.byteLength);
 
             this._state = LoadStep.SetupEyeBlinkIds;
@@ -793,6 +798,7 @@ export class LAppModel extends CubismUserModel {
           }
         })
         .then(arrayBuffer => {
+          if (!this.isLoadActive()) return;
           motion = this.loadMotion(
             arrayBuffer,
             arrayBuffer.byteLength,
@@ -967,6 +973,7 @@ export class LAppModel extends CubismUserModel {
           }
         })
         .then(arrayBuffer => {
+          if (!this.isLoadActive()) return;
           const tmpMotion: CubismMotion = this.loadMotion(
             arrayBuffer,
             arrayBuffer.byteLength,
@@ -1069,6 +1076,7 @@ export class LAppModel extends CubismUserModel {
 
       const response = await fetch(`${this._modelHomeDir}${modelFileName}`);
       const arrayBuffer = await response.arrayBuffer();
+      if (!this.isLoadActive()) return false;
 
       this._consistency = CubismMoc.hasMocConsistency(arrayBuffer);
 
@@ -1089,8 +1097,13 @@ export class LAppModel extends CubismUserModel {
   }
 
   public release(): void {
+    this._released = true;
     this.releaseMotionSync();
     super.release();
+  }
+
+  private isLoadActive(): boolean {
+    return !this._released && this._live2dManager.isModelLoadCurrent(this);
   }
 
   /**
@@ -1155,6 +1168,7 @@ export class LAppModel extends CubismUserModel {
     this._allMotionCount = 0;
     this._wavFileHandler = new LAppWavFileHandler();
     this._consistency = false;
+    this._released = false;
   }
 
   private _subdelegate: LAppSubdelegate;
@@ -1196,4 +1210,5 @@ export class LAppModel extends CubismUserModel {
   _allMotionCount: number; // モーション総数
   _wavFileHandler: LAppWavFileHandler; //wavファイルハンドラ
   _consistency: boolean; // MOC3一貫性チェック管理用
+  private _released: boolean;
 }

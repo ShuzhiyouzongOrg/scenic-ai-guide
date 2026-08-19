@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, statSync } from 'node:fs'
 import test from 'node:test'
 import { effectScope } from 'vue'
 import { guideRoutes } from '../../src/router/modules/guide'
@@ -55,18 +55,12 @@ test('expanded map avatar keeps its white stage and readable dark narration pane
   assert.match(source, /\.state-speaking .*:deep\(\.l2d-stage\)/s)
   assert.match(source, /:deep\(\.dh-badge\),\s*.*:deep\(\.l2d-badge\) \{\s*display: none;/s)
   assert.match(source, /:deep\(\.dh-fallback-tip\),\s*.*:deep\(\.l2d-fallback-tip\)/s)
-  assert.match(
-    dock,
-    /\.digital-human-dock \{[\s\S]*?color: #304a43;[\s\S]*?background: #fff;/
-  )
+  assert.match(dock, /\.digital-human-dock \{[\s\S]*?color: #304a43;[\s\S]*?background: #fff;/)
   assert.match(
     dock,
     /:deep\(\.narration-subtitle\) \{[\s\S]*?color: #f5f8f7;[\s\S]*?background: #1c342e;/
   )
-  assert.match(
-    dock,
-    /footer button \{[\s\S]*?color: #f4f7f5;[\s\S]*?background: #3e5952;/
-  )
+  assert.match(dock, /footer button \{[\s\S]*?color: #f4f7f5;[\s\S]*?background: #3e5952;/)
 })
 
 test('project changelog includes every update date after August 11', () => {
@@ -75,9 +69,13 @@ test('project changelog includes every update date after August 11', () => {
     'utf8'
   )
 
+  assert.match(source, /version: '2026-08-16'[\s\S]*?date: '2026-08-16'/)
+  assert.match(source, /version: '2026-08-15'[\s\S]*?date: '2026-08-15'/)
   assert.match(source, /version: '2026-08-13'[\s\S]*?date: '2026-08-13'/)
   assert.match(source, /version: '2026-08-12'[\s\S]*?date: '2026-08-12'/)
   assert.match(source, /修复：使用 Node 运行时执行跨平台桌面数据库回归测试/)
+  assert.ok(source.indexOf("version: '2026-08-16'") < source.indexOf("version: '2026-08-15'"))
+  assert.ok(source.indexOf("version: '2026-08-15'") < source.indexOf("version: '2026-08-14'"))
   assert.ok(source.indexOf("version: '2026-08-13'") < source.indexOf("version: '2026-08-12'"))
   assert.ok(source.indexOf("version: '2026-08-12'") < source.indexOf("version: '2026-08-11'"))
 })
@@ -105,16 +103,41 @@ test('live2d runtime invalidates stale rendering and model loads', () => {
   )
 
   assert.match(delegate, /s_instance\s*!==\s*this/)
+  assert.match(
+    delegate,
+    /const instance = s_instance;[\s\S]*?s_instance = null;[\s\S]*?instance\?\.release\(\)/
+  )
   assert.match(delegate, /cancelAnimationFrame\(this\._animationFrameId\)/)
   assert.match(model, /isModelLoadCurrent\(this\)/)
+  assert.match(model, /private isLoadActive\(\)/)
+  assert.match(model, /this\._released = true/)
   assert.match(model, /setModelLoadError/)
   assert.match(composable, /runtimeGeneration/)
+  assert.match(composable, /runtimeOperationQueue/)
+  assert.match(composable, /enqueueRuntimeOperation/)
+  assert.match(composable, /activeRuntimeOwner === runtimeOwner/)
   assert.match(composable, /cancelReadyWait/)
   assert.match(composable, /for \(let attempt = 0; attempt < 2; attempt \+= 1\)/)
   assert.match(composable, /getModelLoadError\(\)/)
   assert.match(manager, /releaseInstance\(\)/)
   assert.match(manager, /_audioContext\.close\(\)/)
   assert.match(textureManager, /addEventListener\(\s*['"]error['"]/)
+})
+
+test('live2d loading state uses a transparent themed animation', () => {
+  const source = readFileSync(
+    new URL('../../src/components/digital-human/Live2dAvatar.vue', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /class="l2d-loading-visual"/)
+  assert.match(source, /class="l2d-loading-icon"/)
+  assert.match(source, /src="\/live2d\/ui\/loading-lotus\.webp"/)
+  assert.doesNotMatch(source, /l2d-fallback-portrait/)
+  assert.doesNotMatch(source, /\/live2d\/characters\/.*\.png/)
+
+  const loadingIcon = new URL('../../public/live2d/ui/loading-lotus.webp', import.meta.url)
+  assert.ok(statSync(loadingIcon).size <= 12 * 1024)
 })
 
 test('page resource cleanup is idempotent and runs every registered disposer', async () => {

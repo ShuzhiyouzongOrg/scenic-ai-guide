@@ -3,7 +3,8 @@
   <div class="flex-cc">
     <img
       :style="logoStyle"
-      src="@imgs/common/logo.webp"
+      :src="logo46"
+      :srcset="logoSrcSet"
       alt="灵山胜境 AI 导览"
       class="w-full h-full"
     />
@@ -11,6 +12,9 @@
 </template>
 
 <script setup lang="ts">
+  import logo46 from '@imgs/common/logo-46.webp'
+  import logo92 from '@imgs/common/logo-92.webp'
+
   defineOptions({ name: 'ArtLogo' })
 
   interface Props {
@@ -23,4 +27,5 @@
   })
 
   const logoStyle = computed(() => ({ width: `${props.size}px` }))
+  const logoSrcSet = `${logo46} 1x, ${logo92} 2x`
 </script>

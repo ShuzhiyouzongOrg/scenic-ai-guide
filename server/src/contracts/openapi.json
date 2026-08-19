@@ -218,6 +218,21 @@
         "summary": "List digital-human configurations"
       }
     },
+    "/api/digital-human/configs/{id}": {
+      "delete": {
+        "summary": "Delete an inactive digital-human configuration (admin token required)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
     "/api/digital-human/preload": {
       "post": {
         "summary": "Preload or warm digital-human fallback assets"

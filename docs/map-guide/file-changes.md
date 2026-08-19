@@ -27,7 +27,7 @@
 | `web/src/views/guide/map/index.vue`                  | 页面编排、状态恢复、路线/讲解/全景双向联动和响应式布局。                                               | 新路由独立页面。                | type-check、build、视觉验收。 |
 | `web/src/api/map-guide.ts`                           | API + 本地快照降级，受控媒体和静态路径解析。                                                           | 新 API 命名空间。               | 服务统计、build。             |
 | `web/src/components/map-guide/ScenicMap.vue`         | Leaflet 实例、底图、定位、fit/fly/pan、安全区和资源销毁。                                              | 只被地图页使用。                | build、卸载测试。             |
-| `HandDrawnTileLayer.vue`                             | 16 个 ImageOverlay 的增量增删和一次坐标转换。                                                          | 手绘层。                        | 图块测试、视觉拼接。          |
+| `HandDrawnTileLayer.vue`                             | 在统一地理边界内渲染单张完整手绘图并执行一次坐标转换。                                                 | 手绘层。                        | 点位同步与缩放测试。          |
 | `ScenicMarkerLayer.vue`                              | 景点/设施 Marker 增量更新、选中高亮，并按设施分类使用稳定配色。                                        | Marker 层。                     | 配色测试、交互验收。          |
 | `RoutePolylineLayer.vue`                             | 绘制官方道路轨迹；编号节点优先对齐标准景点坐标，未匹配时回退来源道路锚点。                             | 路线路层。                      | 官方轨迹与点位映射测试。      |
 | `ScenicSearchPanel.vue`                              | 搜索、单分类筛选、同色设施标识和结果列表，避免多分类标签同时堆叠。                                      | 左侧地图抽屉。                  | 交互验收。                    |
@@ -63,13 +63,14 @@
 | `server/data/source-snapshots/map-guide/official-routes.json` | 来源官方路线响应的本地审计快照，保留道路轨迹点与讲解节点关系。 | 仅迁移时刷新，生产不直连来源接口。 | 6 条路线、364 个轨迹点检查。 |
 | `server/src/services/mapGuide.mjs`                            | mtime 缓存读取统一 JSON。                                      | 新只读服务。                       | Node 语法和统计检查。        |
 | `server/data/generated/map-guide/categories.json`             | 17 个分类。                                                    | API 数据。                         | 迁移报告。                   |
-| `map-config.json`                                             | 中心、缩放、真实边界和 16 个图块。                             | API 数据。                         | 图块分析。                   |
+| `map-config.json`                                             | 中心、缩放、真实边界和单张完整手绘图。                         | API 数据。                         | 图像与边界分析。             |
 | `spots.json`                                                  | 218 个结构化点位。                                             | API 数据。                         | 计数和映射报告。             |
 | `routes.json`                                                 | 6 官方 + 7 精选路线。                                          | API 数据。                         | 路线报告。                   |
 | `panoramas.json`                                              | 1 个第三方全景及未知字段审核标记。                             | API 数据。                         | 全景清单。                   |
 | `media-manifest.json`                                         | 245 个待授权素材清单。                                         | 迁移审计。                         | 媒体计数。                   |
 | `web/public/map-guide/data/bootstrap.json`                    | API 失败时本地快照。                                           | 前端降级。                         | build 后静态资源存在。       |
-| `web/public/map-guide/tiles/01.webp`–`16.webp`                | 本地手绘核心图层。                                             | 地图静态资源。                     | 尺寸、哈希/字节、拼接检查。  |
+| `web/public/map-guide/areas/lingshan/artwork.webp`            | 灵山单张完整手绘图，运行时保留 30° 旋转。                      | 地图静态资源。                     | 尺寸、哈希和点位同步检查。   |
+| `web/public/map-guide/areas/nianhuawan/artwork.webp`          | 拈花湾单张完整手绘图。                                         | 地图静态资源。                     | 尺寸、哈希和点位同步检查。   |
 | `docs/map-guide/*.json`（6 个）                               | 路线、映射、坐标、图块、全景和迁移机器报告。                   | 审计材料。                         | 由脚本生成。                 |
 | `README.md`                                                   | 架构、命令、环境、降级、限制和优化说明。                       | 交付文档。                         | 人工复核。                   |
 | `migration-report.md`                                         | 人类可读迁移统计。                                             | 交付文档。                         | 与 JSON 对照。               |

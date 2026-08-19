@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import {
-  basename,
   dirname,
   isAbsolute,
   join,
@@ -22,7 +21,15 @@ const sourceRoot = resolve(
 );
 const outputDir = resolve(serverRoot, "data", "generated", "map-guide");
 const reportDir = resolve(targetRoot, "docs", "map-guide");
-const tileDir = resolve(targetRoot, "web", "public", "map-guide", "tiles");
+const artworkPath = resolve(
+  targetRoot,
+  "web",
+  "public",
+  "map-guide",
+  "areas",
+  "lingshan",
+  "artwork.webp",
+);
 const publicDataDir = resolve(targetRoot, "web", "public", "map-guide", "data");
 const sourceSnapshotDir = resolve(
   serverRoot,
@@ -34,7 +41,6 @@ const officialRouteSnapshotPath = join(
   sourceSnapshotDir,
   "official-routes.json",
 );
-const downloadTiles = process.argv.includes("--download-tiles");
 const downloadMedia = process.argv.includes("--download-media");
 const refreshOfficialRoutes = process.argv.includes("--refresh-routes");
 const mediaOutputDir = resolve(
@@ -748,43 +754,6 @@ function buildCoordinateAudit(sourceSpots, config) {
   };
 }
 
-function tileBounds(bounds, rows, columns, index) {
-  const row = Math.floor(index / columns);
-  const column = index % columns;
-  const latitudeStep =
-    (bounds.northeast.latitude - bounds.southwest.latitude) / rows;
-  const longitudeStep =
-    (bounds.northeast.longitude - bounds.southwest.longitude) / columns;
-  const north = bounds.northeast.latitude - latitudeStep * row;
-  const west = bounds.southwest.longitude + longitudeStep * column;
-  return {
-    southwest: {
-      latitude: north - latitudeStep,
-      longitude: west,
-      coordinateSystem: "GCJ02",
-    },
-    northeast: {
-      latitude: north,
-      longitude: west + longitudeStep,
-      coordinateSystem: "GCJ02",
-    },
-  };
-}
-
-async function downloadTile(url, destination) {
-  if (!existsSync(destination)) {
-    const response = await fetch(url);
-    if (!response.ok)
-      throw new Error(`Tile download failed (${response.status}): ${url}`);
-    await writeFile(destination, Buffer.from(await response.arrayBuffer()));
-  }
-  const buffer = await readFile(destination);
-  return {
-    sizeBytes: buffer.byteLength,
-    sha256: createHash("sha256").update(buffer).digest("hex"),
-  };
-}
-
 async function mapWithConcurrency(items, limit, mapper) {
   const results = new Array(items.length);
   let cursor = 0;
@@ -830,29 +799,28 @@ async function mirrorMediaAsset(asset) {
 
 async function buildMapConfig(config) {
   const overlay = config.map.handDrawnOverlay;
-  const knownSizes = [
-    35188, 296792, 63170, 28408, 64360, 773660, 853352, 240132, 36218, 749194,
-    1010874, 127360, 15862, 24354, 366166, 87630,
-  ];
-  const tiles = [];
-  for (let index = 0; index < overlay.tiles.length; index += 1) {
-    const id = String(index + 1).padStart(2, "0");
-    const destination = join(tileDir, `${id}.webp`);
-    const downloaded = downloadTiles
-      ? await downloadTile(overlay.tiles[index], destination)
-      : undefined;
-    tiles.push({
-      id,
-      index,
-      row: Math.floor(index / overlay.columns),
-      column: index % overlay.columns,
-      url: `/map-guide/tiles/${id}.webp`,
-      width: 2559,
-      height: 2362,
-      sizeBytes: downloaded?.sizeBytes || knownSizes[index],
-      bounds: tileBounds(overlay.bounds, overlay.rows, overlay.columns, index),
-    });
+  if (!existsSync(artworkPath)) {
+    throw new Error(`Complete Lingshan artwork is missing: ${artworkPath}`);
   }
+  const artwork = await readFile(artworkPath);
+  const bounds = {
+    southwest: { ...overlay.bounds.southwest, coordinateSystem: "GCJ02" },
+    northeast: { ...overlay.bounds.northeast, coordinateSystem: "GCJ02" },
+  };
+  const tiles = [
+    {
+      id: "artwork",
+      index: 0,
+      row: 0,
+      column: 0,
+      url: "/map-guide/areas/lingshan/artwork.webp",
+      width: 6144,
+      height: 5671,
+      sizeBytes: artwork.byteLength,
+      sha256: createHash("sha256").update(artwork).digest("hex"),
+      bounds,
+    },
+  ];
   return {
     center: { ...config.map.center, coordinateSystem: "GCJ02" },
     visitorCenter: { ...config.map.visitorCenter, coordinateSystem: "GCJ02" },
@@ -863,34 +831,29 @@ async function buildMapConfig(config) {
     initialZoom: Number(config.map.initialScale),
     tileLayer: {
       enabled: true,
-      rows: overlay.rows,
-      columns: overlay.columns,
-      concurrency: 4,
+      rows: 1,
+      columns: 1,
+      concurrency: 1,
       retries: 2,
-      bounds: {
-        southwest: { ...overlay.bounds.southwest, coordinateSystem: "GCJ02" },
-        northeast: { ...overlay.bounds.northeast, coordinateSystem: "GCJ02" },
-      },
+      bounds,
       tiles,
     },
   };
 }
 
 function buildTileAnalysis(mapConfig) {
-  const totalWidth = mapConfig.tileLayer.columns * 2559;
-  const totalHeight = mapConfig.tileLayer.rows * 2362;
+  const artwork = mapConfig.tileLayer.tiles[0];
   return {
-    order: "row-major; rows north-to-south; columns west-to-east",
+    order: "single complete artwork",
     flipRequired: false,
     rotationDegrees: mapConfig.rotationDegrees,
     displayLogic:
-      "Match the source WeChat map rotate property; rotate the complete mosaic and every point once in Web Mercator space.",
+      "Match the source WeChat map rotate property; rotate the complete artwork and every point once in Web Mercator space.",
     dragConstraint:
       "The Web map uses the rotated scenic bounds as maxBounds and hides the ordinary base map unless the artwork fails or the user selects fallback mode.",
-    rows: 4,
-    columns: 4,
-    tilePixels: { width: 2559, height: 2362 },
-    mosaicPixels: { width: totalWidth, height: totalHeight },
+    rows: 1,
+    columns: 1,
+    artworkPixels: { width: artwork.width, height: artwork.height },
     totalSizeBytes: mapConfig.tileLayer.tiles.reduce(
       (sum, tile) => sum + tile.sizeBytes,
       0,
@@ -910,8 +873,7 @@ function buildTileAnalysis(mapConfig) {
       { viewport: "1366x768", dpr: 1, nativeScale: 0.0813 },
       { viewport: "768x1024", dpr: 2, nativeScale: 0.1501 },
     ],
-    seamAudit:
-      "Quarter-scale mosaic inspection found no visible order, flip, overlap, or alignment defects; DOM overlays use a one-pixel seam buffer.",
+    seamAudit: "The complete artwork removes runtime tile seams and row/column drift.",
     futureUpgrade:
       "For zoom 20+, generate a real multiresolution XYZ pyramid or true @2x exports from source artwork.",
   };
@@ -1017,7 +979,6 @@ async function main() {
   await Promise.all([
     mkdir(outputDir, { recursive: true }),
     mkdir(reportDir, { recursive: true }),
-    mkdir(tileDir, { recursive: true }),
     mkdir(publicDataDir, { recursive: true }),
   ]);
   const source = await loadSourceData();
@@ -1132,22 +1093,14 @@ async function main() {
     writeJson("migration-report.json", report, reportDir),
     writeJson("bootstrap.json", bootstrap, publicDataDir),
   ]);
-  const tileBytes = (
-    await Promise.all(
-      mapConfig.tileLayer.tiles.map((tile) =>
-        stat(join(tileDir, basename(tile.url))).catch(() => null),
-      ),
-    )
-  )
-    .filter(Boolean)
-    .reduce((sum, entry) => sum + entry.size, 0);
+  const artworkBytes = (await stat(artworkPath)).size;
   console.log(
     JSON.stringify(
       {
         outputDir,
         reportDir,
-        tileDir,
-        downloadedTileBytes: tileBytes,
+        artworkPath,
+        artworkBytes,
         ...report,
       },
       null,

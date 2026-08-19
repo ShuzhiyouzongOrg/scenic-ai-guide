@@ -119,6 +119,41 @@ export function updateDigitalHumanConfig(input = {}) {
   return toConfig(db.prepare("SELECT * FROM digital_human_configs WHERE id = ?").get(id));
 }
 
+export function deleteDigitalHumanConfig(id) {
+  const normalizedId = String(id || "").trim();
+  const db = getDb();
+  const row = db.prepare("SELECT id, name, enabled FROM digital_human_configs WHERE id = ?").get(normalizedId);
+
+  if (!row) {
+    const error = new Error("Digital-human configuration not found.");
+    error.statusCode = 404;
+    error.code = "DIGITAL_HUMAN_CONFIG_NOT_FOUND";
+    throw error;
+  }
+
+  if (row.enabled) {
+    const error = new Error("The active digital-human configuration cannot be deleted.");
+    error.statusCode = 409;
+    error.code = "DIGITAL_HUMAN_CONFIG_ACTIVE";
+    throw error;
+  }
+
+  const remove = db.transaction(() => {
+    const result = db
+      .prepare("DELETE FROM digital_human_configs WHERE id = ? AND enabled = 0")
+      .run(normalizedId);
+    if (result.changes !== 1) {
+      const error = new Error("The digital-human configuration changed before it could be deleted.");
+      error.statusCode = 409;
+      error.code = "DIGITAL_HUMAN_CONFIG_CHANGED";
+      throw error;
+    }
+  });
+  remove();
+
+  return { id: row.id, name: row.name || "" };
+}
+
 const labelMap = {
   路线推荐: { expression: "smile", action: "point", state: "guiding", ttsEmotion: "happy" },
   拒答: { expression: "apology", action: "nod", state: "finished", ttsEmotion: "sorry" },

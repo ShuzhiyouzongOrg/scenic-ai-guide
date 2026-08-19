@@ -37,6 +37,14 @@ export function saveDigitalHumanConfig(data: Partial<DigitalHumanConfig>) {
   return request.post<DigitalHumanConfig>({ url: '/api/digital-human/config', data })
 }
 
+/** 删除未启用的数字人配置（管理端使用，需登录） */
+export function deleteDigitalHumanConfig(id: string) {
+  return request.del<{ id: string; name: string }>({
+    url: `/api/digital-human/configs/${encodeURIComponent(id)}`,
+    showErrorMessage: false
+  })
+}
+
 /** 预热当前数字人资源 */
 export function preloadDigitalHuman() {
   return request.post<{

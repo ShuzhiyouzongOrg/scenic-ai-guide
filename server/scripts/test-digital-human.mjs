@@ -11,6 +11,7 @@ process.env.XFYUN_AVATAR_SESSION_TTL_SECONDS = "120";
 process.env.XFYUN_AVATAR_SERVER_URL = "wss://avatar.cn-huadong-1.xf-yun.com/v1/interact";
 
 const {
+  deleteDigitalHumanConfig,
   getActiveDigitalHumanConfig,
   listDigitalHumanConfigs,
   mapAnswerToDigitalHumanState,
@@ -81,6 +82,11 @@ assert.match(
 );
 
 const catalog = listDigitalHumanConfigs();
+const receptionFemale = catalog.find((item) => item.id === "dh_xf_zhanting_female");
+assert.ok(receptionFemale, "the reception-female avatar is present in the catalog");
+assert.equal(receptionFemale.avatarId, "cnrfb86h2000000004");
+assert.equal(receptionFemale.vcn, "x6_jingqudaolannvsheng_mini");
+assert.equal(receptionFemale.voiceId, "x6_jingqudaolannvsheng_mini");
 for (const id of ["dh_l2d_kei", "dh_l2d_hibiki"]) {
   const live2d = catalog.find((item) => item.id === id);
   assert.ok(live2d, `${id} is present in the digital-human catalog`);
@@ -89,6 +95,43 @@ for (const id of ["dh_l2d_kei", "dh_l2d_hibiki"]) {
 }
 
 const db = getDb();
+const originalReceptionFemale = db
+  .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+  .get("dh_xf_zhanting_female");
+db.prepare(
+  "UPDATE digital_human_configs SET vcn = ?, voice_id = ?, welcome_text = ? WHERE id = ?"
+).run(
+  "x6_zhantingnvjiedai_pro",
+  "x6_zhantingnvjiedai_pro",
+  "管理员自定义欢迎语",
+  originalReceptionFemale.id
+);
+seedReferenceData(db);
+const customizedReceptionFemale = db
+  .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+  .get(originalReceptionFemale.id);
+assert.equal(
+  customizedReceptionFemale.vcn,
+  "x6_zhantingnvjiedai_pro",
+  "customized reception-female rows are not overwritten"
+);
+
+db.prepare(
+  "UPDATE digital_human_configs SET vcn = ?, voice_id = ?, welcome_text = ? WHERE id = ?"
+).run(
+  "x6_zhantingnvjiedai_pro",
+  "x6_zhantingnvjiedai_pro",
+  originalReceptionFemale.welcome_text,
+  originalReceptionFemale.id
+);
+seedReferenceData(db);
+const migratedReceptionFemale = db
+  .prepare("SELECT * FROM digital_human_configs WHERE id = ?")
+  .get(originalReceptionFemale.id);
+assert.equal(migratedReceptionFemale.avatar_id, "cnrfb86h2000000004");
+assert.equal(migratedReceptionFemale.vcn, "x6_jingqudaolannvsheng_mini");
+assert.equal(migratedReceptionFemale.voice_id, "x6_jingqudaolannvsheng_mini");
+
 const originalKei = db.prepare("SELECT * FROM digital_human_configs WHERE id = ?").get("dh_l2d_kei");
 db.prepare(
   "UPDATE digital_human_configs SET vcn = ?, voice_id = ?, welcome_text = ? WHERE id = ?"
@@ -151,6 +194,30 @@ assert.equal(added.assetAvailable, false);
 assert.equal(getActiveDigitalHumanConfig().id, "dh_test_text_only");
 assert.ok(listDigitalHumanConfigs().some((item) => item.id === "dh_test_text_only"));
 
+const removable = updateDigitalHumanConfig({
+  id: "dh_test_removable",
+  name: "待删除数字人",
+  serviceStatus: "text_only",
+  enabled: false
+});
+assert.equal(deleteDigitalHumanConfig(removable.id).id, removable.id);
+assert.ok(!listDigitalHumanConfigs().some((item) => item.id === removable.id));
+assert.throws(
+  () => deleteDigitalHumanConfig(removable.id),
+  (error) => error.statusCode === 404 && error.code === "DIGITAL_HUMAN_CONFIG_NOT_FOUND"
+);
+assert.throws(
+  () => deleteDigitalHumanConfig("dh_test_text_only"),
+  (error) => error.statusCode === 409 && error.code === "DIGITAL_HUMAN_CONFIG_ACTIVE"
+);
+
+const httpDeleteCandidate = updateDigitalHumanConfig({
+  id: "dh_test_http_delete",
+  name: "接口删除数字人",
+  serviceStatus: "text_only",
+  enabled: false
+});
+
 const preload = preloadDigitalHumanAssets();
 assert.equal(preload.ok, true);
 
@@ -164,6 +231,44 @@ const httpServer = await startServer({ host: "127.0.0.1", port: 0 });
 const address = httpServer.address();
 const origin = `http://127.0.0.1:${address.port}`;
 try {
+  const unauthorizedDeleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent(httpDeleteCandidate.id)}`,
+    { method: "DELETE" }
+  );
+  assert.equal(unauthorizedDeleteResponse.status, 401);
+
+  const loginResponse = await fetch(`${origin}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ username: "admin", password: "admin123" })
+  });
+  assert.equal(loginResponse.status, 200);
+  const loginPayload = await loginResponse.json();
+  const authorization = `Bearer ${loginPayload.data.token}`;
+
+  const activeDeleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent("dh_test_text_only")}`,
+    { method: "DELETE", headers: { authorization } }
+  );
+  assert.equal(activeDeleteResponse.status, 409);
+  assert.equal((await activeDeleteResponse.json()).error.code, "DIGITAL_HUMAN_CONFIG_ACTIVE");
+
+  const deleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent(httpDeleteCandidate.id)}`,
+    { method: "DELETE", headers: { authorization } }
+  );
+  assert.equal(deleteResponse.status, 200);
+  const deletePayload = await deleteResponse.json();
+  assert.equal(deletePayload.data.id, httpDeleteCandidate.id);
+  assert.ok(!listDigitalHumanConfigs().some((item) => item.id === httpDeleteCandidate.id));
+
+  const missingDeleteResponse = await fetch(
+    `${origin}/api/digital-human/configs/${encodeURIComponent(httpDeleteCandidate.id)}`,
+    { method: "DELETE", headers: { authorization } }
+  );
+  assert.equal(missingDeleteResponse.status, 404);
+  assert.equal((await missingDeleteResponse.json()).error.code, "DIGITAL_HUMAN_CONFIG_NOT_FOUND");
+
   const sessionResponse = await fetch(`${origin}/api/digital-human/web/session`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -189,6 +294,7 @@ try {
   assert.match(pageResponse.headers.get("cache-control"), /no-store/);
   assert.match(pageResponse.headers.get("content-security-policy"), /default-src 'none'/);
   assert.match(pageResponse.headers.get("content-security-policy"), /script-src 'self' 'unsafe-eval'/);
+  assert.match(pageResponse.headers.get("content-security-policy"), /frame-ancestors[^;]*http:\/\/127\.0\.0\.1:5173/);
   assert.match(await pageResponse.text(), /启动动态数字人/);
 
   const pageHeadResponse = await fetch(`${origin}/digital-human/`, { method: "HEAD" });
@@ -222,6 +328,7 @@ try {
   assert.equal(live2dPageResponse.status, 200);
   assert.match(live2dPageResponse.headers.get("content-type"), /^text\/html/);
   assert.match(live2dPageResponse.headers.get("content-security-policy"), /script-src 'self'/);
+  assert.match(live2dPageResponse.headers.get("content-security-policy"), /frame-ancestors[^;]*http:\/\/localhost:5173/);
   assert.match(await live2dPageResponse.text(), /live2dCanvas/);
 
   const live2dRuntimeResponse = await fetch(`${origin}/live2d/runtime.js`);

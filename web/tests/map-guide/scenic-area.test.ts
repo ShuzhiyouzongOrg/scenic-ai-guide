@@ -75,18 +75,22 @@ test('Nianhuawan official routes keep authored paths and canonical marker coordi
   }
 })
 
-test('Nianhuawan tiles retain the source row-major 4x4 grid', () => {
-  const tiles = nianhuawan.config.tileLayer.tiles
-  assert.equal(tiles.length, 16)
+test('each scenic area uses one complete hand-drawn artwork', () => {
+  const lingshanArtwork = lingshan.config.tileLayer.tiles
+  const nianhuawanArtwork = nianhuawan.config.tileLayer.tiles
+  assert.equal(lingshan.config.tileLayer.rows, 1)
+  assert.equal(lingshan.config.tileLayer.columns, 1)
   assert.deepEqual(
-    tiles.map((tile) => [tile.id, tile.row, tile.column]),
-    Array.from({ length: 16 }, (_, index) => [
-      String(index + 1).padStart(2, '0'),
-      Math.floor(index / 4),
-      index % 4
-    ])
+    lingshanArtwork.map((tile) => [tile.id, tile.row, tile.column, tile.width, tile.height]),
+    [['artwork', 0, 0, 6144, 5671]]
   )
-  assert.ok(tiles.every((tile) => tile.width === 1771 && tile.height === 2048))
+  assert.equal(lingshan.config.rotationDegrees, 30)
+  assert.equal(nianhuawan.config.tileLayer.rows, 1)
+  assert.equal(nianhuawan.config.tileLayer.columns, 1)
+  assert.deepEqual(
+    nianhuawanArtwork.map((tile) => [tile.id, tile.row, tile.column, tile.width, tile.height]),
+    [['artwork', 0, 0, 5313, 6144]]
+  )
   assert.equal(nianhuawan.config.rotationDegrees, 0)
   assert.equal(nianhuawan.config.highDpiMaxZoom, 18)
 })
