@@ -85,9 +85,18 @@
 							<view class="local-avatar-mouth" :class="mouthOpen ? 'local-avatar-mouth-open' : ''"><view class="local-avatar-mouth-core"></view></view>
 							<view v-if="digitalHumanState == 'speaking'" class="local-speaking-badge"><view class="local-speaking-dot"></view><text class="local-speaking-text">正在同步口型与讯飞音色</text></view>
 						</view>
-						<view v-if="digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length == 0 && !embeddedAvatarFailed && !showLocalAvatarStage" class="avatar-stage-loading">
-							<rice-loading mode="circle" color="#0b68d0" size="26" />
-							<text class="avatar-stage-loading-text">正在建立讯飞动态形象会话</text>
+						<view v-if="digitalHumanMode == 'xfyun' && !embeddedAvatarLoaded && !embeddedAvatarFailed && !showLocalAvatarStage" class="avatar-stage-skeleton">
+							<view class="avatar-skeleton-content">
+								<view class="avatar-skeleton-portrait"><view class="avatar-skeleton-head"></view><view class="avatar-skeleton-body"></view></view>
+								<view class="avatar-skeleton-copy">
+									<view class="avatar-skeleton-line avatar-skeleton-line-title"></view>
+									<view class="avatar-skeleton-line avatar-skeleton-line-wide"></view>
+									<view class="avatar-skeleton-line avatar-skeleton-line-short"></view>
+									<view class="avatar-skeleton-actions"><view class="avatar-skeleton-pill"></view><view class="avatar-skeleton-pill avatar-skeleton-pill-short"></view></view>
+								</view>
+							</view>
+							<view class="avatar-skeleton-status-row"><view class="avatar-skeleton-status-dot"></view><text class="avatar-skeleton-status-text">{{ embeddedAvatarRuntimeStatus }}</text></view>
+							<view class="avatar-skeleton-shimmer" :style="avatarSkeletonShimmerStyle"></view>
 						</view>
 						<view v-if="digitalHumanMode == 'live2d' && live2dAvatarUrl.length == 0 && !live2dAvatarFailed && !showLocalAvatarStage" class="avatar-stage-loading">
 							<rice-loading mode="circle" color="#0b68d0" size="26" />
@@ -131,7 +140,7 @@
 
 		<view class="composer">
 			<view class="composer-main">
-				<textarea class="composer-input" v-model="input" :auto-height="true" :adjust-position="false" placeholder="问问景区、路线或服务信息" maxlength="500" />
+				<textarea class="composer-input" v-model="input" :auto-height="true" :adjust-position="false" placeholder="问问景区、路线或服务信息" :maxlength="500" />
 				<view class="record-button" :class="recording ? 'record-button-active' : ''" @click="toggleRecording">
 					<rice-icon :name="recording ? 'pause-fill' : 'voice'" size="19" color="#ffffff" />
 				</view>
@@ -139,14 +148,17 @@
 					<rice-icon name="arrow-up" size="18" color="#ffffff" />
 				</view>
 			</view>
-			<text class="composer-tip">AI 内容仅供游览参考，请以景区现场公告为准</text>
+			<view class="composer-meta">
+				<text class="composer-tip">AI 内容仅供游览参考，请以景区现场公告为准</text>
+				<text class="clear-history-action" :class="canClearHistory ? '' : 'clear-history-action-disabled'" @click="requestClearHistory">{{ clearingHistory ? '清除中...' : '清除记录' }}</text>
+			</view>
 		</view>
 	</view>
 </template>
 
 <script setup lang="uts">
 	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
-	import { askQuestion, askVoice, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
+	import { askQuestion, askVoice, clearChatHistory, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { getDigitalHumanRenderMode, getSelectedDigitalHumanId, setDigitalHumanRenderMode } from '@/stores/guide-preferences.uts'
 	import { consumeGuidePrompt } from '@/stores/navigation-context.uts'
@@ -161,6 +173,7 @@
 
 	const input = ref<string>('')
 	const sending = ref<boolean>(false)
+	const clearingHistory = ref<boolean>(false)
 	const recording = ref<boolean>(false)
 	const autoNarration = ref<boolean>(true)
 	const initialized = ref<boolean>(false)
@@ -175,6 +188,7 @@
 	const embeddedAvatarCreating = ref<boolean>(false)
 	const embeddedAvatarRuntimeStatus = ref<string>('正在连接讯飞动态形象')
 	const embeddedAvatarRuntimeObserved = ref<boolean>(false)
+	const avatarSkeletonShimmerProgress = ref<number>(0)
 	const live2dAvatarUrl = ref<string>('')
 	const live2dAvatarLoaded = ref<boolean>(false)
 	const live2dAvatarPageLoaded = ref<boolean>(false)
@@ -203,6 +217,8 @@
 	let live2dWebViewContext = null as WebviewContext | null
 	let mouthAnimationTimer : number | null = null
 	let embeddedSpeechResetTimer : number | null = null
+	let embeddedAvatarRevealTimer : number | null = null
+	let avatarSkeletonShimmerTimer : number | null = null
 	let wechatLive2dSettleTimer : number | null = null
 	let pendingEmbeddedSpeech = ''
 	let activeEmbeddedSpeech = ''
@@ -217,6 +233,12 @@
 		style.set('height', `${wechatLive2dHeight.value}px`)
 		return style
 	})
+	const avatarSkeletonShimmerStyle = computed<Map<string, string>>(() => {
+		const style = new Map<string, string>()
+		style.set('transform', `translateX(${avatarSkeletonShimmerProgress.value}%) skewX(-14deg)`)
+		return style
+	})
+	const canClearHistory = computed<boolean>(() => messages.value.length > 0 && !sending.value && !clearingHistory.value)
 	const digitalHumanActionText = computed<string>(() => {
 		let text = digitalHumanMode.value == 'xfyun'
 			? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台')
@@ -337,7 +359,45 @@
 		selectDigitalHumanMode(digitalHumanMode.value == 'xfyun' ? 'live2d' : 'xfyun')
 	}
 
+	function startAvatarSkeletonShimmer() {
+		if (avatarSkeletonShimmerTimer != null) return
+		avatarSkeletonShimmerProgress.value = 0
+		avatarSkeletonShimmerTimer = setInterval(() => {
+			const next = avatarSkeletonShimmerProgress.value + 12
+			avatarSkeletonShimmerProgress.value = next > 360 ? 0 : next
+		}, 40)
+	}
+
+	function stopAvatarSkeletonShimmer() {
+		if (avatarSkeletonShimmerTimer != null) {
+			clearInterval(avatarSkeletonShimmerTimer!)
+			avatarSkeletonShimmerTimer = null
+		}
+		avatarSkeletonShimmerProgress.value = 0
+	}
+
+	function clearEmbeddedAvatarRevealTimer() {
+		if (embeddedAvatarRevealTimer != null) {
+			clearTimeout(embeddedAvatarRevealTimer!)
+			embeddedAvatarRevealTimer = null
+		}
+	}
+
+	function scheduleEmbeddedAvatarRevealFallback() {
+		clearEmbeddedAvatarRevealTimer()
+		embeddedAvatarRevealTimer = setTimeout(() => {
+			embeddedAvatarRevealTimer = null
+			if (digitalHumanMode.value != 'xfyun' || embeddedAvatarFailed.value || !embeddedAvatarPageLoaded.value) return
+			stopAvatarSkeletonShimmer()
+			embeddedAvatarLoaded.value = true
+			embeddedAvatarRuntimeStatus.value = '讯飞云动态形象在线'
+			flushPendingEmbeddedSpeech()
+		}, 9000)
+	}
+
 	function resetEmbeddedAvatar() {
+		stopAvatarSkeletonShimmer()
+		clearEmbeddedAvatarRevealTimer()
 		embeddedAvatarGeneration += 1
 		interruptEmbeddedAvatar()
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
@@ -408,6 +468,7 @@
 			return
 		}
 		embeddedAvatarCreating.value = true
+		startAvatarSkeletonShimmer()
 		if (force) {
 			embeddedAvatarGeneration += 1
 			interruptEmbeddedAvatar()
@@ -427,6 +488,7 @@
 			embeddedAvatarUrl.value = pageUrl + separator + 'embed=1&autostart=1&welcome=0'
 		} catch (error) {
 			if (generation != embeddedAvatarGeneration || digitalHumanMode.value != 'xfyun') return
+			stopAvatarSkeletonShimmer()
 			embeddedAvatarFailed.value = true
 			embeddedAvatarRuntimeStatus.value = '讯飞动态形象暂不可用'
 			fallbackEmbeddedSpeech()
@@ -443,9 +505,15 @@
 		embeddedAvatarRuntimeStatus.value = '讯飞页面已载入，正在启动形象'
 		// #ifdef APP
 		avatarWebViewContext = uni.createWebViewContext('ai-avatar-webview', currentInstance?.proxy)
-		avatarWebViewContext?.evalJS('window.scenicAvatarPing && window.scenicAvatarPing()')
+		// The current uni-app x bridge exposes uni.webView.postMessage, while the
+		// controlled runtime still accepts the legacy uni.postMessage alias. Wait
+		// for the official bridge, install a narrow compatibility forwarder, and
+		// immediately request the current SDK state so an already-ready avatar can
+		// replace the skeleton without waiting for another runtime transition.
+		avatarWebViewContext?.evalJS('(function installScenicHostBridge(attempt){if(window.uni&&window.uni.webView&&typeof window.uni.webView.postMessage==="function"){window.uni.postMessage=function(payload){window.uni.webView.postMessage(payload)};if(window.scenicAvatarPing)window.scenicAvatarPing();return}if(attempt<100)setTimeout(function(){installScenicHostBridge(attempt+1)},100)})(0)')
 		flushPendingEmbeddedSpeech()
 		// #endif
+		scheduleEmbeddedAvatarRevealFallback()
 	}
 
 	function handleEmbeddedAvatarError(event : WebViewErrorEvent) {
@@ -453,6 +521,7 @@
 		// ArkWeb also reports recoverable SDK sub-resource warnings through this
 		// event. Only a failure of the top-level document should replace the stage.
 		if (!embeddedAvatarPageLoaded.value && event.detail.url == embeddedAvatarUrl.value) {
+			stopAvatarSkeletonShimmer()
 			embeddedAvatarFailed.value = true
 			embeddedAvatarRuntimeStatus.value = '讯飞页面载入失败'
 			fallbackEmbeddedSpeech()
@@ -477,6 +546,8 @@
 				return
 			}
 			if (type == 'ready' || (type == 'runtime-state' && packet.getBoolean('ready', false))) {
+				clearEmbeddedAvatarRevealTimer()
+				stopAvatarSkeletonShimmer()
 				embeddedAvatarLoaded.value = true
 				embeddedAvatarFailed.value = false
 				embeddedAvatarRuntimeStatus.value = '讯飞云动态形象在线'
@@ -674,6 +745,8 @@
 	}
 
 	function failEmbeddedAvatar() {
+		clearEmbeddedAvatarRevealTimer()
+		stopAvatarSkeletonShimmer()
 		fallbackEmbeddedSpeech()
 		interruptEmbeddedAvatar()
 		embeddedAvatarLoaded.value = false
@@ -841,6 +914,42 @@
 		scrollToBottom()
 	}
 
+	function requestClearHistory() {
+		if (!canClearHistory.value) return
+		uni.showModal({
+			title: '清除对话记录',
+			content: '将永久删除当前会话中的全部问答记录，此操作无法撤销。',
+			confirmText: '确认清除',
+			confirmColor: '#c44747',
+			cancelText: '取消',
+			success: (result) => {
+				if (result.confirm) clearConversationHistory()
+			}
+		})
+	}
+
+	async function clearConversationHistory() {
+		if (!canClearHistory.value || sessionId.value.length == 0) return
+		clearingHistory.value = true
+		try {
+			await clearChatHistory(sessionId.value)
+			interruptEmbeddedAvatar()
+			interruptLive2dAvatar()
+			audioContext.value?.stop()
+			ttsQueue.value = []
+			ttsQueueIndex.value = 0
+			digitalHumanState.value = 'idle'
+			messages.value = []
+			scrollToBottom()
+			uni.showToast({ title: '对话记录已清除', icon: 'success' })
+		} catch (error) {
+			console.error('clear chat history failed', error)
+			uni.showToast({ title: '清除失败，请稍后重试', icon: 'none' })
+		} finally {
+			clearingHistory.value = false
+		}
+	}
+
 	function applyPendingPrompt() {
 		const prompt = consumeGuidePrompt()
 		if (prompt.length == 0) return
@@ -933,6 +1042,8 @@
 		interruptEmbeddedAvatar()
 		interruptLive2dAvatar()
 		stopMouthAnimation()
+		stopAvatarSkeletonShimmer()
+		clearEmbeddedAvatarRevealTimer()
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
 		embeddedSpeechResetTimer = null
 		if (wechatLive2dSettleTimer != null) clearTimeout(wechatLive2dSettleTimer!)
@@ -983,6 +1094,23 @@
 	.local-speaking-text { font-size: 9px; color: #ffffff; }
 	.avatar-stage-loading { width: 100%; height: 238px; align-items: center; justify-content: center; background-color: #ffffff; }
 	.avatar-stage-loading-text { margin-top: 11px; color: #718299; font-size: 11px; }
+	.avatar-stage-skeleton { position: absolute; z-index: 5; left: 0; right: 0; top: 0; bottom: 0; overflow: hidden; padding: 25px 24px 18px; justify-content: space-between; background: linear-gradient(to bottom right, #f8fbff, #edf5fb); }
+	.avatar-skeleton-content { flex-direction: row; align-items: center; }
+	.avatar-skeleton-portrait { position: relative; flex-shrink: 0; width: 92px; height: 126px; overflow: hidden; border-radius: 30px; align-items: center; justify-content: flex-end; background-color: #dce8f3; }
+	.avatar-skeleton-head { position: absolute; top: 20px; width: 48px; height: 48px; border-radius: 24px; background-color: #c6d7e7; }
+	.avatar-skeleton-body { width: 76px; height: 62px; margin-bottom: -15px; border-radius: 38px 38px 16px 16px; background-color: #c6d7e7; }
+	.avatar-skeleton-copy { flex: 1; min-width: 0; margin-left: 20px; }
+	.avatar-skeleton-line { height: 12px; margin-bottom: 12px; border-radius: 6px; background-color: #d4e1ed; }
+	.avatar-skeleton-line-title { width: 62%; height: 17px; border-radius: 9px; background-color: #c5d6e6; }
+	.avatar-skeleton-line-wide { width: 92%; }
+	.avatar-skeleton-line-short { width: 72%; }
+	.avatar-skeleton-actions { flex-direction: row; margin-top: 6px; }
+	.avatar-skeleton-pill { width: 76px; height: 25px; margin-right: 10px; border-radius: 13px; background-color: #d3e2ef; }
+	.avatar-skeleton-pill-short { width: 54px; }
+	.avatar-skeleton-status-row { height: 28px; flex-direction: row; align-items: center; justify-content: center; }
+	.avatar-skeleton-status-dot { width: 7px; height: 7px; margin-right: 7px; border-radius: 4px; background-color: #26a7a0; }
+	.avatar-skeleton-status-text { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #60778f; font-size: 10px; }
+	.avatar-skeleton-shimmer { position: absolute; left: -55%; top: 0; width: 45%; height: 100%; transform: skewX(-14deg); background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.76), rgba(255,255,255,0)); }
 	.avatar-stage-fallback { position: absolute; left: 12px; right: 12px; bottom: 12px; min-height: 34px; padding: 8px 11px; border-radius: 13px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.92); border: 1px solid #dce5ef; }
 	.avatar-stage-fallback-text { color: #557089; font-size: 10px; text-align: center; }
 	.avatar-stage-meta { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 11px; padding: 0 2px 2px; }
@@ -1018,7 +1146,10 @@
 	.record-button, .send-button { width: 42px; height: 42px; margin-left: 8px; border-radius: 15px; align-items: center; justify-content: center; background-color: #c8d3e1; }
 	.record-button-active { background-color: #c45750; }
 	.send-button-active { background: linear-gradient(to bottom right, #0b68d0, #099fbd); }
-	.composer-tip { font-size: 10px; color: #99a4b4; text-align: center; margin-top: 7px; }
+	.composer-meta { flex-direction: row; align-items: center; margin-top: 7px; padding: 0 2px; }
+	.composer-tip { flex: 1; min-width: 0; font-size: 10px; color: #99a4b4; text-align: left; }
+	.clear-history-action { flex-shrink: 0; margin-left: 10px; padding: 3px 2px; font-size: 10px; color: #b54747; font-weight: 700; }
+	.clear-history-action-disabled { color: #bdc5d0; }
 	/* #ifdef MP-WEIXIN || WEB */
 	.guide-avatar-image-speaking { animation: guide-avatar-speak 0.62s ease-in-out infinite; }
 	.welcome-copy, .message-text { user-select: text; }

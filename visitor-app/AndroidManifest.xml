@@ -6,5 +6,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <application />
+    <application>
+        <meta-data
+            android:name="TencentMapSDK"
+            android:value="3QGBZ-7AV6B-UX6UY-JYJBW-THRCV-KXBGI" />
+    </application>
 </manifest>
