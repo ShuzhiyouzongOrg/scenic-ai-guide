@@ -148,14 +148,17 @@
 					<rice-icon name="arrow-up" size="18" color="#ffffff" />
 				</view>
 			</view>
-			<text class="composer-tip">AI 内容仅供游览参考，请以景区现场公告为准</text>
+			<view class="composer-meta">
+				<text class="composer-tip">AI 内容仅供游览参考，请以景区现场公告为准</text>
+				<text class="clear-history-action" :class="canClearHistory ? '' : 'clear-history-action-disabled'" @click="requestClearHistory">{{ clearingHistory ? '清除中...' : '清除记录' }}</text>
+			</view>
 		</view>
 	</view>
 </template>
 
 <script setup lang="uts">
 	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
-	import { askQuestion, askVoice, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
+	import { askQuestion, askVoice, clearChatHistory, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { getDigitalHumanRenderMode, getSelectedDigitalHumanId, setDigitalHumanRenderMode } from '@/stores/guide-preferences.uts'
 	import { consumeGuidePrompt } from '@/stores/navigation-context.uts'
@@ -170,6 +173,7 @@
 
 	const input = ref<string>('')
 	const sending = ref<boolean>(false)
+	const clearingHistory = ref<boolean>(false)
 	const recording = ref<boolean>(false)
 	const autoNarration = ref<boolean>(true)
 	const initialized = ref<boolean>(false)
@@ -234,6 +238,7 @@
 		style.set('transform', `translateX(${avatarSkeletonShimmerProgress.value}%) skewX(-14deg)`)
 		return style
 	})
+	const canClearHistory = computed<boolean>(() => messages.value.length > 0 && !sending.value && !clearingHistory.value)
 	const digitalHumanActionText = computed<string>(() => {
 		let text = digitalHumanMode.value == 'xfyun'
 			? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台')
@@ -909,6 +914,42 @@
 		scrollToBottom()
 	}
 
+	function requestClearHistory() {
+		if (!canClearHistory.value) return
+		uni.showModal({
+			title: '清除对话记录',
+			content: '将永久删除当前会话中的全部问答记录，此操作无法撤销。',
+			confirmText: '确认清除',
+			confirmColor: '#c44747',
+			cancelText: '取消',
+			success: (result) => {
+				if (result.confirm) clearConversationHistory()
+			}
+		})
+	}
+
+	async function clearConversationHistory() {
+		if (!canClearHistory.value || sessionId.value.length == 0) return
+		clearingHistory.value = true
+		try {
+			await clearChatHistory(sessionId.value)
+			interruptEmbeddedAvatar()
+			interruptLive2dAvatar()
+			audioContext.value?.stop()
+			ttsQueue.value = []
+			ttsQueueIndex.value = 0
+			digitalHumanState.value = 'idle'
+			messages.value = []
+			scrollToBottom()
+			uni.showToast({ title: '对话记录已清除', icon: 'success' })
+		} catch (error) {
+			console.error('clear chat history failed', error)
+			uni.showToast({ title: '清除失败，请稍后重试', icon: 'none' })
+		} finally {
+			clearingHistory.value = false
+		}
+	}
+
 	function applyPendingPrompt() {
 		const prompt = consumeGuidePrompt()
 		if (prompt.length == 0) return
@@ -1105,7 +1146,10 @@
 	.record-button, .send-button { width: 42px; height: 42px; margin-left: 8px; border-radius: 15px; align-items: center; justify-content: center; background-color: #c8d3e1; }
 	.record-button-active { background-color: #c45750; }
 	.send-button-active { background: linear-gradient(to bottom right, #0b68d0, #099fbd); }
-	.composer-tip { font-size: 10px; color: #99a4b4; text-align: center; margin-top: 7px; }
+	.composer-meta { flex-direction: row; align-items: center; margin-top: 7px; padding: 0 2px; }
+	.composer-tip { flex: 1; min-width: 0; font-size: 10px; color: #99a4b4; text-align: left; }
+	.clear-history-action { flex-shrink: 0; margin-left: 10px; padding: 3px 2px; font-size: 10px; color: #b54747; font-weight: 700; }
+	.clear-history-action-disabled { color: #bdc5d0; }
 	/* #ifdef MP-WEIXIN || WEB */
 	.guide-avatar-image-speaking { animation: guide-avatar-speak 0.62s ease-in-out infinite; }
 	.welcome-copy, .message-text { user-select: text; }

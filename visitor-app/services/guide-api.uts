@@ -82,6 +82,10 @@ export function fetchChatHistory(sessionId : string) : Promise<ConversationMessa
 	return apiRequest<ConversationMessage[]>('/api/chat/history?sessionId=' + encodeURIComponent(sessionId))
 }
 
+export function clearChatHistory(sessionId : string) : Promise<UTSJSONObject> {
+	return apiRequest<UTSJSONObject>('/api/chat/history?sessionId=' + encodeURIComponent(sessionId), 'DELETE')
+}
+
 export function synthesizeSpeech(text : string, voice : string = 'x6_jingqudaolannvsheng_mini', speed : number = 1) : Promise<TtsResult> {
 	return apiRequest<TtsResult>('/api/voice/tts', 'POST', {
 		text,
