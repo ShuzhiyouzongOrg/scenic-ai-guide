@@ -128,7 +128,7 @@
     formKey.value++
   })
 
-  type AccountKey = 'super' | 'admin' | 'user'
+  type AccountKey = Api.Auth.LoginParams['role']
 
   export interface Account {
     key: AccountKey
@@ -140,11 +140,25 @@
 
   const accounts = computed<Account[]>(() => [
     {
-      key: 'super',
+      key: 'admin',
       label: t('login.roles.super'),
       userName: 'admin',
       password: 'admin123',
       roles: ['R_SUPER']
+    },
+    {
+      key: 'operator',
+      label: t('login.roles.operator'),
+      userName: '',
+      password: '',
+      roles: ['R_OPERATOR']
+    },
+    {
+      key: 'visitor',
+      label: t('login.roles.visitor'),
+      userName: '',
+      password: '',
+      roles: ['R_USER']
     }
   ])
 
@@ -174,7 +188,7 @@
   const loading = ref(false)
 
   onMounted(() => {
-    setupAccount('super')
+    setupAccount('admin')
   })
 
   // 设置账号
@@ -207,7 +221,8 @@
 
       const { token, refreshToken } = await fetchLogin({
         userName: username,
-        password
+        password,
+        role: formData.account as AccountKey
       })
 
       // 验证token

@@ -129,8 +129,8 @@
     "subTitle": "Please enter your account and password to login",
     "roles": {
       "super": "Super Admin",
-      "admin": "Admin",
-      "user": "User"
+      "operator": "Operator",
+      "visitor": "Visitor"
     },
     "placeholder": {
       "username": "Please enter your account",

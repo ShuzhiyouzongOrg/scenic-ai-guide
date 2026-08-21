@@ -24,7 +24,7 @@
  * ## 使用方式
  *
  * ```typescript
- * const params: Api.Auth.LoginParams = { userName: 'admin', password: '123456' }
+ * const params: Api.Auth.LoginParams = { userName: 'admin', password: '123456', role: 'admin' }
  * const response: Api.Auth.UserInfo = await fetchUserInfo()
  * ```
  *
@@ -66,6 +66,7 @@ declare namespace Api {
     interface LoginParams {
       userName: string
       password: string
+      role: 'admin' | 'operator' | 'visitor'
     }
 
     /** 登录响应 */
@@ -85,6 +86,7 @@ declare namespace Api {
     interface UserInfo {
       buttons: string[]
       roles: string[]
+      permissions: string[]
       userId: number | string
       userName: string
       email: string

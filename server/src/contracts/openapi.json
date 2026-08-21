@@ -12,7 +12,23 @@
     },
     "/api/auth/login": {
       "post": {
-        "summary": "Login for an administrator, operator or registered visitor"
+        "summary": "Login for an administrator, operator or registered visitor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "role"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": { "type": "string", "enum": ["admin", "operator", "visitor"] }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/auth/register": {

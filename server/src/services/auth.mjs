@@ -10,6 +10,7 @@ const REGISTER_USERNAME_MIN_LENGTH = 3;
 const REGISTER_USERNAME_MAX_LENGTH = 20;
 const REGISTER_PASSWORD_MIN_LENGTH = 6;
 const REGISTER_PASSWORD_MAX_LENGTH = 128;
+const LOGIN_ROLES = new Set(["admin", "operator", "visitor"]);
 
 export function register(input = {}) {
   const username = String(input.username || "").trim();
@@ -46,12 +47,36 @@ export function register(input = {}) {
   };
 }
 
-export function login(username, password) {
-  const user = getDb()
+export function login(username, password, expectedRole) {
+  const role = String(expectedRole || "").trim();
+  if (!LOGIN_ROLES.has(role)) {
+    const error = new Error("A valid login role is required.");
+    error.statusCode = 400;
+    error.code = "LOGIN_ROLE_INVALID";
+    throw error;
+  }
+
+  const db = getDb();
+  const user = db
     .prepare("SELECT * FROM admin_users WHERE username = ? AND status = 'active'")
     .get(String(username || ""));
   if (!user || !verifyPassword(String(password || ""), user.password_hash)) {
     return null;
+  }
+  if (user.role !== role) {
+    const error = new Error("The selected role does not match this account.");
+    error.statusCode = 403;
+    error.code = "LOGIN_ROLE_MISMATCH";
+    throw error;
+  }
+  const configuredRole = db
+    .prepare("SELECT 1 FROM system_roles WHERE role_code = ? AND enabled = 1")
+    .get(user.role);
+  if (!configuredRole) {
+    const error = new Error("This account role is disabled.");
+    error.statusCode = 403;
+    error.code = "LOGIN_ROLE_DISABLED";
+    throw error;
   }
 
   const token = signToken({
@@ -85,10 +110,25 @@ export function verifyToken(token) {
     return null;
   }
 
-  const payload = JSON.parse(Buffer.from(payloadEncoded, "base64url").toString("utf8"));
-  if (payload.exp < Date.now()) {
+  let payload;
+  try {
+    payload = JSON.parse(Buffer.from(payloadEncoded, "base64url").toString("utf8"));
+  } catch {
     return null;
   }
+  if (!payload.uid || payload.exp < Date.now()) {
+    return null;
+  }
+
+  const account = getDb()
+    .prepare(
+      `SELECT users.role
+       FROM admin_users AS users
+       INNER JOIN system_roles AS roles ON roles.role_code = users.role AND roles.enabled = 1
+       WHERE users.id = ? AND users.status = 'active'`
+    )
+    .get(payload.uid);
+  if (!account || account.role !== payload.role) return null;
 
   return payload;
 }

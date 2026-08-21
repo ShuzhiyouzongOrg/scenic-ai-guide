@@ -129,8 +129,8 @@
     "subTitle": "输入您的账号和密码登录",
     "roles": {
       "super": "超级管理员",
-      "admin": "管理员",
-      "user": "普通用户"
+      "operator": "运营人员",
+      "visitor": "游客"
     },
     "placeholder": {
       "username": "请输入账号",

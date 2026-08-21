@@ -307,7 +307,7 @@ async function prepareSmokeSession(window, port) {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'admin123' })
+      body: JSON.stringify({ username: 'admin', password: 'admin123', role: 'admin' })
     });
     const payload = await response.json();
     const token = payload?.data?.token || '';

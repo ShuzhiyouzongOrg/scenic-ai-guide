@@ -128,8 +128,8 @@ const catalog = {
     'アカウントとパスワードを入力してください'
   ],
   'login.roles.super': ['최고 관리자', '超級管理員', 'スーパー管理者'],
-  'login.roles.admin': ['관리자', '管理員', '管理者'],
-  'login.roles.user': ['사용자', '一般使用者', 'ユーザー'],
+  'login.roles.operator': ['운영 담당자', '營運人員', '運営担当者'],
+  'login.roles.visitor': ['방문객', '遊客', '訪問者'],
   'login.placeholder.username': ['계정을 입력하세요', '請輸入帳號', 'アカウントを入力'],
   'login.placeholder.password': ['비밀번호를 입력하세요', '請輸入密碼', 'パスワードを入力'],
   'login.placeholder.slider': ['슬라이드하여 인증하세요', '請拖動滑桿完成驗證', 'スライドして認証'],

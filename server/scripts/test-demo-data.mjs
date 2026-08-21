@@ -234,7 +234,7 @@ async function testHttpEndpoint() {
     const loginResponse = await fetch(`http://127.0.0.1:${port}/api/auth/login`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ username: "admin", password: "admin123" })
+      body: JSON.stringify({ username: "admin", password: "admin123", role: "admin" })
     });
     assert.equal(loginResponse.status, 200);
     const loginBody = await loginResponse.json();

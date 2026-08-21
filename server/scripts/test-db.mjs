@@ -28,9 +28,13 @@ check("reference data seeded", () => {
 });
 
 check("admin login works with seeded account", () => {
-  const result = login("admin", "admin123");
+  const result = login("admin", "admin123", "admin");
   assert.ok(result && result.token, "login returns token");
-  assert.equal(login("admin", "wrong"), null, "bad password rejected");
+  assert.equal(login("admin", "wrong", "admin"), null, "bad password rejected");
+  assert.throws(
+    () => login("admin", "admin123", "visitor"),
+    (error) => error.code === "LOGIN_ROLE_MISMATCH"
+  );
 });
 
 check("visitor registration persists role and avatar", () => {
@@ -39,7 +43,7 @@ check("visitor registration persists role and avatar", () => {
   const result = register({ username, password: "visit123", avatar });
   assert.equal(result.role, "visitor");
   assert.equal(result.avatar, avatar);
-  assert.equal(login(username, "visit123").user.role, "visitor");
+  assert.equal(login(username, "visit123", "visitor").user.role, "visitor");
   assert.throws(
     () => register({ username, password: "visit123", avatar }),
     (error) => error.code === "USER_EXISTS"

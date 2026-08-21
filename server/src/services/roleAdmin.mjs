@@ -47,6 +47,33 @@ export function listRoles(filters = {}) {
   return getDb().prepare(`SELECT * FROM system_roles ${where} ORDER BY id ASC`).all(values).map(toRole);
 }
 
+export function getRolePermissions(roleCode) {
+  const row = getDb()
+    .prepare("SELECT permissions FROM system_roles WHERE role_code = ? AND enabled = 1")
+    .get(String(roleCode || ""));
+  if (!row) return [];
+  try {
+    const permissions = JSON.parse(row.permissions || "[]");
+    return Array.isArray(permissions)
+      ? permissions.map((permission) => String(permission).trim()).filter(Boolean)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function hasRolePermission(roleCode, requiredPermission) {
+  const required = String(requiredPermission || "").replace(/\/$/, "");
+  if (!required) return false;
+  return getRolePermissions(roleCode).some((permission) => {
+    const normalized = permission.replace(/\/$/, "");
+    return Boolean(
+      normalized &&
+      (normalized === "*" || normalized === required || required.startsWith(`${normalized}/`))
+    );
+  });
+}
+
 export function createRole(input = {}) {
   const roleName = String(input.roleName || "").trim();
   const roleCode = String(input.roleCode || "").trim();

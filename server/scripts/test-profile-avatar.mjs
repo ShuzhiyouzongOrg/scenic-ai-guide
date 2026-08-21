@@ -29,7 +29,7 @@ try {
   }, 201);
   const login = await jsonRequest("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ username: "avatarvisitor", password: "avatar123" }),
+    body: JSON.stringify({ username: "avatarvisitor", password: "avatar123", role: "visitor" }),
     headers: { "content-type": "application/json" }
   }, 200);
   const token = login.data.token;

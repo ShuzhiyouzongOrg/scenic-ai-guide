@@ -28,6 +28,7 @@ assert.match(mainSource, /preload: join\(desktopRoot\(\), "preload\.cjs"\)/);
 assert.match(mainSource, /Desktop LLM smoke test passed: provider=/);
 assert.match(mainSource, /Desktop avatar smoke test passed: state=/);
 assert.match(mainSource, /Desktop service configuration smoke test passed\./);
+assert.match(mainSource, /JSON\.stringify\(\{ username: 'admin', password: 'admin123', role: 'admin' \}\)/);
 assert.match(preloadSource, /getAvatarCredentials: \(\) => ipcRenderer\.invoke\("desktop:get-avatar-credentials"\)/);
 assert.match(builderSource, /resolve\(workspaceDir, "LocalTemp", "desktop-dist"\)/);
 assert.match(sqliteTestSource, /spawnSync\(process\.execPath, \[databaseTests\]/);

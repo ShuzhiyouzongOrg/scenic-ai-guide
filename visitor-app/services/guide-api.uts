@@ -127,7 +127,7 @@ export function fetchRouteGraph() : Promise<RouteGraph> {
 }
 
 export function loginVisitor(username : string, password : string) : Promise<AuthLoginResult> {
-	return apiRequest<AuthLoginResult>('/api/auth/login', 'POST', { username, password })
+	return apiRequest<AuthLoginResult>('/api/auth/login', 'POST', { username, password, role: 'visitor' })
 }
 
 export function registerVisitor(username : string, password : string) : Promise<AuthRegisterResult> {

@@ -58,7 +58,15 @@ import {
   updateAdminUserProfile,
   changeAdminUserPassword
 } from "./services/userAdmin.mjs";
-import { listRoles, createRole, updateRole, updateRolePermissions, deleteRole } from "./services/roleAdmin.mjs";
+import {
+  listRoles,
+  createRole,
+  updateRole,
+  updateRolePermissions,
+  deleteRole,
+  getRolePermissions,
+  hasRolePermission
+} from "./services/roleAdmin.mjs";
 import { generateDemoData } from "./services/demoData.mjs";
 import {
   getMapGuideBootstrap,
@@ -183,6 +191,7 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/summary" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const knowledge = loadKnowledge();
     if (!knowledge) {
       ok(res, {
@@ -208,6 +217,7 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/rebuild" && req.method === "POST") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     let knowledge;
     let source = "source";
     try {
@@ -259,13 +269,13 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/admin/scenic-spots" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, listAllManagedScenicSpots());
     return;
   }
 
   if (url.pathname === "/api/admin/scenic-spots" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const body = await readJson(req);
     created(res, createScenicSpot(body));
     return;
@@ -273,27 +283,27 @@ async function route(req, res, url) {
 
   const scenicAdminMatch = url.pathname.match(/^\/api\/admin\/scenic-spots\/([^/]+)$/);
   if (scenicAdminMatch && req.method === "PUT") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const body = await readJson(req);
     ok(res, updateScenicSpot(decodeURIComponent(scenicAdminMatch[1]), body));
     return;
   }
 
   if (scenicAdminMatch && req.method === "DELETE") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, disableScenicSpot(decodeURIComponent(scenicAdminMatch[1])));
     return;
   }
 
   // Admin user management (product closed-loop)
   if (url.pathname === "/api/admin/users" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/user")) return;
     ok(res, listAdminUsers());
     return;
   }
 
   if (url.pathname === "/api/admin/users" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/user")) return;
     const body = await readJson(req);
     created(res, createAdminUser(body));
     return;
@@ -301,52 +311,53 @@ async function route(req, res, url) {
 
   const userAdminMatch = url.pathname.match(/^\/api\/admin\/users\/([^/]+)$/);
   if (userAdminMatch && req.method === "PUT") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/user")) return;
     const body = await readJson(req);
     ok(res, updateAdminUser(decodeURIComponent(userAdminMatch[1]), body));
     return;
   }
 
   if (userAdminMatch && req.method === "DELETE") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/user")) return;
     ok(res, deleteAdminUser(decodeURIComponent(userAdminMatch[1])));
     return;
   }
 
   if (url.pathname === "/api/admin/roles" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/role")) return;
     ok(res, listRoles(Object.fromEntries(url.searchParams.entries())));
     return;
   }
 
   if (url.pathname === "/api/admin/roles" && req.method === "POST") {
-    if (!requireSuperAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/role")) return;
     created(res, createRole(await readJson(req)));
     return;
   }
 
   const roleAdminMatch = url.pathname.match(/^\/api\/admin\/roles\/([^/]+)$/);
   if (roleAdminMatch && req.method === "PUT") {
-    if (!requireSuperAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/role")) return;
     ok(res, updateRole(Number(decodeURIComponent(roleAdminMatch[1])), await readJson(req)));
     return;
   }
 
   if (roleAdminMatch && req.method === "DELETE") {
-    if (!requireSuperAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/role")) return;
     ok(res, deleteRole(Number(decodeURIComponent(roleAdminMatch[1]))));
     return;
   }
 
   const rolePermissionMatch = url.pathname.match(/^\/api\/admin\/roles\/([^/]+)\/permissions$/);
   if (rolePermissionMatch && req.method === "PUT") {
-    if (!requireSuperAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/system/role")) return;
     const body = await readJson(req);
     ok(res, updateRolePermissions(Number(decodeURIComponent(rolePermissionMatch[1])), body.permissions));
     return;
   }
 
   if (url.pathname === "/api/knowledge/chunks" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const knowledge = loadKnowledge();
     const chunks = knowledge?.chunks || [];
     const limit = Math.min(Number(url.searchParams.get("limit") || 50), 200);
@@ -358,6 +369,7 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/search" && req.method === "POST") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const body = await readJson(req);
     const mode = body.mode === "keyword" ? "keyword" : "hybrid";
     const result = mode === "keyword"
@@ -489,17 +501,13 @@ async function route(req, res, url) {
 
   const digitalHumanConfigMatch = url.pathname.match(/^\/api\/digital-human\/configs\/([^/]+)$/);
   if (digitalHumanConfigMatch && req.method === "DELETE") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/digital-human")) return;
     ok(res, deleteDigitalHumanConfig(decodeURIComponent(digitalHumanConfigMatch[1])));
     return;
   }
 
   if (url.pathname === "/api/digital-human/config" && req.method === "POST") {
-    const token = getBearerToken(req);
-    if (!verifyToken(token)) {
-      fail(res, 401, "UNAUTHORIZED", "Login is required.");
-      return;
-    }
+    if (!requirePermission(req, res, "/admin/digital-human")) return;
     const body = await readJson(req);
     ok(res, updateDigitalHumanConfig(body));
     return;
@@ -544,23 +552,19 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/chat/faq-cache" && req.method === "GET") {
-    const token = getBearerToken(req);
-    if (!verifyToken(token)) {
-      fail(res, 401, "UNAUTHORIZED", "Login is required.");
-      return;
-    }
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, faqCacheStats());
     return;
   }
 
   if (url.pathname === "/api/admin/faqs" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, listAdminFaqs());
     return;
   }
 
   if (url.pathname === "/api/admin/faqs" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const body = await readJson(req);
     created(res, createAdminFaq(body));
     return;
@@ -568,7 +572,7 @@ async function route(req, res, url) {
 
   const faqAdminMatch = url.pathname.match(/^\/api\/admin\/faqs\/([^/]+)$/);
   if (faqAdminMatch && req.method === "PUT") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const body = await readJson(req);
     ok(res, updateAdminFaq(decodeURIComponent(faqAdminMatch[1]), body));
     return;
@@ -639,7 +643,7 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/admin/conversations" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/operation")) return;
     const lowSatisfaction = url.searchParams.get("lowSatisfactionOnly") || url.searchParams.get("lowSatisfaction") || "";
     ok(res, listConversationSummaries({
       lowSatisfactionOnly: lowSatisfaction === "1" || lowSatisfaction === "true"
@@ -649,14 +653,14 @@ async function route(req, res, url) {
 
   const conversationAdminMatch = url.pathname.match(/^\/api\/admin\/conversations\/([^/]+)$/);
   if (conversationAdminMatch && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/operation")) return;
     ok(res, getConversationDetail(decodeURIComponent(conversationAdminMatch[1])));
     return;
   }
 
   const messageAnnotationMatch = url.pathname.match(/^\/api\/admin\/messages\/([^/]+)\/annotation$/);
   if (messageAnnotationMatch && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/operation")) return;
     const body = await readJson(req);
     created(res, annotateMessage(decodeURIComponent(messageAnnotationMatch[1]), body));
     return;
@@ -664,25 +668,25 @@ async function route(req, res, url) {
 
   const messageDraftMatch = url.pathname.match(/^\/api\/admin\/messages\/([^/]+)\/knowledge-draft$/);
   if (messageDraftMatch && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/operation")) return;
     created(res, createKnowledgeDraftFromMessage(decodeURIComponent(messageDraftMatch[1])));
     return;
   }
 
   if (url.pathname === "/api/admin/feedback/clusters" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/operation")) return;
     ok(res, listFeedbackClusters());
     return;
   }
 
   if (url.pathname === "/api/admin/service-quality/report" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/operation")) return;
     ok(res, buildServiceQualityReport());
     return;
   }
 
   if (url.pathname === "/api/admin/analytics/import" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/analytics")) return;
     const dataset = loadBehaviorDataset({ force: true });
     created(res, {
       source: dataset.source,
@@ -692,7 +696,7 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/admin/analytics/dashboard" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/analytics")) return;
     ok(res, getDashboardAnalytics({
       gender: url.searchParams.get("gender") || "",
       ageBand: url.searchParams.get("ageBand") || "",
@@ -702,14 +706,14 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/admin/demo-data/generate" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/analytics")) return;
     created(res, generateDemoData());
     return;
   }
 
   if (url.pathname === "/api/auth/login" && req.method === "POST") {
     const body = await readJson(req);
-    const result = login(body.username, body.password);
+    const result = login(body.username, body.password, body.role);
     if (!result) {
       fail(res, 401, "INVALID_CREDENTIALS", "Invalid username or password.");
       return;
@@ -784,13 +788,13 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/uploads" && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, listUploads());
     return;
   }
 
   if (url.pathname === "/api/uploads" && req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const body = await readJson(req);
     created(res, createUpload(body));
     return;
@@ -798,14 +802,14 @@ async function route(req, res, url) {
 
   const uploadPreviewMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)\/preview$/);
   if (uploadPreviewMatch && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, getUploadPreview(decodeURIComponent(uploadPreviewMatch[1])));
     return;
   }
 
   const uploadContentMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)\/content$/);
   if (uploadContentMatch && req.method === "GET") {
-    if (!requireAdmin(req, res)) return;
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
     const content = getUploadContent(decodeURIComponent(uploadContentMatch[1]));
     const encodedName = encodeURIComponent(content.fileName).replaceAll("'", "%27");
     res.writeHead(200, {
@@ -872,28 +876,14 @@ async function streamChat(res, body) {
   }
 }
 
-function requireAdmin(req, res) {
-  const token = getBearerToken(req);
-  const payload = verifyToken(token);
-  if (!payload) {
-    fail(res, 401, "UNAUTHORIZED", "Login is required.");
-    return false;
-  }
-  if (!["admin", "operator"].includes(payload.role)) {
-    fail(res, 403, "FORBIDDEN", "Administrator access is required.");
-    return false;
-  }
-  return true;
-}
-
-function requireSuperAdmin(req, res) {
+function requirePermission(req, res, permission) {
   const payload = verifyToken(getBearerToken(req));
   if (!payload) {
     fail(res, 401, "UNAUTHORIZED", "Login is required.");
     return false;
   }
-  if (payload.role !== "admin") {
-    fail(res, 403, "FORBIDDEN", "Super administrator access is required.");
+  if (!hasRolePermission(payload.role, permission)) {
+    fail(res, 403, "FORBIDDEN", "This role does not have permission to access this resource.");
     return false;
   }
   return true;
@@ -913,12 +903,13 @@ function toAuthUser(user, fallback = {}) {
   const roles = role === "admin"
     ? ["R_SUPER", "R_ADMIN"]
     : role === "operator"
-      ? ["R_ADMIN", "operator"]
+      ? ["R_OPERATOR", "operator"]
       : ["R_USER", role];
   return {
     userId: user?.id || fallback.uid || fallback.sub,
     userName: user?.username || fallback.sub || "",
     roles,
+    permissions: getRolePermissions(role),
     buttons: [],
     email: user?.email || "",
     avatar: user?.avatar || "",

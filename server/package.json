@@ -9,6 +9,7 @@
     "check": "node scripts/check.mjs",
     "db:init": "node scripts/db-init.mjs",
     "test:db": "node scripts/test-db.mjs",
+    "test:auth": "node scripts/test-auth.mjs",
     "env:check": "node scripts/env-check.mjs",
     "backup": "node scripts/backup-data.mjs",
     "restore": "node scripts/restore-data.mjs",

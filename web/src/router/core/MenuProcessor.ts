@@ -42,11 +42,14 @@ export class MenuProcessor {
   private async processFrontendMenu(): Promise<AppRouteRecord[]> {
     const userStore = useUserStore()
     const roles = userStore.info?.roles
+    const permissions = userStore.info?.permissions
 
     let menuList = [...asyncRoutes]
 
-    // 根据角色过滤菜单
-    if (roles && roles.length > 0) {
+    // 新版服务端返回角色管理页配置的路径权限；保留角色过滤作为旧接口兼容。
+    if (Array.isArray(permissions)) {
+      menuList = this.filterMenuByPermissions(menuList, permissions)
+    } else if (roles && roles.length > 0) {
       menuList = this.filterMenuByRoles(menuList, roles)
     }
 
@@ -73,6 +76,41 @@ export class MenuProcessor {
         const filteredItem = { ...item }
         if (filteredItem.children?.length) {
           filteredItem.children = this.filterMenuByRoles(filteredItem.children, roles)
+        }
+        acc.push(filteredItem)
+      }
+
+      return acc
+    }, [])
+  }
+
+  private filterMenuByPermissions(
+    menu: AppRouteRecord[],
+    permissions: string[],
+    parentPath = ''
+  ): AppRouteRecord[] {
+    if (permissions.includes('*')) return menu
+
+    return menu.reduce((acc: AppRouteRecord[], item) => {
+      const fullPath = this.buildFullPath(item.path || '', parentPath)
+      const hasPermission = permissions.some((permission) => {
+        const normalized = permission.trim().replace(/\/$/, '')
+        return (
+          normalized.length > 0 &&
+          (normalized === fullPath ||
+            normalized.startsWith(`${fullPath}/`) ||
+            fullPath.startsWith(`${normalized}/`))
+        )
+      })
+
+      if (hasPermission) {
+        const filteredItem = { ...item }
+        if (filteredItem.children?.length) {
+          filteredItem.children = this.filterMenuByPermissions(
+            filteredItem.children,
+            permissions,
+            fullPath
+          )
         }
         acc.push(filteredItem)
       }

@@ -8,7 +8,11 @@ export const knowledgeRoutes: AppRouteRecord = {
   name: 'Knowledge',
   path: '/admin/knowledge',
   component: '/index/index',
-  meta: { title: 'app.navKnowledge', icon: 'ri:book-open-line', roles: ['R_SUPER'] },
+  meta: {
+    title: 'app.navKnowledge',
+    icon: 'ri:book-open-line',
+    roles: ['R_SUPER', 'R_OPERATOR']
+  },
   children: [
     {
       path: 'documents',
@@ -71,7 +75,7 @@ export const systemRoutes: AppRouteRecord = {
   name: 'System',
   path: '/system',
   component: '/index/index',
-  meta: { title: 'app.navSystem', icon: 'ri:settings-3-line', roles: ['R_SUPER', 'R_ADMIN'] },
+  meta: { title: 'app.navSystem', icon: 'ri:settings-3-line', roles: ['R_SUPER'] },
   children: [
     {
       path: 'user',
@@ -81,7 +85,7 @@ export const systemRoutes: AppRouteRecord = {
         title: 'menus.system.user',
         icon: 'ri:user-line',
         keepAlive: true,
-        roles: ['R_SUPER', 'R_ADMIN']
+        roles: ['R_SUPER']
       }
     },
     {
@@ -114,7 +118,11 @@ export const operationRoutes: AppRouteRecord = {
   name: 'Operation',
   path: '/admin/operation',
   component: '/index/index',
-  meta: { title: 'app.navOperation', icon: 'ri:chat-check-line', roles: ['R_SUPER'] },
+  meta: {
+    title: 'app.navOperation',
+    icon: 'ri:chat-check-line',
+    roles: ['R_SUPER', 'R_OPERATOR']
+  },
   children: [
     {
       path: 'conversations',

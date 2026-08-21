@@ -11,7 +11,8 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
     url: '/api/auth/login',
     data: {
       username: params.userName,
-      password: params.password
+      password: params.password,
+      role: params.role
     }
   })
 }
