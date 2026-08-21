@@ -1,3 +1,18 @@
+/**
+ * @fileoverview 面向 `/api/schema` 和项目文档的领域数据表说明。
+ *
+ * 此对象不是建表 SQL；实际迁移定义位于 `database.mjs`。它为前端和维护人员提供稳定、
+ * 可序列化的表用途与核心列概览。
+ */
+
+/**
+ * 领域表结构说明映射。
+ *
+ * @type {Record<string, {description: string, columns: Record<string, string>}>}
+ * @example
+ * import { schema } from "./schema.mjs";
+ * console.log(schema.messages.columns.session_id);
+ */
 export const schema = {
   adminUsers: {
     description: "Admin and operator accounts.",

@@ -1,6 +1,26 @@
+/**
+ * @fileoverview 服务端运行配置加载器。
+ *
+ * 模块先读取 `CONFIG_ENV_FILE` 指定的 dotenv 文件，再将环境变量整理为只读使用约定的
+ * `config` 对象，同时创建数据与上传目录。父进程显式传入的变量优先级高于 dotenv。
+ *
+ * @example
+ * import { config } from "./config.mjs";
+ * console.log(config.host, config.port, config.providers.llm);
+ */
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+/**
+ * 将 dotenv 文件中尚未存在于 `process.env` 的键加载到当前进程。
+ *
+ * 空行、注释行和不含等号的行会被忽略；值保留第一个等号后的完整文本。
+ *
+ * @param {string} filePath dotenv 文件的绝对路径或可解析路径。
+ * @returns {void}
+ * @throws {Error} 文件存在但无法读取时透传文件系统异常。
+ * @private
+ */
 function loadDotEnv(filePath) {
   if (!existsSync(filePath)) {
     return;
@@ -30,6 +50,30 @@ function loadDotEnv(filePath) {
 
 loadDotEnv(resolve(process.env.CONFIG_ENV_FILE || resolve(process.cwd(), ".env")));
 
+/**
+ * 服务端统一运行配置。
+ *
+ * @type {{
+ *   appName: string,
+ *   nodeEnv: string,
+ *   host: string,
+ *   port: number,
+ *   adminUsername: string,
+ *   adminPassword: string,
+ *   jwtSecret: string,
+ *   dataDir: string,
+ *   uploadDir: string,
+ *   demoMode: boolean,
+ *   providers: {llm: string, asr: string, tts: string},
+ *   llm: {provider: string, apiKey: string, baseUrl: string, model: string, timeoutMs: number, maxRetries: number, temperature: number},
+ *   xfyun: {appId: string, apiKey: string, apiSecret: string, asrHost: string, asrPath: string, asrTimeoutMs: number, ttsVoice: string, ttsHost: string, ttsPath: string, ttsTimeoutMs: number},
+ *   digitalHumanWeb: {appId: string, apiKey: string, apiSecret: string, serverUrl: string, sceneId: string, sceneVersion: string, sessionSecret: string, sessionTtlSeconds: number}
+ * }}
+ *
+ * @example
+ * import { config } from "./config.mjs";
+ * if (config.demoMode) console.info("deterministic fallback enabled");
+ */
 export const config = {
   appName: process.env.APP_NAME || "Lingshan AI Guide",
   nodeEnv: process.env.NODE_ENV || "development",

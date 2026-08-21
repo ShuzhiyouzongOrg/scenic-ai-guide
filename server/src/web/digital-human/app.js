@@ -1,28 +1,46 @@
+/**
+ * @fileoverview 讯飞 Web 数字人页面控制器，负责短期会话启动、问答、播报队列、自动重连和宿主通信。
+ *
+ * @typedef {{id: number, text: string}} QueuedSpeech
+ * @typedef {{session: {visitorSessionId: string}, digitalHuman: {name?: string, welcomeText?: string}, apiInfo: object, globalParams: object, endpoints: {ask: string}} AvatarBootstrap
+ * @typedef {{source: string, version: number, type: string, state: string, timestamp: number} & Record<string, *>} HostPacket
+ */
 import AvatarPlatform, {
   PlayerEvents,
   SDKEvents
 } from "./sdk/index.js";
 import { XRTCPlayer } from "./sdk/xrtc-player-BDn4MFE-.js";
 
-// Preload the player module. The vendor SDK loads the same module dynamically
-// after the avatar session starts; keeping an explicit reference also makes
-// WebView module loading failures visible during the initial page load.
+/**
+ * 预加载播放器模块。供应商 SDK 在会话启动后也会动态加载它；显式引用可让 WebView 模块错误在首屏暴露。
+ * @type {typeof XRTCPlayer}
+ */
 void XRTCPlayer;
 
+/** @type {URLSearchParams} 当前页面查询参数。 */
 const runtimeQuery = new URLSearchParams(window.location.search);
+/** @type {boolean} 页面是否运行在应用 WebView 中。 */
 const embedMode = runtimeQuery.get("embed") === "1";
+/** @type {boolean} 嵌入页面是否应自动启动数字人。 */
 const autoStart = embedMode && runtimeQuery.get("autostart") === "1";
-// Embedded hosts can suppress the automatic welcome line when they replace a
-// WebView. This prevents a newly-created session from speaking while the old
-// session is still being torn down.
+/**
+ * 嵌入宿主替换 WebView 时可关闭自动欢迎语，避免新会话在旧会话销毁期间同时播报。
+ * @type {boolean}
+ */
 const playWelcome = runtimeQuery.get("welcome") !== "0";
+/** @type {string} 后端签发的短期 Web 数字人会话令牌。 */
 const sessionToken = runtimeQuery.get("session") || "";
+/** @type {number} 自动重连最大次数。 */
 const MAX_AUTO_RETRIES = 3;
+/** @type {number} 指数退避的基础延迟毫秒数。 */
 const RETRY_BASE_DELAY_MS = 900;
+/** @type {number} 连接保持稳定后重置重试计数的毫秒数。 */
 const STABLE_CONNECTION_MS = 30_000;
+/** @type {string} 官方 uni-app WebView 消息桥脚本地址。 */
 const UNI_WEBVIEW_BRIDGE_URL = "https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.6.js";
 if (embedMode) document.body.classList.add("embed-mode");
 
+/** @type {Record<string, HTMLElement>} 页面交互和状态展示元素。 */
 const elements = {
   stage: document.querySelector("#avatar-stage"),
   placeholder: document.querySelector("#stage-placeholder"),
@@ -38,24 +56,43 @@ const elements = {
   answer: document.querySelector("#answer-text")
 };
 
+/** @type {AvatarBootstrap|null} 当前后端启动配置。 */
 let bootstrap = null;
+/** @type {AvatarPlatform|null} 当前讯飞 SDK 实例。 */
 let platform = null;
+/** @type {boolean} SDK 是否可接受播报。 */
 let ready = false;
+/** @type {boolean} SDK 是否正在启动。 */
 let starting = false;
+/** @type {boolean} 启动配置是否正在加载。 */
 let bootstrapLoading = false;
+/** @type {boolean} 页面资源是否已销毁。 */
 let disposed = false;
+/** @type {number} 当前恢复周期已执行的重连次数。 */
 let retryCount = 0;
+/** @type {number|null} 自动重连定时器 ID。 */
 let retryTimer = null;
+/** @type {number|null} 稳定连接判定定时器 ID。 */
 let stableConnectionTimer = null;
+/** @type {number|null} 播报完成兜底定时器 ID。 */
 let speechCompletionTimer = null;
+/** @type {boolean} 当前恢复周期是否已耗尽自动重连。 */
 let recoveryExhausted = false;
+/** @type {number} 播报项递增序号。 */
 let speechSequence = 0;
+/** @type {boolean} 是否正在向 SDK 写入播报文本。 */
 let speechWriteInFlight = false;
+/** @type {QueuedSpeech[]} 等待发送给 SDK 的播报队列。 */
 let pendingExternalSpeech = [];
+/** @type {QueuedSpeech|null} 已发给 SDK 且尚未完成的播报。 */
 let activeSpeech = null;
+/** @type {boolean} 欢迎语是否已入队，防止重连重复播报。 */
 let welcomeQueued = false;
+/** @type {string} 向宿主报告的运行时状态。 */
 let runtimeState = "loading";
+/** @type {boolean} uni-app WebView 桥脚本是否正在加载。 */
 let hostBridgeLoading = false;
+/** @type {HostPacket[]} 等待 uni-app 桥就绪后发送的宿主消息。 */
 const pendingHostMessages = [];
 
 // The controlled page is served by our API rather than bundled in the app, so
@@ -67,10 +104,14 @@ if (embedMode) {
   notifyHost("page-loaded", { ready: false });
 }
 
-// Controlled bridge used by uni-app x WebViewContext.evalJS. The bridge never
-// exposes the platform instance or credentials and accepts only bounded text.
-// WebView load is not treated as SDK readiness: accepted text is always queued,
-// because the host cannot observe evalJS's return value on every target.
+/**
+ * 接收 uni-app x `WebViewContext.evalJS` 传入的有限长度文本，并可靠加入播报队列。
+ * 不暴露平台实例或凭据；返回 `true` 仅表示已接收，不表示已经播报。
+ * @param {*} value 宿主传入的播报文本。
+ * @returns {boolean} 文本合法并已接收时为 `true`。
+ * @example
+ * window.scenicAvatarSpeak("欢迎来到灵山胜境");
+ */
 window.scenicAvatarSpeak = (value) => {
   const text = normalizeExternalSpeech(value);
   if (!text) return false;
@@ -87,6 +128,12 @@ window.scenicAvatarSpeak = (value) => {
   return true;
 };
 
+/**
+ * 清空待播报内容并尽力中断当前播放器和讯飞会话播报。
+ * @returns {boolean} 存在活动平台且已发起中断时为 `true`。
+ * @example
+ * window.scenicAvatarInterrupt();
+ */
 window.scenicAvatarInterrupt = () => {
   pendingExternalSpeech.length = 0;
   activeSpeech = null;
@@ -113,10 +160,13 @@ window.scenicAvatarInterrupt = () => {
   return true;
 };
 
-// Stop every audio/session resource synchronously before an embedded host
-// removes this page. `interrupt()` is asynchronous in the vendor SDK; calling
-// player.stop() and destroy() as well makes the teardown deterministic and
-// prevents two cloud avatar sessions from speaking over one another.
+/**
+ * 在宿主移除页面前同步停用状态并尽力释放播放器、会话和定时器。
+ * 同时调用异步中断、播放器停止与销毁，避免新旧云端会话同时播报。
+ * @returns {boolean} 首次销毁为 `true`，重复调用为 `false`。
+ * @example
+ * window.scenicAvatarDispose();
+ */
 window.scenicAvatarDispose = () => {
   if (disposed) return false;
   disposed = true;
@@ -153,6 +203,12 @@ window.scenicAvatarDispose = () => {
   return true;
 };
 
+/**
+ * 向宿主报告当前运行状态、启动状态和排队数量。
+ * @returns {string} 当前运行时状态。
+ * @example
+ * const state = window.scenicAvatarPing();
+ */
 window.scenicAvatarPing = () => {
   notifyHost("runtime-state", {
     state: runtimeState,
@@ -197,6 +253,11 @@ elements.form.addEventListener("submit", (event) => {
   void askGuide(question);
 });
 
+/**
+ * 使用页面会话令牌加载启动数据、清理地址栏并按配置自动启动。
+ * 错误会在页面内展示或进入自动恢复流程。
+ * @returns {Promise<void>}
+ */
 async function loadBootstrap() {
   if (!sessionToken) {
     showFatal("安全会话不存在，请返回应用重新打开数字人。");
@@ -219,6 +280,11 @@ async function loadBootstrap() {
   }
 }
 
+/**
+ * 从同源后端读取当前短期会话的数字人启动数据。
+ * @returns {Promise<AvatarBootstrap>} 启动配置。
+ * @throws {Error} HTTP 或业务响应失败时抛出带后端说明的异常。
+ */
 async function fetchBootstrap() {
   const response = await fetch(
     `/api/digital-human/web/bootstrap?session=${encodeURIComponent(sessionToken)}`,
@@ -231,12 +297,22 @@ async function fetchBootstrap() {
   return payload.data;
 }
 
+/**
+ * 将启动配置中的导游名称和欢迎语写入页面。
+ * @param {AvatarBootstrap} options 启动配置。
+ * @returns {void}
+ */
 function applyBootstrap(options) {
   elements.guideName.textContent = options.digitalHuman.name || "灵山 AI 导游";
   elements.welcome.textContent = options.digitalHuman.welcomeText
     || "点击启动后，可以询问景点、路线和服务信息。";
 }
 
+/**
+ * 获取新的短期讯飞签名并重新启动数字人。
+ * 失败时进入统一恢复流程。
+ * @returns {Promise<void>}
+ */
 async function restartAvatar() {
   if (disposed || starting || bootstrapLoading) return;
   cancelRetryTimer();
@@ -254,6 +330,11 @@ async function restartAvatar() {
   }
 }
 
+/**
+ * 创建讯飞 SDK 实例、绑定生命周期事件、连接动态形象并处理自动欢迎语。
+ * @param {AvatarBootstrap} options 启动配置。
+ * @returns {Promise<void>}
+ */
 async function startAvatar(options) {
   if (disposed || starting || ready) return;
   starting = true;
@@ -352,6 +433,12 @@ async function startAvatar(options) {
   }
 }
 
+/**
+ * 调用后端问答端点，并将成功回答加入数字人播报队列。
+ * 失败时在页面内显示错误，不向调用方抛出。
+ * @param {string} question 用户问题。
+ * @returns {Promise<void>}
+ */
 async function askGuide(question) {
   elements.ask.disabled = true;
   elements.input.disabled = true;
@@ -385,6 +472,11 @@ async function askGuide(question) {
   }
 }
 
+/**
+ * 规范化并排队播报文本；数字人未就绪时触发恢复。
+ * @param {*} text 回答文本。
+ * @returns {boolean} 已就绪并开始冲刷队列时为 `true`；仅排队或文本无效时为 `false`。
+ */
 function speakAvatarText(text) {
   const normalized = normalizeExternalSpeech(text);
   if (!normalized) return false;
@@ -397,6 +489,12 @@ function speakAvatarText(text) {
   return true;
 }
 
+/**
+ * 将播报插入队首或队尾，并对当前及等待中的相同文本去重。
+ * @param {string} text 已规范化播报文本。
+ * @param {{front?: boolean}} [options={}] 入队选项。
+ * @returns {QueuedSpeech} 新建或已存在的播报项。
+ */
 function queueSpeech(text, { front = false } = {}) {
   // A host may deliver the same evalJS call twice while a WebView is being
   // replaced. Do not enqueue an identical utterance when it is already active
@@ -415,6 +513,10 @@ function queueSpeech(text, { front = false } = {}) {
   return speech;
 }
 
+/**
+ * 将队首文本写入讯飞 SDK；同一时间仅允许一个写入和一个活动播报。
+ * @returns {Promise<boolean>} 成功派发时为 `true`，条件不满足或调用失败时为 `false`。
+ */
 async function flushPendingSpeech() {
   if (!ready || !platform || speechWriteInFlight || activeSpeech || pendingExternalSpeech.length === 0) {
     return false;
@@ -448,21 +550,41 @@ async function flushPendingSpeech() {
   }
 }
 
+/**
+ * 只接受字符串，移除控制字符并限制为 1200 字符。
+ * @param {*} value 外部播报输入。
+ * @returns {string} 安全播报文本；类型不符时为空字符串。
+ */
 function normalizeExternalSpeech(value) {
   if (typeof value !== "string") return "";
   return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim().slice(0, 1200);
 }
 
+/**
+ * 统一启用或禁用问题输入、提问和中断控件。
+ * @param {boolean} enabled 是否启用。
+ * @returns {void}
+ */
 function setControls(enabled) {
   elements.input.disabled = !enabled;
   elements.ask.disabled = !enabled;
   elements.interrupt.disabled = !enabled;
 }
 
+/**
+ * 更新页面状态文本。
+ * @param {string} message 状态说明。
+ * @returns {void}
+ */
 function setStatus(message) {
   elements.status.textContent = message;
 }
 
+/**
+ * 切换到不可自动恢复的致命状态并通知宿主。
+ * @param {string} message 错误说明。
+ * @returns {void}
+ */
 function showFatal(message) {
   cancelRetryTimer();
   setRuntimeState("fatal");
@@ -472,6 +594,12 @@ function showFatal(message) {
   notifyHost("fatal", { message });
 }
 
+/**
+ * 处理 SDK 启动或运行故障，回收失效实例、保留未完成播报并安排重连。
+ * @param {*} error 原始错误。
+ * @param {AvatarPlatform|null} [failedInstance=null] 触发故障的实例；过期实例错误会被忽略。
+ * @returns {void}
+ */
 function handleRuntimeFailure(error, failedInstance = null) {
   if (disposed || (failedInstance && platform !== failedInstance)) return;
   if (activeSpeech) {
@@ -501,6 +629,11 @@ function handleRuntimeFailure(error, failedInstance = null) {
   scheduleAutoRetry(message);
 }
 
+/**
+ * 以指数退避安排最多三次自动重连，耗尽后开放人工重启按钮。
+ * @param {string} message 故障说明。
+ * @returns {void}
+ */
 function scheduleAutoRetry(message) {
   if (disposed || retryTimer) return;
   if (!sessionToken || retryCount >= MAX_AUTO_RETRIES) {
@@ -529,12 +662,20 @@ function scheduleAutoRetry(message) {
   }, delay);
 }
 
+/**
+ * 当存在待播报内容且运行时空闲时启动或重启数字人。
+ * @returns {void}
+ */
 function ensureRecoveryForQueuedSpeech() {
   if (disposed || ready || starting || bootstrapLoading || retryTimer) return;
   if (recoveryExhausted) beginRecoveryCycle();
   if (sessionToken) void restartAvatar();
 }
 
+/**
+ * 重置重试计数和恢复耗尽状态，开始新的人工或自动恢复周期。
+ * @returns {void}
+ */
 function beginRecoveryCycle() {
   cancelRetryTimer();
   clearStableConnectionTimer();
@@ -542,6 +683,11 @@ function beginRecoveryCycle() {
   recoveryExhausted = false;
 }
 
+/**
+ * 连接稳定 30 秒后清零恢复计数；实例被替换时不执行。
+ * @param {AvatarPlatform} instance 当前 SDK 实例。
+ * @returns {void}
+ */
 function scheduleStableConnectionReset(instance) {
   clearStableConnectionTimer();
   stableConnectionTimer = window.setTimeout(() => {
@@ -553,6 +699,12 @@ function scheduleStableConnectionReset(instance) {
   }, STABLE_CONNECTION_MS);
 }
 
+/**
+ * 为未收到 SDK `frame_stop` 的播报设置按文本长度计算的完成兜底。
+ * @param {AvatarPlatform} instance 派发播报的 SDK 实例。
+ * @param {QueuedSpeech} speech 活动播报。
+ * @returns {void}
+ */
 function scheduleSpeechCompletionFallback(instance, speech) {
   clearSpeechCompletionTimer();
   const delay = Math.min(120_000, Math.max(15_000, speech.text.length * 360));
@@ -567,30 +719,49 @@ function scheduleSpeechCompletionFallback(instance, speech) {
   }, delay);
 }
 
+/** 清除自动重连定时器。 @returns {void} */
 function cancelRetryTimer() {
   if (retryTimer !== null) window.clearTimeout(retryTimer);
   retryTimer = null;
 }
 
+/** 清除稳定连接判定定时器。 @returns {void} */
 function clearStableConnectionTimer() {
   if (stableConnectionTimer !== null) window.clearTimeout(stableConnectionTimer);
   stableConnectionTimer = null;
 }
 
+/** 清除播报完成兜底定时器。 @returns {void} */
 function clearSpeechCompletionTimer() {
   if (speechCompletionTimer !== null) window.clearTimeout(speechCompletionTimer);
   speechCompletionTimer = null;
 }
 
+/**
+ * 将字符串、Error 或 SDK 错误对象转换为中文展示文本。
+ * @param {*} error 原始错误。
+ * @returns {string} 用户可读错误说明。
+ */
 function normalizeError(error) {
   if (typeof error === "string") return error;
   return error?.message || (error?.code ? `数字人服务错误（${error.code}）` : "数字人服务暂不可用");
 }
 
+/**
+ * 更新向宿主报告的运行时状态。
+ * @param {string} value 新状态。
+ * @returns {void}
+ */
 function setRuntimeState(value) {
   runtimeState = value;
 }
 
+/**
+ * 通过 uni-app 桥和浏览器 `postMessage` 向嵌入宿主报告无敏感信息的状态事件。
+ * @param {string} type 事件类型。
+ * @param {Record<string, *>} [details={}] 附加状态字段。
+ * @returns {void}
+ */
 function notifyHost(type, details = {}) {
   if (!embedMode) return;
   const packet = {
@@ -616,6 +787,11 @@ function notifyHost(type, details = {}) {
   }
 }
 
+/**
+ * 尝试通过已就绪的 uni-app WebView 桥发送消息。
+ * @param {HostPacket} packet 宿主消息。
+ * @returns {boolean} 已成功调用桥时为 `true`。
+ */
 function postViaUniBridge(packet) {
   try {
     if (window.uni && typeof window.uni.postMessage === "function") {
@@ -628,6 +804,10 @@ function postViaUniBridge(packet) {
   return false;
 }
 
+/**
+ * 按顺序发送桥就绪前积压的宿主消息；首次失败后停止并保留队首。
+ * @returns {void}
+ */
 function flushHostMessages() {
   if (!window.uni || typeof window.uni.postMessage !== "function") return;
   while (pendingHostMessages.length > 0) {
@@ -639,6 +819,10 @@ function flushHostMessages() {
   }
 }
 
+/**
+ * 在嵌入模式按需加载官方 uni-app WebView 桥并在就绪后冲刷消息。
+ * @returns {void}
+ */
 function ensureHostBridge() {
   if (!embedMode || hostBridgeLoading || (window.uni && typeof window.uni.postMessage === "function")) {
     flushHostMessages();

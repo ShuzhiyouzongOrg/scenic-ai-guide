@@ -1,3 +1,16 @@
+/**
+ * @fileoverview 数智游踪 Node.js HTTP 服务入口和路由编排器。
+ *
+ * 本模块负责初始化 SQLite、分派 REST/SSE 接口、执行 Bearer Token 与角色权限校验、
+ * 托管 Web SPA、讯飞数字人页面和 Live2D 资源，并提供可由测试及 Electron 调用的
+ * `startServer`/`stopServer` 生命周期 API。
+ *
+ * @example
+ * import { startServer, stopServer } from "./app.mjs";
+ * await startServer({ host: "127.0.0.1", port: 0 });
+ * // ...执行集成请求
+ * await stopServer();
+ */
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
@@ -84,16 +97,23 @@ if (!process.env.SQLITE_PATH) {
 }
 getDb();
 
+/** @type {string} 仓库根目录绝对路径。 */
 const rootDir = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+/** @type {string} Vue 生产构建的静态根目录。 */
 const publicDir = resolve(process.env.WEB_DIST_DIR || join(rootDir, "web", "dist"));
+/** @type {string} 受控讯飞数字人宿主页目录。 */
 const digitalHumanPageDir = resolve(join(rootDir, "server", "src", "web", "digital-human"));
 // The Live2D host is intentionally kept under server/src/web so visitor-app
 // can load a real Cubism canvas without changing the existing root web build.
 // Unlike /digital-human, its model and texture tree is served by a bounded
 // path resolver below; no credentials or API session data are exposed here.
+/** @type {string} 本地 Live2D 页面及模型资源目录。 */
 const live2dPageDir = resolve(join(rootDir, "server", "src", "web", "live2d"));
+/** @type {string} 允许公开读取的讯飞 Web SDK 目录。 */
 const digitalHumanSdkDir = resolve(join(rootDir, "web", "src", "vm-sdk", "avatar-sdk-web_3.1.1.1011"));
+/** @type {Set<string>} 数字人页面允许公开的文件白名单。 */
 const digitalHumanPageFiles = new Set(["index.html", "app.js", "styles.css"]);
+/** @type {Set<string>} 数字人运行所需 SDK 文件白名单。 */
 const digitalHumanSdkFiles = new Set([
   "index.js",
   "index-_37811BO.js",
@@ -101,6 +121,7 @@ const digitalHumanSdkFiles = new Set([
   "xrtc-player-BDn4MFE-.js"
 ]);
 
+/** @type {Readonly<Record<string, string>>} 文件扩展名到 HTTP Content-Type 的映射。 */
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -121,6 +142,7 @@ const mimeTypes = {
   ".wav": "audio/wav"
 };
 
+/** @type {Set<string>} 允许跨域调用本地 API 的明确来源集合。 */
 const localCorsOrigins = new Set([
   "http://127.0.0.1:5173",
   "http://localhost:5173",
@@ -130,6 +152,14 @@ const localCorsOrigins = new Set([
     .filter(Boolean)
 ]);
 
+/**
+ * 当请求来源命中白名单时写入最小 CORS 响应头。
+ *
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @returns {void}
+ * @private
+ */
 function applyCorsHeaders(req, res) {
   const origin = String(req.headers.origin || "");
   if (!origin || !localCorsOrigins.has(origin)) return;
@@ -140,6 +170,16 @@ function applyCorsHeaders(req, res) {
   res.setHeader("vary", "Origin");
 }
 
+/**
+ * 项目共享 HTTP Server 实例。
+ *
+ * 请求级异常会转成统一错误信封并写入结构化日志；实例本身需通过 `startServer` 启动。
+ *
+ * @type {import("node:http").Server}
+ * @example
+ * await startServer({ port: 0 });
+ * console.log(server.address());
+ */
 export const server = createServer(async (req, res) => {
   const start = Date.now();
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
@@ -174,6 +214,20 @@ export const server = createServer(async (req, res) => {
   }
 });
 
+/**
+ * 按方法和 pathname 分派全部 API 与静态资源请求。
+ *
+ * 权限受控接口在进入服务层前调用 `requirePermission` 或 `requireAuthPayload`；未匹配的
+ * 路径最终交给 SPA 静态托管。
+ *
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @param {URL} url 已解析的请求 URL。
+ * @returns {Promise<void>}
+ * @throws {Error & {statusCode?: number, code?: string}} 请求解析或服务层调用失败时抛出，
+ * 由 Server 顶层处理器转换为错误响应。
+ * @private
+ */
 async function route(req, res, url) {
   if (url.pathname === "/api/health" && req.method === "GET") {
     ok(res, {
@@ -846,6 +900,16 @@ async function route(req, res, url) {
   serveStatic(res, url.pathname);
 }
 
+/**
+ * 将 AI 回答增量编码为 Server-Sent Events 流。
+ *
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @param {{question?: string, sessionId?: string, mode?: string, locale?: string}} body 对话请求体。
+ * @returns {Promise<void>} 流完成或错误事件发送后结束响应。
+ * @example
+ * await streamChat(res, { question: "梵宫几点开放？", sessionId: "visitor-1" });
+ * @private
+ */
 async function streamChat(res, body) {
   res.writeHead(200, {
     "content-type": "text/event-stream; charset=utf-8",
@@ -853,6 +917,12 @@ async function streamChat(res, body) {
     connection: "keep-alive"
   });
 
+  /**
+   * 写入一个 SSE 事件帧。
+   * @param {string} event 事件名称。
+   * @param {unknown} data 可 JSON 序列化的事件负载。
+   * @returns {void}
+   */
   const send = (event, data) => {
     res.write(`event: ${event}\n`);
     res.write(`data: ${JSON.stringify(data)}\n\n`);
@@ -876,6 +946,15 @@ async function streamChat(res, body) {
   }
 }
 
+/**
+ * 校验 Bearer Token 及其当前角色是否拥有指定路径权限。
+ *
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @param {string} permission 角色权限路径，例如 `/system/user`。
+ * @returns {boolean} 校验成功时为 `true`；失败时已写入 401/403 响应并返回 `false`。
+ * @private
+ */
 function requirePermission(req, res, permission) {
   const payload = verifyToken(getBearerToken(req));
   if (!payload) {
@@ -889,6 +968,14 @@ function requirePermission(req, res, permission) {
   return true;
 }
 
+/**
+ * 验证请求 Token 并返回可信身份载荷。
+ *
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @returns {Record<string, unknown>|null} 有效 Token 载荷；无效时写入 401 并返回 `null`。
+ * @private
+ */
 function requireAuthPayload(req, res) {
   const payload = verifyToken(getBearerToken(req));
   if (!payload) {
@@ -898,6 +985,14 @@ function requireAuthPayload(req, res) {
   return payload;
 }
 
+/**
+ * 将数据库账号与 Token 载荷归一化为前端用户信息结构。
+ *
+ * @param {Record<string, any>|null|undefined} user 数据库账号。
+ * @param {Record<string, any>} [fallback={}] Token 中的备用身份字段。
+ * @returns {{userId: string|number|undefined, userName: string, roles: string[], permissions: string[], buttons: string[], email: string, avatar: string, realName: string, gender: string, nickname: string, phone: string, address: string, bio: string}}
+ * @private
+ */
 function toAuthUser(user, fallback = {}) {
   const role = user?.role || fallback.role || "operator";
   const roles = role === "admin"
@@ -922,6 +1017,15 @@ function toAuthUser(user, fallback = {}) {
   };
 }
 
+/**
+ * 从 Web 构建目录提供静态文件，并对无扩展名路由执行 SPA 回退。
+ *
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @param {string} pathname URL pathname。
+ * @returns {void}
+ * @throws {Error} 文件存在但无法读取时透传文件系统异常。
+ * @private
+ */
 function serveStatic(res, pathname) {
   let filePath = resolveStaticFilePath(publicDir, pathname);
   if (!filePath) {
@@ -958,6 +1062,15 @@ function serveStatic(res, pathname) {
   res.end(body);
 }
 
+/**
+ * 按严格文件白名单提供讯飞数字人页面和 SDK 资源。
+ *
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @param {string} pathname `/digital-human` 命名空间内的路径。
+ * @param {boolean} [headOnly=false] 是否只返回响应头。
+ * @returns {void}
+ * @private
+ */
 function serveDigitalHumanStatic(res, pathname, headOnly = false) {
   applyDigitalHumanSecurityHeaders(res);
   if (pathname === "/digital-human") {
@@ -1011,12 +1124,16 @@ function serveDigitalHumanStatic(res, pathname, headOnly = false) {
 }
 
 /**
- * Serve the controlled Live2D page and its model tree.
+ * 提供受控 Live2D 页面及模型资源树。
  *
- * `resolveStaticFilePath` rejects encoded traversal, NUL bytes and Windows
- * drive paths on every platform. We additionally require a regular file so a
- * request for a model directory cannot make `readFileSync` leak a filesystem
- * error through the generic request handler.
+ * `resolveStaticFilePath` 会拒绝编码穿越、NUL 和 Windows 盘符路径；本函数进一步要求
+ * 目标是普通文件，防止目录读取异常泄露文件系统信息。
+ *
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @param {string} pathname `/live2d` 命名空间内的路径。
+ * @param {boolean} [headOnly=false] 是否只返回响应头。
+ * @returns {void}
+ * @private
  */
 function serveLive2dStatic(res, pathname, headOnly = false) {
   applyLive2dSecurityHeaders(res);
@@ -1051,6 +1168,12 @@ function serveLive2dStatic(res, pathname, headOnly = false) {
   res.end(headOnly ? undefined : body);
 }
 
+/**
+ * 为数字人相关响应设置禁止缓存和基础安全头。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @returns {void}
+ * @private
+ */
 function applyDigitalHumanApiHeaders(res) {
   res.setHeader("cache-control", "private, no-store, no-cache, must-revalidate");
   res.setHeader("pragma", "no-cache");
@@ -1061,10 +1184,17 @@ function applyDigitalHumanApiHeaders(res) {
 // The controlled avatar pages are embedded by production H5 and by the local
 // HBuilderX preview. Keep the development origins explicit so the public page
 // cannot be framed by arbitrary HTTP sites.
+/** @type {string} CSP `frame-ancestors` 允许的产品域名与本地预览来源。 */
 const controlledAvatarFrameAncestors =
   "'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn "
   + "http://127.0.0.1:5173 http://localhost:5173";
 
+/**
+ * 写入讯飞 XRTC 页面所需的最小 CSP、Permissions Policy 和防嗅探响应头。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @returns {void}
+ * @private
+ */
 function applyDigitalHumanSecurityHeaders(res) {
   applyDigitalHumanApiHeaders(res);
   res.setHeader(
@@ -1081,6 +1211,12 @@ function applyDigitalHumanSecurityHeaders(res) {
   res.setHeader("x-permitted-cross-domain-policies", "none");
 }
 
+/**
+ * 写入自包含 Live2D 页面使用的同源 CSP 和浏览器能力限制。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @returns {void}
+ * @private
+ */
 function applyLive2dSecurityHeaders(res) {
   applyDigitalHumanApiHeaders(res);
   res.setHeader(
@@ -1096,8 +1232,21 @@ function applyLive2dSecurityHeaders(res) {
   res.setHeader("x-permitted-cross-domain-policies", "none");
 }
 
+/** @type {Promise<import("node:http").Server>|null} 并发启动调用共享的监听 Promise。 */
 let listenPromise = null;
 
+/**
+ * 启动共享 HTTP Server；并发调用会复用同一个启动 Promise。
+ *
+ * @param {{host?: string, port?: number}} [options={}] 监听地址；端口为 `0` 时由系统分配。
+ * @param {string} [options.host=config.host] 监听主机。
+ * @param {number} [options.port=config.port] 监听端口。
+ * @returns {Promise<import("node:http").Server>} 成功监听后的 Server 实例。
+ * @throws {Error} 端口占用、权限不足或底层监听失败时拒绝 Promise。
+ * @example
+ * const runningServer = await startServer({ host: "127.0.0.1", port: 0 });
+ * console.log(runningServer.address());
+ */
 export function startServer({ host = config.host, port = config.port } = {}) {
   if (server.listening) {
     return Promise.resolve(server);
@@ -1107,6 +1256,11 @@ export function startServer({ host = config.host, port = config.port } = {}) {
   }
 
   listenPromise = new Promise((resolveStart, rejectStart) => {
+    /**
+     * 清理共享启动 Promise 并向调用方转发监听错误。
+     * @param {Error} error Node.js Server 监听错误。
+     * @returns {void}
+     */
     const onError = (error) => {
       listenPromise = null;
       rejectStart(error);
@@ -1129,6 +1283,14 @@ export function startServer({ host = config.host, port = config.port } = {}) {
   return listenPromise;
 }
 
+/**
+ * 停止 HTTP Server 并关闭 SQLite 连接；未启动时可安全重复调用。
+ *
+ * @returns {Promise<void>}
+ * @throws {Error} Node.js Server 关闭失败时拒绝 Promise。
+ * @example
+ * await stopServer();
+ */
 export function stopServer() {
   if (!server.listening) {
     listenPromise = null;
@@ -1149,6 +1311,11 @@ export function stopServer() {
   });
 }
 
+/**
+ * 判断当前模块是否由 Node.js 直接执行，而不是被测试或 Electron 导入。
+ * @returns {boolean} 当前文件等于进程入口时为 `true`。
+ * @private
+ */
 function isMainEntry() {
   if (!process.argv[1]) {
     return false;

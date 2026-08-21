@@ -1,7 +1,14 @@
-// AI2-04 & AI2-13: input classification for out-of-scope and sensitive content.
-// Deterministic, dependency-free keyword rules. Runs before retrieval so we can
-// short-circuit refusals and topic redirects.
+/**
+ * @fileoverview 用户问题的敏感内容、服务范围和情绪分类规则。
+ *
+ * 所有判断均为确定性的关键词匹配，可在知识检索前短路拒答、话题引导及数字人情绪选择。
+ *
+ * @typedef {{sensitive: boolean, category: string|null}} SensitiveDetection
+ * @typedef {{outOfScope: boolean, place: string|null}} ScopeDetection
+ * @typedef {"negative"|"confused"|"tired"|"happy"} DetectedEmotion
+ */
 
+/** @type {Array<{category: string, terms: string[]}>} 敏感内容类别及触发词。 */
 const SENSITIVE_RULES = [
   {
     category: "abuse",
@@ -25,8 +32,11 @@ const SENSITIVE_RULES = [
   }
 ];
 
-// Other well-known scenic areas / cities that are explicitly out of scope.
-// 拈花湾禅意小镇 is IN scope (a sub-area of 灵山) — see IN_SCOPE_SIGNALS below.
+/**
+ * 明确不属于灵山服务范围的其他景区名称。
+ * 拈花湾是灵山子区域，故不在此列表中。
+ * @type {string[]}
+ */
 const OTHER_PLACES = [
   "鼋头渚",
   "西湖",
@@ -43,9 +53,10 @@ const OTHER_PLACES = [
   "环球影城"
 ];
 
-// Signals that the question is actually in scope — the 灵山 parent area plus
-// its 拈花湾禅意小镇 sub-area. Mentioning another place in a comparison still
-// counts as in-scope when one of these appears.
+/**
+ * 表示问题属于灵山或拈花湾服务范围的关键词；比较问题只要命中其中之一也视为范围内。
+ * @type {string[]}
+ */
 const LINGSHAN_SIGNALS = [
   "灵山",
   "大佛",
@@ -70,10 +81,23 @@ const LINGSHAN_SIGNALS = [
   "禅行"
 ];
 
+/**
+ * 将待匹配值转换为小写文本。
+ * @private
+ * @param {*} value 任意输入值。
+ * @returns {string} 小写字符串。
+ */
 function normalize(value) {
   return String(value || "").toLowerCase();
 }
 
+/**
+ * 检测问题是否命中辱骂、政治、医疗、投资或危险行为规则。
+ * @param {*} question 用户问题。
+ * @returns {SensitiveDetection} 敏感标记及首个命中的类别。
+ * @example
+ * detectSensitive("该买什么股票？"); // { sensitive: true, category: "investment" }
+ */
 export function detectSensitive(question) {
   const text = normalize(question);
   for (const rule of SENSITIVE_RULES) {
@@ -84,6 +108,13 @@ export function detectSensitive(question) {
   return { sensitive: false, category: null };
 }
 
+/**
+ * 检测问题是否明确询问服务范围外的其他景区。
+ * @param {*} question 用户问题。
+ * @returns {ScopeDetection} 范围外标记及命中的景区名称。
+ * @example
+ * detectOutOfScope("西湖有什么景点？"); // { outOfScope: true, place: "西湖" }
+ */
 export function detectOutOfScope(question) {
   const text = String(question || "");
   const mentionsLingshan = LINGSHAN_SIGNALS.some((signal) => text.includes(signal));
@@ -99,7 +130,7 @@ export function detectOutOfScope(question) {
   return { outOfScope: false, place: null };
 }
 
-// AI2 emotional-comfort detection (feeds quality label + digital-human emotion).
+/** @type {Array<{emotion: DetectedEmotion, terms: string[]}>} 情绪类别及触发词。 */
 const EMOTION_RULES = [
   { emotion: "negative", terms: ["失望", "太差", "不好玩", "坑", "浪费", "生气", "投诉", "退票"] },
   { emotion: "confused", terms: ["看不懂", "不明白", "怎么走", "迷路", "找不到", "搞不清"] },
@@ -107,6 +138,13 @@ const EMOTION_RULES = [
   { emotion: "happy", terms: ["太美了", "好看", "喜欢", "开心", "震撼", "值得"] }
 ];
 
+/**
+ * 检测问题中可用于安抚策略和数字人表情的情绪信号。
+ * @param {*} question 用户问题。
+ * @returns {DetectedEmotion|null} 首个命中的情绪；无匹配时返回 `null`。
+ * @example
+ * detectEmotion("我迷路了，怎么走？"); // "confused"
+ */
 export function detectEmotion(question) {
   const text = normalize(question);
   for (const rule of EMOTION_RULES) {

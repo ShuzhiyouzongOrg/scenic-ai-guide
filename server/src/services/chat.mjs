@@ -1,7 +1,14 @@
-// AI2-02..09 & AI2-13/14: RAG question-answering orchestration for the guide.
-// Pipeline: guardrails -> FAQ cache -> follow-up rewrite -> retrieval ->
-// scenario routing -> LLM (real or mock) -> length-checked answer + citations +
-// quality/emotion labels + latency breakdown.
+/**
+ * @fileoverview 数字人导游 RAG 问答编排服务。
+ *
+ * 处理链依次执行安全规则、FAQ 缓存、追问改写、知识检索、场景分类、大模型生成、
+ * 纯文本与路线结构校验，并附加引用、质量标签、数字人状态和延迟明细。
+ *
+ * @typedef {"qa"|"explain"|"route"} AnswerMode
+ * @typedef {"sensitive"|"out_of_scope"|"chitchat"|"no_data"|"grounded"} AnswerScenario
+ * @typedef {{results: object[], intents?: object[], spotMatches?: object[], tokens?: string[]}} RetrievalContext
+ * @typedef {{answer: string, mode: AnswerMode, locale: string, scenario: AnswerScenario, label: string, emotion: string, citations: object[], sources: object[], retrieval: object, provider: string, model: string, digitalHuman: object, cached: boolean, latency: object}} AnswerPayload
+ */
 
 import { hybridSearch } from "./retrieval.mjs";
 import { loadKnowledge } from "./knowledgeBuild.mjs";
@@ -18,6 +25,7 @@ import { mapAnswerToDigitalHumanState } from "./digitalHuman.mjs";
 import { normalizeLocale } from "./language.mjs";
 import { composeMockAnswer } from "./mockComposer.mjs";
 
+/** @type {string[]} 支持语言中可能表示省略主语追问的代词和方位词。 */
 const FOLLOW_UP_PRONOUNS = [
   "它",
   "他",
@@ -54,16 +62,34 @@ const FOLLOW_UP_PRONOUNS = [
   "แห่งนั้น",
 ];
 
+/**
+ * 获取当前 Unix 毫秒时间，用于阶段耗时统计。
+ * @private
+ * @returns {number} Unix 毫秒时间戳。
+ */
 function nowMs() {
   return Date.now();
 }
 
+/**
+ * 返回回答模式对应的大模型最大生成 token 数。
+ * @private
+ * @param {*} mode 回答模式。
+ * @returns {number} 最大生成 token 数。
+ */
 function maxTokensForMode(mode) {
   if (mode === "route") return 1600;
   if (mode === "explain") return 1000;
   return 700;
 }
 
+/**
+ * 移除代码块、标题、链接、粗体和行内代码等 Markdown 语法，得到客户端可口播纯文本。
+ * @param {*} value 大模型原始输出。
+ * @returns {string} 规范化纯文本。
+ * @example
+ * normalizeAssistantText("**灵山大佛**"); // "灵山大佛"
+ */
 export function normalizeAssistantText(value) {
   return String(value || "")
     .replace(/```(?:[\w-]+)?\s*([\s\S]*?)```/g, "$1")
@@ -77,17 +103,38 @@ export function normalizeAssistantText(value) {
     .trim();
 }
 
+/**
+ * 判断回答中是否至少包含两个编号路线步骤。
+ * @param {*} value 回答文本。
+ * @returns {boolean} 具备基本路线结构时为 `true`。
+ * @example
+ * hasRouteStructure("1. 南门\n2. 大佛"); // true
+ */
 export function hasRouteStructure(value) {
   const text = normalizeAssistantText(value);
   const numberedSteps = text.match(/(?:^|\s)\d{1,2}[.、.)）]\s*(?=\S)/g) || [];
   return numberedSteps.length >= 2;
 }
 
+/**
+ * 判断回答是否非空，并可选要求完整路线结构。
+ * @private
+ * @param {*} value 回答文本。
+ * @param {boolean} [requireRouteStructure=false] 是否要求至少两个编号步骤。
+ * @returns {boolean} 回答可用时为 `true`。
+ */
 function isUsableAnswer(value, requireRouteStructure = false) {
   const text = normalizeAssistantText(value);
   return Boolean(text) && (!requireRouteStructure || hasRouteStructure(text));
 }
 
+/**
+ * 在两次模型生成仍不可用时，构建对应语言的兜底回答。
+ * 路线模式会优先采用首条检索资料正文。
+ * @private
+ * @param {{mode: AnswerMode, results: object[], locale: string}} input 回退上下文。
+ * @returns {string} 纯文本兜底回答。
+ */
 function fallbackAssistantText({ mode, results, locale }) {
   if (mode === "route" && results.length > 0) {
     const routeContent = normalizeAssistantText(results[0].content);
@@ -116,6 +163,12 @@ function fallbackAssistantText({ mode, results, locale }) {
   return "暂时未能生成完整回答，请再试一次。";
 }
 
+/**
+ * 从当前知识库读取全部景点名称和别名。
+ * @private
+ * @returns {string[]} 景点名称与别名。
+ * @throws {Error} 知识库加载失败时透传异常。
+ */
 function knownSpotNames() {
   const knowledge = loadKnowledge();
   return (knowledge?.spots || []).flatMap(
@@ -123,7 +176,13 @@ function knownSpotNames() {
   );
 }
 
-// AI2-06 & AI2-09: infer the answer mode from the question wording.
+/**
+ * 优先采用合法显式模式，否则按多语言关键词推断路线、讲解或普通问答模式。
+ * @private
+ * @param {string} question 用户问题。
+ * @param {*} explicitMode 客户端指定模式。
+ * @returns {AnswerMode} 回答模式。
+ */
 function inferMode(question, explicitMode) {
   if (explicitMode && ["qa", "explain", "route"].includes(explicitMode)) {
     return explicitMode;
@@ -145,8 +204,14 @@ function inferMode(question, explicitMode) {
   return "qa";
 }
 
-// AI2-07: rewrite a pronoun-only follow-up into a self-contained query by
-// re-anchoring it to the last discussed spot.
+/**
+ * 将仅含代词或很短的追问重新锚定到会话最近讨论的景点。
+ * @private
+ * @param {string} question 当前问题。
+ * @param {string} sessionId 会话 ID。
+ * @returns {{query: string, anchoredSpot: string|null}} 自包含检索问题及锚定景点。
+ * @throws {Error} 知识库或会话数据库读取失败时透传异常。
+ */
 function resolveFollowUp(question, sessionId) {
   const hasSubject = knownSpotNames().some((name) => question.includes(name));
   const looksLikeFollowUp =
@@ -162,7 +227,12 @@ function resolveFollowUp(question, sessionId) {
   return { query: `${lastSpot} ${question}`, anchoredSpot: lastSpot };
 }
 
-// AI2-14: quality label for the answer.
+/**
+ * 根据场景、模式和用户情绪生成后台质量标签。
+ * @private
+ * @param {{scenario: AnswerScenario, mode: AnswerMode, emotion: string|null}} input 分类信息。
+ * @returns {"拒答"|"情感安抚"|"路线推荐"|"闲聊"|"事实问答"} 质量标签。
+ */
 function qualityLabel({ scenario, mode, emotion }) {
   if (
     scenario === "sensitive" ||
@@ -183,7 +253,12 @@ function qualityLabel({ scenario, mode, emotion }) {
   return "事实问答";
 }
 
-// Emotion tag to drive the digital human later (DH5-07). Kept simple + grounded.
+/**
+ * 将场景和质量标签转换为数字人情绪标签。
+ * @private
+ * @param {{scenario: AnswerScenario, label: string, emotion: string|null}} input 分类信息。
+ * @returns {"抱歉"|"安抚"|"微笑"|"平静"} 数字人情绪。
+ */
 function emotionTag({ scenario, label, emotion }) {
   if (
     scenario === "sensitive" ||
@@ -204,8 +279,10 @@ function emotionTag({ scenario, label, emotion }) {
   return "平静";
 }
 
-// Generic terms that alone should not qualify a question as "covered" — the
-// scenic-area name appears in almost every chunk, so matching it proves nothing.
+/**
+ * 不足以单独证明检索相关性的通用词集合，避免仅命中所有分块都有的景区名称。
+ * @type {Set<string>}
+ */
 const GENERIC_TERMS = new Set([
   "灵山胜境",
   "灵山",
@@ -236,8 +313,12 @@ const GENERIC_TERMS = new Set([
   "推薦",
 ]);
 
-// True when the question's distinctive terms actually appear in retrieved text,
-// so we are not just riding a generic scenic-area name match.
+/**
+ * 判断检索是否命中景点、意图或问题中的显著词，而非仅命中通用景区词。
+ * @private
+ * @param {RetrievalContext} retrieval 检索上下文。
+ * @returns {boolean} 检索结果足以支撑回答时为 `true`。
+ */
 function retrievalIsRelevant(retrieval) {
   const spotMatched = (retrieval.spotMatches || []).length > 0;
   const intentDetected = (retrieval.intents || []).length > 0;
@@ -261,6 +342,12 @@ function retrievalIsRelevant(retrieval) {
   );
 }
 
+/**
+ * 按敏感内容、服务范围、问候、检索数量、分数和相关性分类回答场景。
+ * @private
+ * @param {{question: string, retrieval: RetrievalContext, emotion: string|null}} input 分类输入。
+ * @returns {{scenario: AnswerScenario, sensitiveCategory?: string|null, otherPlace?: string|null}} 场景及附加信息。
+ */
 function classifyScenario({ question, retrieval, emotion }) {
   const results = retrieval?.results || [];
   const sensitive = detectSensitive(question);
@@ -292,6 +379,12 @@ function classifyScenario({ question, retrieval, emotion }) {
   return { scenario: "grounded" };
 }
 
+/**
+ * 构建模拟供应商和回答后处理使用的结构化元数据。
+ * @private
+ * @param {{scenario: AnswerScenario, mode: AnswerMode, question: string, retrieval: RetrievalContext|null, extras?: object}} input 元数据来源。
+ * @returns {object} 完整回答元数据。
+ */
 function buildMeta({ scenario, mode, question, retrieval, extras }) {
   return {
     scenario,
@@ -305,8 +398,14 @@ function buildMeta({ scenario, mode, question, retrieval, extras }) {
 }
 
 /**
- * Core RAG answer. Returns answer text, citations, labels, retrieval context and
- * a latency breakdown. Works identically for mock and real LLM providers.
+ * 执行完整 RAG 问答，返回正文、引用、标签、检索摘要、数字人状态和阶段耗时。
+ * 真实与模拟大模型供应商共用相同编排逻辑。
+ * @param {{question?: *, sessionId?: string, mode?: AnswerMode, history?: object[], locale?: *, signal?: AbortSignal}} [input={}] 问答输入。
+ * @returns {Promise<AnswerPayload>} 完整回答载荷。
+ * @throws {Error & {statusCode: 400, code: "QUESTION_REQUIRED"}} 问题为空时抛出。
+ * @throws {Error} 知识库、数据库或大模型调用失败时透传异常；未构建知识库会降级为空检索。
+ * @example
+ * const result = await answerQuestion({ question: "灵山大佛有多高？", sessionId: "visitor-1" });
  */
 export async function answerQuestion({
   question,
@@ -535,8 +634,14 @@ export async function answerQuestion({
 }
 
 /**
- * Streaming variant (AI2-01 streaming + V4-11 first-sentence latency).
- * Yields text deltas. Guardrail/no-data scenarios stream the composed refusal.
+ * 流式执行 RAG 问答并逐段产生模型文本；完成后将完整对话写入会话历史。
+ * 安全拒答和无资料场景同样通过供应商流式输出。
+ * @param {{question?: *, sessionId?: string, mode?: AnswerMode, locale?: *, signal?: AbortSignal}} [input={}] 问答输入。
+ * @returns {AsyncGenerator<string, void, void>} 大模型文本增量。
+ * @throws {Error & {statusCode: 400, code: "QUESTION_REQUIRED"}} 问题为空时抛出。
+ * @throws {Error} 知识库、数据库、大模型请求或流读取失败时透传异常。
+ * @example
+ * for await (const delta of answerQuestionStream({ question: "介绍梵宫" })) process.stdout.write(delta);
  */
 export async function* answerQuestionStream({
   question,

@@ -1,10 +1,17 @@
-// R3: personalized route graph, recommendation rules and saved selections.
-// The data is intentionally local and deterministic so the demo works offline.
+/**
+ * @fileoverview 离线确定性的景区路线图、个性化推荐、路线选择持久化与节点讲解服务。
+ *
+ * @typedef {{id: string, name: string, spotId: string|null, order: number, minutes: number, tags: string[]}} RouteNode
+ * @typedef {{id: string, name: string, routeType: string, durationMinutes: number, nodeIds: string[], tags: string[], suitableFor: string[]}} RouteTemplate
+ * @typedef {{durationMinutes: number, interests: string[], groupType: string, pace: string, physicalLevel: string, wantsShow: boolean, photoFocus: boolean, withChildren: boolean, avoidStairs: boolean}} NormalizedRoutePreferences
+ * @typedef {{id: string, name: string, routeType: string, durationMinutes: number, tags: string[], suitableFor: string[], nodes: Array<RouteNode & {step: number, narrationEndpoint: string|null}>, reason: string, explanation?: string}} DecoratedRoute
+ */
 
 import { randomBytes } from "node:crypto";
 import { generateSpotNarration } from "./narration.mjs";
 import { getDb } from "../db/database.mjs";
 
+/** @type {RouteNode[]} 按主游线顺序定义的路线节点。 */
 const routeNodes = [
   { id: "gate_south", name: "南门入园", spotId: null, order: 1, minutes: 5, tags: ["entry"] },
   { id: "zhaobi", name: "灵山大照壁", spotId: "LS-001", order: 2, minutes: 10, tags: ["history", "photo", "landmark"] },
@@ -26,6 +33,7 @@ const routeNodes = [
   { id: "exit", name: "出口", spotId: null, order: 99, minutes: 5, tags: ["exit"] }
 ];
 
+/** @type {RouteTemplate[]} 可供评分与个性化调整的基础路线模板。 */
 const routeTemplates = [
   {
     id: "quick_30",
@@ -92,6 +100,12 @@ const routeTemplates = [
   }
 ];
 
+/**
+ * 获取路线节点、相邻步行边及全部装饰后的模板。
+ * @returns {{nodes: RouteNode[], edges: Array<{from: string, to: string, walkMinutes: number}>, templates: DecoratedRoute[]}} 路线图快照。
+ * @example
+ * const graph = getRouteGraph();
+ */
 export function getRouteGraph() {
   return {
     nodes: routeNodes,
@@ -104,6 +118,13 @@ export function getRouteGraph() {
   };
 }
 
+/**
+ * 规范化游客偏好、评分路线模板并返回最佳路线和三个备选项。
+ * @param {Record<string, *>} [preferences={}] 时长、兴趣、同行人、体力、演出和拍照偏好。
+ * @returns {{preferences: NormalizedRoutePreferences, recommendation: DecoratedRoute, alternatives: DecoratedRoute[], message: string}} 推荐结果。
+ * @example
+ * const result = recommendRoute({ durationMinutes: 180, interests: ["history", "photo"] });
+ */
 export function recommendRoute(preferences = {}) {
   const normalized = normalizePreferences(preferences);
   const scored = routeTemplates
@@ -127,6 +148,14 @@ export function recommendRoute(preferences = {}) {
   };
 }
 
+/**
+ * 保存游客选择的推荐路线或自定义路线快照。
+ * @param {{sessionId?: string, routeId?: string, route?: DecoratedRoute|null, preferences?: object}} [input={}] 选择信息。
+ * @returns {{id: string, sessionId: string, routeId: string, routeName: string, routeType: string, durationMinutes: number, nodeIds: string[], preferences: object, createdAt: string}} 已保存选择。
+ * @throws {Error} 数据库写入失败时透传异常。
+ * @example
+ * const saved = saveRouteSelection({ sessionId: "visitor-1", routeId: "classic_150" });
+ */
 export function saveRouteSelection({ sessionId = "", routeId = "", route = null, preferences = {} } = {}) {
   const selected = route || decorateRoute(routeTemplates.find((item) => item.id === routeId) || routeTemplates[2], "");
   const record = {
@@ -161,6 +190,14 @@ export function saveRouteSelection({ sessionId = "", routeId = "", route = null,
   return record;
 }
 
+/**
+ * 列出全部或指定会话保存的路线选择。
+ * @param {string} [sessionId=""] 可选会话 ID。
+ * @returns {Array<object>} 按创建时间升序排列的路线选择。
+ * @throws {Error} 数据库查询失败时透传异常。
+ * @example
+ * const savedRoutes = listSavedRoutes("visitor-1");
+ */
 export function listSavedRoutes(sessionId = "") {
   const db = getDb();
   const rows = sessionId
@@ -180,6 +217,14 @@ export function listSavedRoutes(sessionId = "") {
   }));
 }
 
+/**
+ * 安全解析数据库 JSON 字段。
+ * @private
+ * @template T
+ * @param {*} value JSON 文本。
+ * @param {T} fallback 解析失败时的回退值。
+ * @returns {*|T} 解析结果或回退值。
+ */
 function safeParse(value, fallback) {
   try {
     const parsed = JSON.parse(value || "null");
@@ -189,6 +234,15 @@ function safeParse(value, fallback) {
   }
 }
 
+/**
+ * 按路线节点、景点 ID 或名称生成节点口播。
+ * @param {{nodeId?: string, spotId?: string, spotName?: string, signal?: AbortSignal}} [input={}] 节点定位参数。
+ * @returns {Promise<object>} 景点口播结果。
+ * @throws {Error & {statusCode: 400, code: "ROUTE_NODE_REQUIRED"}} 无法得到节点名称时抛出。
+ * @throws {Error} 景点口播生成失败时透传异常。
+ * @example
+ * const narration = await narrateRouteNode({ nodeId: "buddha" });
+ */
 export async function narrateRouteNode({ nodeId, spotId, spotName, signal } = {}) {
   const node = routeNodes.find((item) => item.id === nodeId || item.spotId === spotId || item.name === spotName);
   const targetName = spotName || node?.name;
@@ -201,8 +255,10 @@ export async function narrateRouteNode({ nodeId, spotId, spotName, signal } = {}
   return generateSpotNarration({ spotId: node?.spotId || spotId, spotName: targetName, signal });
 }
 
-// Map front-end interest codes (and loose labels) to canonical Chinese terms so
-// scoring works regardless of whether the client sends "history" or "历史文化".
+/**
+ * 前端兴趣代码到统一中文兴趣词的映射，使英文代码和中文标签采用同一评分规则。
+ * @type {Record<string, string>}
+ */
 const INTEREST_ALIAS = {
   history: "历史文化",
   culture: "历史文化",
@@ -220,11 +276,23 @@ const INTEREST_ALIAS = {
   deep: "深度讲解"
 };
 
+/**
+ * 归一化单个兴趣代码或标签。
+ * @private
+ * @param {*} item 兴趣值。
+ * @returns {string} 统一中文标签或清理后的原值。
+ */
 function normalizeInterest(item) {
   const raw = String(item).trim();
   return INTEREST_ALIAS[raw.toLowerCase()] || raw;
 }
 
+/**
+ * 规范化路线偏好并从兴趣文本派生布尔偏好。
+ * @private
+ * @param {Record<string, *>} input 原始偏好。
+ * @returns {NormalizedRoutePreferences} 评分可直接使用的偏好。
+ */
 function normalizePreferences(input) {
   const rawInterests = Array.isArray(input.interests) ? input.interests : [];
   const interests = rawInterests.map(normalizeInterest).filter(Boolean);
@@ -243,6 +311,13 @@ function normalizePreferences(input) {
   };
 }
 
+/**
+ * 根据时长、兴趣、亲子、演出、拍照和体力偏好计算模板分数。
+ * @private
+ * @param {RouteTemplate} template 路线模板。
+ * @param {NormalizedRoutePreferences} preferences 规范化偏好。
+ * @returns {number} 匹配分，分数越高越适合。
+ */
 function scoreTemplate(template, preferences) {
   let score = 0;
   const interestText = preferences.interests.join(" ");
@@ -259,6 +334,7 @@ function scoreTemplate(template, preferences) {
 
   // General time-based routes form the backbone for pure-duration requests;
   // themed routes (photo / family / buddhist) win only when their interest is chosen.
+  /** @type {Set<string>} 仅提供时长时优先采用的通用路线。 */
   const GENERAL_ROUTES = new Set(["quick_30", "one_hour_core", "classic_150", "culture_half_day"]);
   if (GENERAL_ROUTES.has(template.id)) score += 25;
 
@@ -276,6 +352,13 @@ function scoreTemplate(template, preferences) {
   return score;
 }
 
+/**
+ * 按极短时长、台阶压力和复合兴趣调整模板节点并生成解释。
+ * @private
+ * @param {RouteTemplate} template 入选模板。
+ * @param {NormalizedRoutePreferences} preferences 规范化偏好。
+ * @returns {DecoratedRoute} 个性化路线。
+ */
 function adaptRoute(template, preferences) {
   let nodeIds = [...template.nodeIds];
   const notes = [];
@@ -301,6 +384,13 @@ function adaptRoute(template, preferences) {
   return route;
 }
 
+/**
+ * 将模板节点 ID 展开为带顺序和讲解端点的完整路线。
+ * @private
+ * @param {RouteTemplate} template 路线模板。
+ * @param {string} reason 推荐理由。
+ * @returns {DecoratedRoute} 完整路线对象。
+ */
 function decorateRoute(template, reason) {
   const nodes = template.nodeIds.map((id, index) => {
     const node = routeNodes.find((item) => item.id === id);
@@ -323,6 +413,14 @@ function decorateRoute(template, reason) {
   };
 }
 
+/**
+ * 将模板评分转换为简短可读理由。
+ * @private
+ * @param {RouteTemplate} template 路线模板。
+ * @param {NormalizedRoutePreferences} preferences 规范化偏好。
+ * @param {number} score 模板分数。
+ * @returns {string[]} 推荐理由列表。
+ */
 function explainScore(template, preferences, score) {
   const reasons = [`匹配分 ${score}`];
   if (template.durationMinutes <= preferences.durationMinutes) reasons.push("时长适配");
@@ -332,6 +430,14 @@ function explainScore(template, preferences, score) {
   return reasons;
 }
 
+/**
+ * 生成包含逐节点用途和个性化调整说明的路线推荐文本。
+ * @private
+ * @param {DecoratedRoute} route 个性化路线。
+ * @param {NormalizedRoutePreferences} preferences 规范化偏好。
+ * @param {string[]} notes 调整说明。
+ * @returns {string} 可直接展示给游客的路线说明。
+ */
 function buildRouteExplanation(route, preferences, notes) {
   const stepText = route.nodes
     .map((node) => `${node.step}. ${node.name}: ${node.tags.includes("show") ? "适合观看演艺或动态景观" : node.tags.includes("photo") ? "适合拍照打卡" : "顺路游览并可听讲解"}`)

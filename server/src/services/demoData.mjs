@@ -1,7 +1,17 @@
+/**
+ * @fileoverview 为管理看板生成可重复替换的完整演示数据批次。
+ *
+ * 每次生成只清理 `demo_` 前缀的旧数据，不影响真实游客或导入数据，并在单个事务中写入会话、
+ * 消息、反馈、行为、路线选择和人工标注。
+ *
+ * @typedef {{id: string, name: string, type: string, minutes: number, nodes: string[], tags: string[]}} DemoRoute
+ * @typedef {{question: string, answer: string, intent: string, emotion: string, rating: number, vote: string, comment: string, annotation: string}} ConversationScenario
+ */
 import { randomBytes, randomInt } from "node:crypto";
 import { getDb } from "../db/database.mjs";
 import { invalidateBehaviorDatasetCache } from "./behaviorAnalytics.mjs";
 
+/** @type {string[]} 演示行为数据轮换使用的灵山景点名称。 */
 const ATTRACTIONS = [
   "灵山胜境",
   "灵山大佛",
@@ -13,6 +23,7 @@ const ATTRACTIONS = [
   "佛教文化博览馆"
 ];
 
+/** @type {DemoRoute[]} 演示路线选择使用的路线模板。 */
 const ROUTES = [
   {
     id: "quick_30",
@@ -72,6 +83,7 @@ const ROUTES = [
   }
 ];
 
+/** @type {ConversationScenario[]} 演示对话、反馈和人工标注场景。 */
 const CONVERSATION_SCENARIOS = [
   {
     question: "灵山大佛一共有多高？",
@@ -195,6 +207,13 @@ const CONVERSATION_SCENARIOS = [
   }
 ];
 
+/**
+ * 原子替换旧演示数据并生成新的多表数据批次。
+ * @returns {{batchId: string, generatedAt: string, counts: {visitorSessions: number, messages: number, feedback: number, touristBehavior: number, routeSelections: number, messageAnnotations: number, total: number}}} 批次标识、生成时间及各表写入数。
+ * @throws {Error} 数据库语句准备或事务写入失败时透传异常，事务会整体回滚。
+ * @example
+ * const result = generateDemoData();
+ */
 export function generateDemoData() {
   const db = getDb();
   const generatedAt = new Date().toISOString();
@@ -281,6 +300,12 @@ export function generateDemoData() {
   return { batchId, generatedAt, counts };
 }
 
+/**
+ * 在内存中构造一次演示批次的全部数据库行。
+ * @private
+ * @param {{batchId: string, generatedAt: string}} input 批次 ID 和 ISO 生成时间。
+ * @returns {{sessions: object[], messages: object[], feedback: object[], behavior: object[], routes: object[], annotations: object[]}} 多表写入载荷。
+ */
 function buildBatch({ batchId, generatedAt }) {
   const now = new Date(generatedAt).getTime();
   const sessionCount = randomInt(36, 45);
@@ -406,6 +431,12 @@ function buildBatch({ batchId, generatedAt }) {
   return { sessions, messages, feedback, behavior, routes, annotations };
 }
 
+/**
+ * 生成一条带随机消费、停留时长和满意度的游客行为数据库行。
+ * @private
+ * @param {{batchId: string, index: number, now: number}} input 批次 ID、序号和基准毫秒时间。
+ * @returns {object} `tourist_behavior` 表写入记录。
+ */
 function buildBehaviorRow({ batchId, index, now }) {
   const ageCenters = [21, 29, 39, 52, 66];
   const stayDurations = [45, 90, 180, 300];
@@ -436,16 +467,37 @@ function buildBehaviorRow({ batchId, index, now }) {
   };
 }
 
+/**
+ * 根据人工标注类别和意图生成复核说明。
+ * @private
+ * @param {string} label 标注类别。
+ * @param {string} intent 对话意图。
+ * @returns {string} 人工标注说明。
+ */
 function annotationNote(label, intent) {
   if (label === "correct") return `${intent}回答已核验，可作为优质讲解样例。`;
   if (label === "wrong") return `${intent}回答需要复核，并优化个性化条件匹配。`;
   return `${intent}缺少实时或精确数据，建议补充知识库与当天公告来源。`;
 }
 
+/**
+ * 在日期上增加分钟并输出 ISO 8601 时间。
+ * @private
+ * @param {Date} date 基准日期。
+ * @param {number} minutes 增加的分钟数。
+ * @returns {string} 调整后的 ISO 8601 时间。
+ */
 function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes * 60_000).toISOString();
 }
 
+/**
+ * 使用 Fisher-Yates 算法返回输入数组的随机副本。
+ * @private
+ * @template T
+ * @param {T[]} items 输入数组。
+ * @returns {T[]} 随机重排的新数组。
+ */
 function shuffle(items) {
   const result = [...items];
   for (let index = result.length - 1; index > 0; index -= 1) {

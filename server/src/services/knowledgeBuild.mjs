@@ -1,13 +1,37 @@
+/**
+ * @fileoverview 灵山与拈花湾资料的 DOCX/Markdown 解析、知识分块、运行时索引和快照恢复服务。
+ *
+ * @typedef {object} ScenicSpotKnowledge
+ * @property {string} id 景点 ID。
+ * @property {string} scenicArea 所属景区。
+ * @property {string} name 景点名称。
+ * @property {string[]} aliases 多语言名称和业务别名。
+ * @property {string} locationText 位置说明。
+ * @property {string} parameters 建筑或景观参数。
+ * @property {string} coreFunction 核心功能。
+ * @property {string} culture 文化内涵。
+ * @property {string} detail 详细介绍。
+ * @property {string} highlights 游玩亮点。
+ * @property {string} openInfo 演艺或开放信息。
+ * @property {string} notes 备注。
+ * @typedef {{id: string, documentId: string, scenicSpotId: string|null, title: string, content: string, keywords: string[], source: string, language: string, fileType?: string}} KnowledgeChunk
+ * @typedef {{id: string, fileName: string, fileType: string, language: string, status: string, chunkCount: number, createdAt: string}} KnowledgeDocument
+ * @typedef {{generatedAt: string, sourceDir?: string, scope?: string, documents: KnowledgeDocument[], spots: ScenicSpotKnowledge[], guideSections?: object[], chunks: KnowledgeChunk[]}} KnowledgeBase
+ */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "../config.mjs";
 import { extractDocxText } from "./docx.mjs";
 
+/** @type {string} 结构化景点资料的标准文件名。 */
 const STRUCTURED_DOC = "灵山胜境 景点结构化数据集.docx";
+/** @type {string} 综合导览资料的标准文件名。 */
 const GUIDE_DOC = "灵山胜境：历史、文化、景点特色与个性化游览指南.docx";
+/** @type {string[]} 构成可恢复发布快照的生成文件。 */
 const GENERATED_KNOWLEDGE_FILES = ["knowledge.json", "knowledge-chunks.json", "scenic-spots.json"];
 
+/** @type {string[]} 结构化 DOCX 记录的字段顺序。 */
 const structuredFields = [
   "景区名称",
   "景点ID",
@@ -22,23 +46,36 @@ const structuredFields = [
   "备注"
 ];
 
-// Scenic areas covered by the structured dataset. Each area's records start
-// with the area name on its own line, followed by a spot-ID line matching the
-// area's ID pattern. 拈花湾 was originally excluded; it is now a sub-area.
+/**
+ * 结构化数据覆盖的景区及其 ID 格式。每条记录以独占一行的景区名和下一行景点 ID 开始。
+ * @type {Array<{area: string, idPattern: RegExp}>}
+ */
 const SCENIC_AREAS = [
   { area: "灵山胜境", idPattern: /^LS-\d{3}$/ },
   { area: "拈花湾禅意小镇", idPattern: /^NH-\d{3}$/ }
 ];
 
+/**
+ * 根据景点 ID 判断所属景区。
+ * @private
+ * @param {*} id 景点 ID。
+ * @returns {string|null} 景区名称；格式不匹配时返回 `null`。
+ */
 function areaForId(id) {
   return SCENIC_AREAS.find((entry) => entry.idPattern.test(id))?.area || null;
 }
 
-// Table/section header lines that must not bleed into a spot's trailing fields.
+/**
+ * 判断一行是否为表格或章节边界，防止标题混入上一条景点备注。
+ * @private
+ * @param {string} line 清理后的文本行。
+ * @returns {boolean} 属于边界时为 `true`。
+ */
 function isTableBoundary(line) {
   return /景点数据集/.test(line) || /^(子表|表\d|景区名称|数据集说明|字段规范|核心构成)/.test(line);
 }
 
+/** @type {string[]} 综合导览文档中用于切分章节的已知标题。 */
 const guideHeadings = [
   "景区概况与千年历史渊源",
   "小灵山的佛教缘起",
@@ -63,6 +100,15 @@ const guideHeadings = [
   "最佳游览时间"
 ];
 
+/**
+ * 从标准 DOCX 和补充 Markdown 全量构建知识库，同时保留已有上传文档分块。
+ * @param {{sourceDir?: string}} [options={}] 原始资料目录。
+ * @returns {KnowledgeBase} 已写入运行时生成目录的知识库。
+ * @throws {Error & {statusCode: 404, code: "SOURCE_FILE_NOT_FOUND"}} 标准资料缺失时抛出。
+ * @throws {Error} DOCX 解析、目录读取或文件写入失败时透传异常。
+ * @example
+ * const knowledge = buildKnowledge({ sourceDir: "../docs/scenic-materials" });
+ */
 export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs", "scenic-materials") } = {}) {
   const structuredPath = join(sourceDir, STRUCTURED_DOC);
   const guidePath = join(sourceDir, GUIDE_DOC);
@@ -140,6 +186,13 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
   return result;
 }
 
+/**
+ * 优先从可写运行时目录加载知识库，缺失时回退到发布包快照。
+ * @returns {KnowledgeBase|null} 知识库；两个位置均不存在时返回 `null`。
+ * @throws {SyntaxError|Error} 文件存在但 JSON 无效或读取失败时抛出。
+ * @example
+ * const knowledge = loadKnowledge();
+ */
 export function loadKnowledge() {
   return (
     loadKnowledgeFrom(join(runtimeGeneratedDir(), "knowledge.json")) ||
@@ -148,9 +201,15 @@ export function loadKnowledge() {
 }
 
 /**
- * Restore the release's verified knowledge snapshot into the writable runtime
- * directory. Production persists DATA_DIR outside a release, so a newly
- * provisioned volume must not leave document uploads unable to build an index.
+ * 将发布包内已验证知识快照恢复到可写运行时目录。
+ * 生产环境的 `DATA_DIR` 通常位于版本目录外，新建数据卷可用此方法初始化索引。
+ * @param {{force?: boolean}} [options={}] 恢复选项。
+ * @param {boolean} [options.force=false] 是否覆盖已存在的运行时知识库。
+ * @returns {KnowledgeBase} 运行时知识库。
+ * @throws {Error & {statusCode: 503, code: "KNOWLEDGE_SEED_MISSING"|"KNOWLEDGE_SEED_RESTORE_FAILED"}} 发布快照缺失或恢复后无法读取时抛出。
+ * @throws {Error} 目录创建、复制或 JSON 解析失败时透传异常。
+ * @example
+ * const knowledge = restoreBundledKnowledge({ force: true });
  */
 export function restoreBundledKnowledge({ force = false } = {}) {
   const runtimeDir = runtimeGeneratedDir();
@@ -187,6 +246,13 @@ export function restoreBundledKnowledge({ force = false } = {}) {
   return knowledge;
 }
 
+/**
+ * 将纯文本或 Markdown 按章节与最大 700 字符切分为可检索知识块。
+ * @param {{documentId: string, fileName: string, text: string, fileType?: string, spots?: ScenicSpotKnowledge[]}} input 文档信息。
+ * @returns {KnowledgeChunk[]} 有序知识分块。
+ * @example
+ * const chunks = buildTextDocumentChunks({ documentId: "upload_1", fileName: "faq.md", text: "# 门票\n成人票说明" });
+ */
 export function buildTextDocumentChunks({
   documentId,
   fileName,
@@ -219,6 +285,16 @@ export function buildTextDocumentChunks({
   return chunks;
 }
 
+/**
+ * 将上传文本加入运行时知识库，并原子式替换同 ID 文档的旧元数据和分块。
+ * @param {{documentId: string, fileName: string, text: string, fileType: string}} input 文档信息。
+ * @returns {KnowledgeDocument} 已索引文档元数据。
+ * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 无基础知识库且快照无法恢复时抛出。
+ * @throws {Error & {statusCode: 422, code: "KNOWLEDGE_DOCUMENT_EMPTY"}} 文档无可索引文本时抛出。
+ * @throws {Error} 快照恢复、JSON 读取或文件写入失败时透传异常。
+ * @example
+ * const document = indexTextKnowledgeDocument({ documentId: "upload_1", fileName: "faq.txt", text: "开放时间", fileType: "txt" });
+ */
 export function indexTextKnowledgeDocument({ documentId, fileName, text, fileType }) {
   const knowledge = loadKnowledge() || restoreBundledKnowledge();
   if (!knowledge) {
@@ -272,6 +348,14 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
   return document;
 }
 
+/**
+ * 从运行时知识库删除指定文档及其全部分块。
+ * @param {string[]} [documentIds=[]] 待删除文档 ID。
+ * @returns {number} 删除的文档元数据数量。
+ * @throws {Error} 知识 JSON 读取或写入失败时透传异常。
+ * @example
+ * const removed = removeIndexedKnowledgeDocuments(["upload_1"]);
+ */
 export function removeIndexedKnowledgeDocuments(documentIds = []) {
   const ids = new Set(documentIds.filter(Boolean));
   if (ids.size === 0) return 0;
@@ -298,14 +382,31 @@ export function removeIndexedKnowledgeDocuments(documentIds = []) {
   return removedDocuments;
 }
 
+/**
+ * 获取当前部署的可写知识生成目录。
+ * @private
+ * @returns {string} 绝对目录。
+ */
 function runtimeGeneratedDir() {
   return join(config.dataDir, "generated");
 }
 
+/**
+ * 获取源码发布包内置知识快照目录。
+ * @private
+ * @returns {string} 绝对目录。
+ */
 function bundledGeneratedDir() {
   return resolve(fileURLToPath(new URL("../../data/generated", import.meta.url)));
 }
 
+/**
+ * 从指定 JSON 文件读取知识库。
+ * @private
+ * @param {string} filePath JSON 文件路径。
+ * @returns {KnowledgeBase|null} 解析后的知识库；文件不存在时为 `null`。
+ * @throws {SyntaxError|Error} JSON 无效或文件读取失败时抛出。
+ */
 function loadKnowledgeFrom(filePath) {
   if (!existsSync(filePath)) {
     return null;
@@ -313,6 +414,13 @@ function loadKnowledgeFrom(filePath) {
   return JSON.parse(readFileSync(filePath, "utf8"));
 }
 
+/**
+ * 解析结构化景点 DOCX 纯文本；优先按行记录解析，失败时回退到字段标记解析。
+ * @param {string} text DOCX 提取的纯文本。
+ * @returns {ScenicSpotKnowledge[]} 灵山和拈花湾景点。
+ * @example
+ * const spots = parseStructuredSpots(structuredText);
+ */
 export function parseStructuredSpots(text) {
   const lineSpots = parseStructuredSpotsByLines(text);
   if (lineSpots.length > 0) {
@@ -337,6 +445,12 @@ export function parseStructuredSpots(text) {
   return spots;
 }
 
+/**
+ * 按“景区名行 + 匹配的景点 ID 行”识别结构化景点记录。
+ * @private
+ * @param {string} text 结构化资料纯文本。
+ * @returns {ScenicSpotKnowledge[]} 景点列表。
+ */
 function parseStructuredSpotsByLines(text) {
   const lines = text
     .split(/\r?\n/)
@@ -404,6 +518,13 @@ function parseStructuredSpotsByLines(text) {
   return spots;
 }
 
+/**
+ * 按已知标题位置切分综合导览文档，未命中标题时生成单一兜底章节。
+ * @param {string} text 导览资料纯文本。
+ * @returns {Array<{id: string, title: string, content: string, keywords: string[]}>} 导览章节。
+ * @example
+ * const sections = parseGuideSections(guideText);
+ */
 export function parseGuideSections(text) {
   const normalized = normalizeText(text).replace(/\n+/g, "\n");
   const positions = [];
@@ -447,6 +568,14 @@ export function parseGuideSections(text) {
   return sections;
 }
 
+/**
+ * 将结构化景点和导览章节转换为基础知识分块。
+ * @param {ScenicSpotKnowledge[]} spots 景点列表。
+ * @param {Array<object>} guideSections 导览章节。
+ * @returns {KnowledgeChunk[]} 基础知识分块。
+ * @example
+ * const chunks = buildChunks(spots, guideSections);
+ */
 export function buildChunks(spots, guideSections) {
   const chunks = [];
 
@@ -492,6 +621,13 @@ export function buildChunks(spots, guideSections) {
   return chunks;
 }
 
+/**
+ * 使用字段标记从压平文本中解析单条景点记录。
+ * @private
+ * @param {string} id 景点 ID。
+ * @param {string} recordText 当前记录文本。
+ * @returns {ScenicSpotKnowledge|null} 景点记录；缺少字段标记时返回 `null`。
+ */
 function parseSpotRecord(id, recordText) {
   const afterId = recordText.slice(recordText.indexOf(id) + id.length).trim();
   const nextIdIndex = afterId.search(/LS-\d{3}|NH-\d{3}/);
@@ -537,6 +673,12 @@ function parseSpotRecord(id, recordText) {
   };
 }
 
+/**
+ * 从名称与位置混合文本开头提取已知景点名，未知景点采用首个短语。
+ * @private
+ * @param {string} text 名称与位置文本。
+ * @returns {string} 景点名称。
+ */
 function extractSpotName(text) {
   const knownNames = [
     "灵山大照壁",
@@ -571,6 +713,13 @@ function extractSpotName(text) {
   return text.split(/[，,。；;]/)[0].slice(0, 16);
 }
 
+/**
+ * 为景点构建中文短称、业务称呼和中英日韩繁体别名。
+ * @private
+ * @param {string} name 景点名称。
+ * @param {string} scenicArea 所属景区。
+ * @returns {string[]} 去重后的别名列表。
+ */
 function buildAliases(name, scenicArea) {
   const aliases = new Set([name]);
 
@@ -626,6 +775,14 @@ function buildAliases(name, scenicArea) {
   return [...aliases];
 }
 
+/**
+ * 读取资料目录内全部 Markdown 文件并构建补充知识文档。
+ * @private
+ * @param {string} sourceDir 资料目录。
+ * @param {ScenicSpotKnowledge[]} spots 景点列表。
+ * @returns {Array<{id: string, fileName: string, fileType: "md", language: string, chunks: KnowledgeChunk[]}>} 补充文档。
+ * @throws {Error} 目录或文件读取失败时透传文件系统异常。
+ */
 function loadSupplementalMarkdown(sourceDir, spots) {
   return readdirSync(sourceDir, { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".md"))
@@ -650,6 +807,13 @@ function loadSupplementalMarkdown(sourceDir, spots) {
     });
 }
 
+/**
+ * 按 Markdown 标题切分文本；普通文本或无正文标题时回退为单一章节。
+ * @private
+ * @param {*} text 文档文本。
+ * @param {string} fileName 文件名，用于生成兜底标题。
+ * @returns {Array<{title: string, content: string}>} 文档章节。
+ */
 function parseTextSections(text, fileName) {
   const fallbackTitle = basename(fileName, extname(fileName));
   const lines = String(text || "").replace(/\r/g, "").split("\n");
@@ -658,6 +822,7 @@ function parseTextSections(text, fileName) {
   let currentTitle = fallbackTitle;
   let content = [];
 
+  /** 将当前缓冲正文写入章节列表。 @returns {void} */
   const flush = () => {
     const value = content.join("\n").trim();
     if (value) {
@@ -690,6 +855,13 @@ function parseTextSections(text, fileName) {
   return sections;
 }
 
+/**
+ * 根据标题中的多语言景点别名匹配景点 ID。
+ * @private
+ * @param {string} title 章节标题。
+ * @param {ScenicSpotKnowledge[]} spots 景点列表。
+ * @returns {string|null} 景点 ID；未匹配时为 `null`。
+ */
 function matchLocalizedSpotId(title, spots) {
   const normalizedTitle = normalizeSearchText(title);
   const spot = spots.find((item) =>
@@ -698,6 +870,13 @@ function matchLocalizedSpotId(title, spots) {
   return spot?.id || null;
 }
 
+/**
+ * 从文档文本提取命中的景点别名和 Unicode 字母数字词。
+ * @private
+ * @param {*} text 标题与正文。
+ * @param {ScenicSpotKnowledge[]} spots 景点列表。
+ * @returns {string[]} 去重且最多 40 项的关键词。
+ */
 function extractDocumentKeywords(text, spots) {
   const normalizedText = normalizeSearchText(text);
   const aliases = spots
@@ -709,6 +888,12 @@ function extractDocumentKeywords(text, spots) {
   return [...new Set([...aliases, ...lexical])].slice(0, 40);
 }
 
+/**
+ * 根据文件名 ASCII 部分生成稳定的补充文档 ID。
+ * @private
+ * @param {string} fileName 文件名。
+ * @returns {string} `doc_` 前缀文档 ID。
+ */
 function documentIdForFile(fileName) {
   const stem = basename(fileName, extname(fileName))
     .toLowerCase()
@@ -717,6 +902,13 @@ function documentIdForFile(fileName) {
   return `doc_${stem || "supplemental"}`;
 }
 
+/**
+ * 优先按文件名语言标记、其次按字符分布推断文档语言。
+ * @private
+ * @param {*} fileName 文件名。
+ * @param {*} [text=""] 文档正文。
+ * @returns {"zh"|"zh-TW"|"en"|"ko"|"ja"|"th"|"und"} BCP 47 风格语言代码或未知标记。
+ */
 function inferDocumentLanguage(fileName, text = "") {
   const normalized = String(fileName || "").toLowerCase();
   if (/(^|[._-])zh[-_]?tw([._-]|$)/.test(normalized)) return "zh-TW";
@@ -737,10 +929,24 @@ function inferDocumentLanguage(fileName, text = "") {
   return "und";
 }
 
+/**
+ * 对实体匹配文本执行 NFKC、转小写和空白规范化。
+ * @private
+ * @param {*} value 原始文本。
+ * @returns {string} 规范化文本。
+ */
 function normalizeSearchText(value) {
   return String(value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+/**
+ * 将非路线/贴士类导览章节关联到正文中提及的首个景点。
+ * @private
+ * @param {string} title 章节标题。
+ * @param {string} content 章节正文。
+ * @param {ScenicSpotKnowledge[]} spots 景点列表。
+ * @returns {string|null} 景点 ID；通用章节或未匹配时为 `null`。
+ */
 function matchSpotId(title, content, spots) {
   if (/(路线|贴士|时间|政策|推荐)/.test(title)) {
     return null;
@@ -751,6 +957,14 @@ function matchSpotId(title, content, spots) {
   return spot?.id || null;
 }
 
+/**
+ * 尽量按句子边界将长文本拆分到指定最大长度。
+ * 单个超长句不会被硬切，以保持语义完整。
+ * @private
+ * @param {string} text 文本。
+ * @param {number} maxLength 目标最大字符数。
+ * @returns {string[]} 有序文本分块。
+ */
 function splitLongText(text, maxLength) {
   const clean = text.trim();
   if (clean.length <= maxLength) {
@@ -776,6 +990,12 @@ function splitLongText(text, maxLength) {
   return parts;
 }
 
+/**
+ * 从中文基础资料中选择预定义业务关键词。
+ * @private
+ * @param {string} text 文本。
+ * @returns {string[]} 文本中实际出现的关键词。
+ */
 function extractKeywords(text) {
   const candidates = [
     "灵山胜境",
@@ -813,10 +1033,23 @@ function extractKeywords(text) {
   return candidates.filter((item) => text.includes(item));
 }
 
+/**
+ * 规范化 DOCX 提取文本中的换行、制表符和连续空格。
+ * @private
+ * @param {string} text 原始文本。
+ * @returns {string} 清理后的文本。
+ */
 function normalizeText(text) {
   return text.replace(/\r/g, "\n").replace(/\t+/g, "").replace(/[ ]{2,}/g, " ").trim();
 }
 
+/**
+ * 断言源资料文件存在。
+ * @private
+ * @param {string} filePath 文件路径。
+ * @returns {void}
+ * @throws {Error & {statusCode: 404, code: "SOURCE_FILE_NOT_FOUND"}} 文件不存在时抛出。
+ */
 function assertFile(filePath) {
   if (!existsSync(filePath)) {
     const error = new Error(`Source file not found: ${basename(filePath)}`);
@@ -826,6 +1059,14 @@ function assertFile(filePath) {
   }
 }
 
+/**
+ * 以两空格缩进和结尾换行写入 UTF-8 JSON。
+ * @private
+ * @param {string} filePath 输出路径。
+ * @param {*} data 可序列化数据。
+ * @returns {void}
+ * @throws {TypeError|Error} 数据不可序列化或文件无法写入时抛出。
+ */
 function writeJson(filePath, data) {
   writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }

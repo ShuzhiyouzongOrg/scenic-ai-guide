@@ -1,5 +1,19 @@
+/**
+ * @fileoverview 静态文件路径安全解析器，用于阻止目录穿越、NUL 和跨盘符访问。
+ */
 import * as systemPath from "node:path";
 
+/**
+ * 将 URL 路径安全地限制在指定静态根目录内。
+ *
+ * @param {string} publicDir 静态资源根目录。
+ * @param {string} pathname URL pathname；根路径会映射到 `index.html`。
+ * @param {typeof import("node:path")} [pathApi=systemPath] 可替换的路径 API，便于跨平台测试。
+ * @returns {string|null} 安全的绝对文件路径；输入非法或逃逸根目录时返回 `null`。
+ * @example
+ * const filePath = resolveStaticFilePath("/srv/web", "/assets/app.js");
+ * if (!filePath) throw new Error("invalid static path");
+ */
 export function resolveStaticFilePath(publicDir, pathname, pathApi = systemPath) {
   let decodedPath;
   try {

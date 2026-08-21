@@ -1,11 +1,44 @@
-// C9 / DH5-10: digital-human configuration (SQLite-backed) and answer->state
-// mapping. The active configuration tells the visitor client which iFlytek
-// interactive-avatar id / voice (vcn) to load and how to greet visitors.
+/**
+ * @fileoverview 数字人配置持久化、活动配置选择、回答状态映射与资源预热信息服务。
+ *
+ * 活动配置决定游客端加载讯飞云端交互数字人还是本地 Live2D，以及使用的形象、发音人和欢迎词。
+ *
+ * @typedef {"xfyun"|"live2d"} DigitalHumanEngine
+ * @typedef {"online"|"maintenance"|"text_only"} DigitalHumanServiceStatus
+ * @typedef {object} DigitalHumanConfig
+ * @property {string} id 配置 ID。
+ * @property {string} name 配置名称。
+ * @property {DigitalHumanEngine} engine 渲染引擎。
+ * @property {string} avatarId 讯飞形象 ID。
+ * @property {string} vcn 讯飞发音人代码。
+ * @property {string} modelId Live2D 角色目录名。
+ * @property {string} characterAsset 角色资源说明。
+ * @property {string} appearance 外观说明。
+ * @property {string} outfit 服装说明。
+ * @property {string} theme 主题说明。
+ * @property {string} voiceId 语音标识。
+ * @property {number} speechRate 语速倍率。
+ * @property {string} welcomeText 欢迎语。
+ * @property {string} emotionStyle 情感风格。
+ * @property {DigitalHumanServiceStatus} serviceStatus 服务状态。
+ * @property {boolean} enabled 是否为活动配置。
+ * @property {string} updatedAt 更新时间。
+ * @property {boolean} assetAvailable 当前引擎是否具备可渲染资源。
+ * @property {{type: string, reason: string}} fallback 客户端降级策略。
+ * @typedef {{expression: string, action: string, state: string, ttsEmotion: string}} DigitalHumanState
+ */
 
 import { getDb } from "../db/database.mjs";
 
+/** @type {RegExp} 讯飞交互数字人形象 ID 的允许格式。 */
 const XFYUN_AVATAR_ID_PATTERN = /^[a-z0-9]{16,64}$/i;
 
+/**
+ * 将数据库行转换为客户端配置，并计算资源可用性和降级策略。
+ * @private
+ * @param {Record<string, *>} row 数字人配置数据库行。
+ * @returns {DigitalHumanConfig} 对外数字人配置。
+ */
 function toConfig(row) {
   const config = {
     id: row.id,
@@ -47,6 +80,13 @@ function toConfig(row) {
   return config;
 }
 
+/**
+ * 获取活动数字人配置；没有启用项时回退到最近更新的配置。
+ * @returns {DigitalHumanConfig|null} 当前配置；数据库无记录时返回 `null`。
+ * @throws {Error} 数据库查询失败时透传异常。
+ * @example
+ * const active = getActiveDigitalHumanConfig();
+ */
 export function getActiveDigitalHumanConfig() {
   const db = getDb();
   const row =
@@ -55,6 +95,13 @@ export function getActiveDigitalHumanConfig() {
   return row ? toConfig(row) : null;
 }
 
+/**
+ * 列出全部数字人配置，活动配置优先，其余按更新时间降序排列。
+ * @returns {DigitalHumanConfig[]} 数字人配置列表。
+ * @throws {Error} 数据库查询失败时透传异常。
+ * @example
+ * const configs = listDigitalHumanConfigs();
+ */
 export function listDigitalHumanConfigs() {
   return getDb()
     .prepare("SELECT * FROM digital_human_configs ORDER BY enabled DESC, updated_at DESC")
@@ -62,6 +109,15 @@ export function listDigitalHumanConfigs() {
     .map(toConfig);
 }
 
+/**
+ * 创建或更新数字人配置；显式启用新配置时先停用其他配置。
+ * @param {Partial<DigitalHumanConfig>} [input={}] 配置字段。
+ * @returns {DigitalHumanConfig} 保存后的配置。
+ * @throws {Error & {statusCode: 400, code: "AVATAR_ID_INVALID"}} 在线讯飞配置缺少合法形象 ID 时抛出。
+ * @throws {Error} 数据库写入或约束校验失败时透传异常。
+ * @example
+ * const config = updateDigitalHumanConfig({ id: "guide-main", engine: "live2d", modelId: "Haru", enabled: true });
+ */
 export function updateDigitalHumanConfig(input = {}) {
   const db = getDb();
   const active = input.id
@@ -119,6 +175,16 @@ export function updateDigitalHumanConfig(input = {}) {
   return toConfig(db.prepare("SELECT * FROM digital_human_configs WHERE id = ?").get(id));
 }
 
+/**
+ * 删除非活动数字人配置。
+ * @param {*} id 配置 ID。
+ * @returns {{id: string, name: string}} 被删除配置的标识和名称。
+ * @throws {Error & {statusCode: 404, code: "DIGITAL_HUMAN_CONFIG_NOT_FOUND"}} 配置不存在时抛出。
+ * @throws {Error & {statusCode: 409, code: "DIGITAL_HUMAN_CONFIG_ACTIVE"|"DIGITAL_HUMAN_CONFIG_CHANGED"}} 配置仍活动或并发变化时抛出。
+ * @throws {Error} 数据库查询或事务执行失败时透传异常。
+ * @example
+ * const deleted = deleteDigitalHumanConfig("guide-backup");
+ */
 export function deleteDigitalHumanConfig(id) {
   const normalizedId = String(id || "").trim();
   const db = getDb();
@@ -154,6 +220,7 @@ export function deleteDigitalHumanConfig(id) {
   return { id: row.id, name: row.name || "" };
 }
 
+/** @type {Record<string, DigitalHumanState>} 回答质量标签到数字人动作和 TTS 情绪的映射。 */
 const labelMap = {
   路线推荐: { expression: "smile", action: "point", state: "guiding", ttsEmotion: "happy" },
   拒答: { expression: "apology", action: "nod", state: "finished", ttsEmotion: "sorry" },
@@ -162,6 +229,7 @@ const labelMap = {
   事实问答: { expression: "calm", action: "nod", state: "speaking", ttsEmotion: "neutral" }
 };
 
+/** @type {Record<string, DigitalHumanState>} 显式情绪标签到数字人状态的映射。 */
 const emotionMap = {
   微笑: { expression: "smile", action: "point", state: "guiding", ttsEmotion: "happy" },
   抱歉: { expression: "apology", action: "nod", state: "finished", ttsEmotion: "sorry" },
@@ -169,6 +237,13 @@ const emotionMap = {
   平静: { expression: "calm", action: "nod", state: "speaking", ttsEmotion: "neutral" }
 };
 
+/**
+ * 根据回答标签、情绪和场景选择数字人的表情、动作、状态及语音情感。
+ * @param {{label?: string, emotion?: string, scenario?: string}} [input={}] 回答分类信息。
+ * @returns {DigitalHumanState} 客户端可执行的数字人状态。
+ * @example
+ * const state = mapAnswerToDigitalHumanState({ label: "路线推荐" });
+ */
 export function mapAnswerToDigitalHumanState({ label = "", emotion = "", scenario = "" } = {}) {
   if (scenario === "sensitive" || scenario === "no_data" || scenario === "out_of_scope") {
     return { expression: "apology", action: "nod", state: "finished", ttsEmotion: "sorry" };
@@ -179,6 +254,13 @@ export function mapAnswerToDigitalHumanState({ label = "", emotion = "", scenari
   );
 }
 
+/**
+ * 读取活动配置并生成客户端资源预热检查结果。
+ * @returns {{ok: boolean, engine: DigitalHumanEngine, avatarId: string, modelId: string, vcn: string, fallback: object|undefined, warmedAt: string}} 资源标识与预热时间。
+ * @throws {Error} 数据库查询失败时透传异常。
+ * @example
+ * const status = preloadDigitalHumanAssets();
+ */
 export function preloadDigitalHumanAssets() {
   const active = getActiveDigitalHumanConfig();
   // "ok" means an avatar identifier is configured for the active engine
@@ -198,20 +280,46 @@ export function preloadDigitalHumanAssets() {
   };
 }
 
+/**
+ * 规范化非空文本，否则采用回退值。
+ * @private
+ * @param {*} value 候选值。
+ * @param {*} fallback 回退值。
+ * @returns {string} 去除首尾空白后的文本。
+ */
 function stringOr(value, fallback) {
   const text = String(value ?? "").trim();
   return text || fallback || "";
 }
 
+/**
+ * 规范化正数，否则采用回退值。
+ * @private
+ * @param {*} value 候选数值。
+ * @param {number} fallback 回退值。
+ * @returns {number} 有限正数或回退值。
+ */
 function numberOr(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
 }
 
+/**
+ * 将服务状态限制为受支持值。
+ * @private
+ * @param {*} value 候选状态。
+ * @returns {DigitalHumanServiceStatus} 合法状态；未知值回退为 `online`。
+ */
 function normalizeServiceStatus(value) {
   return ["online", "maintenance", "text_only"].includes(value) ? value : "online";
 }
 
+/**
+ * 将渲染引擎限制为讯飞或 Live2D。
+ * @private
+ * @param {*} value 候选引擎。
+ * @returns {DigitalHumanEngine} `live2d` 或默认的 `xfyun`。
+ */
 function normalizeEngine(value) {
   return value === "live2d" ? "live2d" : "xfyun";
 }

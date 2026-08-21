@@ -11,6 +11,15 @@ export interface ProjectChangeLog {
 // 从本项目 Git 提交记录按日期整理；标题与条目仅保留中文，便于后续继续追加正式版本说明。
 export const projectChangeLog: ProjectChangeLog[] = [
   {
+    version: '2026-08-22',
+    date: '2026-08-22',
+    title: '服务端源码文档完善',
+    detail: [
+      '文档：为服务端第一方可维护源码补全规范 JSDoc，覆盖模块、函数、类、方法与核心变量',
+      '文档：补充参数、返回值、异常情况与使用示例，便于理解服务端结构和业务逻辑'
+    ]
+  },
+  {
     version: '2026-08-18',
     date: '2026-08-18',
     title: '桌面端 0.2.0 与数字人配置完善',

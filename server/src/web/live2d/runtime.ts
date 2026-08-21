@@ -1,18 +1,29 @@
+/**
+ * @fileoverview 本地 Live2D 浏览器运行时入口，负责模型选择、渲染启动、音频队列和宿主状态通信。
+ *
+ * 此文件是 `runtime.js` 浏览器构建产物的自有 TypeScript 源文件。
+ */
 import { Live2dManager } from '../../../../web/src/lib/live2d/live2dManager'
 import { LAppDelegate } from '../../../../web/src/lib/live2d/src/lappdelegate'
 import type { ResourceModel } from '../../../../web/src/lib/live2d/resource'
 
 declare global {
   interface Window {
+    /** 中断当前 Live2D 语音并清空音频队列。 */
     scenicLive2dInterrupt?: () => void
+    /** 向嵌入宿主报告模型、就绪和播放状态。 */
     scenicLive2dPing?: () => void
+    /** 下载一个或多个后端合成音频并依次播放。 */
     scenicLive2dSpeak?: (audioUrls: string[] | string) => Promise<boolean>
   }
 }
 
+/** @type {readonly ["Haru", "Hiyori", "Kei", "Hibiki"]} 可从本地资源目录加载的模型 ID。 */
 const SUPPORTED_MODELS = ['Haru', 'Hiyori', 'Kei', 'Hibiki'] as const
+/** 支持的本地 Live2D 模型 ID。 */
 type SupportedModel = (typeof SUPPORTED_MODELS)[number]
 
+/** 各模型在固定画布中的缩放和偏移校准值。 */
 const MODEL_PROFILES: Record<SupportedModel, ResourceModel['viewTransform']> = {
   Haru: { scale: 1.48, offsetX: 0, offsetY: -0.18 },
   Hiyori: { scale: 1.58, offsetX: 0, offsetY: -0.22 },
@@ -20,19 +31,34 @@ const MODEL_PROFILES: Record<SupportedModel, ResourceModel['viewTransform']> = {
   Hibiki: { scale: 1.52, offsetX: 0, offsetY: -0.2 }
 }
 
+/** 加载遮罩元素。 */
 const loading = document.getElementById('loading') as HTMLDivElement
+/** 运行状态文本元素。 */
 const statusText = document.getElementById('status-text') as HTMLSpanElement
+/** 浏览器音频解锁按钮。 */
 const audioUnlock = document.getElementById('audio-unlock') as HTMLButtonElement
+/** Live2D WebGL 渲染画布。 */
 const canvas = document.getElementById('live2dCanvas') as HTMLCanvasElement
+/** 当前页面查询参数。 */
 const params = new URLSearchParams(window.location.search)
+/** URL 请求的模型 ID，缺省为 Haru。 */
 const requestedModel = params.get('model') || 'Haru'
+/** 校验后的实际模型 ID。 */
 const model = SUPPORTED_MODELS.includes(requestedModel as SupportedModel)
   ? (requestedModel as SupportedModel)
   : 'Haru'
 
+/** 每次播放或中断递增的世代号，用于取消过期异步任务。 */
 let playbackGeneration = 0
+/** 页面是否已进入销毁阶段。 */
 let destroyed = false
 
+/**
+ * 通过 uni-app 桥和同源父窗口报告 Live2D 状态事件。
+ * @param type 事件类型。
+ * @param detail 附加状态字段。
+ * @returns 无返回值。
+ */
 function post(type: string, detail: Record<string, unknown> = {}): void {
   const packet = { source: 'scenic-live2d', type, ...detail }
   try {
@@ -50,12 +76,23 @@ function post(type: string, detail: Record<string, unknown> = {}): void {
   }
 }
 
+/**
+ * 更新运行状态文本，并确保加载遮罩可见。
+ * @param message 用户可读状态。
+ * @param isError 是否使用错误颜色。
+ * @returns 无返回值。
+ */
 function setStatus(message: string, isError = false): void {
   statusText.textContent = message
   statusText.style.color = isError ? '#b84545' : '#667b92'
   loading.hidden = false
 }
 
+/**
+ * 生成本地模型 JSON URL 和对应视图变换。
+ * @param modelName 受支持模型 ID。
+ * @returns Live2D 管理器可加载的资源描述。
+ */
 function modelResource(modelName: SupportedModel): ResourceModel {
   const modelUrl = new URL(
     `./characters/${encodeURIComponent(modelName)}/${encodeURIComponent(modelName)}.model3.json`,
@@ -69,6 +106,12 @@ function modelResource(modelName: SupportedModel): ResourceModel {
   }
 }
 
+/**
+ * 轮询模型加载状态，成功、失败或 20 秒超时后通知宿主。
+ * @param manager Live2D 管理器。
+ * @param attempts 已轮询次数。
+ * @returns 无返回值。
+ */
 function waitForModel(manager: Live2dManager, attempts = 0): void {
   if (destroyed) return
   const error = manager.getModelLoadError()
@@ -90,12 +133,26 @@ function waitForModel(manager: Live2dManager, attempts = 0): void {
   window.setTimeout(() => waitForModel(manager, attempts + 1), 100)
 }
 
+/**
+ * 以无凭据、禁用缓存方式下载音频。
+ * @param url 后端音频 URL。
+ * @returns 音频二进制。
+ * @throws HTTP 状态非成功时抛出 Error。
+ */
 async function fetchAudio(url: string): Promise<ArrayBuffer> {
   const response = await fetch(url, { credentials: 'omit', cache: 'no-store' })
   if (!response.ok) throw new Error(`Audio request failed (${response.status}).`)
   return response.arrayBuffer()
 }
 
+/**
+ * 下载并解码一个或多个音频片段，清空旧播放后按顺序加入 Live2D 音频队列。
+ * 错误会转换为宿主 `audio-blocked` 事件，不向调用方抛出。
+ * @param audioUrls 音频 URL 或 URL 数组。
+ * @returns 成功加入至少一个音频片段时为 `true`。
+ * @example
+ * await window.scenicLive2dSpeak?.(['/api/voice/tts/audio/segment-1'])
+ */
 async function speak(audioUrls: string[] | string): Promise<boolean> {
   const urls = (Array.isArray(audioUrls) ? audioUrls : [audioUrls]).filter(
     (url): url is string => typeof url === 'string' && url.length > 0
@@ -124,6 +181,12 @@ async function speak(audioUrls: string[] | string): Promise<boolean> {
   }
 }
 
+/**
+ * 轮询当前播放世代，在音频播放及队列均结束时报告空闲。
+ * @param manager Live2D 管理器。
+ * @param generation 播放任务世代号。
+ * @returns 无返回值。
+ */
 function monitorPlayback(manager: Live2dManager, generation: number): void {
   if (destroyed || generation !== playbackGeneration) return
   if (!manager.isAudioPlaying() && !manager.hasQueuedAudio()) {
@@ -133,12 +196,21 @@ function monitorPlayback(manager: Live2dManager, generation: number): void {
   window.setTimeout(() => monitorPlayback(manager, generation), 120)
 }
 
+/**
+ * 使当前异步播放任务失效、停止音频并通知宿主。
+ * @returns 无返回值。
+ */
 function interrupt(): void {
   playbackGeneration += 1
   Live2dManager.getInstance().stopAudio()
   post('idle', { model, interrupted: true })
 }
 
+/**
+ * 校验 Cubism Core 和画布，初始化渲染器并加载请求模型。
+ * 初始化错误会显示并发送给宿主，不向外抛出。
+ * @returns 无返回值。
+ */
 function start(): void {
   if (!canvas || !window.Live2DCubismCore) {
     setStatus('当前 WebView 不支持 Live2D Cubism Core', true)

@@ -1,3 +1,23 @@
+/**
+ * @fileoverview 游客行为 Excel 导入、SQLite 缓存、看板指标和运营建议聚合服务。
+ *
+ * @typedef {object} BehaviorRow
+ * @property {string} touristId 游客标识。
+ * @property {number|null} age 年龄。
+ * @property {string} gender 规范化性别。
+ * @property {string} attractionName 景点名称。
+ * @property {string} visitDate `YYYY-MM-DD` 游览日期。
+ * @property {number|null} stayDuration 停留分钟数。
+ * @property {number} ticketCost 门票消费。
+ * @property {number} foodCost 餐饮消费。
+ * @property {number} shoppingCost 购物消费。
+ * @property {number} transportCost 交通消费。
+ * @property {number} entertainmentCost 娱乐消费。
+ * @property {number|null} totalCost 总消费。
+ * @property {number|null} groupSize 同行人数。
+ * @property {number|null} satisfaction 1 至 5 分满意度。
+ * @typedef {{source: string, rows: BehaviorRow[], filePath?: string, reason?: string, error?: string}} BehaviorDataset
+ */
 import * as fs from "node:fs";
 import { join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -8,21 +28,34 @@ import { listSavedRoutes } from "./routePlanner.mjs";
 import { loadKnowledge } from "./knowledgeBuild.mjs";
 import { getDb } from "../db/database.mjs";
 
+/** @type {string} 官方游客行为分析 Excel 文件名。 */
 const EXCEL_FILE = "景点景区旅游数据行为分析数据.xlsx";
+/** @type {typeof fs.existsSync} 文件存在判断函数。 */
 const { existsSync, readdirSync, statSync } = fs;
 XLSX.set_fs(fs);
+/** @type {BehaviorDataset|null} 当前进程最近加载的行为数据集。 */
 let cache = null;
 
-// Demo-data batches write directly to SQLite inside a single transaction.
-// Clear the module cache afterwards so an already-open dashboard sees those
-// rows immediately instead of continuing to render its previous snapshot.
+/**
+ * 清除行为数据集进程缓存，使演示批次等直接数据库写入能立即反映到看板。
+ * @returns {void}
+ * @example
+ * invalidateBehaviorDatasetCache();
+ */
 export function invalidateBehaviorDatasetCache() {
   cache = null;
 }
 
-// B8-01..03: the behaviour dataset is served from the tourist_behavior table.
-// On first use (or after a forced reload) the official Excel is parsed, filtered
-// to Lingshan-related records, and persisted so later reads stay fast.
+/**
+ * 加载游客行为数据集，优先复用内存缓存和 SQLite；必要时解析官方 Excel 并持久化。
+ * Excel 无有效灵山记录时生成稳定结构的种子数据。
+ * @param {{force?: boolean}} [options={}] 加载选项。
+ * @param {boolean} [options.force=false] 是否跳过缓存和 SQLite，强制重新解析 Excel。
+ * @returns {BehaviorDataset} 行为数据集。
+ * @throws {Error} 文件目录扫描出现未被内部解析流程捕获的文件系统错误时可能抛出。
+ * @example
+ * const dataset = loadBehaviorDataset({ force: true });
+ */
 export function loadBehaviorDataset({ force = false } = {}) {
   if (cache && !force) {
     return cache;
@@ -46,6 +79,11 @@ export function loadBehaviorDataset({ force = false } = {}) {
   return cache;
 }
 
+/**
+ * 尝试从 SQLite 读取行为数据；数据库不可用时静默回退为空数组。
+ * @private
+ * @returns {BehaviorRow[]} 数据库行为行。
+ */
 function readBehaviorFromDb() {
   try {
     return getDb()
@@ -72,6 +110,12 @@ function readBehaviorFromDb() {
   }
 }
 
+/**
+ * 尽力在单个事务中保存行为数据；失败时保留内存中的解析结果供看板使用。
+ * @private
+ * @param {BehaviorRow[]} rows 待保存行为行。
+ * @returns {void}
+ */
 function persistBehaviorRows(rows) {
   try {
     const db = getDb();
@@ -112,12 +156,25 @@ function persistBehaviorRows(rows) {
   }
 }
 
+/**
+ * 将有限数值转换为数字，其余值转换为 `null`。
+ * @private
+ * @param {*} value 候选值。
+ * @returns {number|null} 有限数值或 `null`。
+ */
 function numOrNull(value) {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 }
 
-// Re-parse the Excel and replace the persisted rows (used by scripts/db-init).
+/**
+ * 重新解析官方 Excel，并在存在有效行时替换 SQLite 行为数据。
+ * 供数据库初始化脚本和人工刷新使用。
+ * @returns {{imported: number, source: string, filePath: string}} 导入数量和来源信息。
+ * @throws {Error} 文件目录扫描出现未被解析流程捕获的文件系统错误时可能抛出。
+ * @example
+ * const result = importBehaviorFromExcel();
+ */
 export function importBehaviorFromExcel() {
   const parsed = parseBehaviorExcel();
   if (parsed.rows.length) {
@@ -132,6 +189,11 @@ export function importBehaviorFromExcel() {
   return { imported: parsed.rows.length, source: parsed.source, filePath: parsed.filePath };
 }
 
+/**
+ * 解析 Excel 首个工作表、归一化列名并只保留灵山相关行。
+ * @private
+ * @returns {BehaviorDataset} Excel 数据集或带原因的空种子来源描述。
+ */
 function parseBehaviorExcel() {
   const filePath = findBehaviorExcelFile();
   if (!existsSync(filePath)) {
@@ -148,6 +210,12 @@ function parseBehaviorExcel() {
   }
 }
 
+/**
+ * 按环境变量、固定资料目录和仓库递归扫描顺序查找行为 Excel。
+ * @private
+ * @returns {string} 找到的文件路径；未找到时返回最后一个预期路径。
+ * @throws {Error} 递归目录读取或文件状态查询失败时透传文件系统异常。
+ */
 function findBehaviorExcelFile() {
   const fromEnv = process.env.BEHAVIOR_XLSX ? resolve(process.cwd(), process.env.BEHAVIOR_XLSX) : "";
   const candidatesFixed = [
@@ -172,6 +240,14 @@ function findBehaviorExcelFile() {
   );
 }
 
+/**
+ * 递归收集目录中的文件，跳过 `node_modules` 和 `.git`。
+ * @private
+ * @param {string} dir 待扫描目录。
+ * @param {string[]} out 收集结果的可变数组。
+ * @returns {void}
+ * @throws {Error} 目录读取或文件状态查询失败时透传文件系统异常。
+ */
 function collectFiles(dir, out) {
   if (!existsSync(dir)) return;
   for (const name of readdirSync(dir)) {
@@ -186,6 +262,14 @@ function collectFiles(dir, out) {
   }
 }
 
+/**
+ * 聚合筛选后的行为、问答、反馈、路线和知识库数据，生成运营看板。
+ * @param {{gender?: string, ageBand?: string, satisfactionMin?: number|string}} [filters={}] 行为筛选条件。
+ * @returns {object} 指标、热点问题、景点关注、情绪趋势、消费、画像和建议。
+ * @throws {Error} 数据集、数据库或知识库加载失败时透传异常。
+ * @example
+ * const dashboard = getDashboardAnalytics({ ageBand: "25-34", satisfactionMin: 4 });
+ */
 export function getDashboardAnalytics(filters = {}) {
   const dataset = loadBehaviorDataset();
   const rows = applyFilters(dataset.rows, filters);
@@ -228,7 +312,18 @@ export function getDashboardAnalytics(filters = {}) {
   };
 }
 
+/**
+ * 将 Excel 的中英文或模糊列名转换为统一行为数据结构。
+ * @private
+ * @param {Record<string, *>} row Excel 原始行。
+ * @returns {BehaviorRow} 规范化行为行。
+ */
 function normalizeRow(row) {
+  /**
+   * 按精确列名或大小写不敏感的包含关系读取首个非空字段。
+   * @param {...string} keys 候选列名或名称片段。
+   * @returns {*} 单元格值；未找到时为空字符串。
+   */
   const get = (...keys) => {
     for (const key of keys) {
       if (row[key] !== undefined && row[key] !== "") return row[key];
@@ -256,10 +351,23 @@ function normalizeRow(row) {
   };
 }
 
+/**
+ * 判断行为记录是否属于灵山相关景点。
+ * @private
+ * @param {BehaviorRow} row 行为行。
+ * @returns {boolean} 景点名称命中灵山范围时为 `true`。
+ */
 function isLingshanRelated(row) {
   return /灵山胜境|灵山大佛|灵山|九龙灌浴|梵宫/.test(row.attractionName);
 }
 
+/**
+ * 按性别、年龄段和最低满意度筛选行为行。
+ * @private
+ * @param {BehaviorRow[]} rows 行为行。
+ * @param {Record<string, *>} filters 筛选条件。
+ * @returns {BehaviorRow[]} 符合条件的行。
+ */
 function applyFilters(rows, filters) {
   return rows.filter((row) => {
     if (filters.gender && row.gender && filters.gender !== row.gender) return false;
@@ -269,6 +377,12 @@ function applyFilters(rows, filters) {
   });
 }
 
+/**
+ * 在 Excel 缺失或无灵山记录时生成 180 条结构完整的演示行为数据。
+ * @private
+ * @param {string} reason 使用种子数据的原因。
+ * @returns {BehaviorDataset} 种子数据集。
+ */
 function buildSeedDataset(reason) {
   const names = ["灵山胜境", "灵山大佛", "九龙灌浴", "灵山梵宫", "五印坛城", "祥符禅寺"];
   const rows = Array.from({ length: 180 }, (_, index) => {
@@ -295,6 +409,12 @@ function buildSeedDataset(reason) {
   return { source: `seed:${reason}`, filePath: "", rows };
 }
 
+/**
+ * 合并行为记录和消息正文中的景点提及，计算关注度排行。
+ * @private
+ * @param {{messages: object[], rows: BehaviorRow[], spots: object[]}} input 聚合输入。
+ * @returns {Array<{label: string, value: number}>} 景点关注排行。
+ */
 function buildSpotFocus({ messages, rows, spots }) {
   const names = spots.map((spot) => spot.name).filter(Boolean);
   const fromMessages = [];
@@ -306,6 +426,12 @@ function buildSpotFocus({ messages, rows, spots }) {
   return topN([...rows.map((item) => item.attractionName), ...fromMessages], 10);
 }
 
+/**
+ * 合并消息情绪、反馈情绪和满意度派生情绪，计算趋势排行。
+ * @private
+ * @param {{messages: object[], feedback: object[], rows: BehaviorRow[]}} input 聚合输入。
+ * @returns {Array<{label: string, value: number}>} 情绪排行。
+ */
 function buildEmotionTrend({ messages, feedback, rows }) {
   const labels = [
     ...messages.map((item) => item.emotionLabel).filter(Boolean),
@@ -315,6 +441,12 @@ function buildEmotionTrend({ messages, feedback, rows }) {
   return topN(labels, 8);
 }
 
+/**
+ * 构建年龄、性别、同行规模和满意度游客画像分布。
+ * @private
+ * @param {BehaviorRow[]} rows 行为行。
+ * @returns {{ageBands: object[], genders: object[], groupSizes: object[], satisfaction: object[]}} 游客画像。
+ */
 function buildPersona(rows) {
   return {
     ageBands: topN(rows.map((row) => ageBand(row.age)), 8),
@@ -324,6 +456,12 @@ function buildPersona(rows) {
   };
 }
 
+/**
+ * 按停留时长统计人数、平均消费和平均满意度。
+ * @private
+ * @param {BehaviorRow[]} rows 行为行。
+ * @returns {Array<{label: string, count: number, averageCost: number, averageSatisfaction: number}>} 停留时长关系数据。
+ */
 function buildStayRelation(rows) {
   const bands = ["0-1小时", "1-2小时", "2-4小时", "4小时以上"];
   return bands.map((band) => {
@@ -337,6 +475,12 @@ function buildStayRelation(rows) {
   });
 }
 
+/**
+ * 根据景点关注、消费结构、低满意反馈和数据规模生成运营建议。
+ * @private
+ * @param {{spotFocus: object[], consumption: object, feedback: object[], rows: BehaviorRow[], messages: object[]}} input 看板中间结果。
+ * @returns {string[]} 最多五条建议。
+ */
 function buildSuggestions({ spotFocus, consumption, feedback, rows, messages }) {
   const suggestions = [];
   if (spotFocus[0]) suggestions.push(`游客最关注「${spotFocus[0].label}」，建议在入口与数字人欢迎语中突出该点位讲解入口。`);
@@ -349,6 +493,13 @@ function buildSuggestions({ spotFocus, consumption, feedback, rows, messages }) 
   return suggestions.slice(0, 5);
 }
 
+/**
+ * 统计值频次并返回前 N 项。
+ * @private
+ * @param {Array<*>} values 待统计值。
+ * @param {number} n 最大返回项数。
+ * @returns {Array<{label: string, value: number}>} 按频次降序的统计项。
+ */
 function topN(values, n) {
   const counts = new Map();
   for (const value of values) {
@@ -362,39 +513,88 @@ function topN(values, n) {
     .slice(0, n);
 }
 
+/**
+ * 分别汇总多行中的指定数值字段。
+ * @private
+ * @param {BehaviorRow[]} rows 行为行。
+ * @param {string[]} fields 字段名。
+ * @returns {Record<string, number>} 字段总和映射。
+ */
 function sumFields(rows, fields) {
   return Object.fromEntries(fields.map((field) => [field, rows.reduce((sum, row) => sum + Number(row[field] || 0), 0)]));
 }
 
+/**
+ * 估算今日服务量；无今日记录时按两周数据日均向上取整。
+ * @private
+ * @param {BehaviorRow[]} rows 行为行。
+ * @returns {number} 今日记录数或估算值。
+ */
 function estimateToday(rows) {
   const today = new Date().toISOString().slice(0, 10);
   return rows.filter((row) => row.visitDate === today).length || Math.ceil(rows.length / 14);
 }
 
+/**
+ * 统计非空值的唯一数量。
+ * @private
+ * @param {Array<*>} values 候选值。
+ * @returns {number} 唯一非空值数量。
+ */
 function uniqueCount(values) {
   return new Set(values.filter(Boolean)).size;
 }
 
+/**
+ * 计算有限数值平均值。
+ * @private
+ * @param {Array<*>} values 候选值。
+ * @returns {number} 平均值；无有效数值时为 `0`。
+ */
 function average(values) {
   const nums = values.map(Number).filter(Number.isFinite);
   return nums.length ? nums.reduce((sum, value) => sum + value, 0) / nums.length : 0;
 }
 
+/**
+ * 从含单位文本中提取有限数字。
+ * @private
+ * @param {*} value 候选值。
+ * @returns {number|null} 数字或 `null`。
+ */
 function numberOrNull(value) {
   const number = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
   return Number.isFinite(number) ? number : null;
 }
 
+/**
+ * 从含单位文本中提取数字，无有效值时返回零。
+ * @private
+ * @param {*} value 候选值。
+ * @returns {number} 数字或 `0`。
+ */
 function numberOrZero(value) {
   return numberOrNull(value) || 0;
 }
 
+/**
+ * 将五分制或百分制满意度归一化为 1 至 5 的整数。
+ * @private
+ * @param {*} value 原始满意度。
+ * @returns {number|null} 归一化评分；空值时为 `null`。
+ */
 function normalizeSatisfaction(value) {
   const number = numberOrNull(value);
   if (!number) return null;
   return Math.max(1, Math.min(5, number > 5 ? Math.round(number / 20) : Math.round(number)));
 }
 
+/**
+ * 将中英文性别值归一化为 `female` 或 `male`。
+ * @private
+ * @param {*} value 原始性别。
+ * @returns {string} 规范化性别或清理后的未知值。
+ */
 function normalizeGender(value) {
   const text = String(value || "").trim().toLowerCase();
   if (/女|female|f/.test(text)) return "female";
@@ -402,6 +602,12 @@ function normalizeGender(value) {
   return text || "";
 }
 
+/**
+ * 将 Date 或可解析日期转换为 `YYYY-MM-DD`。
+ * @private
+ * @param {*} value 原始日期。
+ * @returns {string} 标准日期；无法解析时为空字符串。
+ */
 function normalizeDate(value) {
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   const text = String(value || "").trim();
@@ -409,6 +615,12 @@ function normalizeDate(value) {
   return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
 }
 
+/**
+ * 将年龄划分为看板年龄段。
+ * @private
+ * @param {*} age 年龄。
+ * @returns {"18-24"|"25-34"|"35-44"|"45-59"|"60+"|"unknown"} 年龄段。
+ */
 function ageBand(age) {
   if (!Number.isFinite(Number(age))) return "unknown";
   if (age < 25) return "18-24";
@@ -418,6 +630,12 @@ function ageBand(age) {
   return "60+";
 }
 
+/**
+ * 将同行人数划分为独行、双人、家庭/小组或团队。
+ * @private
+ * @param {*} size 同行人数。
+ * @returns {string} 同行规模标签。
+ */
 function groupBand(size) {
   if (!Number.isFinite(Number(size))) return "unknown";
   if (size <= 1) return "独行";
@@ -426,6 +644,12 @@ function groupBand(size) {
   return "团队";
 }
 
+/**
+ * 将停留分钟数划分为四个时长区间。
+ * @private
+ * @param {*} duration 停留分钟数。
+ * @returns {string} 时长区间。
+ */
 function stayBand(duration) {
   const value = Number(duration) || 0;
   if (value <= 60) return "0-1小时";
@@ -434,10 +658,22 @@ function stayBand(duration) {
   return "4小时以上";
 }
 
+/**
+ * 汇总行为行的五类消费。
+ * @private
+ * @param {BehaviorRow} row 行为行。
+ * @returns {number} 总消费。
+ */
 function sumCost(row) {
   return row.ticketCost + row.foodCost + row.shoppingCost + row.transportCost + row.entertainmentCost;
 }
 
+/**
+ * 将消费字段名转换为中文展示名称。
+ * @private
+ * @param {string} field 消费字段。
+ * @returns {string} 中文标签或原字段名。
+ */
 function costLabel(field) {
   return {
     ticketCost: "门票",
@@ -448,6 +684,12 @@ function costLabel(field) {
   }[field] || field;
 }
 
+/**
+ * 通过关键词将用户问题归入热点主题。
+ * @private
+ * @param {*} text 问题文本。
+ * @returns {string} 主题名或截断后的原问题。
+ */
 function clusterQuestion(text) {
   const value = String(text || "");
   if (/路线|怎么逛|游览|几小时/.test(value)) return "路线推荐";

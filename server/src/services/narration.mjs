@@ -1,11 +1,27 @@
-// AI2-10: scenic-spot narration (about a 1-minute spoken script).
-// AI2-11: real-time accompanying narration ("now that you have arrived here").
+/**
+ * @fileoverview 景点一分钟口播和游客到达后的实时伴随讲解生成服务。
+ *
+ * @typedef {object} NarrationResult
+ * @property {string|null} spotId 景点 ID；仅凭名称且未匹配知识库时为 `null`。
+ * @property {string} spotName 景点名称。
+ * @property {string} narration 生成的口播文本。
+ * @property {Array<*>} citations 采用的知识引用。
+ * @property {string} provider 大模型供应商标识。
+ * @property {string} model 大模型名称。
+ */
 
 import { loadKnowledge } from "./knowledgeBuild.mjs";
 import { hybridSearch } from "./retrieval.mjs";
 import { llmComplete } from "./llm.mjs";
 import { buildNarrationSystemPrompt, buildAccompanySystemPrompt, buildContextBlock } from "./prompts.mjs";
 
+/**
+ * 按精确 ID、精确名称或别名从知识库定位景点。
+ * @private
+ * @param {{spotId?: string, spotName?: string}} query 景点查询条件。
+ * @returns {object|null} 景点知识记录；未找到时返回 `null`。
+ * @throws {Error} 当知识库加载失败时透传底层异常。
+ */
 function findSpot({ spotId, spotName }) {
   const knowledge = loadKnowledge();
   const spots = knowledge?.spots || [];
@@ -22,6 +38,13 @@ function findSpot({ spotId, spotName }) {
   return null;
 }
 
+/**
+ * 为目标景点获取口播依据；检索故障时回退为空资料，允许模型按无资料策略作答。
+ * @private
+ * @param {object|null} spot 已定位的景点记录。
+ * @param {string} fallbackQuery 未定位景点时采用的查询文本。
+ * @returns {Array<object>} 最多四条混合检索结果；检索失败时为空数组。
+ */
 function spotContextResults(spot, fallbackQuery) {
   try {
     const query = spot ? spot.name : fallbackQuery;
@@ -32,7 +55,13 @@ function spotContextResults(spot, fallbackQuery) {
 }
 
 /**
- * AI2-10: generate a ~1-minute spoken narration for a scenic spot.
+ * 为景点生成约一分钟、200 至 400 字的口播讲解。
+ * @param {{spotId?: string, spotName?: string, signal?: AbortSignal}} [input={}] 生成参数。
+ * @returns {Promise<NarrationResult>} 景点信息、口播、引用和模型元数据。
+ * @throws {Error & {statusCode: 400, code: "SPOT_REQUIRED"}} 未提供有效景点 ID 或名称时抛出。
+ * @throws {Error} 知识库加载或大模型调用失败时透传异常。
+ * @example
+ * const result = await generateSpotNarration({ spotName: "灵山大佛" });
  */
 export async function generateSpotNarration({ spotId, spotName, signal } = {}) {
   const spot = findSpot({ spotId, spotName });
@@ -76,8 +105,13 @@ export async function generateSpotNarration({ spotId, spotName, signal } = {}) {
 }
 
 /**
- * AI2-11: accompanying narration triggered on arrival at a spot, tailored to
- * the visitor's stated interests.
+ * 为刚到达景点的游客生成结合兴趣的实时伴随讲解。
+ * @param {{spotId?: string, spotName?: string, interests?: string[], signal?: AbortSignal}} [input={}] 生成参数。
+ * @returns {Promise<NarrationResult & {interests: string[]}>} 伴随讲解及原始兴趣列表。
+ * @throws {Error & {statusCode: 400, code: "SPOT_REQUIRED"}} 无法得到景点名称时抛出。
+ * @throws {Error} 知识库加载或大模型调用失败时透传异常。
+ * @example
+ * const result = await generateAccompanyNarration({ spotId: "LS-001", interests: ["佛教文化"] });
  */
 export async function generateAccompanyNarration({ spotId, spotName, interests = [], signal } = {}) {
   const spot = findSpot({ spotId, spotName });

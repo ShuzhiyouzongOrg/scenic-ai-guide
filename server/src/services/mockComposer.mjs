@@ -1,9 +1,21 @@
-// Deterministic offline answer composer for the mock LLM provider.
-// It turns structured retrieval grounding (meta) into a concise, guide-style
-// answer. This keeps the full RAG loop demonstrable without any cloud key.
-// AI2-03/04/05/08/09 behaviors are realized here for the mock path; the real
-// provider realizes the same behaviors through the system prompt.
+/**
+ * @fileoverview 离线模拟大模型的确定性导游回答组合器。
+ *
+ * 将检索和场景分类元数据转换为简洁、基于资料的多语言回答，使完整 RAG 流程无需云端密钥也可演示。
+ *
+ * @typedef {object} MockAnswerMeta
+ * @property {string} [scenario] 回答场景。
+ * @property {string} [mode] 回答模式。
+ * @property {string} [locale] 目标语言。
+ * @property {string} [question] 用户问题。
+ * @property {object[]} [results] 检索结果。
+ * @property {object[]} [intents] 检索意图。
+ * @property {object[]} [spotMatches] 景点实体匹配。
+ * @property {object} [spot] 景点详情。
+ * @property {string[]} [interests] 游客兴趣。
+ */
 
+/** @type {Record<string, RegExp>} 业务意图到事实句筛选模式的映射。 */
 const INTENT_PATTERNS = {
   height:
     /(通高\s*)?\d+(\.\d+)?\s*(米|m|meters?|미터|メートル|公尺|เมตร)|总高|通高|高度|height|높이|高さ|ความสูง/i,
@@ -21,11 +33,11 @@ const INTENT_PATTERNS = {
     /路线|入园|出口|建议|小时|先|再|最后|route|enter|continue|finish|경로|입장|이동|ルート|入園|巡り|路線|เส้นทาง|ทางเข้า|ทางออก|แนะนำ|ชั่วโมง/i,
 };
 
-// Structured field labels from the source data that should not surface in a
-// natural guide answer.
+/** @type {RegExp} 不应出现在自然导游回答中的结构化资料字段标签。 */
 const FIELD_LABEL =
   /(建筑\/景观参数|演艺\/开放信息|核心功能|文化内涵|详细介绍|游玩亮点|备注|建築\/景觀參數|表演\/開放資訊|核心功能|文化內涵|詳細介紹|遊玩亮點|備註)[：:]/g;
 
+/** @type {Record<string, object>} 各支持语言的固定话术和模板函数。 */
 const COPY = {
   zh: {
     about: (subject) => `关于${subject},`,
@@ -129,10 +141,22 @@ const COPY = {
   },
 };
 
+/**
+ * 获取目标语言话术，未知语言回退为简体中文。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {object} 语言话术对象。
+ */
 function copyFor(meta) {
   return COPY[meta.locale] || COPY.zh;
 }
 
+/**
+ * 移除结构字段标签、合并空白并清理文本。
+ * @private
+ * @param {*} text 原始文本。
+ * @returns {string} 自然语言正文。
+ */
 function clean(text) {
   return String(text || "")
     .replace(FIELD_LABEL, "")
@@ -140,6 +164,12 @@ function clean(text) {
     .trim();
 }
 
+/**
+ * 按中英文句末标点拆分文本。
+ * @private
+ * @param {*} text 原始文本。
+ * @returns {string[]} 非空句子。
+ */
 function splitSentences(text) {
   return clean(text)
     .split(/(?<=[。！？；])|(?<=[.!?])\s+/)
@@ -147,6 +177,14 @@ function splitSentences(text) {
     .filter(Boolean);
 }
 
+/**
+ * 优先选择匹配事实模式的句子，否则选择开头句子。
+ * @private
+ * @param {*} text 原始文本。
+ * @param {RegExp} pattern 事实匹配模式。
+ * @param {number} [max=2] 最大句数。
+ * @returns {string} 拼接后的句子。
+ */
 function pickSentences(text, pattern, max = 2) {
   const sentences = splitSentences(text);
   const hits = sentences.filter((sentence) => pattern.test(sentence));
@@ -157,6 +195,12 @@ function pickSentences(text, pattern, max = 2) {
   return chosen.join(separator);
 }
 
+/**
+ * 按业务优先级从多项检索意图中选择主要意图。
+ * @private
+ * @param {object[]} [intents=[]] 检索意图。
+ * @returns {string|null} 主要意图或 `null`。
+ */
 function primaryIntent(intents = []) {
   const order = [
     "ticket",
@@ -175,6 +219,12 @@ function primaryIntent(intents = []) {
   return null;
 }
 
+/**
+ * 为若干容易答非所问的具体问题选择更严格的事实句模式。
+ * @private
+ * @param {*} question 用户问题。
+ * @returns {RegExp|null} 专用事实模式；无专门规则时返回 `null`。
+ */
 function patternFromQuestion(question) {
   const text = String(question || "");
   if (
@@ -208,6 +258,12 @@ function patternFromQuestion(question) {
   return null;
 }
 
+/**
+ * 从首条检索结果或景点实体中推导回答主题名。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 主题名。
+ */
 function subjectName(meta) {
   return (
     meta.results?.[0]?.title ||
@@ -217,6 +273,13 @@ function subjectName(meta) {
   );
 }
 
+/**
+ * 将清理后的文本限制到最大字符数，优先在后半段句末截断。
+ * @private
+ * @param {*} text 原始文本。
+ * @param {number} max 最大字符数。
+ * @returns {string} 截断后的文本。
+ */
 function trimTo(text, max) {
   const value = clean(text);
   if (value.length <= max) {
@@ -231,6 +294,12 @@ function trimTo(text, max) {
   return lastStop > max * 0.6 ? cut.slice(0, lastStop + 1) : `${cut}…`;
 }
 
+/**
+ * 根据主要意图从检索资料中组合普通问答或详细讲解。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 基于资料的回答；无资料时转为无数据话术。
+ */
 function composeGrounded(meta) {
   const results = meta.results || [];
   if (results.length === 0) {
@@ -278,6 +347,12 @@ function composeGrounded(meta) {
   return trimTo(answer, mode === "explain" ? 400 : 190);
 }
 
+/**
+ * 从路线资料的箭头节点或正文句子组合编号路线。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 带介绍、编号步骤和结尾提示的路线回答。
+ */
 function composeRoute(meta) {
   const results = meta.results || [];
   const routeChunk =
@@ -311,6 +386,12 @@ function composeRoute(meta) {
   return `${copy.routeIntro}\n${steps.join("\n")}\n${copy.routeTail}`;
 }
 
+/**
+ * 获取目标语言的三步默认路线。
+ * @private
+ * @param {string} locale 目标语言。
+ * @returns {string[]} 编号路线步骤。
+ */
 function fallbackRoute(locale) {
   const routes = {
     zh: [
@@ -347,6 +428,12 @@ function fallbackRoute(locale) {
   return routes[locale] || routes.zh;
 }
 
+/**
+ * 生成明确说明资料未覆盖的回答，并引用游客原问题作为主题。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 无资料话术。
+ */
 function composeNoData(meta) {
   // Reference the visitor's own question, not a loosely-retrieved spot, so the
   // honest "not covered" reply never appears to be about the wrong thing.
@@ -354,11 +441,23 @@ function composeNoData(meta) {
   return copyFor(meta).noData(topic);
 }
 
+/**
+ * 生成服务范围外景区的礼貌引导回答。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 范围外话术。
+ */
 function composeOutOfScope(meta) {
   const other = meta.otherPlace ? `“${meta.otherPlace}”` : "that destination";
   return copyFor(meta).outOfScope(other);
 }
 
+/**
+ * 按敏感类别生成拒答和景区话题引导。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 敏感内容拒答。
+ */
 function composeSensitive(meta) {
   if (meta.locale && meta.locale !== "zh") {
     return copyFor(meta).sensitive;
@@ -375,6 +474,12 @@ function composeSensitive(meta) {
   return `${lead}我是灵山胜境 AI 导游,很乐意为您介绍景点、演出和游览路线,有需要随时问我。`;
 }
 
+/**
+ * 根据景点详情或首条检索资料组合约一分钟口播。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 不超过 400 字符的口播。
+ */
 function composeNarration(meta) {
   const spot = meta.spot || {};
   const name = spot.name || subjectName(meta) || "这处景点";
@@ -393,6 +498,12 @@ function composeNarration(meta) {
   return trimTo(`${opener}${core}${closer}`, 400);
 }
 
+/**
+ * 根据景点、资料和游客兴趣组合到达后的伴随讲解。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 不超过 300 字符的伴随讲解。
+ */
 function composeAccompany(meta) {
   const name = meta.spot?.name || subjectName(meta) || "当前位置";
   const interest = meta.interests?.length ? meta.interests.join("、") : "";
@@ -408,6 +519,12 @@ function composeAccompany(meta) {
   );
 }
 
+/**
+ * 区分问候、感谢和普通闲聊并返回对应语言话术。
+ * @private
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 闲聊回答。
+ */
 function composeChitchat(meta) {
   const question = clean(meta.question);
   const copy = copyFor(meta);
@@ -424,6 +541,13 @@ function composeChitchat(meta) {
   return copy.chitchat;
 }
 
+/**
+ * 按场景分派确定性回答组合器。
+ * @param {MockAnswerMeta} meta 回答元数据。
+ * @returns {string} 可直接展示和口播的回答文本。
+ * @example
+ * const answer = composeMockAnswer({ scenario: "chitchat", locale: "zh", question: "你好" });
+ */
 export function composeMockAnswer(meta) {
   switch (meta.scenario) {
     case "sensitive":

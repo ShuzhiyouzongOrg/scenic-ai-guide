@@ -1,5 +1,14 @@
+/**
+ * @fileoverview 灵山知识库的关键词与混合检索、实体识别、意图加权和引用生成服务。
+ *
+ * @typedef {{intent: string, preferredTerms: string[], preferredDocuments: string[]}} RetrievalIntent
+ * @typedef {{id: string, name: string, alias: string, confidence: number}} SpotMatch
+ * @typedef {{chunkId: string, documentId: string, documentName: string, sectionTitle: string, scenicSpotId: string|null, scenicSpotName: string|null, quote: string}} Citation
+ * @typedef {{id: string, score: number, title: string, content: string, source: string, documentId: string, scenicSpotId: string|null, scenicSpotName: string|null, keywords: string[], citation: Citation, reasons: string[]}} RetrievalResult
+ */
 import { loadKnowledge } from "./knowledgeBuild.mjs";
 
+/** @type {Record<string, string[]>} 常见问题词到检索扩展词的多语言映射。 */
 const querySynonyms = {
   多高: ["高", "高度", "通高", "总高", "建筑/景观参数"],
   高度: ["高", "通高", "总高", "建筑/景观参数"],
@@ -33,6 +42,7 @@ const querySynonyms = {
   "看點": ["亮點", "特色", "最佳體驗"]
 };
 
+/** @type {Array<RetrievalIntent & {triggers: string[]}>} 通用业务意图识别与加权规则。 */
 const intentRules = [
   {
     intent: "height",
@@ -78,6 +88,7 @@ const intentRules = [
   }
 ];
 
+/** @type {Record<string, string[]>} 面向特定事实问题的直接检索扩展词。 */
 const directQuerySynonyms = {
   "无锡": ["坐落", "位于", "马山镇", "太湖西北部"],
   "占地": ["占地面积", "平方米", "30万平方米"],
@@ -96,6 +107,7 @@ const directQuerySynonyms = {
   "五方五佛": ["赵朴初", "五方五佛", "东方空缺"]
 };
 
+/** @type {Array<RetrievalIntent & {triggers: string[]}>} 景区概况、游览季节等精确事实意图规则。 */
 const directIntentRules = [
   {
     intent: "overview",
@@ -135,6 +147,7 @@ const directIntentRules = [
   }
 ];
 
+/** @type {string[]} 分词阶段主动保留的中英日韩繁体主题词。 */
 const topicKeywords = [
   "历史",
   "文化",
@@ -187,13 +200,25 @@ const topicKeywords = [
   "歷史"
 ];
 
+/** @type {Set<string>} 英文检索停用词。 */
 const stopWords = new Set([
   "a", "an", "and", "are", "at", "for", "how", "in", "is", "me", "of", "on", "please", "the", "to", "what", "when",
   "about", "does", "recommend", "tell", "you", "your"
 ]);
 
+/** @type {Set<string>} 不足以进行景点局部匹配的通用灵山名称。 */
 const genericSpotTokens = new Set(["灵山", "靈山", "霊山", "lingshan", "링산"]);
 
+/**
+ * 使用关键词匹配、实体和意图权重检索知识库。
+ * @param {*} query 查询文本。
+ * @param {{limit?: number, locale?: string}} [options={}] 检索选项。
+ * @returns {object} 查询分析与排序后的检索结果。
+ * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 知识库尚未构建时抛出。
+ * @throws {Error & {statusCode: 400, code: "QUERY_REQUIRED"}} 查询为空时抛出。
+ * @example
+ * const result = keywordSearch("灵山大佛高度", { limit: 3 });
+ */
 export function keywordSearch(query, options = {}) {
   return searchKnowledge(query, {
     ...options,
@@ -201,6 +226,16 @@ export function keywordSearch(query, options = {}) {
   });
 }
 
+/**
+ * 使用关键词、查询覆盖度、语种及结构化资料权重执行混合检索。
+ * @param {*} query 查询文本。
+ * @param {{limit?: number, locale?: string}} [options={}] 检索选项。
+ * @returns {object} 查询分析与排序后的检索结果。
+ * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 知识库尚未构建时抛出。
+ * @throws {Error & {statusCode: 400, code: "QUERY_REQUIRED"}} 查询为空时抛出。
+ * @example
+ * const result = hybridSearch("九龙灌浴几点表演？", { locale: "zh" });
+ */
 export function hybridSearch(query, options = {}) {
   return searchKnowledge(query, {
     ...options,
@@ -208,6 +243,14 @@ export function hybridSearch(query, options = {}) {
   });
 }
 
+/**
+ * 执行共享检索流程：加载知识、规范化、分词、扩展、意图和实体识别、评分与格式化。
+ * @private
+ * @param {*} query 查询文本。
+ * @param {{mode: "keyword"|"hybrid", limit?: number, locale?: string}} options 检索选项。
+ * @returns {{query: *, mode: string, locale: string|null, tokens: string[], expandedTerms: string[], intents: RetrievalIntent[], spotMatches: SpotMatch[], total: number, results: RetrievalResult[]}} 检索响应。
+ * @throws {Error} 知识库未构建、查询为空或知识数据读取失败时抛出。
+ */
 function searchKnowledge(query, options) {
   const knowledge = loadKnowledge();
   if (!knowledge) {
@@ -263,6 +306,13 @@ function searchKnowledge(query, options) {
   };
 }
 
+/**
+ * 根据语种、景点实体、关键词、扩展词、意图与查询覆盖度为单个知识分块评分。
+ * @private
+ * @param {object} chunk 知识分块。
+ * @param {object} context 查询分析上下文。
+ * @returns {{chunk: object, score: number, reasons: string[]}} 分块、总分和去重后的评分理由。
+ */
 function scoreChunk(chunk, context) {
   const title = normalize(chunk.title);
   const content = normalize(chunk.content);
@@ -347,6 +397,13 @@ function scoreChunk(chunk, context) {
   };
 }
 
+/**
+ * 为景区概况、最佳季节、入园时间、餐饮、亲子和特定事实意图施加强规则加权。
+ * @private
+ * @param {object} chunk 知识分块。
+ * @param {RetrievalIntent} intent 检索意图。
+ * @returns {{score: number, reasons: string[]}} 直接意图加分及理由。
+ */
 function scoreDirectIntent(chunk, intent) {
   const raw = `${chunk.title} ${chunk.content}`;
   const reasons = [];
@@ -385,6 +442,13 @@ function scoreDirectIntent(chunk, intent) {
   return { score, reasons };
 }
 
+/**
+ * 将内部评分项转换为对外检索结果并附加景点和引用。
+ * @private
+ * @param {{chunk: object, score: number, reasons: string[]}} item 评分项。
+ * @param {object[]} spots 景点知识列表。
+ * @returns {RetrievalResult} 对外检索结果。
+ */
 function formatResult(item, spots) {
   const spot = spots.find((candidate) => candidate.id === item.chunk.scenicSpotId);
   const citation = createCitation(item.chunk, spot);
@@ -403,6 +467,13 @@ function formatResult(item, spots) {
   };
 }
 
+/**
+ * 从知识分块构建结构化引用。
+ * @private
+ * @param {object} chunk 知识分块。
+ * @param {object|undefined} spot 对应景点。
+ * @returns {Citation} 引用对象。
+ */
 function createCitation(chunk, spot) {
   return {
     chunkId: chunk.id,
@@ -415,6 +486,12 @@ function createCitation(chunk, spot) {
   };
 }
 
+/**
+ * 将引用正文压缩为空白规范且不超过约 120 字符的摘要。
+ * @private
+ * @param {*} content 分块正文。
+ * @returns {string} 引用摘要。
+ */
 function summarizeCitation(content) {
   const normalized = String(content || "").replace(/\s+/g, " ").trim();
   if (normalized.length <= 120) {
@@ -424,6 +501,14 @@ function summarizeCitation(content) {
   return `${normalized.slice(0, 118)}...`;
 }
 
+/**
+ * 按精确别名或排除通用词后的局部词匹配景点实体。
+ * @private
+ * @param {string} query 已规范化查询。
+ * @param {string[]} tokens 查询词。
+ * @param {object[]} spots 景点列表。
+ * @returns {SpotMatch[]} 景点匹配及置信度。
+ */
 function matchSpots(query, tokens, spots) {
   const matches = [];
 
@@ -461,6 +546,12 @@ function matchSpots(query, tokens, spots) {
   return matches;
 }
 
+/**
+ * 使用通用同义词、主题词和直接事实同义词扩展查询词。
+ * @private
+ * @param {string[]} tokens 原始查询词。
+ * @returns {string[]} 去重后的检索词。
+ */
 function expandTerms(tokens) {
   const terms = new Set();
   for (const token of tokens) {
@@ -493,6 +584,13 @@ function expandTerms(tokens) {
   return [...terms].filter(Boolean);
 }
 
+/**
+ * 根据规范化查询和查询词识别全部业务意图。
+ * @private
+ * @param {string} query 规范化查询。
+ * @param {string[]} tokens 查询词。
+ * @returns {RetrievalIntent[]} 命中的意图及偏好字段。
+ */
 function detectIntents(query, tokens) {
   const intents = [];
 
@@ -519,6 +617,13 @@ function detectIntents(query, tokens) {
   return intents;
 }
 
+/**
+ * 按偏好文档、偏好字段和事实模式计算通用意图加分。
+ * @private
+ * @param {object} chunk 知识分块。
+ * @param {{title: string, content: string, keywordText: string, intent: RetrievalIntent}} context 评分上下文。
+ * @returns {{score: number, reasons: string[]}} 意图加分及理由。
+ */
 function scoreIntent(chunk, context) {
   const reasons = [];
   let score = 0;
@@ -577,6 +682,12 @@ function scoreIntent(chunk, context) {
   };
 }
 
+/**
+ * 规范化并拆分查询，同时保留主题词、同义词键和多语言景点专名。
+ * @private
+ * @param {*} query 查询文本。
+ * @returns {string[]} 去重且长度至少为二的查询词。
+ */
 function tokenize(query) {
   const clean = normalize(query);
   const terms = new Set();
@@ -617,6 +728,13 @@ function tokenize(query) {
   return [...terms].filter((term) => term.length >= 2 && !stopWords.has(term));
 }
 
+/**
+ * 计算查询词在目标文本中的覆盖比例。
+ * @private
+ * @param {string[]} tokens 查询词。
+ * @param {string} text 已规范化目标文本。
+ * @returns {number} 0 至 1 的覆盖率。
+ */
 function queryCoverage(tokens, text) {
   if (tokens.length === 0) {
     return 0;
@@ -626,6 +744,13 @@ function queryCoverage(tokens, text) {
   return hitCount / tokens.length;
 }
 
+/**
+ * 统计非重叠子串出现次数。
+ * @private
+ * @param {string} text 目标文本。
+ * @param {string} term 子串。
+ * @returns {number} 出现次数。
+ */
 function countOccurrences(text, term) {
   if (!term) {
     return 0;
@@ -640,6 +765,12 @@ function countOccurrences(text, term) {
   return count;
 }
 
+/**
+ * 对检索文本执行 NFKC、转小写、合并空白和首尾清理。
+ * @private
+ * @param {*} value 原始值。
+ * @returns {string} 规范化文本。
+ */
 function normalize(value) {
   return String(value || "")
     .normalize("NFKC")
@@ -648,6 +779,14 @@ function normalize(value) {
     .trim();
 }
 
+/**
+ * 将数值限制在闭区间；`NaN` 回退到下界。
+ * @private
+ * @param {number} value 候选数值。
+ * @param {number} min 下界。
+ * @param {number} max 上界。
+ * @returns {number} 区间内数值。
+ */
 function clamp(value, min, max) {
   if (Number.isNaN(value)) {
     return min;
