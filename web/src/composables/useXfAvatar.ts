@@ -15,6 +15,7 @@ import {
   hasAvatarCredentials,
   resolveAvatarCredentials
 } from '@/utils/digital-human/avatar-credentials'
+import { advanceSpeechOffset, getRemainingSpeech } from '@/utils/digital-human/speech-resume'
 
 export type AvatarStatus = 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
 
@@ -52,6 +53,15 @@ export function useXfAvatar() {
   const audioReady = ref(false)
   const subtitle = ref('')
   const platform = shallowRef<InstanceType<typeof AvatarPlatform> | null>(null)
+  let activeSpeech: { text: string; emotion?: string } | null = null
+  let pausedSpeech: { text: string; emotion?: string } | null = null
+  let spokenOffset = 0
+  let playbackPaused = false
+  let activeRequestId = ''
+  let interruptedRequestId = ''
+  let speechGeneration = 0
+  let activeFrameStarted = false
+  let playbackTransition: Promise<void> = Promise.resolve()
 
   const env = import.meta.env
   const apiInfo: Record<string, string> = {
@@ -129,17 +139,46 @@ export function useXfAvatar() {
       ap.setApiInfo(info as never)
       ap.setGlobalParams(buildGlobalParams(options.avatarId || '', options.vcn || '') as never)
 
-      ap.on(SDKEvents.frame_stop, () => {
+      ap.on(SDKEvents.frame_start, (payload: unknown) => {
+        const requestId = getRequestId(payload)
+        if (requestId && activeRequestId && requestId !== activeRequestId) return
+        if (!activeSpeech) return
+        activeFrameStarted = true
+        status.value = 'speaking'
+      })
+      ap.on(SDKEvents.frame_stop, (payload: unknown) => {
+        const requestId = getRequestId(payload)
+        if (interruptedRequestId && (!requestId || requestId === interruptedRequestId)) {
+          interruptedRequestId = ''
+          return
+        }
+        if (requestId && activeRequestId && requestId !== activeRequestId) return
+        if (activeSpeech && !activeFrameStarted && !requestId) return
         if (status.value === 'speaking') status.value = 'ready'
+        activeSpeech = null
+        activeRequestId = ''
+        spokenOffset = 0
+        activeFrameStarted = false
       })
       ap.on(SDKEvents.subtitle_info, (payload: unknown) => {
         const value = payload as {
+          request_id?: string
+          requestId?: string
           text?: string
           content?: string
-          data?: { text?: string; content?: string }
+          data?: { request_id?: string; requestId?: string; text?: string; content?: string }
         }
-        subtitle.value =
-          value.text || value.content || value.data?.text || value.data?.content || subtitle.value
+        const requestId = getRequestId(value)
+        if (requestId && activeRequestId && requestId !== activeRequestId) return
+        if (playbackPaused || !activeSpeech || !activeFrameStarted) return
+        const nextSubtitle =
+          value.text || value.content || value.data?.text || value.data?.content || ''
+        if (nextSubtitle) {
+          subtitle.value = nextSubtitle
+          if (activeSpeech) {
+            spokenOffset = advanceSpeechOffset(activeSpeech.text, nextSubtitle, spokenOffset)
+          }
+        }
       })
       ap.on(SDKEvents.error, (err: unknown) => {
         status.value = 'error'
@@ -185,13 +224,26 @@ export function useXfAvatar() {
       return false
     }
     try {
+      const generation = ++speechGeneration
+      playbackPaused = false
+      pausedSpeech = null
+      activeSpeech = { text: content, emotion: opts.emotion }
+      spokenOffset = 0
+      activeFrameStarted = false
+      subtitle.value = ''
       status.value = 'speaking'
-      await ap.writeText(content, {
+      const requestId = await ap.writeText(content, {
         nlp: false,
         tts: { emotion: emotionCode(opts.emotion), volume: 100 }
       } as never)
+      if (generation !== speechGeneration || playbackPaused) return true
+      activeRequestId = requestId
       return true
     } catch (err) {
+      activeSpeech = null
+      activeRequestId = ''
+      spokenOffset = 0
+      activeFrameStarted = false
       errorMessage.value = normalizeError(err)
       if (status.value === 'speaking') status.value = 'ready'
       return false
@@ -232,6 +284,7 @@ export function useXfAvatar() {
     const ap = platform.value
     if (!ap || !url || status.value === 'error' || status.value === 'idle') return false
     try {
+      resetSpeechPlayback()
       const pcm = await decodeAudioToPcm16(url)
       status.value = 'speaking'
       const chunkBytes = 6400
@@ -254,6 +307,7 @@ export function useXfAvatar() {
   }
 
   async function enableAudio(): Promise<void> {
+    if (playbackPaused) return
     const player = platform.value?.player
     if (!player) return
     try {
@@ -266,8 +320,91 @@ export function useXfAvatar() {
     }
   }
 
+  /** 中断云端文本驱动并记录剩余文本，实现可恢复的真正暂停。 */
+  function pause(): Promise<void> {
+    return queuePlaybackTransition(async () => {
+      const ap = platform.value
+      if (!ap || playbackPaused) return
+      speechGeneration += 1
+      playbackPaused = true
+      const player = ap.player
+      if (player) player.muted = true
+
+      if (!activeSpeech || status.value !== 'speaking') return
+      const remainingText = getRemainingSpeech(activeSpeech.text, spokenOffset)
+      pausedSpeech = remainingText ? { text: remainingText, emotion: activeSpeech.emotion } : null
+      interruptedRequestId = activeRequestId
+      try {
+        await ap.interrupt()
+      } catch {
+        /* 保持暂停态，恢复时重新下发剩余文本 */
+      }
+      status.value = 'ready'
+      activeFrameStarted = false
+    })
+  }
+
+  /** 恢复播放器并从暂停时记录的剩余文本继续云端播报。 */
+  function resume(): Promise<boolean> {
+    return queuePlaybackTransition(async () => {
+      const ap = platform.value
+      if (!ap || !playbackPaused) return false
+      const speechToResume = pausedSpeech
+      const player = ap.player
+      try {
+        if (player) {
+          player.muted = false
+          player.volume = 1
+          await player.resume()
+          audioReady.value = true
+        }
+      } catch {
+        if (player) player.muted = true
+        audioReady.value = false
+        return false
+      }
+
+      if (!speechToResume?.text) {
+        playbackPaused = false
+        pausedSpeech = null
+        activeSpeech = null
+        activeRequestId = ''
+        spokenOffset = 0
+        activeFrameStarted = false
+        status.value = 'ready'
+        return true
+      }
+
+      playbackPaused = false
+      activeSpeech = null
+      activeRequestId = ''
+      spokenOffset = 0
+      activeFrameStarted = false
+      const resumed = await speak(speechToResume.text, { emotion: speechToResume.emotion })
+      if (resumed) return true
+
+      playbackPaused = true
+      pausedSpeech = speechToResume
+      if (player) {
+        player.muted = true
+      }
+      status.value = 'ready'
+      return false
+    })
+  }
+
+  function queuePlaybackTransition<T>(operation: () => Promise<T>): Promise<T> {
+    const next = playbackTransition.then(operation, operation)
+    playbackTransition = next.then(
+      () => undefined,
+      () => undefined
+    )
+    return next
+  }
+
   /** 打断当前播报 */
   async function interrupt(): Promise<void> {
+    resetSpeechPlayback()
     try {
       await platform.value?.interrupt?.()
     } catch {
@@ -283,6 +420,7 @@ export function useXfAvatar() {
       // 忽略销毁异常
     }
     platform.value = null
+    resetSpeechPlayback()
     status.value = 'idle'
   }
 
@@ -296,9 +434,33 @@ export function useXfAvatar() {
     speak,
     speakAudio,
     enableAudio,
+    pause,
+    resume,
     interrupt,
     destroy
   }
+
+  function resetSpeechPlayback(): void {
+    speechGeneration += 1
+    activeSpeech = null
+    pausedSpeech = null
+    spokenOffset = 0
+    playbackPaused = false
+    activeRequestId = ''
+    interruptedRequestId = ''
+    activeFrameStarted = false
+  }
+}
+
+function getRequestId(payload: unknown): string {
+  const value = payload as {
+    request_id?: string
+    requestId?: string
+    data?: { request_id?: string; requestId?: string }
+  }
+  return (
+    value?.request_id || value?.requestId || value?.data?.request_id || value?.data?.requestId || ''
+  )
 }
 
 function normalizeError(err: unknown): string {

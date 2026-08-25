@@ -124,6 +124,12 @@
   function interrupt() {
     return avatar.interrupt()
   }
+  function pause() {
+    return avatar.pause()
+  }
+  function resume() {
+    return avatar.resume()
+  }
   function getStatus() {
     return avatar.status.value
   }
@@ -135,6 +141,8 @@
     speak,
     speakAudio,
     enableAudio,
+    pause,
+    resume,
     interrupt,
     getStatus,
     getSubtitle,

@@ -91,6 +91,21 @@
               >
                 <ElIcon><Microphone /></ElIcon>
               </ElButton>
+              <ElButton
+                class="playback-btn"
+                :type="playbackPaused ? 'success' : 'warning'"
+                circle
+                :disabled="clearingHistory || playbackTransitioning"
+                :aria-label="playbackButtonText"
+                :aria-pressed="playbackPaused"
+                :title="playbackButtonText"
+                @click="togglePlayback"
+              >
+                <ElIcon>
+                  <VideoPlay v-if="playbackPaused" />
+                  <VideoPause v-else />
+                </ElIcon>
+              </ElButton>
             </div>
 
             <!-- 仅在产生有效回答后出现，右边缘与发送按钮对齐。 -->
@@ -218,7 +233,7 @@
 <script setup lang="ts">
   import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
   import { useI18n } from 'vue-i18n'
-  import { CircleCheck, Delete, Microphone } from '@element-plus/icons-vue'
+  import { CircleCheck, Delete, Microphone, VideoPause, VideoPlay } from '@element-plus/icons-vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import DigitalHumanAvatar from '@/components/digital-human/DigitalHumanAvatar.vue'
   import { mittBus } from '@/utils/sys'
@@ -234,7 +249,6 @@
     narrateSpot,
     recommendRoute,
     submitFeedback,
-    type ChatAnswer,
     type ChatSource,
     type RouteNode,
     type RouteRecommendResult,
@@ -251,6 +265,11 @@
     meta?: { label?: string; latency?: number; sources?: ChatSource[]; emotion?: string }
   }
 
+  interface SpeechPayload {
+    text: string
+    emotion: string
+  }
+
   const SESSION_KEY = 'scenic_visitor_session'
   const MASK_LONG_LATENCY = import.meta.env.VITE_MASK_GUIDE_LATENCY === 'true'
 
@@ -263,6 +282,9 @@
   const input = ref('')
   const asking = ref(false)
   const clearingHistory = ref(false)
+  const playbackPaused = ref(false)
+  const playbackTransitioning = ref(false)
+  const pendingSpeech = ref<SpeechPayload | null>(null)
   const statusTip = ref(t('app.guideConnecting'))
   const lastLabel = ref('')
   // 当前渲染引擎：讯飞（xfyun）云端流按 1080:960 输出，需让展区同比以消除上下墨绿边；
@@ -274,8 +296,12 @@
   const feedbackSubmitted = ref(false)
   const ratingAnimating = ref(false)
   let ratingAnimationTimer: number | undefined
+  let pausedActivePlayback = false
 
   const showFeedback = computed(() => feedbackAvailable.value && !asking.value)
+  const playbackButtonText = computed(() =>
+    playbackPaused.value ? t('app.mapGuideResume') : t('app.mapGuidePause')
+  )
 
   const quickQuestions = computed(() => [
     t('app.guideQuickHeight'),
@@ -349,6 +375,7 @@
     try {
       await clearChatHistory(sessionId.value)
       await avatarRef.value?.interrupt()
+      resetPlaybackState()
       messages.value = []
       input.value = ''
       lastLabel.value = ''
@@ -367,15 +394,75 @@
   // ---- 数字人事件 ----
   function onAvatarReady(config: { engine?: string } | null) {
     if (config?.engine) avatarEngine.value = config.engine
-    statusTip.value = t('app.guideReady')
+    statusTip.value = playbackPaused.value ? t('app.mapGuidePause') : t('app.guideReady')
   }
   function onAvatarError(msg: string) {
     statusTip.value = msg || t('app.guideUnavailable')
   }
 
-  function speak(answer: ChatAnswer) {
-    const emotion = answer.digitalHuman?.ttsEmotion || 'neutral'
-    avatarRef.value?.speak(formatGuideAnswer(answer.answer), emotion)
+  async function playSpeech(text: string, emotion = 'neutral') {
+    const payload = { text: formatGuideAnswer(text), emotion }
+    if (playbackPaused.value) {
+      if (pausedActivePlayback) {
+        await avatarRef.value?.interrupt()
+        pausedActivePlayback = false
+      }
+      pendingSpeech.value = payload
+      statusTip.value = t('app.mapGuidePause')
+      return
+    }
+
+    pendingSpeech.value = null
+    const started = await avatarRef.value?.speak(payload.text, payload.emotion)
+    if (playbackPaused.value) {
+      statusTip.value = t('app.mapGuidePause')
+      return
+    }
+    statusTip.value = started ? t('app.guideSpeaking') : t('app.guideReady')
+  }
+
+  async function togglePlayback() {
+    if (playbackTransitioning.value) return
+    playbackTransitioning.value = true
+    try {
+      if (!playbackPaused.value) {
+        playbackPaused.value = true
+        pausedActivePlayback = avatarRef.value?.getStatus() === 'speaking'
+        if (pausedActivePlayback) await avatarRef.value?.pause()
+        statusTip.value = t('app.mapGuidePause')
+        return
+      }
+
+      playbackPaused.value = false
+      const queued = pendingSpeech.value
+      pendingSpeech.value = null
+      if (queued) {
+        pausedActivePlayback = false
+        await playSpeech(queued.text, queued.emotion)
+        return
+      }
+      if (pausedActivePlayback) {
+        const resumed = (await avatarRef.value?.resume()) as boolean | void
+        if (resumed === false) {
+          playbackPaused.value = true
+          statusTip.value = t('app.mapGuidePause')
+          return
+        }
+        pausedActivePlayback = false
+        statusTip.value =
+          avatarRef.value?.getStatus() === 'speaking' ? t('app.guideSpeaking') : t('app.guideReady')
+        return
+      }
+      statusTip.value = t('app.guideReady')
+    } finally {
+      playbackTransitioning.value = false
+    }
+  }
+
+  function resetPlaybackState() {
+    playbackPaused.value = false
+    pendingSpeech.value = null
+    pausedActivePlayback = false
   }
 
   // ---- 问答 ----
@@ -409,9 +496,8 @@
         }
       })
       lastLabel.value = answer.label || ''
-      statusTip.value = t('app.guideSpeaking')
       feedbackAvailable.value = true
-      speak(answer)
+      await playSpeech(answer.answer, answer.digitalHuman?.ttsEmotion || 'neutral')
     } catch {
       messages.value.push({ role: 'assistant', content: t('app.guideServiceError') })
       ElMessage.error(t('app.guideRequestFailed'))
@@ -450,7 +536,7 @@
       rating.value = 0
       feedbackSubmitted.value = false
       feedbackAvailable.value = true
-      avatarRef.value?.speak(res.narration, 'warm')
+      await playSpeech(res.narration, 'warm')
     } catch {
       ElMessage.error(t('app.guideNarrationFailed'))
     } finally {
@@ -488,7 +574,7 @@
       rating.value = 0
       feedbackSubmitted.value = false
       feedbackAvailable.value = true
-      avatarRef.value?.speak(res.narration, 'warm')
+      await playSpeech(res.narration, 'warm')
       scrollToBottom()
     } catch {
       ElMessage.error(t('app.guideNodeFailed'))
@@ -578,7 +664,7 @@
   }
 
   watch(locale, (language) => {
-    statusTip.value = t('app.guideReady')
+    statusTip.value = playbackPaused.value ? t('app.mapGuidePause') : t('app.guideReady')
     if (recognition) recognition.lang = speechRecognitionLanguages[language] || 'zh-CN'
   })
 
@@ -594,6 +680,8 @@
 
   onBeforeUnmount(() => {
     if (ratingAnimationTimer) window.clearTimeout(ratingAnimationTimer)
+    void avatarRef.value?.interrupt()
+    resetPlaybackState()
   })
 </script>
 
@@ -761,6 +849,15 @@
     display: flex;
     gap: 8px;
     align-items: center;
+
+    :deep(.el-input) {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .playback-btn {
+    flex: 0 0 auto;
   }
 
   .feedback-row {
