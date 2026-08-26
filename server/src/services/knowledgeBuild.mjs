@@ -14,15 +14,23 @@
  * @property {string} highlights 游玩亮点。
  * @property {string} openInfo 演艺或开放信息。
  * @property {string} notes 备注。
- * @typedef {{id: string, documentId: string, scenicSpotId: string|null, title: string, content: string, keywords: string[], source: string, language: string, fileType?: string}} KnowledgeChunk
- * @typedef {{id: string, fileName: string, fileType: string, language: string, status: string, chunkCount: number, createdAt: string}} KnowledgeDocument
- * @typedef {{generatedAt: string, sourceDir?: string, scope?: string, documents: KnowledgeDocument[], spots: ScenicSpotKnowledge[], guideSections?: object[], chunks: KnowledgeChunk[]}} KnowledgeBase
+ * @typedef {{id: string, documentId: string, scenicSpotId: string|null, parentId?: string, title: string, content: string, context?: string, sectionPath?: string, keywords: string[], source: string, language: string, fileType?: string, documentType?: string, knowledgeScope?: string, scenicArea?: string, validFrom?: string|null, validTo?: string|null, enabled?: boolean, page?: number, sheetName?: string, range?: string, rowStart?: number, rowEnd?: number, indexVersion?: string, contentHash?: string}} KnowledgeChunk
+ * @typedef {{id: string, fileName: string, fileType: string, language: string, status: string, processingStage?: string, chunkCount: number, createdAt: string, contentHash?: string, knowledgeScope?: string, scenicArea?: string, documentType?: string, validFrom?: string|null, validTo?: string|null, enabled?: boolean, indexVersion?: string}} KnowledgeDocument
+ * @typedef {{generatedAt: string, indexVersion?: string, chunkerVersion?: string, sourceDir?: string, scope?: string, documents: KnowledgeDocument[], spots: ScenicSpotKnowledge[], guideSections?: object[], chunks: KnowledgeChunk[]}} KnowledgeBase
  */
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { closeSync, copyFileSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { createHash, randomBytes } from "node:crypto";
 import { basename, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "../config.mjs";
 import { extractDocxText } from "./docx.mjs";
+import {
+  documentTypeFor,
+  normalizeAccessScope,
+  normalizeKnowledgeScope,
+  normalizeTenantId
+} from "./knowledgeMetadata.mjs";
+import { withKnowledgeWriteLock } from "./knowledgeWriteLock.mjs";
 
 /** @type {string} 结构化景点资料的标准文件名。 */
 const STRUCTURED_DOC = "灵山胜境 景点结构化数据集.docx";
@@ -30,6 +38,8 @@ const STRUCTURED_DOC = "灵山胜境 景点结构化数据集.docx";
 const GUIDE_DOC = "灵山胜境：历史、文化、景点特色与个性化游览指南.docx";
 /** @type {string[]} 构成可恢复发布快照的生成文件。 */
 const GENERATED_KNOWLEDGE_FILES = ["knowledge.json", "knowledge-chunks.json", "scenic-spots.json"];
+/** @type {string} 当前结构感知分块器版本。 */
+export const CHUNKER_VERSION = "structure-v2";
 
 /** @type {string[]} 结构化 DOCX 记录的字段顺序。 */
 const structuredFields = [
@@ -132,7 +142,10 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
   const spots = parseStructuredSpots(structuredText);
   const guideSections = parseGuideSections(guideText);
   const baseChunks = buildChunks(spots, guideSections);
-  const supplementalDocuments = loadSupplementalMarkdown(sourceDir, spots);
+  const supplementalDocuments = [
+    ...loadSupplementalMarkdown(sourceDir, spots),
+    ...loadSupplementalBinaryMetadata(sourceDir)
+  ];
   const chunks = [
     ...baseChunks,
     ...supplementalDocuments.flatMap((document) => document.chunks),
@@ -145,6 +158,15 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
       fileName: STRUCTURED_DOC,
       fileType: "docx",
       language: "zh",
+      processingStage: "processed",
+      knowledgeScope: "visitor_qa",
+      accessScope: "public",
+      tenantId: "default",
+      scenicArea: "灵山胜境 拈花湾禅意小镇",
+      documentType: "docx",
+      validFrom: null,
+      validTo: null,
+      enabled: true,
       status: "processed",
       chunkCount: chunks.filter((chunk) => chunk.documentId === "doc_structured_lingshan_spots").length,
       createdAt: new Date().toISOString()
@@ -154,32 +176,58 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
       fileName: GUIDE_DOC,
       fileType: "docx",
       language: "zh",
+      processingStage: "processed",
+      knowledgeScope: "visitor_qa",
+      accessScope: "public",
+      tenantId: "default",
+      scenicArea: "灵山胜境 拈花湾禅意小镇",
+      documentType: "docx",
+      validFrom: null,
+      validTo: null,
+      enabled: true,
       status: "processed",
       chunkCount: chunks.filter((chunk) => chunk.documentId === "doc_lingshan_guide").length,
       createdAt: new Date().toISOString()
     },
     ...supplementalDocuments.map(({ chunks: documentChunks, ...document }) => ({
       ...document,
-      status: "processed",
+      processingStage: document.status === "skipped" ? "classified" : "processed",
       chunkCount: documentChunks.length,
       createdAt: new Date().toISOString()
     })),
     ...uploadedDocuments
   ];
 
+  const indexVersion = createIndexVersion({ documents, chunks });
+  const versionedDocuments = documents.map((document) => ({
+    ...document,
+    accessScope: normalizeAccessScope(document.accessScope, document.knowledgeScope),
+    tenantId: normalizeTenantId(document.tenantId),
+    indexVersion
+  }));
+  const versionedChunks = chunks.map((chunk) => ({
+    ...chunk,
+    indexVersion,
+    enabled: chunk.enabled !== false,
+    knowledgeScope: chunk.knowledgeScope || "visitor_qa",
+    accessScope: normalizeAccessScope(chunk.accessScope, chunk.knowledgeScope || "visitor_qa"),
+    tenantId: normalizeTenantId(chunk.tenantId),
+    documentType: chunk.documentType || documentTypeFor(chunk.fileType),
+    scenicArea: chunk.scenicArea || spots.find((spot) => spot.id === chunk.scenicSpotId)?.scenicArea || ""
+  }));
   const result = {
     generatedAt: new Date().toISOString(),
+    indexVersion,
+    chunkerVersion: CHUNKER_VERSION,
     sourceDir: basename(sourceDir),
     scope: "灵山胜境 拈花湾禅意小镇",
-    documents,
+    documents: versionedDocuments,
     spots,
     guideSections,
-    chunks
+    chunks: versionedChunks
   };
 
-  writeJson(join(generatedDir, "knowledge.json"), result);
-  writeJson(join(generatedDir, "scenic-spots.json"), spots);
-  writeJson(join(generatedDir, "knowledge-chunks.json"), chunks);
+  writeKnowledgeSnapshot(generatedDir, result);
   writeFileSync(join(generatedDir, "structured-source.txt"), structuredText, "utf8");
   writeFileSync(join(generatedDir, "guide-source.txt"), guideText, "utf8");
 
@@ -194,10 +242,110 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
  * const knowledge = loadKnowledge();
  */
 export function loadKnowledge() {
+  const runtimeDir = runtimeGeneratedDir();
+  const pointer = loadKnowledgeFrom(join(runtimeDir, "active-index.json"));
+  if (pointer?.indexVersion) {
+    const snapshot = loadKnowledgeFrom(join(runtimeDir, "snapshots", pointer.indexVersion, "knowledge.json"));
+    if (isValidKnowledgeSnapshot(snapshot) && snapshot.indexVersion === pointer.indexVersion) {
+      return snapshot;
+    }
+  }
   return (
-    loadKnowledgeFrom(join(runtimeGeneratedDir(), "knowledge.json")) ||
+    loadKnowledgeFrom(join(runtimeDir, "knowledge.json")) ||
     loadKnowledgeFrom(join(bundledGeneratedDir(), "knowledge.json"))
   );
+}
+
+/**
+ * 返回当前活动知识快照版本，供答案缓存键和观测信息使用。
+ * @returns {string} 活动版本；尚未构建时返回 `unbuilt`。
+ */
+export function getActiveKnowledgeVersion() {
+  return loadKnowledge()?.indexVersion || "unbuilt";
+}
+
+/**
+ * 列出运行时目录中已经校验的知识快照，供管理端查看和回滚。
+ * @returns {Array<{indexVersion:string,chunkerVersion:string,generatedAt:string,documentCount:number,chunkCount:number,active:boolean}>}
+ */
+export function listKnowledgeVersions() {
+  const generatedDir = runtimeGeneratedDir();
+  const snapshotsDir = join(generatedDir, "snapshots");
+  const activeVersion = getActiveKnowledgeVersion();
+  const versions = new Map();
+  if (existsSync(snapshotsDir)) {
+    for (const entry of readdirSync(snapshotsDir, { withFileTypes: true })) {
+      if (!entry.isDirectory() || !isSafeIndexVersion(entry.name)) continue;
+      const snapshot = loadKnowledgeFrom(join(snapshotsDir, entry.name, "knowledge.json"));
+      if (!isValidKnowledgeSnapshot(snapshot) || snapshot.indexVersion !== entry.name) continue;
+      versions.set(entry.name, summarizeKnowledgeVersion(snapshot, activeVersion));
+    }
+  }
+  const active = loadKnowledge();
+  if (isValidKnowledgeSnapshot(active) && !versions.has(active.indexVersion)) {
+    versions.set(active.indexVersion, summarizeKnowledgeVersion(active, activeVersion));
+  }
+  return [...versions.values()].sort((left, right) => (
+    Number(right.active) - Number(left.active)
+    || Date.parse(right.generatedAt || 0) - Date.parse(left.generatedAt || 0)
+    || right.indexVersion.localeCompare(left.indexVersion)
+  ));
+}
+
+/**
+ * 将活动指针恢复到已经校验过的历史知识版本。
+ *
+ * 该函数用于数据库同步或上传后处理失败时回滚刚切换的 JSON 快照；它不会删除
+ * 新版本目录，便于管理员保留现场进行审计。
+ *
+ * @param {string} indexVersion 目标历史版本。
+ * @returns {KnowledgeBase} 恢复后的活动知识快照。
+ * @throws {Error & {code:string,statusCode:number}} 目标快照不存在或校验失败时抛出。
+ */
+export function activateKnowledgeVersion(indexVersion) {
+  if (!isSafeIndexVersion(indexVersion)) {
+    const error = new Error("The requested knowledge version is invalid.");
+    error.code = "KNOWLEDGE_VERSION_INVALID";
+    error.statusCode = 400;
+    throw error;
+  }
+  const generatedDir = runtimeGeneratedDir();
+  const snapshotDir = join(generatedDir, "snapshots", String(indexVersion || ""));
+  const knowledge = loadKnowledgeFrom(join(snapshotDir, "knowledge.json"));
+  if (!isValidKnowledgeSnapshot(knowledge) || knowledge.indexVersion !== indexVersion) {
+    const error = new Error("The requested knowledge snapshot is unavailable or invalid.");
+    error.code = "KNOWLEDGE_VERSION_INVALID";
+    error.statusCode = 409;
+    throw error;
+  }
+  return withKnowledgeWriteLock(generatedDir, () => {
+    writeJson(join(generatedDir, "active-index.json"), {
+      indexVersion,
+      chunkerVersion: knowledge.chunkerVersion || CHUNKER_VERSION,
+      generatedAt: knowledge.generatedAt
+    });
+    for (const fileName of GENERATED_KNOWLEDGE_FILES) {
+      copyFileSync(join(snapshotDir, fileName), join(generatedDir, fileName));
+    }
+    return knowledge;
+  });
+}
+
+/** @param {string} value 版本值。 @returns {boolean} 是否可安全作为目录名。 */
+function isSafeIndexVersion(value) {
+  return /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(String(value || ""));
+}
+
+/** @param {KnowledgeBase} knowledge 快照。 @param {string} activeVersion 活动版本。 @returns {object} */
+function summarizeKnowledgeVersion(knowledge, activeVersion) {
+  return {
+    indexVersion: knowledge.indexVersion,
+    chunkerVersion: knowledge.chunkerVersion || "legacy",
+    generatedAt: knowledge.generatedAt || "",
+    documentCount: knowledge.documents?.length || 0,
+    chunkCount: knowledge.chunks?.length || 0,
+    active: knowledge.indexVersion === activeVersion
+  };
 }
 
 /**
@@ -230,6 +378,9 @@ export function restoreBundledKnowledge({ force = false } = {}) {
   }
 
   mkdirSync(runtimeDir, { recursive: true });
+  if (force) {
+    rmSync(join(runtimeDir, "active-index.json"), { force: true });
+  }
   if (resolve(runtimeDir) !== resolve(bundledDir)) {
     for (const fileName of GENERATED_KNOWLEDGE_FILES) {
       copyFileSync(join(bundledDir, fileName), join(runtimeDir, fileName));
@@ -258,26 +409,39 @@ export function buildTextDocumentChunks({
   fileName,
   text,
   fileType = extname(fileName).replace(".", "") || "txt",
-  spots = []
+  spots = [],
+  metadata = {}
 }) {
   const sections = parseTextSections(text, fileName);
   const language = inferDocumentLanguage(fileName, text);
   const chunks = [];
 
   for (const section of sections) {
-    const parts = splitLongText(section.content, 700);
+    const parts = splitLongText(section.content);
     for (let index = 0; index < parts.length; index += 1) {
       const content = parts[index];
       chunks.push({
         id: `${documentId}_chunk_${String(chunks.length + 1).padStart(3, "0")}`,
         documentId,
         scenicSpotId: matchLocalizedSpotId(section.title, spots),
+        parentId: `${documentId}_section_${String(sections.indexOf(section) + 1).padStart(3, "0")}`,
         title: section.title,
+        sectionPath: section.title,
         content,
+        context: `来源：${fileName}；章节：${section.title}`,
         keywords: extractDocumentKeywords(`${section.title} ${content}`, spots),
         source: fileName,
         language,
-        fileType
+        fileType,
+        documentType: metadata.documentType || documentTypeFor(fileType),
+        knowledgeScope: metadata.knowledgeScope || normalizeKnowledgeScope(undefined, fileName),
+        accessScope: normalizeAccessScope(metadata.accessScope, metadata.knowledgeScope || normalizeKnowledgeScope(undefined, fileName)),
+        tenantId: normalizeTenantId(metadata.tenantId),
+        scenicArea: metadata.scenicArea || "",
+        validFrom: metadata.validFrom || null,
+        validTo: metadata.validTo || null,
+        enabled: metadata.enabled !== false,
+        contentHash: createHash("sha256").update(content).digest("hex")
       });
     }
   }
@@ -287,7 +451,7 @@ export function buildTextDocumentChunks({
 
 /**
  * 将上传文本加入运行时知识库，并原子式替换同 ID 文档的旧元数据和分块。
- * @param {{documentId: string, fileName: string, text: string, fileType: string}} input 文档信息。
+ * @param {{documentId: string, fileName: string, text: string, fileType: string, metadata?: object}} input 文档信息。
  * @returns {KnowledgeDocument} 已索引文档元数据。
  * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 无基础知识库且快照无法恢复时抛出。
  * @throws {Error & {statusCode: 422, code: "KNOWLEDGE_DOCUMENT_EMPTY"}} 文档无可索引文本时抛出。
@@ -295,7 +459,7 @@ export function buildTextDocumentChunks({
  * @example
  * const document = indexTextKnowledgeDocument({ documentId: "upload_1", fileName: "faq.txt", text: "开放时间", fileType: "txt" });
  */
-export function indexTextKnowledgeDocument({ documentId, fileName, text, fileType }) {
+export function indexTextKnowledgeDocument({ documentId, fileName, text, fileType, metadata = {} }) {
   const knowledge = loadKnowledge() || restoreBundledKnowledge();
   if (!knowledge) {
     const error = new Error("Knowledge base has not been built.");
@@ -309,8 +473,27 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
     fileName,
     text,
     fileType,
-    spots: knowledge.spots || []
+    spots: knowledge.spots || [],
+    metadata
   });
+  return indexKnowledgeChunksDocument({ documentId, fileName, fileType, chunks, metadata });
+}
+
+/**
+ * 将已完成解析的结构化分块写入新知识版本，并在校验后原子切换活动快照。
+ * @param {{documentId: string, fileName: string, fileType: string, chunks: KnowledgeChunk[], metadata?: object}} input 文档和分块。
+ * @returns {KnowledgeDocument} 已索引文档元数据。
+ * @throws {Error & {statusCode: 422, code: "KNOWLEDGE_DOCUMENT_EMPTY"}} 没有可索引分块时抛出。
+ */
+export function indexKnowledgeChunksDocument({ documentId, fileName, fileType, chunks, metadata = {} }) {
+  const knowledge = loadKnowledge() || restoreBundledKnowledge();
+  if (!knowledge) {
+    const error = new Error("Knowledge base has not been built.");
+    error.statusCode = 409;
+    error.code = "KNOWLEDGE_NOT_BUILT";
+    throw error;
+  }
+
   if (chunks.length === 0) {
     const error = new Error("The uploaded document does not contain indexable text.");
     error.statusCode = 422;
@@ -319,13 +502,58 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
   }
 
   const createdAt = new Date().toISOString();
+  const nextChunks = chunks.map((chunk) => ({
+    ...chunk,
+    knowledgeScope: metadata.knowledgeScope || chunk.knowledgeScope || normalizeKnowledgeScope(undefined, fileName),
+    accessScope: normalizeAccessScope(
+      metadata.accessScope || chunk.accessScope,
+      metadata.knowledgeScope || chunk.knowledgeScope || normalizeKnowledgeScope(undefined, fileName)
+    ),
+    tenantId: normalizeTenantId(metadata.tenantId || chunk.tenantId),
+    documentType: metadata.documentType || chunk.documentType || documentTypeFor(fileType),
+    scenicArea: metadata.scenicArea || chunk.scenicArea || "",
+    validFrom: metadata.validFrom || chunk.validFrom || null,
+    validTo: metadata.validTo || chunk.validTo || null,
+    enabled: metadata.enabled !== false && chunk.enabled !== false
+  }));
+  const documentContentHash = metadata.contentHash || createDocumentContentHash(nextChunks);
+  const previousDocument = (knowledge.documents || []).find((item) => item.id === documentId);
+  const previousChunks = (knowledge.chunks || [])
+    .filter((item) => item.documentId === documentId)
+    .sort((left, right) => left.id.localeCompare(right.id, undefined, { numeric: true }));
+  const sameChunks = previousChunks.length === nextChunks.length
+    && previousChunks.every((previous, index) => (
+      previous.id === nextChunks[index].id
+      && (previous.contentHash || createHash("sha256").update(previous.content || "").digest("hex"))
+        === (nextChunks[index].contentHash || createHash("sha256").update(nextChunks[index].content || "").digest("hex"))
+    ));
+  if (
+    previousDocument?.contentHash === documentContentHash
+    && knowledge.chunkerVersion === CHUNKER_VERSION
+    && sameChunks
+  ) {
+    return { ...previousDocument, skipped: true, indexVersion: knowledge.indexVersion };
+  }
   const document = {
     id: documentId,
     fileName,
     fileType,
-    language: inferDocumentLanguage(fileName, text),
+    language: metadata.language || inferDocumentLanguage(fileName, nextChunks.map((chunk) => chunk.content).join("\n")),
+    knowledgeScope: metadata.knowledgeScope || normalizeKnowledgeScope(undefined, fileName),
+    accessScope: normalizeAccessScope(
+      metadata.accessScope,
+      metadata.knowledgeScope || normalizeKnowledgeScope(undefined, fileName)
+    ),
+    tenantId: normalizeTenantId(metadata.tenantId),
+    scenicArea: metadata.scenicArea || "",
+    documentType: metadata.documentType || documentTypeFor(fileType),
+    validFrom: metadata.validFrom || null,
+    validTo: metadata.validTo || null,
+    enabled: metadata.enabled !== false,
+    contentHash: documentContentHash,
+    processingStage: "processed",
     status: "processed",
-    chunkCount: chunks.length,
+    chunkCount: nextChunks.length,
     createdAt
   };
   const next = {
@@ -337,15 +565,34 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
     ],
     chunks: [
       ...(knowledge.chunks || []).filter((item) => item.documentId !== documentId),
-      ...chunks
+      ...nextChunks
     ]
   };
+  next.indexVersion = createIndexVersion(next);
+  next.chunkerVersion = CHUNKER_VERSION;
+  next.documents = next.documents.map((item) => ({
+    ...item,
+    knowledgeScope: item.knowledgeScope || normalizeKnowledgeScope(undefined, item.fileName),
+    accessScope: normalizeAccessScope(item.accessScope, item.knowledgeScope || normalizeKnowledgeScope(undefined, item.fileName)),
+    tenantId: normalizeTenantId(item.tenantId),
+    documentType: item.documentType || documentTypeFor(item.fileType),
+    enabled: item.enabled !== false,
+    indexVersion: next.indexVersion
+  }));
+  next.chunks = next.chunks.map((item) => ({
+    ...item,
+    knowledgeScope: item.knowledgeScope || normalizeKnowledgeScope(undefined, item.source),
+    accessScope: normalizeAccessScope(item.accessScope, item.knowledgeScope || normalizeKnowledgeScope(undefined, item.source)),
+    tenantId: normalizeTenantId(item.tenantId),
+    documentType: item.documentType || documentTypeFor(item.fileType),
+    enabled: item.enabled !== false,
+    indexVersion: next.indexVersion
+  }));
   const generatedDir = runtimeGeneratedDir();
   mkdirSync(generatedDir, { recursive: true });
-  writeJson(join(generatedDir, "knowledge.json"), next);
-  writeJson(join(generatedDir, "knowledge-chunks.json"), next.chunks);
+  writeKnowledgeSnapshot(generatedDir, next);
 
-  return document;
+  return { ...document, indexVersion: next.indexVersion };
 }
 
 /**
@@ -375,10 +622,12 @@ export function removeIndexedKnowledgeDocuments(documentIds = []) {
     documents,
     chunks
   };
+  next.indexVersion = createIndexVersion(next);
+  next.documents = next.documents.map((item) => ({ ...item, indexVersion: next.indexVersion }));
+  next.chunks = next.chunks.map((item) => ({ ...item, indexVersion: next.indexVersion }));
   const generatedDir = runtimeGeneratedDir();
   mkdirSync(generatedDir, { recursive: true });
-  writeJson(join(generatedDir, "knowledge.json"), next);
-  writeJson(join(generatedDir, "knowledge-chunks.json"), chunks);
+  writeKnowledgeSnapshot(generatedDir, next);
   return removedDocuments;
 }
 
@@ -582,9 +831,11 @@ export function buildChunks(spots, guideSections) {
   for (const spot of spots) {
     chunks.push({
       id: `chunk_spot_${spot.id}`,
-      documentId: "doc_structured_lingshan_spots",
-      scenicSpotId: spot.id,
-      title: spot.name,
+        documentId: "doc_structured_lingshan_spots",
+        scenicSpotId: spot.id,
+        parentId: `spot_${spot.id}`,
+        title: spot.name,
+        sectionPath: spot.name,
       content: [
         `${spot.name}位于${spot.locationText}`,
         spot.parameters ? `建筑/景观参数：${spot.parameters}` : "",
@@ -597,23 +848,42 @@ export function buildChunks(spots, guideSections) {
       ]
         .filter(Boolean)
         .join("\n"),
-      keywords: extractKeywords(`${spot.name} ${spot.aliases.join(" ")} ${spot.detail} ${spot.highlights}`),
-      source: STRUCTURED_DOC,
-      language: "zh"
-    });
+        keywords: extractKeywords(`${spot.name} ${spot.aliases.join(" ")} ${spot.detail} ${spot.highlights}`),
+        source: STRUCTURED_DOC,
+        language: "zh",
+        fileType: "docx",
+        documentType: "docx",
+        knowledgeScope: "visitor_qa",
+        scenicArea: spot.scenicArea,
+        validFrom: null,
+        validTo: null,
+        enabled: true,
+        contentHash: createHash("sha256").update(spot.name + spot.detail + spot.highlights).digest("hex")
+      });
   }
 
   for (const section of guideSections) {
-    for (const part of splitLongText(section.content, 700)) {
+    for (const part of splitLongText(section.content)) {
       chunks.push({
         id: `chunk_${section.id}_${String(chunks.length + 1).padStart(3, "0")}`,
         documentId: "doc_lingshan_guide",
         scenicSpotId: matchSpotId(section.title, part, spots),
+        parentId: `guide_${section.id}`,
         title: section.title,
+        sectionPath: section.title,
         content: part,
+        context: `来源：${GUIDE_DOC}；章节：${section.title}`,
         keywords: section.keywords,
         source: GUIDE_DOC,
-        language: "zh"
+        language: "zh",
+        fileType: "docx",
+        documentType: "docx",
+        knowledgeScope: "visitor_qa",
+        scenicArea: "灵山胜境",
+        validFrom: null,
+        validTo: null,
+        enabled: true,
+        contentHash: createHash("sha256").update(part).digest("hex")
       });
     }
   }
@@ -958,36 +1228,245 @@ function matchSpotId(title, content, spots) {
 }
 
 /**
- * 尽量按句子边界将长文本拆分到指定最大长度。
- * 单个超长句不会被硬切，以保持语义完整。
- * @private
- * @param {string} text 文本。
- * @param {number} maxLength 目标最大字符数。
- * @returns {string[]} 有序文本分块。
+ * 按轻量 token 估算文本长度。
+ *
+ * 该估算器不依赖模型 SDK，适合低配置服务器的离线建索引：中日韩字符和
+ * 标点按一个预算单位计算，连续拉丁字母/数字按约四字符一个单位计算，空白
+ * 不占预算。它不是特定模型 tokenizer 的替代品，但能稳定约束上下文大小，且
+ * 不会把代理项拆成无效的 UTF-16 字符。
+ *
+ * @param {*} value 待估算文本。
+ * @returns {number} 估算 token 数。
+ * @example
+ * estimateTextTokens("灵山大佛开放时间");
  */
-function splitLongText(text, maxLength) {
-  const clean = text.trim();
-  if (clean.length <= maxLength) {
+export function estimateTextTokens(value) {
+  return tokenAtoms(String(value || "")).reduce((sum, atom) => sum + atom.cost, 0);
+}
+
+/**
+ * 将长文本按结构边界和 token 预算切分，并为相邻块保留有限重叠。
+ *
+ * 默认上限为 600 个估算 token、重叠 64 个估算 token，处于任务要求的
+ * 300--600 / 50--80 区间。短文档不强行补齐到 300，避免把互不相关的章节
+ * 合并；长句或长表格行才会退化为 Unicode 安全的窗口切分。
+ * @param {string} text 文本。
+ * @param {{maxTokens?: number, overlapTokens?: number}|number} [options={}] 预算选项；数字参数按最大 token 处理。
+ * @returns {string[]} 有序文本分块。
+ * @throws {TypeError} 文本不是字符串或预算参数无效时抛出。
+ * @example
+ * const chunks = splitLongText(text, { maxTokens: 500, overlapTokens: 64 });
+ */
+export function splitLongText(text, options = {}) {
+  if (typeof text !== "string") {
+    throw new TypeError("Chunking input must be a string.");
+  }
+
+  const clean = text.replace(/\r\n?/gu, "\n").trim();
+  if (!clean) return [];
+
+  const normalizedOptions = typeof options === "number"
+    ? { maxTokens: options, overlapTokens: 64 }
+    : options;
+  const maxTokens = normalizeChunkBudget(normalizedOptions.maxTokens, 600, 32);
+  const overlapTokens = normalizeChunkBudget(
+    normalizedOptions.overlapTokens,
+    64,
+    0,
+    Math.max(maxTokens - 1, 0)
+  );
+
+  if (estimateTextTokens(clean) <= maxTokens) {
     return [clean];
   }
 
-  const sentences = clean.split(/(?<=[。！？；])|(?<=[.!?])\s+/);
+  const units = splitTextUnits(clean);
   const parts = [];
-  let current = "";
+  let currentUnits = [];
+  let currentTokens = 0;
 
-  for (const sentence of sentences) {
-    if ((current + sentence).length > maxLength && current) {
-      parts.push(current.trim());
-      current = "";
+  const flushCurrent = () => {
+    const value = currentUnits.join("\n").trim();
+    if (value) parts.push(value);
+    currentUnits = [];
+    currentTokens = 0;
+  };
+
+  for (const unit of units) {
+    const unitTokens = estimateTextTokens(unit);
+    if (unitTokens > maxTokens) {
+      flushCurrent();
+      parts.push(...splitByTokenWindow(unit, maxTokens, overlapTokens));
+      continue;
     }
-    current += sentence;
+
+    if (currentUnits.length > 0 && currentTokens + unitTokens > maxTokens) {
+      const previous = currentUnits.join("\n").trim();
+      flushCurrent();
+      const overlap = takeTailByTokenBudget(previous, overlapTokens);
+      if (overlap && estimateTextTokens(overlap) + unitTokens <= maxTokens) {
+        currentUnits = [overlap, unit];
+        currentTokens = estimateTextTokens(overlap) + unitTokens;
+      } else {
+        currentUnits = [unit];
+        currentTokens = unitTokens;
+      }
+      continue;
+    }
+
+    currentUnits.push(unit);
+    currentTokens += unitTokens;
   }
 
-  if (current.trim()) {
-    parts.push(current.trim());
+  flushCurrent();
+  return parts.filter((part, index) => index === 0 || part !== parts[index - 1]);
+}
+
+/**
+ * 规范化分块预算，避免环境变量或测试参数导致无穷循环。
+ * @private
+ * @param {*} value 原始值。
+ * @param {number} fallback 默认值。
+ * @param {number} minimum 下限。
+ * @param {number} [maximum=Number.MAX_SAFE_INTEGER] 上限。
+ * @returns {number} 正整数预算。
+ */
+function normalizeChunkBudget(value, fallback, minimum, maximum = Number.MAX_SAFE_INTEGER) {
+  const numeric = Number(value);
+  const resolved = Number.isFinite(numeric) ? Math.floor(numeric) : fallback;
+  return Math.min(Math.max(resolved, minimum), maximum);
+}
+
+/**
+ * 按空行、列表行和中英文句末标点生成结构单元。
+ * @private
+ * @param {string} text 文本。
+ * @returns {string[]} 适合装箱的段落/句子单元。
+ */
+function splitTextUnits(text) {
+  return text
+    .split(/\n{2,}/u)
+    .flatMap((paragraph) => paragraph
+      .split("\n")
+      .flatMap((line) => line.split(/(?<=[。！？；])|(?<=[.!?])\s+/u))
+      .map((unit) => unit.trim())
+      .filter(Boolean));
+}
+
+/**
+ * 将单个超长结构单元按估算 token 窗口切分。
+ * @private
+ * @param {string} text 单元文本。
+ * @param {number} maxTokens 最大预算。
+ * @param {number} overlapTokens 重叠预算。
+ * @returns {string[]} 窗口列表。
+ */
+function splitByTokenWindow(text, maxTokens, overlapTokens) {
+  const atoms = tokenAtoms(text);
+  const parts = [];
+  let start = 0;
+
+  while (start < atoms.length) {
+    let end = start;
+    let budget = 0;
+    while (end < atoms.length) {
+      const nextBudget = budget + atoms[end].cost;
+      if (end > start && nextBudget > maxTokens) break;
+      budget = nextBudget;
+      end += 1;
+    }
+    if (end === start) end += 1;
+
+    const value = atoms.slice(start, end).map((atom) => atom.text).join("").trim();
+    if (value) parts.push(value);
+    if (end >= atoms.length) break;
+
+    let overlapStart = end;
+    let overlapBudget = 0;
+    while (overlapStart > start && overlapBudget < overlapTokens) {
+      overlapStart -= 1;
+      overlapBudget += atoms[overlapStart].cost;
+    }
+    start = Math.max(start + 1, overlapStart);
   }
 
   return parts;
+}
+
+/**
+ * 取文本末尾不超过预算的完整 token 原子。
+ * @private
+ * @param {string} text 文本。
+ * @param {number} budget token 预算。
+ * @returns {string} 重叠文本。
+ */
+function takeTailByTokenBudget(text, budget) {
+  if (budget <= 0) return "";
+  const atoms = tokenAtoms(text);
+  let start = atoms.length;
+  let used = 0;
+  while (start > 0 && used < budget) {
+    start -= 1;
+    used += atoms[start].cost;
+  }
+  return atoms.slice(start).map((atom) => atom.text).join("").trim();
+}
+
+/**
+ * 将文本转为可安全拼接的预算原子。
+ * @private
+ * @param {string} text 文本。
+ * @returns {Array<{text: string, cost: number}>} 原子序列。
+ */
+function tokenAtoms(text) {
+  const chars = Array.from(text);
+  const atoms = [];
+  let index = 0;
+
+  while (index < chars.length) {
+    const char = chars[index];
+    if (/\s/u.test(char)) {
+      atoms.push({ text: char, cost: 0 });
+      index += 1;
+      continue;
+    }
+
+    if (isCjkOrCyrillic(char) || /\p{P}|\p{S}/u.test(char)) {
+      atoms.push({ text: char, cost: 1 });
+      index += 1;
+      continue;
+    }
+
+    if (/\p{L}|\p{N}/u.test(char)) {
+      let end = index + 1;
+      while (end < chars.length && /\p{L}|\p{N}/u.test(chars[end]) && !isCjkOrCyrillic(chars[end])) {
+        end += 1;
+      }
+      const word = chars.slice(index, end).join("");
+      const maxWordCharacters = 4 * 600;
+      for (let offset = 0; offset < word.length; offset += maxWordCharacters) {
+        const value = word.slice(offset, offset + maxWordCharacters);
+        atoms.push({ text: value, cost: Math.max(1, Math.ceil(value.length / 4)) });
+      }
+      index = end;
+      continue;
+    }
+
+    atoms.push({ text: char, cost: 1 });
+    index += 1;
+  }
+
+  return atoms;
+}
+
+/**
+ * 判断字符是否属于以单字符预算更合适的东亚或西里尔文字。
+ * @private
+ * @param {string} char 单个 Unicode 码点。
+ * @returns {boolean} 属于该字符集时为 `true`。
+ */
+function isCjkOrCyrillic(char) {
+  return /[\u2e80-\u9fff\ua960-\ua97f\uac00-\ud7ff\uf900-\ufaff\ufe30-\ufe4f\u0400-\u052f]/u.test(char);
 }
 
 /**
@@ -1060,6 +1539,138 @@ function assertFile(filePath) {
 }
 
 /**
+ * 为资料目录中的 XLSX/PDF 建立可见的处理记录，但默认不把运营分析表写入游客索引。
+ * 上传流程会对显式标记为 `visitor_qa` 的同类文件执行实际解析。
+ * @private
+ * @param {string} sourceDir 资料目录。
+ * @returns {Array<object>} 二进制资料的状态元数据。
+ */
+function loadSupplementalBinaryMetadata(sourceDir) {
+  return readdirSync(sourceDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.(xlsx|pdf)$/iu.test(entry.name))
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .map((entry) => {
+      const fileType = extname(entry.name).slice(1).toLowerCase();
+      const knowledgeScope = normalizeKnowledgeScope(undefined, entry.name);
+      return {
+        id: documentIdForFile(entry.name),
+        fileName: entry.name,
+        fileType,
+        language: "und",
+        knowledgeScope,
+        scenicArea: "",
+        documentType: documentTypeFor(fileType),
+        validFrom: null,
+        validTo: null,
+        enabled: true,
+        status: "skipped",
+        processingStage: "classified",
+        skipReason: knowledgeScope === "operations_analytics"
+          ? "Operations analytics source is isolated from visitor QA."
+          : "Binary source requires an explicit upload classification before indexing.",
+        chunkCount: 0,
+        chunks: []
+      };
+    });
+}
+
+/**
+ * 校验知识快照的最小结构，阻止损坏 JSON 被设为活动版本。
+ * @param {*} value 候选快照。
+ * @returns {boolean} 结构完整时为 `true`。
+ * @private
+ */
+function isValidKnowledgeSnapshot(value) {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && typeof value.indexVersion === "string"
+    && Array.isArray(value.documents)
+    && Array.isArray(value.chunks)
+    && Array.isArray(value.spots)
+  );
+}
+
+/**
+ * 生成由文档与分块内容决定的知识版本号；相同内容可稳定复用版本。
+ * @param {{documents?: object[], chunks?: object[]}} knowledge 知识数据。
+ * @returns {string} 版本号。
+ * @private
+ */
+function createIndexVersion(knowledge) {
+  const payload = JSON.stringify({
+    documents: knowledge.documents || [],
+    chunks: (knowledge.chunks || []).map((chunk) => ({
+      id: chunk.id,
+      documentId: chunk.documentId,
+      contentHash: chunk.contentHash,
+      content: chunk.content,
+      knowledgeScope: chunk.knowledgeScope,
+      accessScope: chunk.accessScope,
+      tenantId: chunk.tenantId,
+      enabled: chunk.enabled,
+      validFrom: chunk.validFrom,
+      validTo: chunk.validTo
+    }))
+  });
+  const digest = createHash("sha256").update(payload).digest("hex").slice(0, 16);
+  return `${CHUNKER_VERSION}-${Date.now().toString(36)}-${digest}-${randomBytes(2).toString("hex")}`;
+}
+
+/**
+ * 根据文档所有 child 的有序内容生成稳定指纹，用于跳过无变化的重建。
+ * @private
+ * @param {object[]} chunks 文档分块。
+ * @returns {string} 文档内容指纹。
+ */
+function createDocumentContentHash(chunks) {
+  return createHash("sha256")
+    .update(chunks
+      .slice()
+      .sort((left, right) => left.id.localeCompare(right.id, undefined, { numeric: true }))
+      .map((chunk) => `${chunk.id}\u0000${chunk.contentHash || chunk.content || ""}`)
+      .join("\u0001"))
+    .digest("hex");
+}
+
+/**
+ * 将完整快照写入独立版本目录，完成校验后再原子切换活动指针。
+ * @param {string} generatedDir 可写生成目录。
+ * @param {KnowledgeBase} knowledge 知识快照。
+ * @returns {void}
+ * @throws {Error} 临时快照写入、校验或活动指针切换失败时抛出。
+ * @private
+ */
+function writeKnowledgeSnapshot(generatedDir, knowledge) {
+  if (!isValidKnowledgeSnapshot(knowledge)) {
+    throw new Error("Knowledge snapshot validation failed.");
+  }
+  withKnowledgeWriteLock(generatedDir, () => {
+    const snapshotDir = join(generatedDir, "snapshots", knowledge.indexVersion);
+    mkdirSync(snapshotDir, { recursive: true });
+    writeJson(join(snapshotDir, "knowledge.json"), knowledge);
+    writeJson(join(snapshotDir, "knowledge-chunks.json"), knowledge.chunks);
+    writeJson(join(snapshotDir, "scenic-spots.json"), knowledge.spots);
+
+    const checked = loadKnowledgeFrom(join(snapshotDir, "knowledge.json"));
+    if (!isValidKnowledgeSnapshot(checked) || checked.indexVersion !== knowledge.indexVersion) {
+      throw new Error("Knowledge snapshot validation failed.");
+    }
+
+    writeJson(join(generatedDir, "active-index.json"), {
+      indexVersion: knowledge.indexVersion,
+      generatedAt: knowledge.generatedAt
+    });
+
+    // Keep the legacy root files for older packaging and diagnostics. The active
+    // pointer always targets the complete version directory above.
+    writeJson(join(generatedDir, "knowledge.json"), knowledge);
+    writeJson(join(generatedDir, "knowledge-chunks.json"), knowledge.chunks);
+    writeJson(join(generatedDir, "scenic-spots.json"), knowledge.spots);
+  });
+}
+
+/**
  * 以两空格缩进和结尾换行写入 UTF-8 JSON。
  * @private
  * @param {string} filePath 输出路径。
@@ -1068,5 +1679,14 @@ function assertFile(filePath) {
  * @throws {TypeError|Error} 数据不可序列化或文件无法写入时抛出。
  */
 function writeJson(filePath, data) {
-  writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  const content = `${JSON.stringify(data, null, 2)}\n`;
+  const temporaryPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  const descriptor = openSync(temporaryPath, "w");
+  try {
+    writeFileSync(descriptor, content, "utf8");
+    fsyncSync(descriptor);
+  } finally {
+    closeSync(descriptor);
+  }
+  renameSync(temporaryPath, filePath);
 }

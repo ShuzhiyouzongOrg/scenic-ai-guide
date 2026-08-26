@@ -279,9 +279,171 @@ CREATE TABLE IF NOT EXISTS knowledge_documents (
   size INTEGER,
   file_type TEXT,
   content_hash TEXT,
-  status TEXT,
+  status TEXT NOT NULL DEFAULT 'uploaded',
+  processing_stage TEXT NOT NULL DEFAULT 'uploaded',
+  knowledge_scope TEXT NOT NULL DEFAULT 'visitor_qa',
+  access_scope TEXT NOT NULL DEFAULT 'public',
+  tenant_id TEXT NOT NULL DEFAULT 'default',
+  scenic_area TEXT,
+  language TEXT,
+  document_type TEXT,
+  valid_from TEXT,
+  valid_to TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  error_code TEXT,
+  error_message TEXT,
+  attempt_count INTEGER NOT NULL DEFAULT 0,
+  started_at TEXT,
+  finished_at TEXT,
+  index_version TEXT,
+  metadata TEXT,
   chunk_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS knowledge_processing_tasks (
+  id TEXT PRIMARY KEY,
+  document_id TEXT NOT NULL,
+  task_type TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  file_name TEXT NOT NULL,
+  mime_type TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  external_job_id TEXT,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  next_attempt_at TEXT NOT NULL,
+  lease_until TEXT,
+  last_error_code TEXT,
+  last_error_message TEXT,
+  result_metadata TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(document_id, task_type, content_hash)
+);
+CREATE INDEX IF NOT EXISTS idx_knowledge_tasks_runnable
+  ON knowledge_processing_tasks(task_type, status, next_attempt_at);
+CREATE TABLE IF NOT EXISTS knowledge_chunks (
+  id TEXT PRIMARY KEY,
+  document_id TEXT NOT NULL,
+  scenic_spot_id TEXT,
+  parent_id TEXT,
+  title TEXT,
+  section_path TEXT,
+  content TEXT NOT NULL,
+  keywords TEXT,
+  page INTEGER,
+  sheet_name TEXT,
+  cell_range TEXT,
+  row_start INTEGER,
+  row_end INTEGER,
+  knowledge_scope TEXT NOT NULL DEFAULT 'visitor_qa',
+  access_scope TEXT NOT NULL DEFAULT 'public',
+  tenant_id TEXT NOT NULL DEFAULT 'default',
+  scenic_area TEXT,
+  language TEXT,
+  document_type TEXT,
+  valid_from TEXT,
+  valid_to TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  index_version TEXT,
+  content_hash TEXT,
+  embedding_ref TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_document ON knowledge_chunks(document_id);
+CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_scope ON knowledge_chunks(knowledge_scope, enabled);
+CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_version ON knowledge_chunks(index_version);
+
+CREATE TABLE IF NOT EXISTS rag_embedding_cache (
+  cache_key TEXT PRIMARY KEY,
+  model TEXT NOT NULL,
+  dimensions INTEGER NOT NULL,
+  content_hash TEXT NOT NULL,
+  vector_json TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  last_used_at TEXT NOT NULL,
+  UNIQUE(model, dimensions, content_hash)
+);
+CREATE INDEX IF NOT EXISTS idx_rag_embedding_cache_lookup
+  ON rag_embedding_cache(model, dimensions, content_hash);
+
+CREATE TABLE IF NOT EXISTS knowledge_gaps (
+  id TEXT PRIMARY KEY,
+  question_hash TEXT NOT NULL,
+  question_preview TEXT NOT NULL,
+  scenic_area TEXT NOT NULL DEFAULT 'general',
+  intent TEXT NOT NULL DEFAULT 'unknown',
+  reasons TEXT NOT NULL DEFAULT '[]',
+  sources TEXT NOT NULL DEFAULT '[]',
+  occurrence_count INTEGER NOT NULL DEFAULT 1,
+  status TEXT NOT NULL DEFAULT 'pending',
+  first_seen_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  confirmed_at TEXT,
+  dismissed_at TEXT,
+  UNIQUE(question_hash, scenic_area, intent)
+);
+CREATE INDEX IF NOT EXISTS idx_knowledge_gaps_status_frequency
+  ON knowledge_gaps(status, occurrence_count DESC, last_seen_at DESC);
+
+CREATE TABLE IF NOT EXISTS rag_experiment_state (
+  experiment_id TEXT PRIMARY KEY,
+  status TEXT NOT NULL DEFAULT 'active',
+  rollback_reason TEXT,
+  started_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  rolled_back_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS rag_experiment_events (
+  id TEXT PRIMARY KEY,
+  experiment_id TEXT NOT NULL,
+  session_hash TEXT NOT NULL,
+  message_id TEXT,
+  variant TEXT NOT NULL,
+  scenario TEXT,
+  refused INTEGER NOT NULL DEFAULT 0,
+  feedback_recorded INTEGER NOT NULL DEFAULT 0,
+  accepted INTEGER,
+  citation_count INTEGER NOT NULL DEFAULT 0,
+  citation_clicked INTEGER NOT NULL DEFAULT 0,
+  latency_ms REAL,
+  input_tokens INTEGER NOT NULL DEFAULT 0,
+  output_tokens INTEGER NOT NULL DEFAULT 0,
+  embedding_tokens INTEGER NOT NULL DEFAULT 0,
+  estimated_cost_usd REAL,
+  provider TEXT,
+  model TEXT,
+  index_version TEXT,
+  cached INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rag_experiment_variant_time
+  ON rag_experiment_events(experiment_id, variant, created_at);
+CREATE INDEX IF NOT EXISTS idx_rag_experiment_session_message
+  ON rag_experiment_events(experiment_id, session_hash, message_id);
+
+CREATE TABLE IF NOT EXISTS admin_audit_logs (
+  id TEXT PRIMARY KEY,
+  actor_id TEXT,
+  actor_role TEXT,
+  action TEXT NOT NULL,
+  target_type TEXT,
+  target_id TEXT,
+  status TEXT NOT NULL,
+  details TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_admin_audit_action_time
+  ON admin_audit_logs(action, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS knowledge_index_versions (
+  index_version TEXT PRIMARY KEY,
+  chunker_version TEXT NOT NULL,
+  generated_at TEXT NOT NULL,
+  document_count INTEGER NOT NULL DEFAULT 0,
+  chunk_count INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS tourist_behavior (
@@ -357,7 +519,139 @@ export function getDb() {
   db.pragma("foreign_keys = ON");
   migrate(db);
   seedReferenceData(db);
+  syncKnowledgeSnapshot(db, loadKnowledge());
   return db;
+}
+
+/**
+ * 将活动 JSON 快照的版本和分块元数据事务式同步到 SQLite，供一致性审计和后续迁移使用。
+ * JSON 仍是当前运行时只读快照；SQLite 保留可查询的版本与分块副本。
+ * @param {DatabaseLike} instance 数据库连接。
+ * @param {object|null} knowledge 知识快照。
+ * @returns {{indexVersion: string, chunks: number}|null} 同步摘要。
+ */
+export function syncKnowledgeSnapshot(instance, knowledge) {
+  if (!instance || !knowledge?.indexVersion || !Array.isArray(knowledge.chunks)) return null;
+  const write = instance.transaction(() => {
+    const documents = knowledge.documents || [];
+    const activeDocumentIds = new Set(documents.map((document) => document.id));
+    instance.prepare("UPDATE knowledge_index_versions SET active = 0 WHERE active = 1").run();
+    instance.prepare(
+      `INSERT OR REPLACE INTO knowledge_index_versions
+        (index_version, chunker_version, generated_at, document_count, chunk_count, active)
+       VALUES (?, ?, ?, ?, ?, 1)`
+    ).run(
+      knowledge.indexVersion,
+      knowledge.chunkerVersion || "legacy",
+      knowledge.generatedAt || new Date().toISOString(),
+      (knowledge.documents || []).length,
+      knowledge.chunks.length
+    );
+    const existingDocument = instance.prepare("SELECT id FROM knowledge_documents WHERE id = ?");
+    const insertDocument = instance.prepare(
+      `INSERT INTO knowledge_documents
+        (id, file_name, mime_type, file_type, content_hash, status, processing_stage,
+         knowledge_scope, access_scope, tenant_id, scenic_area, language, document_type, valid_from, valid_to,
+         enabled, index_version, chunk_count, created_at)
+       VALUES
+        (@id, @file_name, @mime_type, @file_type, @content_hash, @status, @processing_stage,
+         @knowledge_scope, @access_scope, @tenant_id, @scenic_area, @language, @document_type, @valid_from, @valid_to,
+         @enabled, @index_version, @chunk_count, @created_at)`
+    );
+    const updateDocument = instance.prepare(
+      `UPDATE knowledge_documents
+       SET file_name = @file_name, file_type = @file_type, content_hash = @content_hash,
+           status = @status, processing_stage = @processing_stage,
+           knowledge_scope = @knowledge_scope, access_scope = @access_scope, tenant_id = @tenant_id,
+           scenic_area = @scenic_area,
+           language = @language, document_type = @document_type, valid_from = @valid_from,
+           valid_to = @valid_to, enabled = @enabled, index_version = @index_version,
+           chunk_count = @chunk_count
+       WHERE id = @id`
+    );
+    for (const document of documents) {
+      const values = {
+        id: document.id,
+        file_name: document.fileName,
+        mime_type: document.mimeType || null,
+        file_type: document.fileType || null,
+        content_hash: document.contentHash || null,
+        status: document.status || "processed",
+        processing_stage: document.processingStage || document.status || "processed",
+        knowledge_scope: document.knowledgeScope || "visitor_qa",
+        access_scope: document.accessScope || "public",
+        tenant_id: document.tenantId || "default",
+        scenic_area: document.scenicArea || null,
+        language: document.language || "und",
+        document_type: document.documentType || document.fileType || null,
+        valid_from: document.validFrom || null,
+        valid_to: document.validTo || null,
+        enabled: document.enabled === false ? 0 : 1,
+        index_version: knowledge.indexVersion,
+        chunk_count: Number(document.chunkCount || 0),
+        created_at: document.createdAt || knowledge.generatedAt || new Date().toISOString()
+      };
+      if (existingDocument.get(document.id)) {
+        updateDocument.run(values);
+      } else {
+        insertDocument.run(values);
+      }
+    }
+    const uploadRows = instance.prepare(
+      "SELECT id FROM knowledge_documents WHERE stored_name IS NOT NULL"
+    ).all();
+    const clearInactiveUpload = instance.prepare(
+      "UPDATE knowledge_documents SET index_version = NULL, chunk_count = 0 WHERE id = ?"
+    );
+    for (const row of uploadRows) {
+      if (!activeDocumentIds.has(row.id)) clearInactiveUpload.run(row.id);
+    }
+    instance.prepare("DELETE FROM knowledge_chunks WHERE index_version = ?").run(knowledge.indexVersion);
+    const insert = instance.prepare(
+      `INSERT INTO knowledge_chunks
+        (id, document_id, scenic_spot_id, parent_id, title, section_path, content, keywords,
+         page, sheet_name, cell_range, row_start, row_end, knowledge_scope, access_scope, tenant_id, scenic_area,
+         language, document_type, valid_from, valid_to, enabled, index_version, content_hash,
+         embedding_ref, created_at)
+       VALUES
+        (@id, @document_id, @scenic_spot_id, @parent_id, @title, @section_path, @content, @keywords,
+         @page, @sheet_name, @cell_range, @row_start, @row_end, @knowledge_scope, @access_scope, @tenant_id, @scenic_area,
+         @language, @document_type, @valid_from, @valid_to, @enabled, @index_version, @content_hash,
+         @embedding_ref, @created_at)`
+    );
+    for (const chunk of knowledge.chunks) {
+      insert.run({
+        id: `${knowledge.indexVersion}:${chunk.id}`,
+        document_id: chunk.documentId,
+        scenic_spot_id: chunk.scenicSpotId || null,
+        parent_id: chunk.parentId || null,
+        title: chunk.title || null,
+        section_path: chunk.sectionPath || null,
+        content: chunk.content,
+        keywords: JSON.stringify(chunk.keywords || []),
+        page: chunk.page || null,
+        sheet_name: chunk.sheetName || null,
+        cell_range: chunk.range || null,
+        row_start: chunk.rowStart || null,
+        row_end: chunk.rowEnd || null,
+        knowledge_scope: chunk.knowledgeScope || "visitor_qa",
+        access_scope: chunk.accessScope || "public",
+        tenant_id: chunk.tenantId || "default",
+        scenic_area: chunk.scenicArea || null,
+        language: chunk.language || "und",
+        document_type: chunk.documentType || chunk.fileType || null,
+        valid_from: chunk.validFrom || null,
+        valid_to: chunk.validTo || null,
+        enabled: chunk.enabled === false ? 0 : 1,
+        index_version: knowledge.indexVersion,
+        content_hash: chunk.contentHash || null,
+        embedding_ref: chunk.embeddingRef || null,
+        created_at: knowledge.generatedAt || new Date().toISOString()
+      });
+    }
+  });
+  write();
+  return { indexVersion: knowledge.indexVersion, chunks: knowledge.chunks.length };
 }
 
 /**
@@ -376,8 +670,22 @@ export function migrate(instance) {
   }
   instance.exec(DDL);
   addMissingColumns(instance);
+  backfillLegacyKnowledgeScopes(instance);
+  backfillLegacyAccessScopes(instance);
   instance.exec(
     "CREATE INDEX IF NOT EXISTS idx_knowledge_documents_content_hash ON knowledge_documents(content_hash)"
+  );
+  instance.exec(
+    "CREATE INDEX IF NOT EXISTS idx_knowledge_documents_scope ON knowledge_documents(knowledge_scope, enabled)"
+  );
+  instance.exec(
+    "CREATE INDEX IF NOT EXISTS idx_knowledge_documents_index_version ON knowledge_documents(index_version)"
+  );
+  instance.exec(
+    "CREATE INDEX IF NOT EXISTS idx_knowledge_documents_access ON knowledge_documents(tenant_id, access_scope, enabled)"
+  );
+  instance.exec(
+    "CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_access ON knowledge_chunks(index_version, tenant_id, access_scope, enabled)"
   );
   return instance;
 }
@@ -409,7 +717,28 @@ function addMissingColumns(instance) {
       { name: "model_id", ddl: "model_id TEXT" }
     ],
     knowledge_documents: [
-      { name: "content_hash", ddl: "content_hash TEXT" }
+      { name: "content_hash", ddl: "content_hash TEXT" },
+      { name: "processing_stage", ddl: "processing_stage TEXT NOT NULL DEFAULT 'uploaded'" },
+      { name: "knowledge_scope", ddl: "knowledge_scope TEXT NOT NULL DEFAULT 'visitor_qa'" },
+      { name: "access_scope", ddl: "access_scope TEXT NOT NULL DEFAULT 'public'" },
+      { name: "tenant_id", ddl: "tenant_id TEXT NOT NULL DEFAULT 'default'" },
+      { name: "scenic_area", ddl: "scenic_area TEXT" },
+      { name: "language", ddl: "language TEXT" },
+      { name: "document_type", ddl: "document_type TEXT" },
+      { name: "valid_from", ddl: "valid_from TEXT" },
+      { name: "valid_to", ddl: "valid_to TEXT" },
+      { name: "enabled", ddl: "enabled INTEGER NOT NULL DEFAULT 1" },
+      { name: "error_code", ddl: "error_code TEXT" },
+      { name: "error_message", ddl: "error_message TEXT" },
+      { name: "attempt_count", ddl: "attempt_count INTEGER NOT NULL DEFAULT 0" },
+      { name: "started_at", ddl: "started_at TEXT" },
+      { name: "finished_at", ddl: "finished_at TEXT" },
+      { name: "index_version", ddl: "index_version TEXT" },
+      { name: "metadata", ddl: "metadata TEXT" }
+    ],
+    knowledge_chunks: [
+      { name: "access_scope", ddl: "access_scope TEXT NOT NULL DEFAULT 'public'" },
+      { name: "tenant_id", ddl: "tenant_id TEXT NOT NULL DEFAULT 'default'" }
     ]
   };
   for (const [table, columns] of Object.entries(additions)) {
@@ -420,6 +749,44 @@ function addMissingColumns(instance) {
       }
     }
   }
+}
+
+/**
+ * 将旧数据库中由新增列默认值误标为游客问答的运营资料重新隔离。
+ *
+ * 该迁移只匹配明确的行为分析或运营统计文件名，重复执行不会改变结果。
+ * @param {DatabaseLike} instance 数据库实例。
+ * @returns {number} 本次修正的文档数量。
+ */
+export function backfillLegacyKnowledgeScopes(instance) {
+  const result = instance.prepare(
+    `UPDATE knowledge_documents
+     SET knowledge_scope = 'operations_analytics'
+     WHERE knowledge_scope = 'visitor_qa'
+       AND (file_name LIKE '%行为分析%'
+         OR file_name LIKE '%游客行为%'
+         OR file_name LIKE '%消费分析%'
+         OR file_name LIKE '%运营统计%'
+         OR file_name LIKE '%旅游数据%')`
+  ).run();
+  return Number(result.changes || 0);
+}
+
+/**
+ * 将旧数据库中的非游客资料默认访问范围收紧为管理员，避免新增列默认值过宽。
+ * @param {DatabaseLike} instance 数据库实例。
+ * @returns {number} 修正文档与分块总数。
+ */
+export function backfillLegacyAccessScopes(instance) {
+  const documents = instance.prepare(
+    `UPDATE knowledge_documents SET access_scope = 'admin'
+     WHERE knowledge_scope <> 'visitor_qa' AND access_scope = 'public'`
+  ).run();
+  const chunks = instance.prepare(
+    `UPDATE knowledge_chunks SET access_scope = 'admin'
+     WHERE knowledge_scope <> 'visitor_qa' AND access_scope = 'public'`
+  ).run();
+  return Number(documents.changes || 0) + Number(chunks.changes || 0);
 }
 
 // Seed only the small reference rows the product needs to boot (default digital
