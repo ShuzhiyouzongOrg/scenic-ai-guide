@@ -48,6 +48,16 @@ function loadDotEnv(filePath) {
   }
 }
 
+/** @param {*} value JSON 环境变量。 @returns {object} 解析失败时为空对象。 */
+function parseJsonObject(value) {
+  try {
+    const parsed = JSON.parse(String(value || "{}"));
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
 loadDotEnv(resolve(process.env.CONFIG_ENV_FILE || resolve(process.cwd(), ".env")));
 
 /**
@@ -61,6 +71,7 @@ loadDotEnv(resolve(process.env.CONFIG_ENV_FILE || resolve(process.cwd(), ".env")
  *   adminUsername: string,
  *   adminPassword: string,
  *   jwtSecret: string,
+ *   rag: {minRuleScore: number, minBm25Score: number, minQueryCoverage: number, experiment: object},
  *   dataDir: string,
  *   uploadDir: string,
  *   demoMode: boolean,
@@ -85,6 +96,28 @@ export const config = {
   dataDir: resolve(process.cwd(), process.env.DATA_DIR || "./data"),
   uploadDir: resolve(process.cwd(), process.env.UPLOAD_DIR || "./data/uploads"),
   demoMode: String(process.env.DEMO_MODE || "true").toLowerCase() !== "false",
+  rag: {
+    minRuleScore: Math.max(0, Number(process.env.RAG_MIN_RULE_SCORE || 12)),
+    minBm25Score: Math.max(0, Number(process.env.RAG_MIN_BM25_SCORE || 0.35)),
+    minQueryCoverage: Math.min(1, Math.max(0, Number(process.env.RAG_MIN_QUERY_COVERAGE || 0))),
+    traceSampleRate: Math.min(1, Math.max(0, Number(process.env.RAG_TRACE_SAMPLE_RATE || 1))),
+    thresholdProfiles: parseJsonObject(process.env.RAG_THRESHOLD_PROFILES),
+    experiment: {
+      enabled: String(process.env.RAG_AB_ENABLED || "false").toLowerCase() === "true",
+      id: process.env.RAG_AB_EXPERIMENT_ID || "rag-retrieval-v1",
+      treatmentPercent: Math.min(100, Math.max(0, Number(process.env.RAG_AB_TREATMENT_PERCENT || 10))),
+      salt: process.env.RAG_AB_SALT || process.env.JWT_SECRET || "local-rag-experiment",
+      minSamples: Math.max(5, Number(process.env.RAG_AB_MIN_SAMPLES || 50)),
+      minFeedbackSamples: Math.max(3, Number(process.env.RAG_AB_MIN_FEEDBACK_SAMPLES || 15)),
+      maxP95Ratio: Math.max(1, Number(process.env.RAG_AB_MAX_P95_RATIO || 1.5)),
+      maxRefusalRateIncrease: Math.min(1, Math.max(0, Number(process.env.RAG_AB_MAX_REFUSAL_RATE_INCREASE || 0.1))),
+      maxAcceptanceRateDrop: Math.min(1, Math.max(0, Number(process.env.RAG_AB_MAX_ACCEPTANCE_RATE_DROP || 0.1))),
+      maxCostRatio: Math.max(1, Number(process.env.RAG_AB_MAX_COST_RATIO || 1.5)),
+      inputCostPerMillion: Math.max(0, Number(process.env.RAG_AB_INPUT_COST_PER_MILLION || 0)),
+      outputCostPerMillion: Math.max(0, Number(process.env.RAG_AB_OUTPUT_COST_PER_MILLION || 0)),
+      embeddingCostPerMillion: Math.max(0, Number(process.env.RAG_AB_EMBEDDING_COST_PER_MILLION || 0))
+    }
+  },
   providers: {
     llm: process.env.LLM_PROVIDER || "mock",
     asr: process.env.ASR_PROVIDER || "mock",

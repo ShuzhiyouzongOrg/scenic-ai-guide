@@ -4,9 +4,34 @@
  * @typedef {{intent: string, preferredTerms: string[], preferredDocuments: string[]}} RetrievalIntent
  * @typedef {{id: string, name: string, alias: string, confidence: number}} SpotMatch
  * @typedef {{chunkId: string, documentId: string, documentName: string, sectionTitle: string, scenicSpotId: string|null, scenicSpotName: string|null, quote: string}} Citation
- * @typedef {{id: string, score: number, title: string, content: string, source: string, documentId: string, scenicSpotId: string|null, scenicSpotName: string|null, keywords: string[], citation: Citation, reasons: string[]}} RetrievalResult
+ * @typedef {{id: string, score: number, title: string, content: string, contextContent?: string, parentContent?: string, parentChunkIds?: string[], source: string, documentId: string, scenicSpotId: string|null, scenicSpotName: string|null, keywords: string[], citation: Citation, reasons: string[]}} RetrievalResult
  */
-import { loadKnowledge } from "./knowledgeBuild.mjs";
+import { createHash } from "node:crypto";
+import { loadKnowledgeFromSqlite } from "./knowledgeRepository.mjs";
+import { getActiveKnowledgeVersion } from "./knowledgeBuild.mjs";
+import { config } from "../config.mjs";
+import { createRetrievalTraceId, recordRetrievalTrace } from "./retrievalTrace.mjs";
+import { detectOutOfScope } from "./guardrails.mjs";
+import { buildQueryPlan } from "./retrieval/query.mjs";
+import { buildBm25Index, searchBm25 } from "./retrieval/bm25.mjs";
+import { maximalMarginalRelevance, reciprocalRankFusion } from "./retrieval/fusion.mjs";
+import {
+  buildRemoteRagConfig,
+  embedTexts,
+  isRemoteDenseReady,
+  isRemoteRerankerReady,
+  queryQdrant,
+  rerankDocuments
+} from "./retrieval/remoteProviders.mjs";
+
+/** @type {Map<string, object>} 按知识版本缓存的 BM25 统计量。 */
+const bm25Indexes = new Map();
+/** @type {Map<string, object>} 版本化检索结果缓存。 */
+const retrievalCache = new Map();
+/** @type {number} 检索缓存上限。 */
+const MAX_RETRIEVAL_CACHE_ENTRIES = 500;
+/** @type {number} 检索缓存有效期。 */
+const RETRIEVAL_CACHE_TTL_MS = 10 * 60 * 1000;
 
 /** @type {Record<string, string[]>} 常见问题词到检索扩展词的多语言映射。 */
 const querySynonyms = {
@@ -244,6 +269,191 @@ export function hybridSearch(query, options = {}) {
 }
 
 /**
+ * 仅使用 BM25 通道检索，主要用于离线消融评测和回归门禁。
+ * @param {*} query 查询文本。
+ * @param {{limit?: number, locale?: string}} [options={}] 检索选项。
+ * @returns {object} 标准检索响应。
+ */
+export function bm25Search(query, options = {}) {
+  return searchKnowledge(query, {
+    ...options,
+    mode: "bm25"
+  });
+}
+
+/**
+ * 执行可降级的企业级混合检索。
+ *
+ * 远程配置完整时使用“规则/BM25 + Dense + RRF + Reranker”；缺少密钥、
+ * Qdrant 未同步、超时或限流时返回现有本地混合检索，不中断问答服务。
+ *
+ * @param {*} query 查询文本。
+ * @param {{limit?: number, locale?: string, scenicArea?: string, documentType?: string, knowledgeScope?: string, strictLanguage?: boolean}} [options={}] 检索选项。
+ * @param {{config?: object, fetchImpl?: typeof fetch}} [dependencies={}] 可注入远程配置和 fetch。
+ * @returns {Promise<object>} 带远程通道状态的检索响应。
+ */
+export async function hybridSearchAsync(query, options = {}, dependencies = {}) {
+  const config = dependencies.config || buildRemoteRagConfig();
+  const finalLimit = clamp(Number(options.limit || 5), 1, 20);
+  if (!isRemoteDenseReady(config)) {
+    return {
+      ...hybridSearch(query, { ...options, limit: finalLimit }),
+      remote: {
+        status: config.enabled ? "not_configured" : "disabled",
+        dense: false,
+        reranked: false,
+        degraded: false,
+        reason: config.enabled ? "remote_credentials_missing" : "remote_disabled"
+      }
+    };
+  }
+
+  const startedAt = performance.now();
+  const candidateLimit = Math.max(finalLimit, config.candidateLimit || 20);
+  const local = hybridSearch(query, { ...options, limit: candidateLimit });
+  const knowledge = loadKnowledgeFromSqlite();
+  const activeIndexVersion = local.indexVersion || knowledge?.indexVersion || getActiveKnowledgeVersion();
+  const chunkById = new Map((knowledge?.chunks || [])
+    .filter((chunk) => passesMetadataFilter(chunk, options))
+    .map((chunk) => [chunk.id, chunk]));
+  try {
+    const queryPlan = buildQueryPlan(query);
+    const denseQueries = queryPlan.subQueries?.length > 1
+      ? queryPlan.subQueries.slice(0, 3)
+      : [queryPlan.original];
+    const embeddingStartedAt = performance.now();
+    const embedded = await withTimeout(
+      embedTexts(denseQueries, config, { fetchImpl: dependencies.fetchImpl }),
+      config.subqueryTimeoutMs,
+      "SUBQUERY_TIMEOUT"
+    );
+    const embeddingMs = performance.now() - embeddingStartedAt;
+    const vectorStartedAt = performance.now();
+    const denseRowsByQuery = await withTimeout(Promise.all(embedded.vectors.map((vector) => (
+      queryQdrant(vector, config, {
+        limit: candidateLimit,
+        indexVersion: activeIndexVersion,
+        knowledgeScope: options.knowledgeScope || "visitor_qa",
+        accessScopes: normalizeAccessScopes(options.accessScopes),
+        tenantId: options.tenantId || "default",
+        scenicArea: options.scenicArea || null,
+        documentType: options.documentType || null,
+        language: options.strictLanguage ? options.locale || null : null
+      }, { fetchImpl: dependencies.fetchImpl })
+    ))), config.subqueryTimeoutMs, "SUBQUERY_TIMEOUT");
+    const vectorMs = performance.now() - vectorStartedAt;
+    const lexical = local.results
+      .map((result) => ({
+        chunk: chunkById.get(result.id),
+        score: result.score,
+        reasons: result.reasons || [],
+        channel: "lexical"
+      }))
+      .filter((item) => item.chunk);
+    const denseLists = denseRowsByQuery.map((rows, queryIndex) => rows.map((row) => ({
+        chunk: chunkById.get(row.chunkId),
+        score: row.score,
+        reasons: [`Dense语义相似度：${row.score.toFixed(4)}`],
+        channel: `dense_subquery_${queryIndex + 1}`
+      }))
+      .filter((item) => item.chunk));
+    const dense = reciprocalRankFusion(denseLists, { limit: candidateLimit })
+      .map((item) => ({ ...item, channel: "dense" }));
+    let fused = reciprocalRankFusion([lexical, dense], { limit: candidateLimit });
+    let reranked = false;
+    let rerankMs = 0;
+    let rerankFailure = null;
+    if (fused.length > 0 && isRemoteRerankerReady(config)) {
+      const rerankStartedAt = performance.now();
+      try {
+        const order = await rerankDocuments(
+          String(query || ""),
+          fused.map((item) => `${item.chunk.title}\n${item.chunk.content}`),
+          config,
+          { topN: fused.length, fetchImpl: dependencies.fetchImpl }
+        );
+        const selected = new Set();
+        const ordered = [];
+        for (const result of order) {
+          const item = fused[result.index];
+          if (!item || selected.has(result.index)) continue;
+          selected.add(result.index);
+          ordered.push({
+            ...item,
+            score: result.score,
+            reasons: [...(item.reasons || []), `语义重排分：${result.score.toFixed(4)}`]
+          });
+        }
+        fused.forEach((item, index) => {
+          if (!selected.has(index)) ordered.push(item);
+        });
+        fused = ordered;
+        reranked = order.length > 0;
+      } catch (error) {
+        rerankFailure = error.code || "RERANK_REQUEST_FAILED";
+      } finally {
+        rerankMs = performance.now() - rerankStartedAt;
+      }
+    }
+    const ranked = maximalMarginalRelevance(applyFreshnessPreference(fused, local.intents || []), {
+      limit: finalLimit,
+      maxPerParent: options.maxPerParent || 2
+    });
+    const parentLookup = buildParentLookup(
+      (knowledge.chunks || []).filter((chunk) => passesMetadataFilter(chunk, options))
+    );
+    const results = ranked.map((item) => formatResult(item, knowledge.spots || [], parentLookup));
+    return {
+      ...local,
+      total: results.length,
+      results,
+      conflicts: detectConflictingFacts(results, local.intents || []),
+      channels: [
+        ...(local.channels || []),
+        { name: "dense", count: dense.length },
+        { name: "dense_subqueries", count: denseQueries.length },
+        { name: "remote_rrf", count: fused.length },
+        { name: "reranker", count: reranked ? fused.length : 0 }
+      ],
+      decision: results.length > 0
+        ? { answerable: true, reason: "candidate_found", blockedPlace: null }
+        : local.decision,
+      remote: {
+        status: rerankFailure ? "partial" : "ready",
+        dense: true,
+        reranked,
+        degraded: Boolean(rerankFailure),
+        reason: rerankFailure,
+        model: {
+          embedding: embedded.model,
+          reranker: reranked ? config.reranker.model : null
+        },
+        latencyMs: {
+          embedding: Number(embeddingMs.toFixed(3)),
+          vector: Number(vectorMs.toFixed(3)),
+          rerank: Number(rerankMs.toFixed(3)),
+          total: Number((performance.now() - startedAt).toFixed(3))
+        },
+        usage: embedded.usage,
+        queryCount: denseQueries.length
+      }
+    };
+  } catch (error) {
+    return {
+      ...hybridSearch(query, { ...options, limit: finalLimit }),
+      remote: {
+        status: "degraded",
+        dense: false,
+        reranked: false,
+        degraded: true,
+        reason: error.code || "REMOTE_RETRIEVAL_FAILED",
+        latencyMs: { total: Number((performance.now() - startedAt).toFixed(3)) }
+      }
+    };
+  }
+}
+
+/**
  * 执行共享检索流程：加载知识、规范化、分词、扩展、意图和实体识别、评分与格式化。
  * @private
  * @param {*} query 查询文本。
@@ -252,7 +462,7 @@ export function hybridSearch(query, options = {}) {
  * @throws {Error} 知识库未构建、查询为空或知识数据读取失败时抛出。
  */
 function searchKnowledge(query, options) {
-  const knowledge = loadKnowledge();
+  const knowledge = loadKnowledgeFromSqlite();
   if (!knowledge) {
     const error = new Error("Knowledge base has not been built.");
     error.statusCode = 409;
@@ -260,7 +470,8 @@ function searchKnowledge(query, options) {
     throw error;
   }
 
-  const normalizedQuery = normalize(query);
+  const queryPlan = buildQueryPlan(query);
+  const normalizedQuery = normalize(queryPlan.normalized);
   if (!normalizedQuery) {
     const error = new Error("Query is required.");
     error.statusCode = 400;
@@ -269,41 +480,349 @@ function searchKnowledge(query, options) {
   }
 
   const limit = clamp(Number(options.limit || 5), 1, 20);
+  const traceId = createRetrievalTraceId();
+  const traceStartedAt = Date.now();
+  const cacheKey = JSON.stringify({
+    indexVersion: knowledge.indexVersion || "legacy",
+    mode: options.mode,
+    queryHash: createHash("sha256").update(normalizedQuery).digest("hex").slice(0, 24),
+    limit,
+    locale: options.locale || null,
+    strictLanguage: options.strictLanguage === true,
+    knowledgeScope: options.knowledgeScope || "visitor_qa",
+    accessScopes: normalizeAccessScopes(options.accessScopes),
+    tenantId: options.tenantId || "default",
+    scenicArea: options.scenicArea || null,
+    documentType: options.documentType || null,
+    includeExpired: options.includeExpired === true
+  });
+  const cacheable = !containsSensitiveQuery(query);
+  const cached = cacheable ? retrievalCache.get(cacheKey) : null;
+  if (cached && cached.expiresAt > Date.now()) {
+    const response = structuredClone({ ...cached.response, cached: true, traceId });
+    recordRetrievalTrace({
+      traceId,
+      query,
+      ...response,
+      candidates: response.results.map((result, index) => ({
+        id: result.id,
+        rank: index + 1,
+        score: result.score,
+        channelRanks: result.channelRanks || []
+      })),
+      latencyMs: 0
+    });
+    return response;
+  }
+  if (cached) retrievalCache.delete(cacheKey);
   const tokens = tokenize(normalizedQuery);
-  const expandedTerms = expandTerms(tokens);
-  const intents = detectIntents(normalizedQuery, tokens);
+  const queryVariants = [...new Set([
+    ...queryPlan.variants,
+    ...(queryPlan.subQueries || [])
+  ].map((variant) => normalize(variant)).filter(Boolean))].slice(0, 6);
+  const variantTokens = [...new Set(queryVariants.flatMap((variant) => tokenize(variant)))];
+  const expandedTerms = expandTerms(variantTokens);
+  const intents = detectIntents(queryVariants.join(" "), variantTokens);
   const spotMatches = matchSpots(normalizedQuery, tokens, knowledge.spots);
-  const scored = knowledge.chunks
-    .map((chunk) => scoreChunk(chunk, {
-      query: normalizedQuery,
-      tokens,
-      expandedTerms,
-      intents,
-      spotMatches,
-      locale: options.locale,
-      mode: options.mode
-    }))
-    .filter((item) => item.score > 0)
-    .sort((left, right) => {
-      if (right.score !== left.score) {
-        return right.score - left.score;
-      }
-      return left.chunk.id.localeCompare(right.chunk.id);
-    })
-    .slice(0, limit)
-    .map((item) => formatResult(item, knowledge.spots));
+  const scopeDetection = detectOutOfScope(query);
+  const eligibleChunks = scopeDetection.outOfScope
+    ? []
+    : (knowledge.chunks || []).filter((chunk) => passesMetadataFilter(chunk, options));
+  const ruleQueries = queryPlan.subQueries?.length > 1 ? queryPlan.subQueries : [normalizedQuery];
+  const ruleScored = mergeSubqueryScores(ruleQueries.map((subQuery, index) => {
+    const subTokens = tokenize(normalize(subQuery));
+    const subIntents = detectIntents(normalize(subQuery), subTokens);
+    const subSpots = matchSpots(normalize(subQuery), subTokens, knowledge.spots);
+    return eligibleChunks
+      .map((chunk) => scoreChunk(chunk, {
+        query: normalize(subQuery),
+        tokens: subTokens,
+        expandedTerms: expandTerms(subTokens),
+        intents: subIntents,
+        spotMatches: subSpots,
+        locale: options.locale,
+        mode: options.mode
+      }))
+      .filter((item) => item.score > 0)
+      .map((item) => ({ ...item, channel: `rule_subquery_${index + 1}` }));
+  }), Math.max(limit * 10, 20));
 
-  return {
+  let ranked;
+  let channels = [{ name: "rule", count: ruleScored.length }];
+  if (options.mode === "hybrid") {
+    const bm25Index = getBm25Index(knowledge, eligibleChunks);
+    const bm25Lists = queryVariants.map((variant, index) => searchBm25(bm25Index, variant, {
+      limit: Math.max(limit * 10, 20)
+    }).map((item) => ({ ...item, channel: `bm25_rewrite_${index + 1}` })));
+    const bm25 = reciprocalRankFusion(bm25Lists, { limit: Math.max(limit * 10, 20) })
+      .map((item) => ({ ...item, channel: "bm25" }));
+    const preferRuleChannel = shouldPreferRuleChannel(intents, spotMatches);
+    const fusedBase = reciprocalRankFusion([[
+      ...ruleScored.map((item) => ({ ...item, channel: "rule" }))
+    ], bm25], {
+      limit: Math.max(limit * 8, 20),
+      // Use intent/entity evidence to preserve deterministic exact-match
+      // strengths while BM25 remains dominant for broad semantic facts.
+      weights: preferRuleChannel ? [1.65, 0.35] : [0.35, 1.65]
+    });
+    const maxRuleScore = Math.max(...ruleScored.map((item) => item.score), 1);
+    const maxBm25Score = Math.max(...bm25.map((item) => item.score), 1);
+    const ruleScores = new Map(ruleScored.map((item) => [item.chunk.id, item.score]));
+    const bm25Scores = new Map(bm25.map((item) => [item.chunk.id, item.score]));
+    const fused = fusedBase
+      .map((item) => ({
+        ...item,
+        // Use the measured strongest lexical channel as the deterministic
+        // tie-breaker while weighted RRF remains the primary fusion score.
+        score: item.score
+          + ((ruleScores.get(item.chunk.id) || 0) / maxRuleScore) * (preferRuleChannel ? 0.02 : 0.002)
+          + ((bm25Scores.get(item.chunk.id) || 0) / maxBm25Score) * (preferRuleChannel ? 0.002 : 0.02)
+      }))
+      .sort((left, right) => right.score - left.score || left.chunk.id.localeCompare(right.chunk.id));
+    ranked = maximalMarginalRelevance(applyFreshnessPreference(fused, intents), {
+      limit,
+      maxPerParent: options.maxPerParent || 2
+    });
+    channels = [
+      { name: "rule", count: ruleScored.length },
+      { name: "bm25", count: bm25.length },
+      { name: "rrf", count: fused.length },
+      { name: "mmr", count: ranked.length }
+    ];
+  } else if (options.mode === "bm25") {
+    const bm25Index = getBm25Index(knowledge, eligibleChunks);
+    const bm25Lists = queryVariants.map((variant, index) => searchBm25(bm25Index, variant, {
+      limit: Math.max(limit * 10, 20)
+    }).map((item) => ({ ...item, channel: `bm25_rewrite_${index + 1}` })));
+    const bm25 = reciprocalRankFusion(bm25Lists, { limit: Math.max(limit * 8, 20) })
+      .map((item) => ({ ...item, channel: "bm25" }));
+    ranked = maximalMarginalRelevance(applyFreshnessPreference(bm25, intents), {
+      limit,
+      maxPerParent: options.maxPerParent || 2
+    });
+    channels = [
+      { name: "bm25", count: bm25.length },
+      { name: "mmr", count: ranked.length }
+    ];
+  } else {
+    ranked = applyFreshnessPreference(ruleScored, intents).slice(0, limit);
+  }
+  const parentLookup = buildParentLookup(eligibleChunks);
+  const results = ranked.map((item) => formatResult(item, knowledge.spots, parentLookup));
+  const conflicts = detectConflictingFacts(results, intents);
+  const strongestRuleScore = ranked.reduce((max, item) => Math.max(
+    max,
+    ...(item.channels || [])
+      .filter((channel) => channel.channel === "rule")
+      .map((channel) => Number(channel.score || 0))
+  ), 0);
+  const strongestBm25Score = ranked.reduce((max, item) => Math.max(
+    max,
+    ...(item.channels || [])
+      .filter((channel) => channel.channel === "bm25")
+      .map((channel) => Number(channel.score || 0))
+  ), 0);
+  const topEvidenceText = results
+    .slice(0, 3)
+    .map((item) => `${item.title} ${item.content}`)
+    .join(" ");
+  const evidenceCoverage = queryCoverage(tokens, topEvidenceText);
+  const thresholds = resolveDecisionThresholds(options.locale, intents);
+  const hasIndependentEvidence = strongestRuleScore >= thresholds.minRuleScore
+    || strongestBm25Score >= thresholds.minBm25Score
+    || spotMatches.some((match) => match.confidence >= 0.8);
+  const decisionReason = scopeDetection.outOfScope
+    ? "scope_blocked"
+    : results.length === 0
+      ? "no_candidate"
+      : evidenceCoverage < thresholds.minQueryCoverage
+        ? "missing_fact"
+        : !hasIndependentEvidence
+          ? "low_relevance"
+          : "candidate_found";
+
+  const response = {
+    traceId,
     query,
     mode: options.mode,
     locale: options.locale || null,
-    tokens,
+    indexVersion: knowledge.indexVersion || getActiveKnowledgeVersion(),
+    filters: {
+      knowledgeScope: options.knowledgeScope || "visitor_qa",
+      accessScopes: normalizeAccessScopes(options.accessScopes),
+      tenantId: options.tenantId || "default",
+      scenicArea: options.scenicArea || null,
+      documentType: options.documentType || null,
+      strictLanguage: options.strictLanguage === true,
+      includeExpired: options.includeExpired === true
+    },
+    tokens: variantTokens,
     expandedTerms,
+    queryPlan,
     intents,
     spotMatches,
-    total: scored.length,
-    results: scored
+    conflicts,
+    channels,
+    confidence: {
+      strongestRuleScore,
+      strongestBm25Score,
+      topScore: results[0]?.score || 0,
+      evidenceCoverage
+    },
+    decision: {
+      answerable: decisionReason === "candidate_found",
+      reason: decisionReason,
+      blockedPlace: scopeDetection.place || null,
+      thresholds: {
+        ...thresholds
+      }
+    },
+    total: results.length,
+    results
   };
+  if (cacheable) {
+    if (retrievalCache.size >= MAX_RETRIEVAL_CACHE_ENTRIES) {
+      const oldestKey = retrievalCache.keys().next().value;
+      if (oldestKey) retrievalCache.delete(oldestKey);
+    }
+    retrievalCache.set(cacheKey, {
+      response,
+      expiresAt: Date.now() + RETRIEVAL_CACHE_TTL_MS
+    });
+  }
+  recordRetrievalTrace({
+    traceId,
+    query,
+    ...response,
+    candidates: response.results.map((result, index) => ({
+      id: result.id,
+      rank: index + 1,
+      score: result.score,
+      channelRanks: result.channelRanks || []
+    })),
+    latencyMs: Date.now() - traceStartedAt
+  });
+  return structuredClone({ ...response, cached: false });
+}
+
+/**
+ * 按 locale 与主意图读取审计过的阈值覆盖，缺失字段回退全局默认值。
+ * @param {*} locale 请求语言。
+ * @param {object[]} intents 检索意图。
+ * @returns {{minRuleScore: number, minBm25Score: number, minQueryCoverage: number, profile: string}}
+ */
+function resolveDecisionThresholds(locale, intents = []) {
+  const localeKey = String(locale || "default");
+  const intentKey = String(intents[0]?.intent || "default");
+  const profiles = config.rag.thresholdProfiles || {};
+  const selected = profiles[localeKey]?.[intentKey]
+    || profiles[localeKey]?.default
+    || profiles.default?.[intentKey]
+    || profiles.default?.default
+    || {};
+  return {
+    minRuleScore: Math.max(0, Number(selected.minRuleScore ?? config.rag.minRuleScore)),
+    minBm25Score: Math.max(0, Number(selected.minBm25Score ?? config.rag.minBm25Score)),
+    minQueryCoverage: Math.min(1, Math.max(0, Number(selected.minQueryCoverage ?? config.rag.minQueryCoverage))),
+    profile: Object.keys(selected).length > 0 ? `${localeKey}:${intentKey}` : "global"
+  };
+}
+
+/**
+ * 根据调参集中的稳定意图选择加权 RRF 主通道。
+ * 精确票务、路线和演出规则拥有结构化业务权重；历史、亲子等开放问法优先 BM25。
+ * @param {object[]} intents 检索意图。
+ * @param {object[]} spotMatches 景点实体命中。
+ * @returns {boolean} 是否让规则通道承担主排序。
+ */
+function shouldPreferRuleChannel(intents = [], spotMatches = []) {
+  const names = new Set(intents.map((item) => item.intent));
+  if (["ticket", "route", "performance_time"].some((intent) => names.has(intent))) return true;
+  if (["history", "family_route", "highlight"].some((intent) => names.has(intent))) return false;
+  return names.size === 0 && spotMatches.some((item) => item.confidence >= 0.9);
+}
+
+/**
+ * 根据用途、启用状态、景区、语言和生效日期过滤候选，过滤发生在所有检索通道之前。
+ * @private
+ * @param {object} chunk 知识分块。
+ * @param {object} options 检索选项。
+ * @returns {boolean} 允许参与检索时为 `true`。
+ */
+function passesMetadataFilter(chunk, options) {
+  const scope = chunk.knowledgeScope || "visitor_qa";
+  if (scope !== (options.knowledgeScope || "visitor_qa")) return false;
+  if ((chunk.tenantId || "default") !== (options.tenantId || "default")) return false;
+  if (!normalizeAccessScopes(options.accessScopes).includes(chunk.accessScope || "public")) return false;
+  if (chunk.enabled === false) return false;
+  if (options.scenicArea && (chunk.scenicArea || "") !== options.scenicArea) return false;
+  if (options.documentType && (chunk.documentType || chunk.fileType || "") !== options.documentType) return false;
+  if (options.strictLanguage && options.locale && !languageMatches(chunk.language, options.locale)) return false;
+  if (chunk.validFrom && new Date(chunk.validFrom).getTime() > Date.now()) return false;
+  if (options.includeExpired !== true && chunk.validTo && new Date(chunk.validTo).getTime() < Date.now()) return false;
+  return true;
+}
+
+/**
+ * 返回不含原始问题的缓存统计，供测试和管理观测。
+ * @returns {{size: number, keys: string[]}}
+ */
+export function getRetrievalCacheStats() {
+  return { size: retrievalCache.size, keys: [...retrievalCache.keys()] };
+}
+
+/** 清空检索缓存。 @returns {void} */
+export function clearRetrievalCache() {
+  retrievalCache.clear();
+}
+
+/** @param {*} values 允许访问范围。 @returns {string[]} 规范化范围。 */
+function normalizeAccessScopes(values) {
+  const scopes = Array.isArray(values) ? values.map(String).filter(Boolean) : [];
+  return scopes.length > 0 ? [...new Set(scopes)] : ["public"];
+}
+
+/** @param {*} query 查询。 @returns {boolean} 是否含不应进入缓存键或缓存值的个人信息。 */
+function containsSensitiveQuery(query) {
+  const text = String(query || "");
+  return /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/u.test(text)
+    || /\b1\d{10}\b/u.test(text)
+    || /\b\d{17}[\dXx]\b/u.test(text)
+    || /(?:身份证|手机号|电话|邮箱)\s*[:：]?\s*[\w@.+-]{5,}/u.test(text);
+}
+
+/**
+ * 判断文档语言与请求语言是否相同或属于同一语言族。
+ * @private
+ * @param {*} documentLanguage 分块语言。
+ * @param {*} requestedLocale 请求语言。
+ * @returns {boolean} 语种一致或同族时为 `true`。
+ */
+function languageMatches(documentLanguage, requestedLocale) {
+  const documentCode = String(documentLanguage || "und").toLowerCase();
+  const requestedCode = String(requestedLocale || "").toLowerCase();
+  if (!requestedCode || documentCode === "und") return false;
+  return documentCode === requestedCode
+    || documentCode.split("-")[0] === requestedCode.split("-")[0];
+}
+
+/**
+ * 按知识版本复用 BM25 索引，版本变化时自动丢弃旧统计量。
+ * @private
+ * @param {object} knowledge 知识快照。
+ * @param {object[]} chunks 已过滤分块。
+ * @returns {object} BM25索引。
+ */
+function getBm25Index(knowledge, chunks) {
+  const version = knowledge.indexVersion || "legacy";
+  const signature = chunks.map((chunk) => chunk.id).join("\u001f");
+  const cacheKey = `${version}:${signature}`;
+  const cached = bm25Indexes.get(cacheKey);
+  if (cached) return cached;
+  const index = buildBm25Index(chunks);
+  bm25Indexes.clear();
+  bm25Indexes.set(cacheKey, index);
+  return index;
 }
 
 /**
@@ -320,7 +839,7 @@ function scoreChunk(chunk, context) {
   const reasons = [];
   let score = 0;
 
-  if (context.locale && chunk.language === context.locale) {
+  if (context.locale && languageMatches(chunk.language, context.locale)) {
     score += 30;
     reasons.push(`语种匹配：${context.locale}`);
   }
@@ -449,19 +968,35 @@ function scoreDirectIntent(chunk, intent) {
  * @param {object[]} spots 景点知识列表。
  * @returns {RetrievalResult} 对外检索结果。
  */
-function formatResult(item, spots) {
+function formatResult(item, spots, parentLookup = new Map()) {
   const spot = spots.find((candidate) => candidate.id === item.chunk.scenicSpotId);
   const citation = createCitation(item.chunk, spot);
+  const parent = parentLookup.get(item.chunk.parentId || item.chunk.id);
   return {
     id: item.chunk.id,
     score: item.score,
     title: item.chunk.title,
     content: item.chunk.content,
+    contextContent: parent?.content || item.chunk.content,
+    parentContent: parent?.content || item.chunk.content,
+    parentChunkIds: parent?.chunkIds || [item.chunk.id],
     source: item.chunk.source,
     documentId: item.chunk.documentId,
     scenicSpotId: item.chunk.scenicSpotId,
     scenicSpotName: spot?.name || null,
     keywords: item.chunk.keywords || [],
+    parentId: item.chunk.parentId || null,
+    sectionPath: item.chunk.sectionPath || null,
+    page: item.chunk.page || null,
+    sheetName: item.chunk.sheetName || null,
+    range: item.chunk.range || null,
+    rowStart: item.chunk.rowStart || null,
+    rowEnd: item.chunk.rowEnd || null,
+    knowledgeScope: item.chunk.knowledgeScope || "visitor_qa",
+    documentType: item.chunk.documentType || item.chunk.fileType || null,
+    indexVersion: item.chunk.indexVersion || null,
+    channelRanks: item.channels || [],
+    mmrScore: item.mmrScore ?? null,
     citation,
     reasons: item.reasons
   };
@@ -476,14 +1011,176 @@ function formatResult(item, spots) {
  */
 function createCitation(chunk, spot) {
   return {
+    citationId: `C-${chunk.id}`,
     chunkId: chunk.id,
     documentId: chunk.documentId,
     documentName: chunk.source,
     sectionTitle: chunk.title,
     scenicSpotId: chunk.scenicSpotId,
     scenicSpotName: spot?.name || null,
-    quote: summarizeCitation(chunk.content)
+    quote: summarizeCitation(chunk.content),
+    page: chunk.page || null,
+    sheetName: chunk.sheetName || null,
+    range: chunk.range || null,
+    rowStart: chunk.rowStart || null,
+    rowEnd: chunk.rowEnd || null,
+    indexVersion: chunk.indexVersion || null
   };
+}
+
+/**
+ * 检测多个候选来源对同一类时间或价格事实给出不同值的情况。
+ * 过期内容已在候选过滤阶段排除；仍然同时有效的不同来源只记录冲突，不擅自合并。
+ * @param {object[]} results 已格式化候选。
+ * @param {object[]} intents 当前查询意图。
+ * @returns {Array<{field: string, values: string[], citations: string[]}>} 冲突审计摘要。
+ */
+export function detectConflictingFacts(results, intents = []) {
+  const fields = [];
+  if (intents.some((intent) => ["open_time", "performance_time"].includes(intent.intent))) {
+    fields.push({ name: "time", pattern: /\b\d{1,2}:\d{2}\b/gu });
+  }
+  if (intents.some((intent) => intent.intent === "ticket")) {
+    fields.push({ name: "price", pattern: /\b\d+(?:\.\d+)?\s*元\b/gu });
+  }
+  fields.push({
+    name: "opening_status",
+    pattern: /(?:临时闭园|临时关闭|暂停开放|暂停营业|正常开放|恢复开放|闭馆)/gu
+  });
+  return fields.flatMap(({ name, pattern }) => {
+    const values = new Map();
+    for (const result of results.slice(0, 8)) {
+      const facts = [...new Set(String(result.content || "").match(pattern) || [])];
+      for (const fact of facts) {
+        const entry = values.get(fact) || [];
+        entry.push(result.citation?.citationId || result.id);
+        values.set(fact, entry);
+      }
+    }
+    if (values.size <= 1) return [];
+    return [{
+      field: name,
+      values: [...values.keys()],
+      citations: [...new Set([...values.values()].flat())]
+    }];
+  });
+}
+
+/**
+ * 对票价、开放和演出类候选施加受限时效加权，只作为相关性相近时的次级排序。
+ * 已过期资料仍由元数据过滤器直接排除。
+ * @param {object[]} candidates 内部候选。
+ * @param {object[]} intents 查询意图。
+ * @returns {object[]} 带时效理由的候选副本。
+ */
+export function applyFreshnessPreference(candidates, intents = []) {
+  const timeSensitive = intents.some((intent) => ["ticket", "open_time", "performance_time"].includes(intent.intent));
+  if (!timeSensitive || candidates.length < 2) return candidates;
+  const timestamps = candidates.map((candidate) => Date.parse(
+    candidate.chunk.validFrom || candidate.chunk.updatedAt || candidate.chunk.createdAt || ""
+  ));
+  const finite = timestamps.filter(Number.isFinite);
+  if (finite.length < 2) return candidates;
+  const oldest = Math.min(...finite);
+  const newest = Math.max(...finite);
+  if (newest <= oldest) return candidates;
+  const maxScore = Math.max(...candidates.map((candidate) => Math.abs(Number(candidate.score) || 0)), 1);
+  return candidates.map((candidate, index) => {
+    const timestamp = timestamps[index];
+    if (!Number.isFinite(timestamp)) return candidate;
+    const freshness = (timestamp - oldest) / (newest - oldest);
+    return {
+      ...candidate,
+      score: Number(candidate.score || 0) + maxScore * 0.03 * freshness,
+      reasons: freshness > 0
+        ? [...(candidate.reasons || []), `有效资料时效加权：${new Date(timestamp).toISOString().slice(0, 10)}`]
+        : candidate.reasons || []
+    };
+  }).sort((left, right) => right.score - left.score || left.chunk.id.localeCompare(right.chunk.id));
+}
+
+/**
+ * 合并多个子问题的规则检索结果，保留同一 child 的最高相关性与全部理由。
+ * @private
+ * @param {Array<Array<{chunk: object, score: number, reasons: string[], channel: string}>>} rankedLists 子问题排序列表。
+ * @param {number} limit 最大候选数。
+ * @returns {Array<{chunk: object, score: number, reasons: string[], channels: object[]}>} 合并候选。
+ */
+function mergeSubqueryScores(rankedLists, limit) {
+  const merged = new Map();
+  for (const list of rankedLists) {
+    for (const item of list) {
+      const current = merged.get(item.chunk.id) || {
+        chunk: item.chunk,
+        score: 0,
+        reasons: [],
+        channels: []
+      };
+      current.score = Math.max(current.score, item.score);
+      current.reasons.push(...(item.reasons || []));
+      current.channels.push({
+        channel: item.channel,
+        score: item.score
+      });
+      merged.set(item.chunk.id, current);
+    }
+  }
+  return [...merged.values()]
+    .map((item) => ({ ...item, reasons: [...new Set(item.reasons)] }))
+    .sort((left, right) => right.score - left.score || left.chunk.id.localeCompare(right.chunk.id))
+    .slice(0, limit);
+}
+
+/**
+ * 按 parentId 聚合同一章节、页、工作表或景点的 child 分块。
+ *
+ * 检索排序仍然以 child 为单位，因此引用可以精确指向命中的页码、行号或
+ * child ID；提示词使用 `contextContent` 回取 parent，获得完整上下文。
+ * 只从已通过元数据过滤的分块构建，避免禁用或跨范围资料被带回。
+ * @private
+ * @param {object[]} chunks 已过滤的知识分块。
+ * @returns {Map<string, {content: string, chunkIds: string[]}>} parent 内容索引。
+ */
+function buildParentLookup(chunks) {
+  const grouped = new Map();
+  for (const chunk of chunks) {
+    const parentId = chunk.parentId || chunk.id;
+    const entry = grouped.get(parentId) || { chunks: [] };
+    entry.chunks.push(chunk);
+    grouped.set(parentId, entry);
+  }
+
+  return new Map([...grouped.entries()].map(([parentId, entry]) => {
+    const ordered = [...entry.chunks].sort((left, right) => left.id.localeCompare(right.id, undefined, { numeric: true }));
+    const content = ordered.reduce((combined, chunk) => appendParentContent(combined, chunk.content), "").trim();
+    return [parentId, {
+      content: content || ordered[0]?.content || "",
+      chunkIds: ordered.map((chunk) => chunk.id)
+    }];
+  }));
+}
+
+/**
+ * 合并带重叠窗口的 child 正文，去掉相邻块之间的重复前缀。
+ * @private
+ * @param {string} current 已合并正文。
+ * @param {*} next 下一个 child 正文。
+ * @returns {string} 合并后的正文。
+ */
+function appendParentContent(current, next) {
+  const value = String(next || "").trim();
+  if (!current) return value;
+  if (!value) return current;
+
+  const normalizedCurrent = current.replace(/\s+$/u, "");
+  const normalizedNext = value.replace(/^\s+/u, "");
+  const maxOverlap = Math.min(160, normalizedCurrent.length, normalizedNext.length);
+  for (let length = maxOverlap; length >= 24; length -= 1) {
+    if (normalizedCurrent.endsWith(normalizedNext.slice(0, length))) {
+      return `${normalizedCurrent}${normalizedNext.slice(length)}`;
+    }
+  }
+  return `${normalizedCurrent}\n${normalizedNext}`;
 }
 
 /**
@@ -792,4 +1489,29 @@ function clamp(value, min, max) {
     return min;
   }
   return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * 为复合检索阶段设置总预算，避免多个子问题把远程等待时间线性放大。
+ * @private
+ * @template T
+ * @param {Promise<T>} promise 待限制的异步任务。
+ * @param {number} timeoutMs 总预算毫秒数。
+ * @param {string} code 稳定错误码。
+ * @returns {Promise<T>} 原任务结果。
+ */
+async function withTimeout(promise, timeoutMs, code) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const error = new Error(`Retrieval stage exceeded ${timeoutMs}ms.`);
+      error.code = code;
+      reject(error);
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
