@@ -64,6 +64,21 @@
         "summary": "Upload a knowledge file using base64 content; DOCX, Markdown and text files are indexed immediately"
       }
     },
+    "/api/uploads/{id}": {
+      "put": {
+        "summary": "Enable or disable one uploaded knowledge document in the active RAG index"
+      }
+    },
+    "/api/uploads/{id}/reprocess": {
+      "post": {
+        "summary": "Reprocess one failed or OCR-pending visitor QA document"
+      }
+    },
+    "/api/uploads/{id}/citations": {
+      "get": {
+        "summary": "List active-index citation locations for one uploaded knowledge document"
+      }
+    },
     "/api/uploads/{id}/preview": {
       "get": {
         "summary": "Preview uploaded Markdown, text or DOCX content as plain text"
@@ -89,6 +104,16 @@
         "summary": "Rebuild local Lingshan knowledge assets from official DOCX and supplemental Markdown files"
       }
     },
+    "/api/admin/knowledge/index-versions": {
+      "get": {
+        "summary": "List validated knowledge index snapshots and the active version"
+      }
+    },
+    "/api/admin/knowledge/index-versions/{version}/activate": {
+      "post": {
+        "summary": "Atomically activate a validated historical knowledge snapshot and audit the operation"
+      }
+    },
     "/api/scenic-spots": {
       "get": {
         "summary": "List structured Lingshan scenic spots"
@@ -102,6 +127,41 @@
     "/api/knowledge/search": {
       "post": {
         "summary": "Search generated knowledge chunks by keyword or hybrid scoring"
+      }
+    },
+    "/api/admin/knowledge-gaps": {
+      "get": {
+        "summary": "List aggregated unanswered, low-relevance and low-satisfaction questions for human review"
+      }
+    },
+    "/api/admin/knowledge-gaps/export": {
+      "get": {
+        "summary": "Export the knowledge-gap queue as a formula-safe UTF-8 CSV"
+      }
+    },
+    "/api/admin/knowledge-gaps/{id}": {
+      "put": {
+        "summary": "Mark a knowledge gap pending, confirmed or dismissed without writing it into the knowledge index"
+      }
+    },
+    "/api/admin/rag-experiment": {
+      "get": {
+        "summary": "Return anonymous control/treatment quality metrics and automatic rollback state"
+      }
+    },
+    "/api/admin/rag-experiment/reset": {
+      "post": {
+        "summary": "Clear the current experiment metrics and reactivate traffic allocation"
+      }
+    },
+    "/api/admin/audit-logs": {
+      "get": {
+        "summary": "List sanitized audit records for privileged knowledge operations"
+      }
+    },
+    "/api/rag/citation-click": {
+      "post": {
+        "summary": "Record an anonymous citation click for the current answer"
       }
     },
     "/api/chat/ask": {

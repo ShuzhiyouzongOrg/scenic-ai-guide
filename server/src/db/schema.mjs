@@ -54,8 +54,42 @@ export const schema = {
       file_name: "text not null",
       file_type: "text not null",
       status: "text not null",
+      processing_stage: "text not null",
+      knowledge_scope: "text not null",
+      access_scope: "public, authenticated, admin or internal",
+      tenant_id: "text not null",
+      scenic_area: "text",
+      language: "text",
+      document_type: "text",
+      valid_from: "datetime",
+      valid_to: "datetime",
+      enabled: "boolean",
+      error_code: "text",
+      error_message: "text",
+      attempt_count: "integer",
+      started_at: "datetime",
+      finished_at: "datetime",
+      index_version: "text",
       chunk_count: "integer default 0",
       created_at: "datetime not null"
+    }
+  },
+  knowledgeProcessingTasks: {
+    description: "Restartable asynchronous document parsing tasks.",
+    columns: {
+      id: "text primary key",
+      document_id: "text not null",
+      task_type: "text not null",
+      content_hash: "text not null",
+      status: "text not null",
+      external_job_id: "text",
+      attempts: "integer not null",
+      next_attempt_at: "datetime not null",
+      lease_until: "datetime",
+      last_error_code: "text",
+      result_metadata: "json",
+      created_at: "datetime not null",
+      updated_at: "datetime not null"
     }
   },
   knowledgeChunks: {
@@ -67,7 +101,113 @@ export const schema = {
       title: "text",
       content: "text not null",
       keywords: "json",
+      parent_id: "text",
+      section_path: "text",
+      page: "integer",
+      sheet_name: "text",
+      cell_range: "text",
+      row_start: "integer",
+      row_end: "integer",
+      knowledge_scope: "text",
+      access_scope: "public, authenticated, admin or internal",
+      tenant_id: "text",
+      scenic_area: "text",
+      language: "text",
+      document_type: "text",
+      valid_from: "datetime",
+      valid_to: "datetime",
+      enabled: "boolean",
+      index_version: "text",
+      content_hash: "text",
       embedding_ref: "text",
+      created_at: "datetime not null"
+    }
+  },
+  knowledgeIndexVersions: {
+    description: "Validated knowledge snapshot versions and active pointer history.",
+    columns: {
+      index_version: "text primary key",
+      chunker_version: "text not null",
+      generated_at: "datetime not null",
+      document_count: "integer",
+      chunk_count: "integer",
+      active: "boolean"
+    }
+  },
+  ragEmbeddingCache: {
+    description: "Reusable Dense Embedding vectors keyed by model, dimensions and contextual content hash.",
+    columns: {
+      cache_key: "text primary key",
+      model: "text not null",
+      dimensions: "integer not null",
+      content_hash: "text not null",
+      vector_json: "json not null",
+      created_at: "datetime not null",
+      last_used_at: "datetime not null"
+    }
+  },
+  knowledgeGaps: {
+    description: "Aggregated low-relevance, unanswered and low-satisfaction questions pending human review.",
+    columns: {
+      id: "text primary key",
+      question_hash: "text not null",
+      question_preview: "text not null",
+      scenic_area: "text not null",
+      intent: "text not null",
+      reasons: "json not null",
+      sources: "json not null",
+      occurrence_count: "integer not null",
+      status: "pending, confirmed or dismissed",
+      first_seen_at: "datetime not null",
+      last_seen_at: "datetime not null",
+      confirmed_at: "datetime",
+      dismissed_at: "datetime"
+    }
+  },
+  ragExperimentState: {
+    description: "RAG retrieval experiment status and automatic rollback state.",
+    columns: {
+      experiment_id: "text primary key",
+      status: "active or rolled_back",
+      rollback_reason: "text",
+      started_at: "datetime not null",
+      updated_at: "datetime not null",
+      rolled_back_at: "datetime"
+    }
+  },
+  ragExperimentEvents: {
+    description: "Anonymous answer, feedback, citation, latency and cost metrics for RAG variants.",
+    columns: {
+      id: "text primary key",
+      experiment_id: "text not null",
+      session_hash: "irreversible text hash",
+      message_id: "text",
+      variant: "control or treatment",
+      scenario: "text",
+      refused: "boolean",
+      accepted: "nullable boolean",
+      citation_clicked: "boolean",
+      latency_ms: "real",
+      input_tokens: "integer",
+      output_tokens: "integer",
+      embedding_tokens: "integer",
+      estimated_cost_usd: "real",
+      model: "text",
+      index_version: "text",
+      created_at: "datetime not null"
+    }
+  },
+  adminAuditLogs: {
+    description: "Security audit trail for privileged knowledge mutations.",
+    columns: {
+      id: "text primary key",
+      actor_id: "text",
+      actor_role: "text",
+      action: "text not null",
+      target_type: "text",
+      target_id: "text",
+      status: "success, rejected or failed",
+      details: "sanitized json",
       created_at: "datetime not null"
     }
   },

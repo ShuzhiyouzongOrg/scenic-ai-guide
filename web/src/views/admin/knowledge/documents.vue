@@ -52,6 +52,41 @@
     <ElCard shadow="never" class="action-card">
       <div class="action-bar">
         <div class="action-left">
+          <div class="upload-profile">
+            <ElSelect
+              v-model="uploadProfile.knowledgeScope"
+              :disabled="uploading"
+              :aria-label="$t('app.docsUploadScope')"
+              class="upload-profile__select"
+            >
+              <ElOption value="visitor_qa" :label="$t('app.docsScopeVisitor')" />
+              <ElOption value="operations_analytics" :label="$t('app.docsScopeOperations')" />
+              <ElOption value="internal_reference" :label="$t('app.docsScopeInternal')" />
+            </ElSelect>
+            <ElSelect
+              v-model="uploadProfile.scenicArea"
+              :disabled="uploading"
+              :aria-label="$t('app.docsScenicArea')"
+              class="upload-profile__select"
+            >
+              <ElOption value="" :label="$t('app.docsScenicAreaGeneral')" />
+              <ElOption value="lingshan" :label="$t('app.docsScenicAreaLingshan')" />
+              <ElOption value="nianhuawan" :label="$t('app.docsScenicAreaNianhuawan')" />
+            </ElSelect>
+            <ElSelect
+              v-model="uploadProfile.language"
+              :disabled="uploading"
+              :aria-label="$t('app.docsLanguage')"
+              class="upload-profile__language"
+            >
+              <ElOption value="zh" label="简体中文" />
+              <ElOption value="zh-TW" label="繁體中文" />
+              <ElOption value="en" label="English" />
+              <ElOption value="ja" label="日本語" />
+              <ElOption value="ko" label="한국어" />
+              <ElOption value="th" label="ไทย" />
+            </ElSelect>
+          </div>
           <ElUpload
             multiple
             :auto-upload="false"
@@ -86,6 +121,49 @@
           </ElButton>
         </div>
       </div>
+    </ElCard>
+
+    <ElCard shadow="never" class="index-versions-card">
+      <template #header>
+        <div class="index-versions-heading">
+          <strong>{{ $t('app.docsIndexVersions') }}</strong>
+          <span>{{ $t('app.docsIndexVersionsHint') }}</span>
+        </div>
+      </template>
+      <ElTable v-loading="versionsLoading" :data="indexVersions" size="small" border>
+        <ElTableColumn :label="$t('app.docsIndexVersion')" min-width="260" show-overflow-tooltip>
+          <template #default="{ row }">
+            <code>{{ row.indexVersion }}</code>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="chunkerVersion" :label="$t('app.docsChunkerVersion')" min-width="135" />
+        <ElTableColumn :label="$t('app.docsUpdatedAt')" min-width="180">
+          <template #default="{ row }">{{ formatTimestamp(row.generatedAt) }}</template>
+        </ElTableColumn>
+        <ElTableColumn prop="documentCount" :label="$t('app.docsCount')" width="100" align="center" />
+        <ElTableColumn prop="chunkCount" :label="$t('app.docsChunks')" width="100" align="center" />
+        <ElTableColumn :label="$t('app.status')" width="115" align="center">
+          <template #default="{ row }">
+            <ElTag :type="row.active ? 'success' : 'info'" effect="plain">
+              {{ row.active ? $t('app.docsIndexActive') : $t('app.docsIndexHistory') }}
+            </ElTag>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn :label="$t('app.docsActions')" width="130" align="center">
+          <template #default="{ row }">
+            <ElButton
+              v-if="!row.active"
+              link
+              type="warning"
+              :loading="activatingVersion === row.indexVersion"
+              @click="handleActivateVersion(row)"
+            >
+              {{ $t('app.docsIndexRestore') }}
+            </ElButton>
+            <span v-else>-</span>
+          </template>
+        </ElTableColumn>
+      </ElTable>
     </ElCard>
 
     <Transition name="upload-progress">
@@ -169,12 +247,31 @@
           </template>
         </ElTableColumn>
         <ElTableColumn prop="fileType" :label="$t('app.type')" width="110" />
+        <ElTableColumn :label="$t('app.docsScope')" min-width="170">
+          <template #default="{ row }">
+            <ElTag effect="plain" size="small">{{ row.knowledgeScope || 'visitor_qa' }}</ElTag>
+          </template>
+        </ElTableColumn>
         <ElTableColumn :label="$t('app.size')" width="110">
           <template #default="{ row }">{{ formatSize(row.size) }}</template>
         </ElTableColumn>
-        <ElTableColumn :label="$t('app.status')" width="110">
+        <ElTableColumn :label="$t('app.docsProcessingStage')" min-width="130">
           <template #default="{ row }">
-            <ElTag :type="statusType(row.status)" effect="light">{{ row.status }}</ElTag>
+            <ElTag :type="statusType(row.processingStage || row.status)" effect="plain">
+              {{ row.processingStage || row.status }}
+            </ElTag>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn :label="$t('app.status')" min-width="125">
+          <template #default="{ row }">
+            <div class="document-status-cell">
+              <ElTooltip :disabled="!row.errorMessage" :content="row.errorMessage" placement="top">
+                <ElTag :type="statusType(row.status)" effect="light">{{ row.status }}</ElTag>
+              </ElTooltip>
+              <ElTag :type="row.enabled === false ? 'info' : 'success'" effect="plain">
+                {{ row.enabled === false ? $t('app.docsDisabled') : $t('app.docsEnabled') }}
+              </ElTag>
+            </div>
           </template>
         </ElTableColumn>
         <ElTableColumn
@@ -183,8 +280,39 @@
           width="100"
           align="center"
         />
-        <ElTableColumn :label="$t('app.uploadTime')" min-width="180">
-          <template #default="{ row }">{{ formatTimestamp(row.createdAt) }}</template>
+        <ElTableColumn :label="$t('app.docsUpdatedAt')" min-width="180">
+          <template #default="{ row }">{{ formatTimestamp(row.updatedAt || row.createdAt) }}</template>
+        </ElTableColumn>
+        <ElTableColumn :label="$t('app.docsActions')" width="260" align="center">
+          <template #default="{ row }">
+            <div class="document-actions">
+              <ElButton link type="primary" :title="$t('app.docsCitationOpen')" @click="handleCitations(row)">
+                <ElIcon><View /></ElIcon>
+                <span>{{ $t('app.docsCitations') }}</span>
+              </ElButton>
+              <ElButton
+                v-if="row.status === 'failed' || row.status === 'needs_ocr'"
+                link
+                type="primary"
+                :loading="reprocessingId === row.id"
+                :title="$t('app.docsReprocess')"
+                @click="handleReprocess(row)"
+              >
+                <ElIcon><Refresh /></ElIcon>
+                <span>{{ $t('app.docsReprocess') }}</span>
+              </ElButton>
+              <ElButton
+                link
+                :type="row.enabled === false ? 'success' : 'danger'"
+                :loading="togglingId === row.id"
+                :title="row.enabled === false ? $t('app.docsEnable') : $t('app.docsDisable')"
+                @click="handleToggleEnabled(row)"
+              >
+                <ElIcon><SwitchButton /></ElIcon>
+                <span>{{ row.enabled === false ? $t('app.docsEnable') : $t('app.docsDisable') }}</span>
+              </ElButton>
+            </div>
+          </template>
         </ElTableColumn>
         <template #empty>
           <ElEmpty :description="$t('app.docsEmpty')" />
@@ -239,24 +367,69 @@
         </template>
       </div>
     </ElDrawer>
+
+    <ElDrawer
+      v-model="citationOpen"
+      :title="citationDocument?.fileName || $t('app.docsCitations')"
+      size="min(860px, 94vw)"
+      destroy-on-close
+      class="document-citation-drawer"
+      @closed="resetCitations"
+    >
+      <div v-loading="citationLoading" class="document-citations">
+        <ElAlert
+          v-if="citationDocument?.enabled === false"
+          type="info"
+          :closable="false"
+          :title="$t('app.docsCitationDisabled')"
+        />
+        <p v-if="citationIndexVersion" class="document-citations__version">
+          {{ $t('app.docsCitationIndexVersion') }}: {{ citationIndexVersion }}
+        </p>
+        <ElEmpty
+          v-if="!citationLoading && !citations.length"
+          :description="$t('app.docsCitationEmpty')"
+        />
+        <div v-else class="document-citation-list">
+          <ElCard v-for="citation in citations" :key="citation.chunkId" shadow="never" class="document-citation">
+            <div class="document-citation__heading">
+              <ElTag type="primary" effect="plain">{{ citation.citationId }}</ElTag>
+              <strong>{{ citation.sectionTitle || '-' }}</strong>
+            </div>
+            <p class="document-citation__quote">{{ citation.quote }}</p>
+            <p class="document-citation__location">
+              {{ $t('app.docsCitationLocation') }}:
+              {{ citationLocation(citation) }}
+            </p>
+          </ElCard>
+        </div>
+      </div>
+    </ElDrawer>
   </div>
 </template>
 
 <script setup lang="ts">
   import { defineAsyncComponent } from 'vue'
-  import { Close, Refresh, UploadFilled } from '@element-plus/icons-vue'
+  import { Close, Refresh, SwitchButton, UploadFilled, View } from '@element-plus/icons-vue'
   import type { UploadFile } from 'element-plus'
   import { ElMessageBox } from 'element-plus'
   import { useI18n } from 'vue-i18n'
   import { formatDateTime } from '@/utils/date'
   import {
+    activateKnowledgeIndexVersion,
+    getKnowledgeIndexVersions,
     getKnowledgeSummary,
+    getUploadCitations,
     getUploadContent,
     getUploadPreview,
     getUploads,
     rebuildKnowledge,
+    reprocessUpload,
+    setUploadEnabled,
     uploadDocument,
     type KnowledgeSummary,
+    type KnowledgeIndexVersion,
+    type UploadCitation,
     type UploadPreview,
     type UploadRecord
   } from '@/api/admin'
@@ -288,17 +461,36 @@
 
   const summary = ref<KnowledgeSummary | null>(null)
   const uploads = ref<UploadRecord[]>([])
+  const indexVersions = ref<KnowledgeIndexVersion[]>([])
   const uploadTasks = ref<UploadTask[]>([])
   const uploadProgressVisible = ref(false)
   const loading = ref(false)
   const rebuilding = ref(false)
+  const versionsLoading = ref(false)
+  const activatingVersion = ref('')
+  const reprocessingId = ref('')
+  const togglingId = ref('')
   const uploading = ref(false)
+  const uploadProfile = reactive<{
+    knowledgeScope: 'visitor_qa' | 'operations_analytics' | 'internal_reference'
+    scenicArea: string
+    language: string
+  }>({
+    knowledgeScope: 'visitor_qa',
+    scenicArea: '',
+    language: 'zh'
+  })
   const previewOpen = ref(false)
   const previewLoading = ref(false)
   const preview = ref<UploadPreview | null>(null)
   const previewData = ref<ArrayBuffer | null>(null)
   const previewError = ref('')
   const activePreviewRecord = ref<UploadRecord | null>(null)
+  const citationOpen = ref(false)
+  const citationLoading = ref(false)
+  const citationDocument = ref<UploadRecord | null>(null)
+  const citationIndexVersion = ref<string | null>(null)
+  const citations = ref<UploadCitation[]>([])
   let batchTimer: number | undefined
   const maxInteractivePreviewBytes = 30 * 1024 * 1024
 
@@ -339,7 +531,7 @@
   function statusType(status: string) {
     if (status === 'ready' || status === 'done' || status === 'processed') return 'success'
     if (status === 'failed' || status === 'error') return 'danger'
-    if (status === 'processing' || status === 'pending') return 'warning'
+    if (status === 'processing' || status === 'pending' || status === 'needs_ocr' || status === 'extracting') return 'warning'
     return 'info'
   }
 
@@ -374,8 +566,45 @@
     }
   }
 
+  async function loadIndexVersions() {
+    versionsLoading.value = true
+    try {
+      indexVersions.value = await getKnowledgeIndexVersions()
+    } catch {
+      ElMessage.error(t('app.docsIndexLoadFailed'))
+    } finally {
+      versionsLoading.value = false
+    }
+  }
+
   async function refresh() {
-    await Promise.all([loadSummary(), loadUploads()])
+    await Promise.all([loadSummary(), loadUploads(), loadIndexVersions()])
+  }
+
+  async function handleActivateVersion(row: KnowledgeIndexVersion) {
+    try {
+      await ElMessageBox.confirm(
+        t('app.docsIndexRestoreConfirm', { version: row.indexVersion }),
+        t('app.docsIndexRestore'),
+        {
+          type: 'warning',
+          confirmButtonText: t('app.docsIndexRestore'),
+          cancelButtonText: t('app.cancel')
+        }
+      )
+    } catch {
+      return
+    }
+    activatingVersion.value = row.indexVersion
+    try {
+      await activateKnowledgeIndexVersion(row.indexVersion)
+      ElMessage.success(t('app.docsIndexRestoreDone'))
+      await refresh()
+    } catch {
+      ElMessage.error(t('app.docsIndexRestoreFailed'))
+    } finally {
+      activatingVersion.value = ''
+    }
   }
 
   async function handlePreview(row: UploadRecord) {
@@ -434,6 +663,90 @@
       ElMessage.error(t('app.docsRebuildFailed'))
     } finally {
       rebuilding.value = false
+    }
+  }
+
+  function citationLocation(citation: UploadCitation) {
+    if (citation.page) return `${t('app.docsCitationPage')} ${citation.page}`
+    if (citation.sheetName && citation.range) return `${citation.sheetName} ${citation.range}`
+    if (citation.sheetName) return citation.sheetName
+    return citation.sectionTitle || '-'
+  }
+
+  async function handleCitations(row: UploadRecord) {
+    citationOpen.value = true
+    citationLoading.value = true
+    citationDocument.value = row
+    citationIndexVersion.value = null
+    citations.value = []
+    try {
+      const result = await getUploadCitations(row.id)
+      citationDocument.value = result.document
+      citationIndexVersion.value = result.indexVersion
+      citations.value = result.citations
+    } catch {
+      ElMessage.error(t('app.docsCitationFailed'))
+    } finally {
+      citationLoading.value = false
+    }
+  }
+
+  function resetCitations() {
+    citationDocument.value = null
+    citationIndexVersion.value = null
+    citations.value = []
+  }
+
+  async function handleToggleEnabled(row: UploadRecord) {
+    const nextEnabled = row.enabled === false
+    try {
+      await ElMessageBox.confirm(
+        t(nextEnabled ? 'app.docsEnableConfirm' : 'app.docsDisableConfirm', { fileName: row.fileName }),
+        nextEnabled ? t('app.docsEnable') : t('app.docsDisable'),
+        {
+          type: nextEnabled ? 'info' : 'warning',
+          confirmButtonText: nextEnabled ? t('app.docsEnable') : t('app.docsDisable'),
+          cancelButtonText: t('app.cancel')
+        }
+      )
+    } catch {
+      return
+    }
+    togglingId.value = row.id
+    try {
+      await setUploadEnabled(row.id, nextEnabled)
+      ElMessage.success(nextEnabled ? t('app.docsEnableDone') : t('app.docsDisableDone'))
+      await refresh()
+    } catch {
+      ElMessage.error(nextEnabled ? t('app.docsEnableFailed') : t('app.docsDisableFailed'))
+    } finally {
+      togglingId.value = ''
+    }
+  }
+
+  async function handleReprocess(row: UploadRecord) {
+    try {
+      await ElMessageBox.confirm(
+        t('app.docsReprocessConfirm', { fileName: row.fileName }),
+        t('app.docsReprocess'),
+        {
+          type: 'warning',
+          confirmButtonText: t('app.docsConfirmReprocess'),
+          cancelButtonText: t('app.cancel')
+        }
+      )
+    } catch {
+      return
+    }
+    reprocessingId.value = row.id
+    try {
+      await reprocessUpload(row.id)
+      ElMessage.success(t('app.docsReprocessDone'))
+      await refresh()
+    } catch {
+      ElMessage.error(t('app.docsReprocessFailed'))
+    } finally {
+      reprocessingId.value = ''
     }
   }
 
@@ -517,7 +830,10 @@
         {
           fileName: task.file.name,
           mimeType: task.file.type || 'application/octet-stream',
-          contentBase64
+          contentBase64,
+          knowledgeScope: uploadProfile.knowledgeScope,
+          scenicArea: uploadProfile.scenicArea,
+          language: uploadProfile.language
         },
         {
           onUploadProgress: (event) => updateUploadProgress(task, event.loaded, event.total)
@@ -559,6 +875,7 @@
 
   .stat-row,
   .action-card,
+  .index-versions-card,
   .upload-progress-card {
     margin-bottom: 12px;
   }
@@ -608,6 +925,36 @@
   .action-left,
   .action-right {
     gap: 10px;
+  }
+
+  .index-versions-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+
+    span {
+      color: var(--el-text-color-secondary);
+      font-size: 13px;
+    }
+  }
+
+  .action-left {
+    flex-wrap: wrap;
+  }
+
+  .upload-profile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .upload-profile__select {
+    width: 150px;
+  }
+
+  .upload-profile__language {
+    width: 118px;
   }
 
   .accept-tip {
@@ -773,6 +1120,23 @@
     }
   }
 
+  .table-action-placeholder {
+    color: var(--el-text-color-placeholder);
+  }
+
+  .document-status-cell,
+  .document-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .document-actions {
+    gap: 2px;
+  }
+
   .file-preview-link {
     display: inline-block;
     max-width: 100%;
@@ -814,6 +1178,60 @@
     line-height: 1.75;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
+  }
+
+  .document-citations {
+    min-height: 240px;
+  }
+
+  .document-citations__version,
+  .document-citation__quote,
+  .document-citation__location {
+    margin: 0;
+  }
+
+  .document-citations__version {
+    margin: 12px 0;
+    color: var(--el-text-color-secondary);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .document-citation-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .document-citation {
+    border-color: var(--el-border-color-lighter);
+  }
+
+  .document-citation__heading {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .document-citation__heading strong {
+    overflow: hidden;
+    color: var(--el-text-color-primary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .document-citation__quote {
+    margin-top: 10px;
+    color: var(--el-text-color-primary);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+
+  .document-citation__location {
+    margin-top: 8px;
+    color: var(--el-text-color-secondary);
+    font-size: 12px;
   }
 
   @media (max-width: 640px) {

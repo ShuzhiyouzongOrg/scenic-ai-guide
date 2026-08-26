@@ -26,11 +26,21 @@ import {
   createUpload,
   getUploadContent,
   getUploadPreview,
+  listUploadCitations,
   listUploads,
-  reindexUploads
+  reindexUploads,
+  reprocessUpload,
+  setUploadEnabled
 } from "./services/uploads.mjs";
-import { buildKnowledge, loadKnowledge, restoreBundledKnowledge } from "./services/knowledgeBuild.mjs";
-import { hybridSearch, keywordSearch } from "./services/retrieval.mjs";
+import {
+  activateKnowledgeVersion,
+  buildKnowledge,
+  getActiveKnowledgeVersion,
+  listKnowledgeVersions,
+  loadKnowledge,
+  restoreBundledKnowledge
+} from "./services/knowledgeBuild.mjs";
+import { hybridSearchAsync, keywordSearch } from "./services/retrieval.mjs";
 import { answerQuestion, answerQuestionStream } from "./services/chat.mjs";
 import { generateSpotNarration, generateAccompanyNarration } from "./services/narration.mjs";
 import { getRouteGraph, recommendRoute, saveRouteSelection, listSavedRoutes, narrateRouteNode } from "./services/routePlanner.mjs";
@@ -47,7 +57,19 @@ import {
   getDigitalHumanWebBootstrap
 } from "./services/digitalHumanWeb.mjs";
 import { faqCacheStats } from "./services/faqCache.mjs";
+import { getRetrievalTrace, listRetrievalTraces } from "./services/retrievalTrace.mjs";
+import {
+  exportKnowledgeGapsCsv,
+  listKnowledgeGaps,
+  updateKnowledgeGapStatus
+} from "./services/knowledgeGaps.mjs";
+import {
+  getRagExperimentReport,
+  recordRagCitationClick,
+  resetRagExperiment
+} from "./services/ragExperiment.mjs";
 import { clearMessages, getMessages } from "./services/conversation.mjs";
+import { listAdminAudits, recordAdminAudit } from "./services/adminAudit.mjs";
 import { createFeedback, listFeedback } from "./services/feedback.mjs";
 import { createAdminFaq, findAdminFaqAnswer, listAdminFaqs, updateAdminFaq } from "./services/adminFaq.mjs";
 import { createScenicSpot, disableScenicSpot, listAllManagedScenicSpots, listManagedScenicSpots, updateScenicSpot } from "./services/scenicAdmin.mjs";
@@ -61,7 +83,7 @@ import {
   listFeedbackClusters
 } from "./services/serviceQuality.mjs";
 import { schema } from "./db/schema.mjs";
-import { closeDb, getDb } from "./db/database.mjs";
+import { closeDb, getDb, syncKnowledgeSnapshot } from "./db/database.mjs";
 import {
   listAdminUsers,
   createAdminUser,
@@ -109,6 +131,10 @@ const digitalHumanPageDir = resolve(join(rootDir, "server", "src", "web", "digit
 // path resolver below; no credentials or API session data are exposed here.
 /** @type {string} 本地 Live2D 页面及模型资源目录。 */
 const live2dPageDir = resolve(join(rootDir, "server", "src", "web", "live2d"));
+/** @type {Map<string, number>} 管理员知识重建最短间隔记录。 */
+const knowledgeRebuildRateLimits = new Map();
+/** @type {number} 同一管理员两次知识重建的最短间隔。 */
+const KNOWLEDGE_REBUILD_INTERVAL_MS = 60_000;
 /** @type {string} 允许公开读取的讯飞 Web SDK 目录。 */
 const digitalHumanSdkDir = resolve(join(rootDir, "web", "src", "vm-sdk", "avatar-sdk-web_3.1.1.1011"));
 /** @type {Set<string>} 数字人页面允许公开的文件白名单。 */
@@ -261,6 +287,7 @@ async function route(req, res, url) {
     ok(res, {
       status: "ready",
       generatedAt: knowledge.generatedAt,
+      indexVersion: knowledge.indexVersion || null,
       scope: knowledge.scope,
       documents: knowledge.documents.length,
       spots: knowledge.spots.length,
@@ -271,7 +298,23 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/rebuild" && req.method === "POST") {
-    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    const payload = requireAdminPayload(req, res);
+    if (!payload) return;
+    const rateKey = `${payload.uid || payload.sub || "admin"}:knowledge_rebuild`;
+    const lastRun = knowledgeRebuildRateLimits.get(rateKey) || 0;
+    if (Date.now() - lastRun < KNOWLEDGE_REBUILD_INTERVAL_MS) {
+      recordAdminAudit({
+        actorId: payload.uid || payload.sub,
+        actorRole: payload.role,
+        action: "knowledge.rebuild",
+        targetType: "knowledge_index",
+        status: "rejected",
+        details: { reason: "rate_limited" }
+      });
+      fail(res, 429, "KNOWLEDGE_REBUILD_RATE_LIMITED", "Knowledge rebuild is rate limited. Try again later.");
+      return;
+    }
+    knowledgeRebuildRateLimits.set(rateKey, Date.now());
     let knowledge;
     let source = "source";
     try {
@@ -285,8 +328,19 @@ async function route(req, res, url) {
     }
     const uploads = reindexUploads();
     knowledge = loadKnowledge() || knowledge;
+    syncKnowledgeSnapshot(getDb(), knowledge);
+    recordAdminAudit({
+      actorId: payload.uid || payload.sub,
+      actorRole: payload.role,
+      action: "knowledge.rebuild",
+      targetType: "knowledge_index",
+      targetId: knowledge.indexVersion,
+      status: "success",
+      details: { documents: knowledge.documents.length, chunks: knowledge.chunks.length, source }
+    });
     created(res, {
       generatedAt: knowledge.generatedAt,
+      indexVersion: knowledge.indexVersion || null,
       documents: knowledge.documents.length,
       spots: knowledge.spots.length,
       guideSections: knowledge.guideSections.length,
@@ -411,7 +465,7 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/chunks" && req.method === "GET") {
-    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    if (!requireAdminPayload(req, res)) return;
     const knowledge = loadKnowledge();
     const chunks = knowledge?.chunks || [];
     const limit = Math.min(Number(url.searchParams.get("limit") || 50), 200);
@@ -423,12 +477,22 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/knowledge/search" && req.method === "POST") {
-    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    if (!requireAdminPayload(req, res)) return;
     const body = await readJson(req);
     const mode = body.mode === "keyword" ? "keyword" : "hybrid";
     const result = mode === "keyword"
-      ? keywordSearch(body.query, { limit: body.limit, locale: body.locale })
-      : hybridSearch(body.query, { limit: body.limit, locale: body.locale });
+      ? keywordSearch(body.query, {
+        limit: body.limit,
+        locale: body.locale,
+        accessScopes: ["public", "authenticated", "admin", "internal"],
+        tenantId: body.tenantId || "default"
+      })
+      : await hybridSearchAsync(body.query, {
+        limit: body.limit,
+        locale: body.locale,
+        accessScopes: ["public", "authenticated", "admin", "internal"],
+        tenantId: body.tenantId || "default"
+      });
     ok(res, result);
     return;
   }
@@ -696,6 +760,69 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/rag/citation-click" && req.method === "POST") {
+    const body = await readJson(req);
+    ok(res, recordRagCitationClick({
+      sessionId: body.sessionId,
+      messageId: body.messageId
+    }));
+    return;
+  }
+
+  if (url.pathname === "/api/admin/knowledge/index-versions" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    ok(res, listKnowledgeVersions());
+    return;
+  }
+
+  const knowledgeVersionActivateMatch = url.pathname.match(
+    /^\/api\/admin\/knowledge\/index-versions\/([^/]+)\/activate$/
+  );
+  if (knowledgeVersionActivateMatch && req.method === "POST") {
+    const payload = requireAdminPayload(req, res);
+    if (!payload) return;
+    const targetVersion = decodeURIComponent(knowledgeVersionActivateMatch[1]);
+    const previousVersion = getActiveKnowledgeVersion();
+    try {
+      const knowledge = activateKnowledgeVersion(targetVersion);
+      syncKnowledgeSnapshot(getDb(), knowledge);
+      recordAdminAudit({
+        actorId: payload.uid || payload.sub,
+        actorRole: payload.role,
+        action: "knowledge.version.activate",
+        targetType: "knowledge_index",
+        targetId: targetVersion,
+        status: "success",
+        details: { previousVersion, documents: knowledge.documents.length, chunks: knowledge.chunks.length }
+      });
+      ok(res, {
+        activeVersion: targetVersion,
+        previousVersion,
+        versions: listKnowledgeVersions()
+      });
+    } catch (error) {
+      if (previousVersion && previousVersion !== "unbuilt" && previousVersion !== targetVersion) {
+        try {
+          const restored = activateKnowledgeVersion(previousVersion);
+          syncKnowledgeSnapshot(getDb(), restored);
+        } catch {
+          // Preserve the original activation error; the audit entry captures the failed target.
+        }
+      }
+      recordAdminAudit({
+        actorId: payload.uid || payload.sub,
+        actorRole: payload.role,
+        action: "knowledge.version.activate",
+        targetType: "knowledge_index",
+        targetId: targetVersion,
+        status: "failed",
+        details: { previousVersion, reason: error.code || "activation_failed" }
+      });
+      throw error;
+    }
+    return;
+  }
+
   if (url.pathname === "/api/admin/conversations" && req.method === "GET") {
     if (!requirePermission(req, res, "/admin/operation")) return;
     const lowSatisfaction = url.searchParams.get("lowSatisfactionOnly") || url.searchParams.get("lowSatisfaction") || "";
@@ -848,9 +975,101 @@ async function route(req, res, url) {
   }
 
   if (url.pathname === "/api/uploads" && req.method === "POST") {
-    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    const payload = requireAdminPayload(req, res);
+    if (!payload) return;
     const body = await readJson(req);
-    created(res, createUpload(body));
+    const upload = createUpload(body);
+    recordAdminAudit({
+      actorId: payload.uid || payload.sub,
+      actorRole: payload.role,
+      action: "knowledge.upload",
+      targetType: "knowledge_document",
+      targetId: upload.id,
+      status: "success",
+      details: { fileType: upload.fileType, knowledgeScope: upload.knowledgeScope }
+    });
+    created(res, upload);
+    return;
+  }
+
+  if (url.pathname === "/api/knowledge/retrieval-traces" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    const traceId = url.searchParams.get("traceId") || "";
+    const limit = Math.min(Number(url.searchParams.get("limit") || 50), 200);
+    ok(res, traceId ? getRetrievalTrace(traceId) : listRetrievalTraces({ limit }));
+    return;
+  }
+
+  if (url.pathname === "/api/admin/knowledge-gaps/export" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    const csv = exportKnowledgeGapsCsv({
+      status: url.searchParams.get("status") || "",
+      limit: url.searchParams.get("limit") || 1000
+    });
+    res.writeHead(200, {
+      "content-type": "text/csv; charset=utf-8",
+      "content-length": Buffer.byteLength(csv),
+      "content-disposition": "attachment; filename=knowledge-gaps.csv",
+      "cache-control": "private, no-store"
+    });
+    res.end(csv);
+    return;
+  }
+
+  if (url.pathname === "/api/admin/knowledge-gaps" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    ok(res, listKnowledgeGaps({
+      status: url.searchParams.get("status") || "",
+      limit: url.searchParams.get("limit") || 100
+    }));
+    return;
+  }
+
+  if (url.pathname === "/api/admin/rag-experiment" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    ok(res, getRagExperimentReport());
+    return;
+  }
+
+  if (url.pathname === "/api/admin/audit-logs" && req.method === "GET") {
+    if (!requireAdminPayload(req, res)) return;
+    ok(res, listAdminAudits({ limit: url.searchParams.get("limit") || 100 }));
+    return;
+  }
+
+  if (url.pathname === "/api/admin/rag-experiment/reset" && req.method === "POST") {
+    if (!requireAdminPayload(req, res)) return;
+    ok(res, resetRagExperiment());
+    return;
+  }
+
+  const knowledgeGapMatch = url.pathname.match(/^\/api\/admin\/knowledge-gaps\/([^/]+)$/);
+  if (knowledgeGapMatch && req.method === "PUT") {
+    if (!requireAdminPayload(req, res)) return;
+    const body = await readJson(req);
+    ok(res, updateKnowledgeGapStatus(decodeURIComponent(knowledgeGapMatch[1]), body.status));
+    return;
+  }
+
+  const uploadReprocessMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)\/reprocess$/);
+  if (uploadReprocessMatch && req.method === "POST") {
+    if (!requireAdminPayload(req, res)) return;
+    ok(res, reprocessUpload(decodeURIComponent(uploadReprocessMatch[1])));
+    return;
+  }
+
+  const uploadCitationsMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)\/citations$/);
+  if (uploadCitationsMatch && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    ok(res, listUploadCitations(decodeURIComponent(uploadCitationsMatch[1])));
+    return;
+  }
+
+  const uploadEnabledMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)$/);
+  if (uploadEnabledMatch && req.method === "PUT") {
+    if (!requireAdminPayload(req, res)) return;
+    const body = await readJson(req);
+    ok(res, setUploadEnabled(decodeURIComponent(uploadEnabledMatch[1]), body.enabled));
     return;
   }
 
@@ -863,7 +1082,7 @@ async function route(req, res, url) {
 
   const uploadContentMatch = url.pathname.match(/^\/api\/uploads\/([^/]+)\/content$/);
   if (uploadContentMatch && req.method === "GET") {
-    if (!requirePermission(req, res, "/admin/knowledge")) return;
+    if (!requireAdminPayload(req, res)) return;
     const content = getUploadContent(decodeURIComponent(uploadContentMatch[1]));
     const encodedName = encodeURIComponent(content.fileName).replaceAll("'", "%27");
     res.writeHead(200, {
@@ -966,6 +1185,26 @@ function requirePermission(req, res, permission) {
     return false;
   }
   return true;
+}
+
+/**
+ * 仅允许系统管理员调用高风险知识变更或读取完整正文的接口。
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
+ * @param {import("node:http").ServerResponse} res HTTP 响应。
+ * @returns {Record<string, unknown>|null} 管理员 Token 载荷。
+ * @private
+ */
+function requireAdminPayload(req, res) {
+  const payload = verifyToken(getBearerToken(req));
+  if (!payload) {
+    fail(res, 401, "UNAUTHORIZED", "Login is required.");
+    return null;
+  }
+  if (payload.role !== "admin") {
+    fail(res, 403, "ADMIN_REQUIRED", "Administrator role is required for this knowledge operation.");
+    return null;
+  }
+  return payload;
 }
 
 /**

@@ -9,6 +9,7 @@ export interface KnowledgeSummary {
   status: string
   scope: string
   generatedAt: string
+  indexVersion?: string | null
   documents: number
   spots: number
   guideSections: number
@@ -22,10 +23,26 @@ export interface UploadRecord {
   size: number
   fileType: string
   status: string
+  processingStage?: string
+  errorCode?: string | null
+  errorMessage?: string | null
+  attemptCount?: number
+  startedAt?: string | null
+  finishedAt?: string | null
+  knowledgeScope?: 'visitor_qa' | 'operations_analytics' | 'internal_reference'
+  scenicArea?: string
+  language?: string
+  documentType?: string
+  validFrom?: string | null
+  validTo?: string | null
+  enabled?: boolean
+  indexVersion?: string | null
   chunkCount: number
+  updatedAt?: string
   createdAt: string
   duplicate?: boolean
   duplicateOf?: string
+  taskId?: string
 }
 
 export interface UploadPreview {
@@ -45,6 +62,29 @@ export function getKnowledgeSummary() {
 
 export function rebuildKnowledge() {
   return request.post({ url: '/api/knowledge/rebuild' })
+}
+
+export interface KnowledgeIndexVersion {
+  indexVersion: string
+  chunkerVersion: string
+  generatedAt: string
+  documentCount: number
+  chunkCount: number
+  active: boolean
+}
+
+export function getKnowledgeIndexVersions() {
+  return request.get<KnowledgeIndexVersion[]>({ url: '/api/admin/knowledge/index-versions' })
+}
+
+export function activateKnowledgeIndexVersion(indexVersion: string) {
+  return request.post<{
+    activeVersion: string
+    previousVersion: string
+    versions: KnowledgeIndexVersion[]
+  }>({
+    url: `/api/admin/knowledge/index-versions/${encodeURIComponent(indexVersion)}/activate`
+  })
 }
 
 export function getUploads() {
@@ -69,6 +109,9 @@ export function uploadDocument(
     fileName: string
     mimeType: string
     contentBase64: string
+    knowledgeScope: 'visitor_qa' | 'operations_analytics' | 'internal_reference'
+    scenicArea?: string
+    language?: string
   },
   options: { onUploadProgress?: (event: AxiosProgressEvent) => void } = {}
 ) {
@@ -77,6 +120,45 @@ export function uploadDocument(
     data,
     onUploadProgress: options.onUploadProgress
   })
+}
+
+export function reprocessUpload(id: string) {
+  return request.post<UploadRecord>({
+    url: `/api/uploads/${encodeURIComponent(id)}/reprocess`
+  })
+}
+
+export interface UploadCitation {
+  citationId: string
+  chunkId: string
+  documentId: string
+  sectionTitle: string
+  quote: string
+  page?: number | null
+  sheetName?: string | null
+  range?: string | null
+  rowStart?: number | null
+  rowEnd?: number | null
+  knowledgeScope?: string
+  scenicArea?: string
+  language?: string
+  documentType?: string | null
+  indexVersion?: string | null
+}
+
+export function setUploadEnabled(id: string, enabled: boolean) {
+  return request.put<UploadRecord>({
+    url: `/api/uploads/${encodeURIComponent(id)}`,
+    data: { enabled }
+  })
+}
+
+export function getUploadCitations(id: string) {
+  return request.get<{
+    document: UploadRecord
+    indexVersion: string | null
+    citations: UploadCitation[]
+  }>({ url: `/api/uploads/${encodeURIComponent(id)}/citations` })
 }
 
 export interface KnowledgeHit {
@@ -90,6 +172,39 @@ export interface KnowledgeHit {
 
 export function searchKnowledge(data: { query: string; mode?: 'hybrid' | 'keyword' }) {
   return request.post<{ results: KnowledgeHit[] }>({ url: '/api/knowledge/search', data })
+}
+
+export interface RagExperimentVariantMetrics {
+  answers: number
+  refusalRate: number
+  feedbackSamples: number
+  acceptanceRate: number
+  citationClickRate: number
+  p95LatencyMs: number
+  averageTokens: number
+  averageEstimatedCostUsd: number
+  models: Record<string, number>
+  indexVersions: Record<string, number>
+}
+
+export interface RagExperimentReport {
+  experimentId: string
+  enabled: boolean
+  treatmentPercent: number
+  state: { status: string; rollbackReason?: string | null; rolledBackAt?: string | null }
+  variants: {
+    control: RagExperimentVariantMetrics
+    treatment: RagExperimentVariantMetrics
+  }
+  comparison: Record<string, number | null>
+}
+
+export function getRagExperimentReport() {
+  return request.get<RagExperimentReport>({ url: '/api/admin/rag-experiment' })
+}
+
+export function resetRagExperiment() {
+  return request.post<RagExperimentReport>({ url: '/api/admin/rag-experiment/reset' })
 }
 
 // ---- 景点管理 ----
