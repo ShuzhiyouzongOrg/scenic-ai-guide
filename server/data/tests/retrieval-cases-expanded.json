@@ -1,0 +1,4139 @@
+[
+  {
+    "id": "fact_height_lingshan_buddha_v1",
+    "category": "景点参数",
+    "question": "灵山大佛多高",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88m",
+      "101.5m",
+      "通高",
+      "总高"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_height_lingshan_buddha_v2",
+    "category": "景点参数",
+    "question": "请问，灵山大佛多高？",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88m",
+      "101.5m",
+      "通高",
+      "总高"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_height_lingshan_buddha_v3",
+    "category": "景点参数",
+    "question": "灵山大佛多高，能讲讲吗？",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88m",
+      "101.5m",
+      "通高",
+      "总高"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_height_lingshan_buddha_v4",
+    "category": "景点参数",
+    "question": "想了解一下：灵山大佛多高。",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88m",
+      "101.5m",
+      "通高",
+      "总高"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_location_lingshan_buddha_v1",
+    "category": "景点位置",
+    "question": "灵山大佛在哪里",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "祥符禅寺",
+      "秦履峰"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "拈花湾禅意小镇"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_location_lingshan_buddha_v2",
+    "category": "景点位置",
+    "question": "请问，灵山大佛在哪里？",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "祥符禅寺",
+      "秦履峰"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "拈花湾禅意小镇"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_location_lingshan_buddha_v3",
+    "category": "景点位置",
+    "question": "灵山大佛在哪里，能讲讲吗？",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "祥符禅寺",
+      "秦履峰"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "拈花湾禅意小镇"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "fact_location_lingshan_buddha_v4",
+    "category": "景点位置",
+    "question": "想了解一下：灵山大佛在哪里。",
+    "expectedTopTitles": [
+      "灵山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "祥符禅寺",
+      "秦履峰"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "拈花湾禅意小镇"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_jiulong_time_v1",
+    "category": "演艺时间",
+    "question": "九龙灌浴几点演出",
+    "expectedTopTitles": [
+      "九龙灌浴"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "10:00",
+      "11:30",
+      "13:30",
+      "15:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_jiulong_time_v2",
+    "category": "演艺时间",
+    "question": "请问，九龙灌浴几点演出？",
+    "expectedTopTitles": [
+      "九龙灌浴"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "10:00",
+      "11:30",
+      "13:30",
+      "15:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_jiulong_time_v3",
+    "category": "演艺时间",
+    "question": "九龙灌浴几点演出，能讲讲吗？",
+    "expectedTopTitles": [
+      "九龙灌浴"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "10:00",
+      "11:30",
+      "13:30",
+      "15:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_jiulong_time_v4",
+    "category": "演艺时间",
+    "question": "想了解一下：九龙灌浴几点演出。",
+    "expectedTopTitles": [
+      "九龙灌浴"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "10:00",
+      "11:30",
+      "13:30",
+      "15:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_fangong_jixiangsong_v1",
+    "category": "演艺时间",
+    "question": "梵宫吉祥颂几点开始",
+    "expectedTopTitles": [
+      "灵山梵宫",
+      "核心景点特色详解"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "吉祥颂",
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "4-5场"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_fangong_jixiangsong_v2",
+    "category": "演艺时间",
+    "question": "请问，梵宫吉祥颂几点开始？",
+    "expectedTopTitles": [
+      "灵山梵宫",
+      "核心景点特色详解"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "吉祥颂",
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "4-5场"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_fangong_jixiangsong_v3",
+    "category": "演艺时间",
+    "question": "梵宫吉祥颂几点开始，能讲讲吗？",
+    "expectedTopTitles": [
+      "灵山梵宫",
+      "核心景点特色详解"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "吉祥颂",
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "4-5场"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "performance_fangong_jixiangsong_v4",
+    "category": "演艺时间",
+    "question": "想了解一下：梵宫吉祥颂几点开始。",
+    "expectedTopTitles": [
+      "灵山梵宫",
+      "核心景点特色详解"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "吉祥颂",
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "4-5场"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ticket_price_v1",
+    "category": "门票政策",
+    "question": "灵山胜境门票多少钱",
+    "expectedTopTitles": [
+      "实用游览贴士"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "成人票",
+      "210元",
+      "半价票",
+      "105元"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ticket_price_v2",
+    "category": "门票政策",
+    "question": "请问，灵山胜境门票多少钱？",
+    "expectedTopTitles": [
+      "实用游览贴士"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "成人票",
+      "210元",
+      "半价票",
+      "105元"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ticket_price_v3",
+    "category": "门票政策",
+    "question": "灵山胜境门票多少钱，能讲讲吗？",
+    "expectedTopTitles": [
+      "实用游览贴士"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "成人票",
+      "210元",
+      "半价票",
+      "105元"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ticket_price_v4",
+    "category": "门票政策",
+    "question": "想了解一下：灵山胜境门票多少钱。",
+    "expectedTopTitles": [
+      "实用游览贴士"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "成人票",
+      "210元",
+      "半价票",
+      "105元"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_family_v1",
+    "category": "路线推荐",
+    "question": "推荐一条亲子路线",
+    "expectedTopTitles": [
+      "亲子家庭路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "4小时",
+      "九龙灌浴",
+      "百子戏弥勒",
+      "五印坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "6小时深度游"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_family_v2",
+    "category": "路线推荐",
+    "question": "请问，推荐一条亲子路线？",
+    "expectedTopTitles": [
+      "亲子家庭路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "4小时",
+      "九龙灌浴",
+      "百子戏弥勒",
+      "五印坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "6小时深度游"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_family_v3",
+    "category": "路线推荐",
+    "question": "推荐一条亲子路线，能讲讲吗？",
+    "expectedTopTitles": [
+      "亲子家庭路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "4小时",
+      "九龙灌浴",
+      "百子戏弥勒",
+      "五印坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "6小时深度游"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_family_v4",
+    "category": "路线推荐",
+    "question": "想了解一下：推荐一条亲子路线。",
+    "expectedTopTitles": [
+      "亲子家庭路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "4小时",
+      "九龙灌浴",
+      "百子戏弥勒",
+      "五印坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "6小时深度游"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_history_v1",
+    "category": "路线推荐",
+    "question": "历史文化爱好者怎么游览",
+    "expectedTopTitles": [
+      "历史文化爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "6小时",
+      "祥符禅寺",
+      "灵山大佛",
+      "灵山梵宫"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "亲子家庭路线"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_history_v2",
+    "category": "路线推荐",
+    "question": "请问，历史文化爱好者怎么游览？",
+    "expectedTopTitles": [
+      "历史文化爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "6小时",
+      "祥符禅寺",
+      "灵山大佛",
+      "灵山梵宫"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "亲子家庭路线"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_history_v3",
+    "category": "路线推荐",
+    "question": "历史文化爱好者怎么游览，能讲讲吗？",
+    "expectedTopTitles": [
+      "历史文化爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "6小时",
+      "祥符禅寺",
+      "灵山大佛",
+      "灵山梵宫"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "亲子家庭路线"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_history_v4",
+    "category": "路线推荐",
+    "question": "想了解一下：历史文化爱好者怎么游览。",
+    "expectedTopTitles": [
+      "历史文化爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "6小时",
+      "祥符禅寺",
+      "灵山大佛",
+      "灵山梵宫"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "亲子家庭路线"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_nature_v1",
+    "category": "路线推荐",
+    "question": "自然风光爱好者路线怎么走",
+    "expectedTopTitles": [
+      "自然风光爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "5小时",
+      "菩提大道",
+      "太湖",
+      "曼飞龙塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_nature_v2",
+    "category": "路线推荐",
+    "question": "请问，自然风光爱好者路线怎么走？",
+    "expectedTopTitles": [
+      "自然风光爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "5小时",
+      "菩提大道",
+      "太湖",
+      "曼飞龙塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_nature_v3",
+    "category": "路线推荐",
+    "question": "自然风光爱好者路线怎么走，能讲讲吗？",
+    "expectedTopTitles": [
+      "自然风光爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "5小时",
+      "菩提大道",
+      "太湖",
+      "曼飞龙塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "route_nature_v4",
+    "category": "路线推荐",
+    "question": "想了解一下：自然风光爱好者路线怎么走。",
+    "expectedTopTitles": [
+      "自然风光爱好者路线"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "5小时",
+      "菩提大道",
+      "太湖",
+      "曼飞龙塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "highlight_fangong_v1",
+    "category": "景点特色",
+    "question": "灵山梵宫有什么看点",
+    "expectedTopTitles": [
+      "灵山梵宫"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "佛教艺术",
+      "吉祥颂",
+      "建筑面积"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "highlight_fangong_v2",
+    "category": "景点特色",
+    "question": "请问，灵山梵宫有什么看点？",
+    "expectedTopTitles": [
+      "灵山梵宫"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "佛教艺术",
+      "吉祥颂",
+      "建筑面积"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "highlight_fangong_v3",
+    "category": "景点特色",
+    "question": "灵山梵宫有什么看点，能讲讲吗？",
+    "expectedTopTitles": [
+      "灵山梵宫"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "佛教艺术",
+      "吉祥颂",
+      "建筑面积"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "highlight_fangong_v4",
+    "category": "景点特色",
+    "question": "想了解一下：灵山梵宫有什么看点。",
+    "expectedTopTitles": [
+      "灵山梵宫"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "佛教艺术",
+      "吉祥颂",
+      "建筑面积"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_xiangfu_history_v1",
+    "category": "历史文化",
+    "question": "祥符禅寺有什么历史",
+    "expectedTopTitles": [
+      "祥符禅寺"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "唐代",
+      "古刹",
+      "千年"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "2003年"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_xiangfu_history_v2",
+    "category": "历史文化",
+    "question": "请问，祥符禅寺有什么历史？",
+    "expectedTopTitles": [
+      "祥符禅寺"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "唐代",
+      "古刹",
+      "千年"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "2003年"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_xiangfu_history_v3",
+    "category": "历史文化",
+    "question": "祥符禅寺有什么历史，能讲讲吗？",
+    "expectedTopTitles": [
+      "祥符禅寺"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "唐代",
+      "古刹",
+      "千年"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "2003年"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_xiangfu_history_v4",
+    "category": "历史文化",
+    "question": "想了解一下：祥符禅寺有什么历史。",
+    "expectedTopTitles": [
+      "祥符禅寺"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "唐代",
+      "古刹",
+      "千年"
+    ],
+    "locale": "zh",
+    "queryStyle": "holdout_rewrite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "2003年"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_origin_xuanzang_v1",
+    "category": "历史文化",
+    "question": "小灵山和玄奘有什么关系",
+    "expectedTopTitles": [
+      "小灵山的佛教缘起",
+      "景区概况与千年历史渊源"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "玄奘",
+      "小灵山",
+      "灵鹫山"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "1997年11月15日"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_origin_xuanzang_v2",
+    "category": "历史文化",
+    "question": "请问，小灵山和玄奘有什么关系？",
+    "expectedTopTitles": [
+      "小灵山的佛教缘起",
+      "景区概况与千年历史渊源"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "玄奘",
+      "小灵山",
+      "灵鹫山"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "1997年11月15日"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "culture_origin_xuanzang_v3",
+    "category": "历史文化",
+    "question": "小灵山和玄奘有什么关系，能讲讲吗？",
+    "expectedTopTitles": [
+      "小灵山的佛教缘起",
+      "景区概况与千年历史渊源"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "玄奘",
+      "小灵山",
+      "灵鹫山"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境：历史、文化、景点特色与个性化游览指南.docx"
+    ],
+    "forbiddenFacts": [
+      "1997年11月15日"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "photo_checkin_v1",
+    "category": "拍照打卡",
+    "question": "哪里适合拍照打卡",
+    "expectedTopTitles": [
+      "曼飞龙塔",
+      "灵山大照壁",
+      "阿育王柱",
+      "五智门"
+    ],
+    "expectedSpotIds": [
+      "LS-001",
+      "LS-004",
+      "LS-008",
+      "LS-015"
+    ],
+    "expectedTerms": [
+      "拍照",
+      "打卡"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "photo_checkin_v2",
+    "category": "拍照打卡",
+    "question": "请问，哪里适合拍照打卡？",
+    "expectedTopTitles": [
+      "曼飞龙塔",
+      "灵山大照壁",
+      "阿育王柱",
+      "五智门"
+    ],
+    "expectedSpotIds": [
+      "LS-001",
+      "LS-004",
+      "LS-008",
+      "LS-015"
+    ],
+    "expectedTerms": [
+      "拍照",
+      "打卡"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "photo_checkin_v3",
+    "category": "拍照打卡",
+    "question": "哪里适合拍照打卡，能讲讲吗？",
+    "expectedTopTitles": [
+      "曼飞龙塔",
+      "灵山大照壁",
+      "阿育王柱",
+      "五智门"
+    ],
+    "expectedSpotIds": [
+      "LS-001",
+      "LS-004",
+      "LS-008",
+      "LS-015"
+    ],
+    "expectedTerms": [
+      "拍照",
+      "打卡"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "open_five_wisdom_gate_v1",
+    "category": "开放信息",
+    "question": "五智门开放时间",
+    "expectedTopTitles": [
+      "五智门"
+    ],
+    "expectedSpotIds": [
+      "LS-004"
+    ],
+    "expectedTerms": [
+      "全天开放",
+      "无时间限制"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "open_five_wisdom_gate_v2",
+    "category": "开放信息",
+    "question": "请问，五智门开放时间？",
+    "expectedTopTitles": [
+      "五智门"
+    ],
+    "expectedSpotIds": [
+      "LS-004"
+    ],
+    "expectedTerms": [
+      "全天开放",
+      "无时间限制"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "open_five_wisdom_gate_v3",
+    "category": "开放信息",
+    "question": "五智门开放时间，能讲讲吗？",
+    "expectedTopTitles": [
+      "五智门"
+    ],
+    "expectedSpotIds": [
+      "LS-004"
+    ],
+    "expectedTerms": [
+      "全天开放",
+      "无时间限制"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_baizi_mile_v1",
+    "category": "亲子体验",
+    "question": "百子戏弥勒适合亲子玩吗",
+    "expectedTopTitles": [
+      "百子戏弥勒"
+    ],
+    "expectedSpotIds": [
+      "LS-009"
+    ],
+    "expectedTerms": [
+      "亲子",
+      "弥勒"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_baizi_mile_v2",
+    "category": "亲子体验",
+    "question": "请问，百子戏弥勒适合亲子玩吗？",
+    "expectedTopTitles": [
+      "百子戏弥勒"
+    ],
+    "expectedSpotIds": [
+      "LS-009"
+    ],
+    "expectedTerms": [
+      "亲子",
+      "弥勒"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_baizi_mile_v3",
+    "category": "亲子体验",
+    "question": "百子戏弥勒适合亲子玩吗，能讲讲吗？",
+    "expectedTopTitles": [
+      "百子戏弥勒"
+    ],
+    "expectedSpotIds": [
+      "LS-009"
+    ],
+    "expectedTerms": [
+      "亲子",
+      "弥勒"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_wuyin_tancheng_v1",
+    "category": "文化体验",
+    "question": "五印坛城是什么风格",
+    "expectedTopTitles": [
+      "五印坛城"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "藏传佛教",
+      "坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_wuyin_tancheng_v2",
+    "category": "文化体验",
+    "question": "请问，五印坛城是什么风格？",
+    "expectedTopTitles": [
+      "五印坛城"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "藏传佛教",
+      "坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_wuyin_tancheng_v3",
+    "category": "文化体验",
+    "question": "五印坛城是什么风格，能讲讲吗？",
+    "expectedTopTitles": [
+      "五印坛城"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "藏传佛教",
+      "坛城"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_manfeilong_v1",
+    "category": "文化体验",
+    "question": "曼飞龙塔有什么特色",
+    "expectedTopTitles": [
+      "曼飞龙塔"
+    ],
+    "expectedSpotIds": [
+      "LS-015"
+    ],
+    "expectedTerms": [
+      "南传佛教",
+      "九塔",
+      "白塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_manfeilong_v2",
+    "category": "文化体验",
+    "question": "请问，曼飞龙塔有什么特色？",
+    "expectedTopTitles": [
+      "曼飞龙塔"
+    ],
+    "expectedSpotIds": [
+      "LS-015"
+    ],
+    "expectedTerms": [
+      "南传佛教",
+      "九塔",
+      "白塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_manfeilong_v3",
+    "category": "文化体验",
+    "question": "曼飞龙塔有什么特色，能讲讲吗？",
+    "expectedTopTitles": [
+      "曼飞龙塔"
+    ],
+    "expectedSpotIds": [
+      "LS-015"
+    ],
+    "expectedTerms": [
+      "南传佛教",
+      "九塔",
+      "白塔"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_buddha_foot_v1",
+    "category": "祈福体验",
+    "question": "佛足坛可以做什么",
+    "expectedTopTitles": [
+      "佛足坛"
+    ],
+    "expectedSpotIds": [
+      "LS-003"
+    ],
+    "expectedTerms": [
+      "祈福",
+      "佛足",
+      "吉祥图案"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_buddha_foot_v2",
+    "category": "祈福体验",
+    "question": "请问，佛足坛可以做什么？",
+    "expectedTopTitles": [
+      "佛足坛"
+    ],
+    "expectedSpotIds": [
+      "LS-003"
+    ],
+    "expectedTerms": [
+      "祈福",
+      "佛足",
+      "吉祥图案"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_buddha_foot_v3",
+    "category": "祈福体验",
+    "question": "佛足坛可以做什么，能讲讲吗？",
+    "expectedTopTitles": [
+      "佛足坛"
+    ],
+    "expectedSpotIds": [
+      "LS-003"
+    ],
+    "expectedTerms": [
+      "祈福",
+      "佛足",
+      "吉祥图案"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "210元"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_bodhi_road_v1",
+    "category": "自然体验",
+    "question": "菩提大道有什么特色",
+    "expectedTopTitles": [
+      "菩提大道"
+    ],
+    "expectedSpotIds": [
+      "LS-005"
+    ],
+    "expectedTerms": [
+      "菩提树",
+      "禅意"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_bodhi_road_v2",
+    "category": "自然体验",
+    "question": "请问，菩提大道有什么特色？",
+    "expectedTopTitles": [
+      "菩提大道"
+    ],
+    "expectedSpotIds": [
+      "LS-005"
+    ],
+    "expectedTerms": [
+      "菩提树",
+      "禅意"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_bodhi_road_v3",
+    "category": "自然体验",
+    "question": "菩提大道有什么特色，能讲讲吗？",
+    "expectedTopTitles": [
+      "菩提大道"
+    ],
+    "expectedSpotIds": [
+      "LS-005"
+    ],
+    "expectedTerms": [
+      "菩提树",
+      "禅意"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "重12.8吨"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_ashoka_pillar_v1",
+    "category": "文化体验",
+    "question": "阿育王柱代表什么",
+    "expectedTopTitles": [
+      "阿育王柱"
+    ],
+    "expectedSpotIds": [
+      "LS-008"
+    ],
+    "expectedTerms": [
+      "阿育王",
+      "佛法",
+      "和平"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_ashoka_pillar_v2",
+    "category": "文化体验",
+    "question": "请问，阿育王柱代表什么？",
+    "expectedTopTitles": [
+      "阿育王柱"
+    ],
+    "expectedSpotIds": [
+      "LS-008"
+    ],
+    "expectedTerms": [
+      "阿育王",
+      "佛法",
+      "和平"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_ashoka_pillar_v3",
+    "category": "文化体验",
+    "question": "阿育王柱代表什么，能讲讲吗？",
+    "expectedTopTitles": [
+      "阿育王柱"
+    ],
+    "expectedSpotIds": [
+      "LS-008"
+    ],
+    "expectedTerms": [
+      "阿育王",
+      "佛法",
+      "和平"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "建筑面积达72000㎡"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_wuming_bridge_v1",
+    "category": "文化体验",
+    "question": "五明桥的五明是什么意思",
+    "expectedTopTitles": [
+      "五明桥"
+    ],
+    "expectedSpotIds": [
+      "LS-002"
+    ],
+    "expectedTerms": [
+      "声明",
+      "因明",
+      "内明",
+      "医方明",
+      "工巧明"
+    ],
+    "locale": "zh",
+    "queryStyle": "standard",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_wuming_bridge_v2",
+    "category": "文化体验",
+    "question": "请问，五明桥的五明是什么意思？",
+    "expectedTopTitles": [
+      "五明桥"
+    ],
+    "expectedSpotIds": [
+      "LS-002"
+    ],
+    "expectedTerms": [
+      "声明",
+      "因明",
+      "内明",
+      "医方明",
+      "工巧明"
+    ],
+    "locale": "zh",
+    "queryStyle": "polite",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "spot_wuming_bridge_v3",
+    "category": "文化体验",
+    "question": "五明桥的五明是什么意思，能讲讲吗？",
+    "expectedTopTitles": [
+      "五明桥"
+    ],
+    "expectedSpotIds": [
+      "LS-002"
+    ],
+    "expectedTerms": [
+      "声明",
+      "因明",
+      "内明",
+      "医方明",
+      "工巧明"
+    ],
+    "locale": "zh",
+    "queryStyle": "colloquial",
+    "expectedDocumentIds": [
+      "doc_structured_lingshan_spots"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/灵山胜境 景点结构化数据集.docx"
+    ],
+    "forbiddenFacts": [
+      "88m"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_buddha_height",
+    "category": "多语言",
+    "question": "How tall is the Lingshan Grand Buddha and how much bronze was used?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Lingshan Grand Buddha"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88 meters",
+      "101.5 meters",
+      "725 metric tons"
+    ],
+    "forbiddenFacts": [
+      "72,000 square meters"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_cloud_steps",
+    "category": "多语言",
+    "question": "What do the 216 steps on the Cloud Ascending Path symbolize?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Lingshan Grand Buddha"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "216-step",
+      "108 troubles",
+      "108 wishes"
+    ],
+    "forbiddenFacts": [
+      "four to five performances per day"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_jiulong_schedule",
+    "category": "多语言",
+    "question": "How often does Nine Dragons Bathing run, and where should I confirm today's time?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Nine Dragons Bathing show"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "four to five performances per day",
+      "official notice",
+      "visitor center"
+    ],
+    "forbiddenFacts": [
+      "10:35, 11:30, 14:00, and 16:00"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_palace_highlights",
+    "category": "多语言",
+    "question": "What are the main artistic highlights of the Lingshan Brahma Palace?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Lingshan Brahma Palace"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "28-meter celestial dome",
+      "148 flying apsaras",
+      "Avatamsaka World"
+    ],
+    "forbiddenFacts": [
+      "88 meters high"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_jixiang_times",
+    "category": "多语言",
+    "question": "When is the Ode to Auspiciousness performed and how long does it last?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Lingshan Brahma Palace"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00",
+      "20 minutes"
+    ],
+    "forbiddenFacts": [
+      "four to five performances per day"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_mandala_style",
+    "category": "多语言",
+    "question": "What style is the Five Mudra Mandala and how large is it?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Five Mudra Mandala"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "Tibetan Buddhist-style",
+      "5,000 square meters"
+    ],
+    "forbiddenFacts": [
+      "72,000 square meters"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_xiangfu_bell",
+    "category": "多语言",
+    "question": "How heavy is the Xiangfu Chan Bell?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Xiangfu Chan Temple"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "12.8-metric-ton"
+    ],
+    "forbiddenFacts": [
+      "725 metric tons"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_nianhua_stops",
+    "category": "多语言",
+    "question": "Which main places are listed for Nianhua Bay Zen Town?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Nianhua Bay Zen Town"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "Nianhua Square",
+      "Wudeng Lake",
+      "Luming Valley"
+    ],
+    "forbiddenFacts": [
+      "12.8-metric-ton"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_ticket_prices",
+    "category": "多语言",
+    "question": "What ticket and shuttle prices are listed in the current guide?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Tickets, opening hours, dining, and etiquette"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "CNY 210",
+      "CNY 105",
+      "CNY 225",
+      "CNY 40"
+    ],
+    "forbiddenFacts": [
+      "88 meters"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "en_family_route",
+    "category": "多语言",
+    "question": "Which stops are included in the four-hour family-friendly route?",
+    "locale": "en",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_en"
+    ],
+    "expectedTopTitles": [
+      "Family-friendly route, about 4 hours"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "Nine Dragons Bathing",
+      "First Palm",
+      "Hundred Children Playing with Maitreya",
+      "Five Mudra Mandala"
+    ],
+    "forbiddenFacts": [
+      "Enter through the south gate"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.en.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_buddha_height",
+    "category": "多语言",
+    "question": "霊山大仏の高さと青銅の使用量を教えてください。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "霊山大仏"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88メートル",
+      "101.5メートル",
+      "約725トン"
+    ],
+    "forbiddenFacts": [
+      "約7万2,000平方メートル"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_cloud_steps",
+    "category": "多语言",
+    "question": "登雲道の216段は何を象徴していますか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "霊山大仏"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "216段",
+      "108の煩悩",
+      "108の願い"
+    ],
+    "forbiddenFacts": [
+      "1日4～5回"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_jiulong_schedule",
+    "category": "多语言",
+    "question": "九龍灌浴は1日何回上演され、当日の時刻はどこで確認しますか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "九龍灌浴の上演"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "1日4～5回",
+      "園内案内",
+      "ビジターセンター"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_palace_highlights",
+    "category": "多语言",
+    "question": "霊山梵宮の主な芸術的な見どころは何ですか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "霊山梵宮"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "高さ28メートルの星空ドーム",
+      "148体の飛天",
+      "華蔵世界"
+    ],
+    "forbiddenFacts": [
+      "88メートル"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_jixiang_times",
+    "category": "多语言",
+    "question": "吉祥頌の上演時刻と所要時間を教えてください。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "霊山梵宮"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00",
+      "約20分"
+    ],
+    "forbiddenFacts": [
+      "1日4～5回"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_mandala_style",
+    "category": "多语言",
+    "question": "五印壇城はどのような様式で、面積はどのくらいですか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "五印壇城"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "チベット仏教様式",
+      "約5,000平方メートル"
+    ],
+    "forbiddenFacts": [
+      "約7万2,000平方メートル"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_xiangfu_bell",
+    "category": "多语言",
+    "question": "祥符禅鐘の重さはどのくらいですか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "祥符禅寺"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "12.8トン"
+    ],
+    "forbiddenFacts": [
+      "約725トン"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_nianhua_stops",
+    "category": "多语言",
+    "question": "拈花湾禅意小鎮の主な場所を教えてください。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "拈花湾禅意小鎮"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "拈花広場",
+      "五灯湖",
+      "鹿鳴谷"
+    ],
+    "forbiddenFacts": [
+      "12.8トン"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_ticket_prices",
+    "category": "多语言",
+    "question": "資料に記載された入場券と園内車の料金はいくらですか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "入場券、営業時間、食事、参拝マナー"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "大人券210元",
+      "割引券105元",
+      "セット券225元",
+      "園内車単独券40元"
+    ],
+    "forbiddenFacts": [
+      "88メートル"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ja_family_route",
+    "category": "多语言",
+    "question": "約4時間のファミリールートにはどの場所が含まれますか。",
+    "locale": "ja",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ja"
+    ],
+    "expectedTopTitles": [
+      "ファミリールート、約4時間"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "九龍灌浴",
+      "天下第一掌",
+      "百子戯弥勒",
+      "五印壇城"
+    ],
+    "forbiddenFacts": [
+      "南門から入園"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ja.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_buddha_height",
+    "category": "多语言",
+    "question": "링산대불의 높이와 사용된 청동의 양은 얼마인가요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "링산대불"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88미터",
+      "101.5미터",
+      "약 725톤"
+    ],
+    "forbiddenFacts": [
+      "약 7만 2천 제곱미터"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_cloud_steps",
+    "category": "多语言",
+    "question": "등운도의 216개 계단은 무엇을 상징하나요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "링산대불"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "216개 계단",
+      "108번뇌",
+      "108가지 소원"
+    ],
+    "forbiddenFacts": [
+      "하루 4~5회"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_jiulong_schedule",
+    "category": "多语言",
+    "question": "구룡관욕은 하루 몇 회 공연하며 당일 시간은 어디서 확인하나요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "구룡관욕 공연"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "하루 4~5회",
+      "현장 공지",
+      "관광안내센터"
+    ],
+    "forbiddenFacts": [
+      "10:35, 11:30, 14:00, 16:00"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_palace_highlights",
+    "category": "多语言",
+    "question": "링산 범궁의 대표적인 예술 볼거리는 무엇인가요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "링산 범궁"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "높이 28미터의 천상 돔",
+      "148위의 비천상",
+      "화장세계"
+    ],
+    "forbiddenFacts": [
+      "88미터"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_jixiang_times",
+    "category": "多语言",
+    "question": "길상송 공연 시각과 소요 시간은 어떻게 되나요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "링산 범궁"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00",
+      "약 20분"
+    ],
+    "forbiddenFacts": [
+      "하루 4~5회"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_mandala_style",
+    "category": "多语言",
+    "question": "오인단성은 어떤 양식이며 규모는 어느 정도인가요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "오인단성"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "티베트 불교 양식",
+      "약 5,000제곱미터"
+    ],
+    "forbiddenFacts": [
+      "약 7만 2천 제곱미터"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_xiangfu_bell",
+    "category": "多语言",
+    "question": "상부선종의 무게는 얼마인가요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "상부선사"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "12.8톤"
+    ],
+    "forbiddenFacts": [
+      "약 725톤"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_nianhua_stops",
+    "category": "多语言",
+    "question": "녠화완 선의 마을의 주요 장소는 어디인가요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "녠화완 선의 마을"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "녠화광장",
+      "오등호",
+      "녹명곡"
+    ],
+    "forbiddenFacts": [
+      "12.8톤"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_ticket_prices",
+    "category": "多语言",
+    "question": "자료에 나온 입장권과 관광차 가격을 알려 주세요.",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "입장권, 운영 시간, 식사와 관람 예절"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "성인권 210위안",
+      "우대권 105위안",
+      "결합권 225위안",
+      "단독권 40위안"
+    ],
+    "forbiddenFacts": [
+      "88미터"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "ko_family_route",
+    "category": "多语言",
+    "question": "약 4시간 가족 경로에는 어떤 장소가 포함되나요?",
+    "locale": "ko",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_ko"
+    ],
+    "expectedTopTitles": [
+      "가족 경로, 약 4시간"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "구룡관욕",
+      "천하제일장",
+      "백자희미륵",
+      "오인단성"
+    ],
+    "forbiddenFacts": [
+      "남문에서 입장"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.ko.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_buddha_height",
+    "category": "多语言",
+    "question": "พระใหญ่หลิงซานสูงเท่าไรและใช้สัมฤทธิ์ประมาณเท่าไร",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "พระใหญ่หลิงซาน"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "88 เมตร",
+      "101.5 เมตร",
+      "725 เมตริกตัน"
+    ],
+    "forbiddenFacts": [
+      "72,000 ตารางเมตร"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_cloud_steps",
+    "category": "多语言",
+    "question": "บันไดเส้นทางสู่เมฆ 216 ขั้นสื่อถึงอะไร",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "พระใหญ่หลิงซาน"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "216 ขั้น",
+      "ความกังวล 108 ประการ",
+      "ความปรารถนา 108 ประการ"
+    ],
+    "forbiddenFacts": [
+      "วันละสี่ถึงห้ารอบ"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_jiulong_schedule",
+    "category": "多语言",
+    "question": "การแสดงเก้ามังกรสรงน้ำมีวันละกี่รอบและควรตรวจสอบเวลาได้ที่ไหน",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "การแสดงเก้ามังกรสรงน้ำ"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "วันละสี่ถึงห้ารอบ",
+      "ประกาศทางการ",
+      "ศูนย์บริการนักท่องเที่ยว"
+    ],
+    "forbiddenFacts": [
+      "10:35 น., 11:30 น., 14:00 น. และ 16:00 น."
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_palace_highlights",
+    "category": "多语言",
+    "question": "จุดเด่นทางศิลปะของพระราชวังฝานกงหลิงซานมีอะไรบ้าง",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "พระราชวังฝานกงหลิงซาน"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "โดมทิพย์สูง 28 เมตร",
+      "นางอัปสรเหาะ 148 องค์",
+      "โลกอวตังสกะ"
+    ],
+    "forbiddenFacts": [
+      "88 เมตร"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_jixiang_times",
+    "category": "多语言",
+    "question": "บทเพลงแห่งสิริมงคลแสดงเวลาใดและใช้เวลากี่นาที",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "พระราชวังฝานกงหลิงซาน"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00",
+      "20 นาที"
+    ],
+    "forbiddenFacts": [
+      "วันละสี่ถึงห้ารอบ"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_mandala_style",
+    "category": "多语言",
+    "question": "วิหารห้าตราประทับเป็นสถาปัตยกรรมแบบใดและมีพื้นที่เท่าไร",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "วิหารห้าตราประทับ"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "พุทธศาสนาแบบทิเบต",
+      "5,000 ตารางเมตร"
+    ],
+    "forbiddenFacts": [
+      "72,000 ตารางเมตร"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_xiangfu_bell",
+    "category": "多语言",
+    "question": "ระฆังวัดเซียงฝูฉานหนักเท่าไร",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "วัดเซียงฝูฉาน"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "12.8 เมตริกตัน"
+    ],
+    "forbiddenFacts": [
+      "725 เมตริกตัน"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_nianhua_stops",
+    "category": "多语言",
+    "question": "สถานที่สำคัญในเมืองเซนเหนียนฮวาวานมีที่ใดบ้าง",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "เมืองเซนเหนียนฮวาวาน"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "จัตุรัสเหนียนฮวา",
+      "ทะเลสาบอู๋เติง",
+      "หุบเขาลู่หมิง"
+    ],
+    "forbiddenFacts": [
+      "12.8 เมตริกตัน"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_ticket_prices",
+    "category": "多语言",
+    "question": "ข้อมูลระบุราคาบัตรและรถรับส่งไว้เท่าไรบ้าง",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "บัตรเข้าชม เวลาเปิด อาหาร และมารยาท"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "210 หยวน",
+      "105 หยวน",
+      "225 หยวน",
+      "40 หยวน"
+    ],
+    "forbiddenFacts": [
+      "88 เมตร"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "th_family_route",
+    "category": "多语言",
+    "question": "เส้นทางสำหรับครอบครัวประมาณ 4 ชั่วโมงผ่านสถานที่ใดบ้าง",
+    "locale": "th",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_th"
+    ],
+    "expectedTopTitles": [
+      "เส้นทางสำหรับครอบครัว ประมาณ 4 ชั่วโมง"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "เก้ามังกรสรงน้ำ",
+      "ฝ่ามืออันดับหนึ่ง",
+      "พระศรีอริยเมตไตรยกับเด็กหนึ่งร้อยคน",
+      "วิหารห้าตราประทับ"
+    ],
+    "forbiddenFacts": [
+      "เข้าทางประตูทิศใต้"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.th.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_buddha_height",
+    "category": "多语言",
+    "question": "靈山大佛有多高，使用了多少青銅？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "靈山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "88 公尺",
+      "101.5 公尺",
+      "725 噸"
+    ],
+    "forbiddenFacts": [
+      "7.2 萬平方公尺"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_cloud_steps",
+    "category": "多语言",
+    "question": "登雲道的 216 級代表什麼含義？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "靈山大佛"
+    ],
+    "expectedSpotIds": [
+      "LS-011"
+    ],
+    "expectedTerms": [
+      "216 級",
+      "108 種煩惱",
+      "108 個願望"
+    ],
+    "forbiddenFacts": [
+      "每日演出 4 至 5 場"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_jiulong_schedule",
+    "category": "多语言",
+    "question": "九龍灌浴每日演出幾場，當日時間要去哪裡確認？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "九龍灌浴表演"
+    ],
+    "expectedSpotIds": [
+      "LS-006"
+    ],
+    "expectedTerms": [
+      "每日演出 4 至 5 場",
+      "景區公告",
+      "遊客服務中心"
+    ],
+    "forbiddenFacts": [
+      "10:35、11:30、14:00、16:00"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_palace_highlights",
+    "category": "多语言",
+    "question": "靈山梵宮有哪些主要藝術看點？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "靈山梵宮"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "28 公尺高的穹頂天象圖",
+      "148 尊飛天",
+      "華藏世界"
+    ],
+    "forbiddenFacts": [
+      "88 公尺"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_jixiang_times",
+    "category": "多语言",
+    "question": "吉祥頌的演出時間和每場時長是多少？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "靈山梵宮"
+    ],
+    "expectedSpotIds": [
+      "LS-013"
+    ],
+    "expectedTerms": [
+      "10:35",
+      "11:30",
+      "14:00",
+      "16:00",
+      "約 20 分鐘"
+    ],
+    "forbiddenFacts": [
+      "每日演出 4 至 5 場"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_mandala_style",
+    "category": "多语言",
+    "question": "五印壇城是什麼建築風格，面積多大？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "五印壇城"
+    ],
+    "expectedSpotIds": [
+      "LS-014"
+    ],
+    "expectedTerms": [
+      "藏傳佛教風格",
+      "5,000 平方公尺"
+    ],
+    "forbiddenFacts": [
+      "7.2 萬平方公尺"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_xiangfu_bell",
+    "category": "多语言",
+    "question": "祥符禪鐘有多重？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "祥符禪寺"
+    ],
+    "expectedSpotIds": [
+      "LS-010"
+    ],
+    "expectedTerms": [
+      "12.8 噸"
+    ],
+    "forbiddenFacts": [
+      "725 噸"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_nianhua_stops",
+    "category": "多语言",
+    "question": "拈花灣禪意小鎮包含哪些主要景點？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "拈花灣禪意小鎮"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "拈花廣場",
+      "五燈湖",
+      "鹿鳴谷"
+    ],
+    "forbiddenFacts": [
+      "12.8 噸"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "tuning",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_ticket_prices",
+    "category": "多语言",
+    "question": "資料列出的門票與觀光車價格是多少？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "門票、開放時間、餐飲與禮儀"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "210 元",
+      "105 元",
+      "225 元",
+      "40 元"
+    ],
+    "forbiddenFacts": [
+      "88 公尺"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "zh_tw_family_route",
+    "category": "多语言",
+    "question": "約 4 小時的親子輕鬆路線會經過哪些地方？",
+    "locale": "zh-TW",
+    "queryStyle": "source_aligned",
+    "expectedDocumentIds": [
+      "doc_lingshan_guide_zh_tw"
+    ],
+    "expectedTopTitles": [
+      "親子輕鬆路線，約 4 小時"
+    ],
+    "expectedSpotIds": [],
+    "expectedTerms": [
+      "九龍灌浴",
+      "天下第一掌",
+      "百子戲彌勒",
+      "五印壇城"
+    ],
+    "forbiddenFacts": [
+      "由南門入園"
+    ],
+    "sourceFiles": [
+      "docs/scenic-materials/lingshan-guide.zh-TW.md"
+    ],
+    "split": "holdout",
+    "shouldAnswer": true,
+    "shouldRefuse": false
+  },
+  {
+    "id": "no_answer_1_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下西湖",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_1_route",
+    "category": "跨景区负样本",
+    "question": "西湖推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_2_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下故宫",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_2_route",
+    "category": "跨景区负样本",
+    "question": "故宫推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_3_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下黄山",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_3_route",
+    "category": "跨景区负样本",
+    "question": "黄山推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_4_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下泰山",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_4_route",
+    "category": "跨景区负样本",
+    "question": "泰山推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_5_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下峨眉山",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_5_route",
+    "category": "跨景区负样本",
+    "question": "峨眉山推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_6_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下普陀山",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_6_route",
+    "category": "跨景区负样本",
+    "question": "普陀山推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_7_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下九华山",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_7_route",
+    "category": "跨景区负样本",
+    "question": "九华山推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_8_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下少林寺",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_8_route",
+    "category": "跨景区负样本",
+    "question": "少林寺推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_9_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下兵马俑",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_9_route",
+    "category": "跨景区负样本",
+    "question": "兵马俑推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_10_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下长城",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_10_route",
+    "category": "跨景区负样本",
+    "question": "长城推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_11_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下迪士尼",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_11_route",
+    "category": "跨景区负样本",
+    "question": "迪士尼推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_12_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下环球影城",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_12_route",
+    "category": "跨景区负样本",
+    "question": "环球影城推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_13_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下鼋头渚",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_13_route",
+    "category": "跨景区负样本",
+    "question": "鼋头渚推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "holdout",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_14_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下颐和园",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_14_route",
+    "category": "跨景区负样本",
+    "question": "颐和园推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_15_intro",
+    "category": "跨景区负样本",
+    "question": "介绍一下天坛",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_intro",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  },
+  {
+    "id": "no_answer_15_route",
+    "category": "跨景区负样本",
+    "question": "天坛推荐什么游览路线",
+    "locale": "zh",
+    "queryStyle": "out_of_scope_route",
+    "expectedDocumentIds": [],
+    "expectedTopTitles": [],
+    "expectedSpotIds": [],
+    "expectedTerms": [],
+    "forbiddenFacts": [
+      "88m",
+      "210元"
+    ],
+    "sourceFiles": [],
+    "split": "tuning",
+    "shouldAnswer": false,
+    "shouldRefuse": true
+  }
+]

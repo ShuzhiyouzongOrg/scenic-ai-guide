@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-08-26-v1",
+  "description": "Approved offline retrieval baseline. Update only after reviewing a deliberate golden-set or retrieval change.",
+  "suites": {
+    "smoke": {
+      "dataset": {
+        "path": "data/tests/retrieval-cases.json",
+        "caseCount": 20,
+        "sha256": "6d8848262feed4407e408b560dd69beea756d612c74c90e6189dbb4787f20493"
+      },
+      "metrics": {
+        "top1TitleAccuracy": {
+          "baseline": 0.95,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.05
+        },
+        "top3TitleAccuracy": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0
+        },
+        "top3SpotAccuracy": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0
+        },
+        "top3TermRecall": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0
+        },
+        "recallAt5": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0
+        },
+        "mrr": {
+          "baseline": 0.975,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.03
+        },
+        "ndcgAt5": {
+          "baseline": 0.9815,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.03
+        },
+        "citationHitRate": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.05
+        },
+        "failureCount": {
+          "baseline": 0,
+          "direction": "lower",
+          "maxAbsoluteRegression": 0
+        },
+        "retrievalLatencyMs.p95": {
+          "baseline": 137.918,
+          "direction": "lower",
+          "maxRelativeRegression": 1,
+          "maxValue": 500
+        }
+      }
+    },
+    "full": {
+      "dataset": {
+        "path": "data/tests/retrieval-cases-expanded.json",
+        "caseCount": 150,
+        "sha256": "569ba08c8f58fa9a0f7eabc026ce632368257a5c88a86969afe55f8e2ddccc9e"
+      },
+      "metrics": {
+        "top1TitleAccuracy": {
+          "baseline": 0.8833,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.025
+        },
+        "top3TitleAccuracy": {
+          "baseline": 0.9583,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.02
+        },
+        "top3SpotAccuracy": {
+          "baseline": 0.9917,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.01
+        },
+        "top3TermRecall": {
+          "baseline": 0.9583,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.02
+        },
+        "recallAt5": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0
+        },
+        "mrr": {
+          "baseline": 0.9833,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.02
+        },
+        "ndcgAt5": {
+          "baseline": 0.9877,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.02
+        },
+        "citationHitRate": {
+          "baseline": 0.8667,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.04
+        },
+        "noAnswerAccuracy": {
+          "baseline": 1,
+          "direction": "higher",
+          "maxAbsoluteRegression": 0.02
+        },
+        "failureCount": {
+          "baseline": 10,
+          "direction": "lower",
+          "maxAbsoluteRegression": 2
+        },
+        "retrievalLatencyMs.p95": {
+          "baseline": 90.584,
+          "direction": "lower",
+          "maxRelativeRegression": 1.5,
+          "maxValue": 500
+        }
+      }
+    }
+  }
+}

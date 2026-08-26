@@ -1,0 +1,141 @@
+name: RAG Regression
+
+on:
+  pull_request:
+    paths:
+      - "server/src/services/**"
+      - "server/data/tests/**"
+      - "server/scripts/*retrieval*"
+      - "server/scripts/*rag*"
+      - "server/scripts/test-rag-optimization.mjs"
+      - ".github/workflows/rag-regression.yml"
+  schedule:
+    - cron: "0 18 * * 0"
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Regression suite to run
+        required: true
+        default: full
+        type: choice
+        options:
+          - smoke
+          - full
+          - all
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke regression gate
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' &&
+      (inputs.suite == 'smoke' || inputs.suite == 'all'))
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:rag
+      - run: npm run test:uploads
+      - run: npm run test:rag:goldens
+      - run: npm run test:rag:security
+      - run: npm run test:rag:ablation-gate
+      - name: Evaluate smoke golden set
+        run: >-
+          node scripts/eval-retrieval.mjs
+          data/tests/retrieval-cases.json
+          --suite=smoke
+          --no-fail-on-cases
+          --output=../artifacts/rag-smoke-evaluation.json
+      - name: Compare smoke baseline
+        run: >-
+          node scripts/check-rag-regression.mjs
+          --suite=smoke
+          --report=../artifacts/rag-smoke-evaluation.json
+          --baseline=data/tests/retrieval-baseline.json
+          --output=../artifacts/rag-smoke-gate.json
+      - name: Evaluate smoke single channels
+        run: |
+          node scripts/eval-retrieval.mjs data/tests/retrieval-cases.json --suite=smoke --mode=rule --no-fail-on-cases --output=../artifacts/rag-smoke-rule.json
+          node scripts/eval-retrieval.mjs data/tests/retrieval-cases.json --suite=smoke --mode=bm25 --no-fail-on-cases --output=../artifacts/rag-smoke-bm25.json
+      - name: Enforce smoke fusion ablation gate
+        run: >-
+          node scripts/check-rag-ablation.mjs
+          --rule=../artifacts/rag-smoke-rule.json
+          --bm25=../artifacts/rag-smoke-bm25.json
+          --fusion=../artifacts/rag-smoke-evaluation.json
+          --output=../artifacts/rag-smoke-ablation-gate.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rag-regression-smoke-${{ github.run_number }}
+          path: artifacts/rag-smoke-*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  full:
+    name: Full golden-set regression gate
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' &&
+      (inputs.suite == 'full' || inputs.suite == 'all'))
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:rag
+      - run: npm run test:uploads
+      - run: npm run test:rag:ablation-gate
+      - name: Evaluate full golden set
+        run: >-
+          node scripts/eval-retrieval.mjs
+          data/tests/retrieval-cases-expanded.json
+          --suite=full
+          --validate-dataset
+          --no-fail-on-cases
+          --output=../artifacts/rag-full-evaluation.json
+      - name: Compare full baseline
+        run: >-
+          node scripts/check-rag-regression.mjs
+          --suite=full
+          --report=../artifacts/rag-full-evaluation.json
+          --baseline=data/tests/retrieval-baseline.json
+          --output=../artifacts/rag-full-gate.json
+      - name: Evaluate full single channels
+        run: |
+          node scripts/eval-retrieval.mjs data/tests/retrieval-cases-expanded.json --suite=full --mode=rule --no-fail-on-cases --output=../artifacts/rag-full-rule.json
+          node scripts/eval-retrieval.mjs data/tests/retrieval-cases-expanded.json --suite=full --mode=bm25 --no-fail-on-cases --output=../artifacts/rag-full-bm25.json
+      - name: Enforce full fusion ablation gate
+        run: >-
+          node scripts/check-rag-ablation.mjs
+          --rule=../artifacts/rag-full-rule.json
+          --bm25=../artifacts/rag-full-bm25.json
+          --fusion=../artifacts/rag-full-evaluation.json
+          --output=../artifacts/rag-full-ablation-gate.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rag-regression-full-${{ github.run_number }}
+          path: artifacts/rag-full-*.json
+          if-no-files-found: warn
+          retention-days: 30
