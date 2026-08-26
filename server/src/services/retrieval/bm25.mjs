@@ -85,4 +85,3 @@ function countTerms(terms) {
   for (const term of terms) counts.set(term, (counts.get(term) || 0) + 1);
   return counts;
 }
-
