@@ -6,7 +6,15 @@
  * @typedef {{source?: string, scenicSpotName?: string, title?: string, content?: string}} PromptRetrievalResult
  */
 
+import { estimateTextTokens } from "./knowledgeBuild.mjs";
 import { localeInstruction, normalizeLocale } from "./language.mjs";
+
+/** @type {number} 检索上下文总 token 预算，避免低配置服务发送超长请求。 */
+export const CONTEXT_TOKEN_BUDGET = 3200;
+/** @type {number} 单个来源 parent 的最大 token 预算。 */
+export const CONTEXT_ITEM_TOKEN_BUDGET = 900;
+/** @type {number} 同一文档在单次上下文中允许占用的最大 token。 */
+export const CONTEXT_DOCUMENT_TOKEN_BUDGET = 1400;
 
 /** @type {string} 数字人导游的人设与语言风格约束。 */
 const PERSONA = [
@@ -94,22 +102,118 @@ export function buildContextBlock(results = []) {
     return "【灵山胜境资料】(无匹配资料)";
   }
 
-  const items = results.slice(0, 5).map((item, index) => {
+  const packed = packContextResults(results);
+  const items = packed.map(({ item, context }, index) => {
     const spot = item.scenicSpotName ? `[${item.scenicSpotName}]` : "";
-    return `资料${index + 1} 《${item.source}》${spot}${item.title}:\n${item.content}`;
+    const citationId = item.citation?.citationId || `C${index + 1}`;
+    return `资料${index + 1} [${citationId}] 《${item.source}》${spot}${item.title}:\n${context}`;
   });
 
   return `【灵山胜境资料】\n${items.join("\n\n")}`;
 }
 
 /**
+ * 按相关性顺序装箱检索资料，分别限制单来源和总 token，并在句子边界截断。
+ * @param {PromptRetrievalResult[]} results 检索结果。
+ * @param {{maxTokens?: number, perItemTokens?: number, perDocumentTokens?: number}} [options={}] 预算参数。
+ * @returns {Array<{item: PromptRetrievalResult, context: string, tokens: number}>} 已装箱资料。
+ */
+export function packContextResults(results = [], options = {}) {
+  const maxTokens = Math.max(128, Math.floor(Number(options.maxTokens || CONTEXT_TOKEN_BUDGET)));
+  const perItemTokens = Math.max(64, Math.min(
+    maxTokens,
+    Math.floor(Number(options.perItemTokens || CONTEXT_ITEM_TOKEN_BUDGET))
+  ));
+  const perDocumentTokens = Math.max(64, Math.min(
+    maxTokens,
+    Math.floor(Number(options.perDocumentTokens || CONTEXT_DOCUMENT_TOKEN_BUDGET))
+  ));
+  const packed = [];
+  const documentTokens = new Map();
+  let used = 0;
+  for (const item of prioritizeContextResults(results).slice(0, 8)) {
+    const remaining = maxTokens - used;
+    if (remaining < 64) break;
+    const documentKey = String(item.documentId || item.source || "unknown");
+    const documentRemaining = perDocumentTokens - (documentTokens.get(documentKey) || 0);
+    if (documentRemaining < 64) continue;
+    const budget = Math.min(perItemTokens, remaining, documentRemaining);
+    const source = String(item.contextContent || item.parentContent || item.content || "").trim();
+    const context = truncateAtSentenceBoundary(source, budget);
+    if (!context) continue;
+    const tokens = estimateTextTokens(context);
+    packed.push({ item, context, tokens });
+    used += tokens;
+    documentTokens.set(documentKey, (documentTokens.get(documentKey) || 0) + tokens);
+  }
+  return packed;
+}
+
+/**
+ * 先按检索/重排分，再以事实型内容和来源轮换作为稳定次级排序。
+ * @param {PromptRetrievalResult[]} results 检索结果。
+ * @returns {PromptRetrievalResult[]} 装箱顺序。
+ */
+function prioritizeContextResults(results) {
+  const ranked = results.map((item, index) => ({ item, index }))
+    .sort((left, right) => (
+      Number(right.item.score || 0) - Number(left.item.score || 0)
+      || factPriority(right.item) - factPriority(left.item)
+      || left.index - right.index
+    ));
+  const buckets = new Map();
+  for (const entry of ranked) {
+    const key = String(entry.item.documentId || entry.item.source || "unknown");
+    const bucket = buckets.get(key) || [];
+    bucket.push(entry.item);
+    buckets.set(key, bucket);
+  }
+  const output = [];
+  while (output.length < ranked.length) {
+    let added = false;
+    for (const bucket of buckets.values()) {
+      if (bucket.length > 0) {
+        output.push(bucket.shift());
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+  return output;
+}
+
+/** @param {PromptRetrievalResult} item 候选。 @returns {number} 数字、时间、地点等事实内容优先级。 */
+function factPriority(item) {
+  const text = `${item.title || ""} ${item.content || ""}`;
+  let score = 0;
+  if (/\d+(?:\.\d+)?(?:米|m|吨|元|分钟|小时|年|月|日|:\d{2})/iu.test(text)) score += 3;
+  if (/(位于|地址|开放|闭园|闭馆|票价|演出|路线)/u.test(text)) score += 2;
+  if (item.page || item.sheetName || item.range) score += 1;
+  return score;
+}
+
+/** @param {string} text 正文。 @param {number} maxTokens 最大 token 数。 @returns {string} 截断正文。 */
+function truncateAtSentenceBoundary(text, maxTokens) {
+  if (!text || estimateTextTokens(text) <= maxTokens) return text;
+  const units = text.split(/(?<=[。！？；.!?])\s*|\n+/u).map((unit) => unit.trim()).filter(Boolean);
+  let output = "";
+  for (const unit of units) {
+    const candidate = output ? `${output}\n${unit}` : unit;
+    if (estimateTextTokens(candidate) > maxTokens) break;
+    output = candidate;
+  }
+  if (output) return output;
+  return Array.from(text).slice(0, Math.max(1, maxTokens)).join("").trim();
+}
+
+/**
  * 构建完整对话消息：系统提示、最近六轮有效历史以及带检索资料的当前问题。
- * @param {{mode?: PromptMode|string, question: *, results?: PromptRetrievalResult[], history?: ChatPromptMessage[], locale?: *}} input 构建参数。
+ * @param {{mode?: PromptMode|string, question: *, results?: PromptRetrievalResult[], conflicts?: object[], history?: ChatPromptMessage[], locale?: *}} input 构建参数。
  * @returns {ChatPromptMessage[]} 可传给 OpenAI 兼容接口的消息数组。
  * @example
  * const messages = buildMessages({ mode: "qa", question: "开放时间？", results: [] });
  */
-export function buildMessages({ mode, question, results, history = [], locale = "zh" }) {
+export function buildMessages({ mode, question, results, conflicts = [], history = [], locale = "zh" }) {
   const normalizedLocale = normalizeLocale(locale, question);
   const messages = [{ role: "system", content: buildSystemPrompt({ mode, locale: normalizedLocale }) }];
 
@@ -120,9 +224,12 @@ export function buildMessages({ mode, question, results, history = [], locale = 
   }
 
   const context = buildContextBlock(results);
+  const conflictNotice = conflicts.length > 0
+    ? `\n\n【资料冲突提示】当前资料对${conflicts.map((item) => `${item.field}:${item.values.join("、")}`).join("；")}存在不同口径。请不要自行拼接或选择一个作为确定事实，应明确告知游客以现场公告或官方最新信息为准。`
+    : "";
   messages.push({
     role: "user",
-    content: `${context}\n\n游客问题:${question}\n\n请依据以上资料回答。${localeInstruction(normalizedLocale)}`
+    content: `${context}${conflictNotice}\n\n游客问题:${question}\n\n请依据以上资料回答。引用资料中的事实时，在对应句末使用有效引用标记，例如 [C-...]；不得编造或使用不存在的引用标记。${localeInstruction(normalizedLocale)}`
   });
 
   return messages;

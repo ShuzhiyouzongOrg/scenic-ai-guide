@@ -10,8 +10,9 @@
  * @typedef {{answer: string, mode: AnswerMode, locale: string, scenario: AnswerScenario, label: string, emotion: string, citations: object[], sources: object[], retrieval: object, provider: string, model: string, digitalHuman: object, cached: boolean, latency: object}} AnswerPayload
  */
 
-import { hybridSearch } from "./retrieval.mjs";
-import { loadKnowledge } from "./knowledgeBuild.mjs";
+import { hybridSearch, hybridSearchAsync } from "./retrieval.mjs";
+import { getActiveKnowledgeVersion } from "./knowledgeBuild.mjs";
+import { loadKnowledgeFromSqlite } from "./knowledgeRepository.mjs";
 import { llmComplete, llmStream } from "./llm.mjs";
 import { buildMessages } from "./prompts.mjs";
 import {
@@ -24,6 +25,12 @@ import { appendMessage, getHistory, getLastSpotName } from "./conversation.mjs";
 import { mapAnswerToDigitalHumanState } from "./digitalHuman.mjs";
 import { normalizeLocale } from "./language.mjs";
 import { composeMockAnswer } from "./mockComposer.mjs";
+import { recordKnowledgeGap } from "./knowledgeGaps.mjs";
+import { recordRetrievalTrace } from "./retrievalTrace.mjs";
+import {
+  recordRagExperimentAnswer,
+  resolveRagExperiment
+} from "./ragExperiment.mjs";
 
 /** @type {string[]} 支持语言中可能表示省略主语追问的代词和方位词。 */
 const FOLLOW_UP_PRONOUNS = [
@@ -170,7 +177,7 @@ function fallbackAssistantText({ mode, results, locale }) {
  * @throws {Error} 知识库加载失败时透传异常。
  */
 function knownSpotNames() {
-  const knowledge = loadKnowledge();
+  const knowledge = loadKnowledgeFromSqlite();
   return (knowledge?.spots || []).flatMap(
     (spot) => spot.aliases || [spot.name],
   );
@@ -372,7 +379,8 @@ function classifyScenario({ question, retrieval, emotion }) {
 
   // Low-confidence or only-generic-name matches -> treat as no_data to avoid
   // answering from material that does not actually cover the question.
-  if (results[0].score < 12 || !retrievalIsRelevant(retrieval)) {
+  const confidenceScore = Number(retrieval?.confidence?.strongestRuleScore ?? results[0].score);
+  if (confidenceScore < 12 || !retrievalIsRelevant(retrieval)) {
     return { scenario: isGreeting ? "chitchat" : "no_data" };
   }
 
@@ -393,6 +401,7 @@ function buildMeta({ scenario, mode, question, retrieval, extras }) {
     results: retrieval?.results || [],
     intents: retrieval?.intents || [],
     spotMatches: retrieval?.spotMatches || [],
+    decision: retrieval?.decision || null,
     ...extras,
   };
 }
@@ -427,24 +436,36 @@ export async function answerQuestion({
   const mode = inferMode(trimmed, explicitMode);
   const emotion = detectEmotion(trimmed);
   const responseLocale = normalizeLocale(locale, trimmed);
-  const cacheQuestion = `${responseLocale}::${trimmed}`;
+  const experiment = resolveRagExperiment(sessionId);
+  const cacheQuestion = trimmed;
+  const cacheContext = {
+    locale: responseLocale,
+    scenicArea: "",
+    retrievalMode: experiment.enabled ? `${experiment.id}:${experiment.variant}` : "hybrid",
+    accessScopes: ["public"],
+    tenantId: "default"
+  };
+  const knowledgeVersionAtStart = getActiveKnowledgeVersion();
 
   // Route recommendations depend on the current request and must not reuse a
   // global FAQ answer that may have been generated from another session.
-  const cached = mode === "route" ? null : getCachedAnswer(cacheQuestion, mode);
+  const cached = mode === "route"
+    ? null
+    : getCachedAnswer(cacheQuestion, mode, knowledgeVersionAtStart, cacheContext);
   if (cached) {
     const normalizedCachedAnswer = normalizeAssistantText(cached.answer);
     if (!normalizedCachedAnswer) {
       // Ignore an incompatible legacy cache entry and regenerate the answer.
     } else {
       const normalizedCached = { ...cached, answer: normalizedCachedAnswer };
+      let assistantMessage = null;
       if (sessionId) {
         appendMessage(sessionId, {
           role: "user",
           content: trimmed,
           emotionLabel: emotion,
         });
-        appendMessage(sessionId, {
+        assistantMessage = appendMessage(sessionId, {
           role: "assistant",
           content: normalizedCached.answer,
           intentLabel: normalizedCached.label,
@@ -452,11 +473,30 @@ export async function answerQuestion({
           latencyMs: nowMs() - started,
         });
       }
+      const totalMs = nowMs() - started;
+      try {
+        recordRagExperimentAnswer({
+          assignment: experiment,
+          messageId: assistantMessage?.id,
+          scenario: normalizedCached.scenario,
+          refused: normalizedCached.scenario !== "grounded",
+          citationCount: normalizedCached.citations?.length || normalizedCached.sources?.length || 0,
+          latencyMs: totalMs,
+          provider: normalizedCached.provider,
+          model: normalizedCached.model,
+          indexVersion: normalizedCached.retrieval?.indexVersion || knowledgeVersionAtStart,
+          cached: true
+        });
+      } catch {
+        // 实验指标失败不应阻断游客问答。
+      }
       return {
         ...normalizedCached,
+        messageId: assistantMessage?.id || null,
+        experiment: publicExperiment(experiment),
         cached: true,
         latency: {
-          totalMs: nowMs() - started,
+          totalMs,
           retrievalMs: 0,
           llmMs: 0,
           cached: true,
@@ -477,7 +517,9 @@ export async function answerQuestion({
   if (!preSensitive.sensitive && !preScope.outOfScope) {
     const retrievalStart = nowMs();
     try {
-      retrieval = hybridSearch(query, { limit: 5, locale: responseLocale });
+      retrieval = experiment.enabled && experiment.variant === "control"
+        ? hybridSearch(query, { limit: 5, locale: responseLocale })
+        : await hybridSearchAsync(query, { limit: 5, locale: responseLocale });
     } catch (error) {
       if (error.code !== "KNOWLEDGE_NOT_BUILT") {
         throw error;
@@ -497,9 +539,21 @@ export async function answerQuestion({
     },
     emotion,
   });
+  if (scenario === "no_data") {
+    const spotId = retrieval?.spotMatches?.[0]?.id || "";
+    recordKnowledgeGap({
+      question: trimmed,
+      scenicArea: retrieval?.filters?.scenicArea
+        || (String(spotId).startsWith("NHW-") ? "nianhuawan" : String(spotId).startsWith("LS-") ? "lingshan" : ""),
+      intent: retrieval?.intents?.[0]?.intent || "",
+      reason: retrieval?.decision?.reason || (retrieval?.results?.length ? "low_relevance" : "no_candidate"),
+      source: "retrieval"
+    });
+  }
 
   const meta = buildMeta({
     scenario,
+    publicNotice: publicDecisionCode(retrieval?.decision?.reason),
     mode,
     question: trimmed,
     retrieval,
@@ -526,6 +580,7 @@ export async function answerQuestion({
     mode,
     question: trimmed,
     results,
+    conflicts: retrieval?.conflicts || [],
     history,
     locale: responseLocale,
   });
@@ -571,6 +626,11 @@ export async function answerQuestion({
     scenario === "grounded"
       ? results.slice(0, 3).map((item) => item.citation)
       : [];
+  const citationEnforcement = scenario === "grounded"
+    ? enforceAnswerCitations(answerText, citations, results)
+    : { answer: answerText, removedUnsupportedSegments: [] };
+  answerText = citationEnforcement.answer;
+  const citationValidation = validateAnswerCitations(answerText, citations, results);
 
   const answerPayload = {
     answer: answerText,
@@ -581,16 +641,28 @@ export async function answerQuestion({
     emotion: emotionLabel,
     citations,
     sources: citations.map((item) => ({
+      citationId: item.citationId,
       documentName: item.documentName,
       sectionTitle: item.sectionTitle,
       scenicSpotName: item.scenicSpotName,
     })),
     retrieval: {
+      traceId: retrieval?.traceId || null,
       total: retrieval?.results?.length || 0,
+      indexVersion: retrieval?.indexVersion || getActiveKnowledgeVersion(),
+      channels: retrieval?.channels || [],
+      filters: retrieval?.filters || {},
       intents: (retrieval?.intents || []).map((intent) => intent.intent),
       spotMatches: (retrieval?.spotMatches || []).map((spot) => spot.name),
+      decision: retrieval?.decision || null,
+      citationValidation,
+      citationEnforcement: {
+        removedUnsupportedSegments: citationEnforcement.removedUnsupportedSegments.length
+      },
       anchoredSpot,
+      remote: retrieval?.remote || null
     },
+    citationValidation,
     provider: completion.provider,
     model: completion.model,
     digitalHuman: mapAnswerToDigitalHumanState({
@@ -603,16 +675,24 @@ export async function answerQuestion({
   // AI2-12: cache stable factual answers for reuse. Route recommendations stay
   // request-scoped so conversation history cannot poison later sessions.
   if (mode !== "route" && scenario === "grounded" && answerText) {
-    setCachedAnswer(cacheQuestion, mode, answerPayload);
+    setCachedAnswer(
+      cacheQuestion,
+      mode,
+      answerPayload,
+      undefined,
+      answerPayload.retrieval.indexVersion,
+      cacheContext
+    );
   }
 
+  let assistantMessage = null;
   if (sessionId) {
     appendMessage(sessionId, {
       role: "user",
       content: trimmed,
       emotionLabel: emotion,
     });
-    appendMessage(sessionId, {
+    assistantMessage = appendMessage(sessionId, {
       role: "assistant",
       content: answerText,
       intentLabel: label,
@@ -621,16 +701,224 @@ export async function answerQuestion({
     });
   }
 
+  const totalMs = nowMs() - started;
+  try {
+    recordRetrievalTrace({
+      traceId: retrieval?.traceId,
+      eventType: "answer",
+      query: trimmed,
+      mode,
+      locale: responseLocale,
+      indexVersion: answerPayload.retrieval.indexVersion,
+      filters: answerPayload.retrieval.filters,
+      channels: answerPayload.retrieval.channels,
+      decision: answerPayload.retrieval.decision,
+      conflicts: retrieval?.conflicts || [],
+      degradedReason: retrieval?.remote?.reason || null,
+      scenario,
+      provider: completion.provider,
+      model: completion.model,
+      citations,
+      latencyMs: totalMs
+    });
+  } catch {
+    // 可观测性失败不应阻断游客问答。
+  }
+  try {
+    recordRagExperimentAnswer({
+      assignment: experiment,
+      messageId: assistantMessage?.id,
+      scenario,
+      refused: scenario !== "grounded",
+      citationCount: citations.length,
+      latencyMs: totalMs,
+      provider: completion.provider,
+      model: completion.model,
+      indexVersion: answerPayload.retrieval.indexVersion,
+      usage: completion.usage,
+      embeddingUsage: retrieval?.remote?.usage,
+      cached: false
+    });
+  } catch {
+    // 实验指标失败不应阻断游客问答。
+  }
+
   return {
     ...answerPayload,
+    messageId: assistantMessage?.id || null,
+    experiment: publicExperiment(experiment),
     cached: false,
     latency: {
-      totalMs: nowMs() - started,
+      totalMs,
       retrievalMs,
       llmMs,
       cached: false,
     },
   };
+}
+
+/**
+ * 删除内部会话哈希和分桶，只向客户端返回可审计的实验标签。
+ * @private
+ * @param {object} experiment 内部分流结果。
+ * @returns {{id: string, enabled: boolean, variant: string, status: string}}
+ */
+function publicExperiment(experiment) {
+  return {
+    id: experiment.id,
+    enabled: experiment.enabled,
+    variant: experiment.variant,
+    status: experiment.status
+  };
+}
+
+/** @param {*} reason 内部决策原因。 @returns {string|null} 不泄露评分细节的公开提示码。 */
+function publicDecisionCode(reason) {
+  const map = {
+    no_candidate: "knowledge_not_found",
+    low_relevance: "evidence_uncertain",
+    missing_fact: "specific_fact_missing",
+    scope_blocked: "outside_service_scope",
+    candidate_found: "grounded"
+  };
+  return map[String(reason || "")] || null;
+}
+
+/**
+ * 校验回答中出现的引用标记和可核验的数字/时间事实。
+ *
+ * 没有内联标记但所有可识别事实都能在返回引用中找到时标记为 `implicit`，
+ * 这样兼容现有纯文本客户端，同时把缺少标记、伪造标记和无证据事实暴露给
+ * 管理端质量统计。
+ * @private
+ * @param {*} answer 回答正文。
+ * @param {object[]} citations 稳定引用列表。
+ * @returns {{status: string, inlineCitationIds: string[], validCitationIds: string[], invalidCitationIds: string[], unsupportedFacts: string[], factCoverage: number}} 校验摘要。
+ */
+export function validateAnswerCitations(answer, citations, results = []) {
+  const text = String(answer || "");
+  const inlineCitationIds = [...new Set([...text.matchAll(/\[([^\]]+)\]/gu)].map((match) => match[1].trim()))];
+  const citationMap = new Map((citations || []).map((citation) => [citation.citationId, citation]));
+  const validCitationIds = inlineCitationIds.filter((id) => citationMap.has(id));
+  const invalidCitationIds = inlineCitationIds.filter((id) => !citationMap.has(id));
+  const evidence = results.length > 0
+    ? results.map((result) => String(result.contextContent || result.content || "")).join(" ")
+    : (citations || []).map((citation) => String(citation.quote || "")).join(" ");
+  const facts = [...new Set(text.match(
+    /\b\d+(?:[,.]\d+)*(?:\.\d+)?(?:\s*(?:米|公尺|m|meters?|เมตร|미터|メートル|吨|噸|metric\s*tons?|tons?|トン|톤|元|cny|หยวน|위안|円|分钟|分鐘|minutes?|นาที|분|分|小时|小時|hours?|ชั่วโมง|시간|次|场|場|회|回|年|月|日|:\d{2}))?\b/giu
+  ) || [])].filter((fact) => !/^\d+$/u.test(fact.trim()));
+  const unsupportedFacts = facts.filter((fact) => !evidence.includes(fact.trim()));
+  const factCoverage = facts.length === 0 ? 1 : (facts.length - unsupportedFacts.length) / facts.length;
+  let status = "implicit";
+  if (invalidCitationIds.length > 0) status = "invalid_inline";
+  else if (unsupportedFacts.length > 0) status = "unsupported_fact";
+  else if (validCitationIds.length > 0) status = "verified";
+  return {
+    status,
+    inlineCitationIds,
+    validCitationIds,
+    invalidCitationIds,
+    unsupportedFacts,
+    factCoverage: Number(factCoverage.toFixed(4))
+  };
+}
+
+/**
+ * 删除伪造引用和无证据数字事实，并为可核验的数字、时间、地点句附上稳定引用。
+ * @param {*} answer 模型回答。
+ * @param {object[]} citations 可公开引用。
+ * @param {object[]} results 完整检索结果，仅用于服务端证据匹配。
+ * @returns {{answer: string, removedUnsupportedSegments: string[]}} 强制对齐后的回答。
+ */
+export function enforceAnswerCitations(answer, citations = [], results = []) {
+  const citationMap = new Map(citations.map((citation) => [citation.citationId, citation]));
+  const evidenceByCitation = new Map(citations.map((citation) => {
+    const result = results.find((item) => item.citation?.citationId === citation.citationId);
+    return [citation.citationId, normalizeEvidence(result?.contextContent || result?.content || citation.quote || "")];
+  }));
+  const allEvidence = [...evidenceByCitation.values()].join(" ");
+  const removedUnsupportedSegments = [];
+  const segments = String(answer || "")
+    .split(/(?<=[。！？.!?])\s*|\n+/u)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const kept = [];
+  for (const original of segments) {
+    const segment = original.replace(/\[([^\]]+)\]/gu, (full, id) => (
+      citationMap.has(String(id).trim()) ? full : ""
+    )).trim();
+    const facts = extractFactualTokens(segment);
+    if (facts.some((fact) => !allEvidence.includes(normalizeEvidence(fact)))) {
+      removedUnsupportedSegments.push(original);
+      continue;
+    }
+    const needsCitation = facts.length > 0 || containsLocationOrScheduleClaim(segment);
+    const hasValidCitation = [...segment.matchAll(/\[([^\]]+)\]/gu)]
+      .some((match) => citationMap.has(match[1].trim()));
+    if (!needsCitation || hasValidCitation || citations.length === 0) {
+      kept.push(segment);
+      continue;
+    }
+    const citation = selectEvidenceCitation(segment, facts, citations, evidenceByCitation);
+    kept.push(citation ? `${segment} [${citation.citationId}]` : segment);
+  }
+
+  if (kept.length > 0) {
+    return { answer: kept.join("\n"), removedUnsupportedSegments };
+  }
+  const fallback = results[0];
+  if (!fallback || citations.length === 0) {
+    return { answer: String(answer || "").replace(/\[[^\]]+\]/gu, "").trim(), removedUnsupportedSegments };
+  }
+  const content = String(fallback.content || fallback.contextContent || "").replace(/\s+/gu, " ").trim();
+  const short = content.length > 180 ? `${content.slice(0, 178)}…` : content;
+  return {
+    answer: `${short} [${citations[0].citationId}]`,
+    removedUnsupportedSegments
+  };
+}
+
+/** @param {string} text 回答句。 @returns {string[]} 数字、日期、时间、金额和度量事实。 */
+function extractFactualTokens(text) {
+  const withoutNumbering = String(text || "").replace(/^\s*\d+[.)、]\s*/u, "");
+  return [...new Set(withoutNumbering.match(
+    /\d+(?:[,.]\d+)*(?:\.\d+)?\s*(?:米|公尺|m|meters?|เมตร|미터|メートル|吨|噸|metric\s*tons?|tons?|トン|톤|元|cny|หยวน|위안|円|分钟|分鐘|minutes?|นาที|분|分|小时|小時|hours?|ชั่วโมง|시간|年|月|日|次|场|場|회|回|:\d{2})?/giu
+  ) || [])].filter((fact) => !/^\d+$/u.test(fact.trim()));
+}
+
+/** @param {string} text 回答句。 @returns {boolean} 是否包含地点、营业或演出事实。 */
+function containsLocationOrScheduleClaim(text) {
+  return /(位于|坐落|地址|入口|出口|开放|闭园|闭馆|营业|演出|表演|located|opening|closes|performance|위치|운영|공연|所在|営業時間|上演|ตั้งอยู่|เปิด|การแสดง)/iu.test(text);
+}
+
+/**
+ * 选择覆盖数字事实最多、其次词项重合最高的引用。
+ * @param {string} segment 回答句。
+ * @param {string[]} facts 事实词。
+ * @param {object[]} citations 引用。
+ * @param {Map<string,string>} evidenceByCitation 引用证据。
+ * @returns {object|null} 最佳引用。
+ */
+function selectEvidenceCitation(segment, facts, citations, evidenceByCitation) {
+  const terms = new Set(normalizeEvidence(segment).match(/[\p{L}\p{N}]{2,}/gu) || []);
+  let best = null;
+  let bestScore = -1;
+  for (const citation of citations) {
+    const evidence = evidenceByCitation.get(citation.citationId) || "";
+    const factHits = facts.filter((fact) => evidence.includes(normalizeEvidence(fact))).length;
+    const termHits = [...terms].filter((term) => evidence.includes(term)).length;
+    const score = factHits * 100 + termHits;
+    if (score > bestScore) {
+      best = citation;
+      bestScore = score;
+    }
+  }
+  return bestScore > 0 ? best : citations[0] || null;
+}
+
+/** @param {*} value 文本。 @returns {string} 忽略空白和常见千分位的证据比较文本。 */
+function normalizeEvidence(value) {
+  return String(value || "").normalize("NFKC").toLowerCase().replace(/[\s,，]/gu, "");
 }
 
 /**
@@ -667,7 +955,7 @@ export async function* answerQuestionStream({
   let retrieval = { results: [], intents: [], spotMatches: [] };
   if (!preSensitive.sensitive && !preScope.outOfScope) {
     try {
-      retrieval = hybridSearch(query, { limit: 5, locale: responseLocale });
+      retrieval = await hybridSearchAsync(query, { limit: 5, locale: responseLocale });
     } catch (error) {
       if (error.code !== "KNOWLEDGE_NOT_BUILT") {
         throw error;
@@ -681,6 +969,17 @@ export async function* answerQuestionStream({
     retrieval,
     emotion,
   });
+  if (scenario === "no_data") {
+    const spotId = retrieval?.spotMatches?.[0]?.id || "";
+    recordKnowledgeGap({
+      question: trimmed,
+      scenicArea: retrieval?.filters?.scenicArea
+        || (String(spotId).startsWith("NHW-") ? "nianhuawan" : String(spotId).startsWith("LS-") ? "lingshan" : ""),
+      intent: retrieval?.intents?.[0]?.intent || "",
+      reason: retrieval?.decision?.reason || (retrieval?.results?.length ? "low_relevance" : "no_candidate"),
+      source: "stream_retrieval"
+    });
+  }
   const meta = buildMeta({
     scenario,
     mode,
@@ -693,6 +992,7 @@ export async function* answerQuestionStream({
     mode,
     question: trimmed,
     results,
+    conflicts: retrieval?.conflicts || [],
     history: getHistory(sessionId),
     locale: responseLocale,
   });

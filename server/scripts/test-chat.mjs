@@ -4,7 +4,12 @@
 import assert from "node:assert";
 
 process.env.LLM_PROVIDER = "mock";
-const { answerQuestion, hasRouteStructure } = await import("../src/services/chat.mjs");
+const {
+  answerQuestion,
+  enforceAnswerCitations,
+  hasRouteStructure,
+  validateAnswerCitations
+} = await import("../src/services/chat.mjs");
 const { generateSpotNarration, generateAccompanyNarration } = await import("../src/services/narration.mjs");
 const { clearFaqCache } = await import("../src/services/faqCache.mjs");
 const { buildTextDocumentChunks } = await import("../src/services/knowledgeBuild.mjs");
@@ -26,6 +31,23 @@ await record("factual height answer is grounded and short", async () => {
   assert.ok(r.citations.length > 0, "expected citations");
   assert.ok(/88|米|通高|高/.test(r.answer), `answer should mention height: ${r.answer}`);
   assert.ok(charLen(r.answer) <= 200, `qa answer too long: ${charLen(r.answer)}`);
+  assert.match(r.answer, /\[C-[^\]]+\]/u, "factual answer must include a stable citation");
+  assert.ok(["verified", "implicit"].includes(r.citationValidation.status));
+});
+
+await record("fabricated citations and unsupported facts are removed", async () => {
+  const citations = [{ citationId: "C-a", quote: "开放时间为10:00，入口位于东门。" }];
+  const results = [{ content: "开放时间为10:00，入口位于东门。", citation: citations[0] }];
+  const enforced = enforceAnswerCitations(
+    "开放时间为10:00。[C-fake]\n门票为999元。",
+    citations,
+    results
+  );
+  assert.match(enforced.answer, /\[C-a\]/u);
+  assert.doesNotMatch(enforced.answer, /C-fake|999元/u);
+  const validation = validateAnswerCitations(enforced.answer, citations, results);
+  assert.equal(validation.status, "verified");
+  assert.equal(validation.unsupportedFacts.length, 0);
 });
 
 const multilingualQuestions = [

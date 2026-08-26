@@ -13,6 +13,8 @@
  */
 import { randomBytes } from "node:crypto";
 import { getDb } from "../db/database.mjs";
+import { recordKnowledgeGapFromFeedback } from "./knowledgeGaps.mjs";
+import { recordRagExperimentFeedback } from "./ragExperiment.mjs";
 
 /**
  * 将数据库字段转换为对外反馈对象。
@@ -60,7 +62,18 @@ export function createFeedback(input = {}) {
        VALUES (@id, @session_id, @message_id, @rating, @vote, @emotion, @comment, @created_at)`
     )
     .run(record);
-  return toFeedback(record);
+  const feedback = toFeedback(record);
+  try {
+    recordKnowledgeGapFromFeedback(feedback);
+  } catch {
+    // 缺口分析失败不应阻断游客反馈主流程。
+  }
+  try {
+    recordRagExperimentFeedback(feedback);
+  } catch {
+    // 实验指标失败不应阻断游客反馈主流程。
+  }
+  return feedback;
 }
 
 /**

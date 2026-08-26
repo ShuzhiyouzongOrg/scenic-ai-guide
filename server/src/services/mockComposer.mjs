@@ -141,6 +141,40 @@ const COPY = {
   },
 };
 
+/** @type {Record<string, Record<string, (topic: string) => string>>} 按公开拒答原因区分的多语言话术。 */
+const NO_DATA_REASON_COPY = {
+  zh: {
+    no_candidate: (topic) => `抱歉，当前资料中没有找到与${topic}直接相关的内容，我不会据此猜测。`,
+    low_relevance: (topic) => `抱歉，当前找到的资料与${topic}关联不足，为避免答非所问，我暂不作确定回答。`,
+    missing_fact: (topic) => `抱歉，当前资料提到了相关主题，但没有覆盖${topic}所需的具体事实。`
+  },
+  en: {
+    no_candidate: (topic) => `Sorry, the current sources contain no directly relevant material for ${topic}, so I will not guess.`,
+    low_relevance: (topic) => `Sorry, the available material is not relevant enough to answer ${topic} reliably.`,
+    missing_fact: (topic) => `Sorry, related material exists, but it does not contain the specific fact needed for ${topic}.`
+  },
+  ko: {
+    no_candidate: (topic) => `죄송하지만 현재 자료에서 ${topic}와 직접 관련된 내용을 찾지 못해 추측하지 않겠습니다.`,
+    low_relevance: (topic) => `죄송하지만 검색된 자료는 ${topic}와의 관련성이 충분하지 않아 확정적으로 답하지 않겠습니다.`,
+    missing_fact: (topic) => `죄송하지만 관련 주제는 있으나 ${topic}에 필요한 구체적인 사실은 자료에 없습니다.`
+  },
+  "zh-TW": {
+    no_candidate: (topic) => `抱歉，目前資料中沒有找到與${topic}直接相關的內容，我不會據此猜測。`,
+    low_relevance: (topic) => `抱歉，目前找到的資料與${topic}關聯不足，為避免答非所問，我暫不作確定回答。`,
+    missing_fact: (topic) => `抱歉，目前資料提到相關主題，但尚未涵蓋${topic}所需的具體事實。`
+  },
+  ja: {
+    no_candidate: (topic) => `申し訳ありません。現在の資料には${topic}に直接関連する内容がなく、推測では回答しません。`,
+    low_relevance: (topic) => `申し訳ありません。見つかった資料は${topic}との関連性が十分でないため、断定的な回答を控えます。`,
+    missing_fact: (topic) => `申し訳ありません。関連資料はありますが、${topic}に必要な具体的事実が含まれていません。`
+  },
+  th: {
+    no_candidate: (topic) => `ขออภัย ไม่พบข้อมูลที่เกี่ยวข้องโดยตรงกับ ${topic} ในเอกสารปัจจุบัน จึงจะไม่คาดเดา`,
+    low_relevance: (topic) => `ขออภัย ข้อมูลที่พบเกี่ยวข้องกับ ${topic} ไม่เพียงพอสำหรับคำตอบที่เชื่อถือได้`,
+    missing_fact: (topic) => `ขออภัย มีข้อมูลในหัวข้อใกล้เคียง แต่ไม่มีข้อเท็จจริงเฉพาะที่จำเป็นสำหรับ ${topic}`
+  }
+};
+
 /**
  * 获取目标语言话术，未知语言回退为简体中文。
  * @private
@@ -438,7 +472,9 @@ function composeNoData(meta) {
   // Reference the visitor's own question, not a loosely-retrieved spot, so the
   // honest "not covered" reply never appears to be about the wrong thing.
   const topic = meta.question ? `“${trimTo(meta.question, 28)}”` : "this topic";
-  return copyFor(meta).noData(topic);
+  const reason = String(meta.decision?.reason || "no_candidate");
+  const tailored = (NO_DATA_REASON_COPY[meta.locale] || NO_DATA_REASON_COPY.zh)?.[reason];
+  return tailored ? tailored(topic) : copyFor(meta).noData(topic);
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * @fileoverview 高频问答的进程内缓存服务。
  *
- * 缓存键由问答模式和规范化问题组成；命中后可跳过知识检索与大模型调用。
+ * 缓存键由知识版本、问答模式和规范化问题组成；命中后可跳过知识检索与大模型调用。
  * 数据仅保存在当前进程中，并通过 TTL 与最大条目数限制生命周期和内存占用。
  *
  * @typedef {object} FaqCacheEntry
@@ -10,6 +10,8 @@
  * @property {number} createdAt 创建时间的 Unix 毫秒时间戳。
  * @property {number} expiresAt 过期时间的 Unix 毫秒时间戳。
  */
+import { createHash } from "node:crypto";
+import { getActiveKnowledgeVersion } from "./knowledgeBuild.mjs";
 
 /** @type {Map<string, FaqCacheEntry>} 以规范化问题为键的进程内缓存。 */
 const store = new Map();
@@ -25,12 +27,22 @@ const MAX_ENTRIES = 500;
  * @param {*} mode 问答模式；空值按 `qa` 处理。
  * @returns {string} 去除大小写、空白和常见标点后的缓存键。
  */
-function normalizeQuestion(question, mode) {
+function normalizeQuestion(question, mode, knowledgeVersion = getActiveKnowledgeVersion(), context = {}) {
   const base = String(question || "")
     .toLowerCase()
     .replace(/[\s，。！？、,.!?;；:~～]+/g, "")
     .trim();
-  return `${mode || "qa"}::${base}`;
+  const questionHash = createHash("sha256").update(base).digest("hex").slice(0, 24);
+  return JSON.stringify({
+    knowledgeVersion: knowledgeVersion || "unbuilt",
+    mode: mode || "qa",
+    locale: context.locale || "und",
+    scenicArea: context.scenicArea || "",
+    retrievalMode: context.retrievalMode || "hybrid",
+    accessScopes: normalizeScopes(context.accessScopes),
+    tenantId: context.tenantId || "default",
+    questionHash
+  });
 }
 
 /**
@@ -41,8 +53,9 @@ function normalizeQuestion(question, mode) {
  * @example
  * const answer = getCachedAnswer("灵山大佛几点开放？", "qa");
  */
-export function getCachedAnswer(question, mode) {
-  const key = normalizeQuestion(question, mode);
+export function getCachedAnswer(question, mode, knowledgeVersion, context = {}) {
+  if (containsSensitiveText(question)) return null;
+  const key = normalizeQuestion(question, mode, knowledgeVersion, context);
   const entry = store.get(key);
   if (!entry) {
     return null;
@@ -61,11 +74,13 @@ export function getCachedAnswer(question, mode) {
  * @param {*} mode 问答模式。
  * @param {*} value 要缓存的回答对象。
  * @param {number} [ttlMs=DEFAULT_TTL_MS] 有效期，单位为毫秒。
+ * @param {string} [knowledgeVersion] 实际生成回答时使用的知识版本。
  * @returns {void}
  * @example
  * setCachedAnswer("灵山大佛几点开放？", "qa", { answer: "07:00 开放" });
  */
-export function setCachedAnswer(question, mode, value, ttlMs = DEFAULT_TTL_MS) {
+export function setCachedAnswer(question, mode, value, ttlMs = DEFAULT_TTL_MS, knowledgeVersion, context = {}) {
+  if (containsSensitiveText(question)) return false;
   if (store.size >= MAX_ENTRIES) {
     // Evict the oldest entry to bound memory.
     const oldestKey = store.keys().next().value;
@@ -73,13 +88,14 @@ export function setCachedAnswer(question, mode, value, ttlMs = DEFAULT_TTL_MS) {
       store.delete(oldestKey);
     }
   }
-  const key = normalizeQuestion(question, mode);
+  const key = normalizeQuestion(question, mode, knowledgeVersion, context);
   store.set(key, {
     value,
     hits: 0,
     createdAt: Date.now(),
     expiresAt: Date.now() + ttlMs
   });
+  return true;
 }
 
 /**
@@ -107,4 +123,18 @@ export function faqCacheStats() {
  */
 export function clearFaqCache() {
   store.clear();
+}
+
+/** @param {*} values 权限范围。 @returns {string[]} 排序后的唯一范围。 */
+function normalizeScopes(values) {
+  return [...new Set((Array.isArray(values) ? values : ["public"]).map(String).filter(Boolean))].sort();
+}
+
+/** @param {*} value 文本。 @returns {boolean} 是否含个人身份信息。 */
+function containsSensitiveText(value) {
+  const text = String(value || "");
+  return /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/u.test(text)
+    || /\b1\d{10}\b/u.test(text)
+    || /\b\d{17}[\dXx]\b/u.test(text)
+    || /(?:身份证|手机号|电话|邮箱)\s*[:：]?\s*[\w@.+-]{5,}/u.test(text);
 }

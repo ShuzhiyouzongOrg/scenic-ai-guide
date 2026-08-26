@@ -117,7 +117,11 @@ export function getLastSpotName(sessionId, spotNames = []) {
     return null;
   }
   const rows = getDb()
-    .prepare("SELECT content FROM messages WHERE session_id = ? ORDER BY created_at DESC, rowid DESC")
+    .prepare(
+      `SELECT role, content FROM messages
+       WHERE session_id = ?
+       ORDER BY CASE role WHEN 'user' THEN 0 ELSE 1 END, created_at DESC, rowid DESC`
+    )
     .all(sessionId);
   for (const row of rows) {
     const content = String(row.content || "").normalize("NFKC").toLowerCase();
