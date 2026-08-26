@@ -3,6 +3,7 @@ import request from '@/utils/http'
 /** 游客交互端 API（问答 / 讲解 / 景点 / 路线 / 反馈 / 语音 / 会话） */
 
 export interface ChatSource {
+  citationId?: string
   documentName?: string
   sectionTitle?: string
   scenicSpotName?: string
@@ -24,15 +25,23 @@ export interface ChatLatency {
 
 export interface ChatAnswer {
   answer: string
+  messageId?: string | null
   mode?: string
   locale?: string
   scenario?: string
+  publicNotice?: string | null
   label?: string
   emotion?: string
   sources?: ChatSource[]
   digitalHuman?: DigitalHumanHint
   cached?: boolean
   latency?: ChatLatency
+  experiment?: {
+    id: string
+    enabled: boolean
+    variant: 'control' | 'treatment'
+    status: string
+  }
 }
 
 export interface ScenicSpot {
@@ -147,6 +156,10 @@ export function submitFeedback(data: {
   comment?: string
 }) {
   return request.post({ url: '/api/feedback', data })
+}
+
+export function trackCitationClick(data: { sessionId: string; messageId?: string | null }) {
+  return request.post<{ recorded: boolean }>({ url: '/api/rag/citation-click', data })
 }
 
 export function fetchHistory(sessionId: string) {

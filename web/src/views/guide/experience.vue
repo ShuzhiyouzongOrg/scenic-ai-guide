@@ -39,9 +39,14 @@
                       <span v-if="m.meta.latency" class="latency">
                         {{ $t('app.guideResponse', { latency: m.meta.latency }) }}
                       </span>
-                      <span v-if="m.meta.sources?.length" class="sources">
+                      <button
+                        v-if="m.meta.sources?.length"
+                        type="button"
+                        class="sources"
+                        @click="onCitationClick(m)"
+                      >
                         {{ $t('app.guideSources', { sources: formatSources(m.meta.sources) }) }}
-                      </span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -249,6 +254,7 @@
     narrateSpot,
     recommendRoute,
     submitFeedback,
+    trackCitationClick,
     type ChatSource,
     type RouteNode,
     type RouteRecommendResult,
@@ -262,7 +268,13 @@
   interface UiMessage {
     role: 'user' | 'assistant'
     content: string
-    meta?: { label?: string; latency?: number; sources?: ChatSource[]; emotion?: string }
+    meta?: {
+      label?: string
+      latency?: number
+      sources?: ChatSource[]
+      emotion?: string
+      messageId?: string | null
+    }
   }
 
   interface SpeechPayload {
@@ -277,6 +289,7 @@
   const scrollRef = ref<{ setScrollTop: (n: number) => void; wrapRef?: HTMLElement } | null>(null)
 
   const sessionId = ref('')
+  const lastAssistantMessageId = ref<string | null>(null)
   const activeTab = ref('chat')
   const messages = ref<UiMessage[]>([])
   const input = ref('')
@@ -318,6 +331,14 @@
       .map((source) => source.sectionTitle || source.documentName)
       .filter(Boolean)
       .join(sourceSeparator.value)
+  }
+
+  function onCitationClick(message: UiMessage) {
+    if (!sessionId.value || !message.meta?.messageId) return
+    void trackCitationClick({
+      sessionId: sessionId.value,
+      messageId: message.meta.messageId
+    }).catch(() => undefined)
   }
 
   function displayMessage(message: UiMessage) {
@@ -492,9 +513,11 @@
           label: answer.label,
           latency: getDisplayedGuideLatency(answer.latency?.totalMs, MASK_LONG_LATENCY),
           sources: answer.sources,
-          emotion: answer.digitalHuman?.ttsEmotion
+          emotion: answer.digitalHuman?.ttsEmotion,
+          messageId: answer.messageId
         }
       })
+      lastAssistantMessageId.value = answer.messageId || null
       lastLabel.value = answer.label || ''
       feedbackAvailable.value = true
       await playSpeech(answer.answer, answer.digitalHuman?.ttsEmotion || 'neutral')
@@ -596,6 +619,7 @@
     try {
       await submitFeedback({
         sessionId: sessionId.value,
+        messageId: lastAssistantMessageId.value || undefined,
         rating: value,
         vote: value >= 4 ? 'up' : value <= 2 ? 'down' : undefined,
         emotion: value >= 4 ? '开心' : value <= 2 ? '失望' : '平静'
@@ -836,6 +860,22 @@
     margin-top: 6px;
     font-size: 12px;
     color: var(--el-text-color-secondary);
+  }
+
+  .sources {
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--el-color-primary);
+      text-decoration: underline;
+    }
   }
 
   .quick-row {
