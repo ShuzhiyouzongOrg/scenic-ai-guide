@@ -50,6 +50,14 @@ await record("fabricated citations and unsupported facts are removed", async () 
   assert.equal(validation.unsupportedFacts.length, 0);
 });
 
+await record("citation enforcement preserves decimal facts", async () => {
+  const citations = [{ citationId: "C-height", quote: "含台基总高101.5米。" }];
+  const evidence = [{ content: "灵山大佛含台基总高101.5米。", citation: citations[0] }];
+  const enforced = enforceAnswerCitations("灵山大佛含台基总高101.5米。", citations, evidence);
+  assert.match(enforced.answer, /101\.5米。\s+\[C-height\]/u);
+  assert.doesNotMatch(enforced.answer, /101\.\s*\[C-height\]\s*5米/u);
+});
+
 const multilingualQuestions = [
   {
     locale: "en",
@@ -74,6 +82,12 @@ const multilingualQuestions = [
     question: "営業時間は？",
     answerPattern: /開園|営業時間|最終入場/,
     source: "lingshan-guide.ja.md"
+  },
+  {
+    locale: "th",
+    question: "พระใหญ่หลิงซานสูงเท่าไร?",
+    answerPattern: /88 เมตร|101\.5 เมตร/,
+    source: "lingshan-guide.th.md"
   }
 ];
 
@@ -148,6 +162,14 @@ await record("拈花湾 sub-area is in scope and grounded", async () => {
   assert.equal(r.scenario, "grounded", `scenario=${r.scenario}`);
   assert.ok(r.citations.length > 0, "expected citations for 拈花湾 spot");
   assert.ok(/花海|禅意|花卉/.test(r.answer), `answer should describe 梵天花海: ${r.answer}`);
+});
+
+await record("Chinese answers prefer Chinese knowledge sources", async () => {
+  const r = await answerQuestion({ question: "拈花湾适合夜游的景点", locale: "zh-CN" });
+  assert.equal(r.scenario, "grounded", `scenario=${r.scenario}`);
+  assert.equal(r.retrieval.languageFallback, false);
+  assert.ok(r.sources.length > 0, "expected localized sources");
+  assert.ok(r.sources.every((source) => !/\.ja\.md$/iu.test(source.documentName || "")));
 });
 
 await record("sensitive input is refused", async () => {

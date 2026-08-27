@@ -18,6 +18,7 @@ import { maximalMarginalRelevance, reciprocalRankFusion } from "./retrieval/fusi
 import {
   buildRemoteRagConfig,
   embedTexts,
+  getRemoteRagConfigIssues,
   isRemoteDenseReady,
   isRemoteRerankerReady,
   queryQdrant,
@@ -60,55 +61,67 @@ const querySynonyms = {
   "営業時間": ["開園", "閉園", "最終入場", "ビジターセンター"],
   "入場券": ["料金", "大人券", "割引券"],
   "ルート": ["おすすめルート", "所要時間", "見どころ"],
+  "ファミリー": ["ファミリールート", "約4時間", "百子戯弥勒"],
+  "家族": ["ファミリールート", "子ども", "体験展示"],
   "見どころ": ["特徴", "体験", "名所"],
   "幾點": ["時間", "開放", "表演", "時段"],
+  "吉祥頌": ["靈山梵宮", "演出時間", "約 20 分鐘"],
   "門票": ["票價", "費用", "成人票", "半價票"],
   "路線": ["遊覽路線", "推薦路線", "時長"],
-  "看點": ["亮點", "特色", "最佳體驗"]
+  "親子": ["親子輕鬆路線", "約 4 小時", "百子戲彌勒"],
+  "輕鬆": ["親子輕鬆路線", "約 4 小時", "互動展示"],
+  "拈花灣": ["拈花灣禪意小鎮", "拈花廣場", "五燈湖", "鹿鳴谷"],
+  "看點": ["亮點", "特色", "最佳體驗"],
+  "สูงเท่าไร": ["ความสูง", "88 เมตร", "พระใหญ่หลิงซาน"],
+  "กี่เมตร": ["ความสูง", "88 เมตร", "พระใหญ่หลิงซาน"],
+  "กี่โมง": ["เวลา", "การแสดง", "เวลาเปิด"],
+  "บัตรเข้าชม": ["ราคา", "ค่าเข้า", "210 หยวน"],
+  "เส้นทาง": ["เส้นทางแนะนำ", "ลำดับการเที่ยว", "ชั่วโมง"],
+  "จุดเด่น": ["สถานที่น่าสนใจ", "ประสบการณ์", "ถ่ายรูป"]
 };
 
 /** @type {Array<RetrievalIntent & {triggers: string[]}>} 通用业务意图识别与加权规则。 */
 const intentRules = [
   {
     intent: "height",
-    triggers: ["多高", "高度", "通高", "总高", "几米", "how tall", "height", "tall", "높이", "몇 미터", "高さ", "何メートル", "幾公尺"],
-    preferredTerms: ["高", "高度", "通高", "总高", "建筑/景观参数", "米", "m", "88 meters", "88미터", "88メートル", "88 公尺"],
+    triggers: ["多高", "高度", "通高", "总高", "几米", "how tall", "height", "tall", "높이", "몇 미터", "高さ", "何メートル", "幾公尺", "สูงเท่าไร", "กี่เมตร", "ความสูง"],
+    preferredTerms: ["高", "高度", "通高", "总高", "建筑/景观参数", "米", "m", "88 meters", "88미터", "88メートル", "88 公尺", "88 เมตร", "ความสูง"],
     preferredDocuments: ["doc_structured_lingshan_spots"]
   },
   {
     intent: "open_time",
-    triggers: ["开放", "开放时间", "几点开", "几点关", "闭馆", "营业", "opening hours", "open", "close", "운영 시간", "개장", "폐장", "営業時間", "開園", "閉園", "開放時間"],
-    preferredTerms: ["开放", "开放时间", "闭馆", "运营", "演艺/开放信息", "opening", "closing", "운영 시간", "営業時間", "開放時間"],
+    triggers: ["开放", "开放时间", "几点开", "几点关", "闭馆", "营业", "opening hours", "open", "close", "운영 시간", "개장", "폐장", "営業時間", "開園", "閉園", "開放時間", "เวลาเปิด", "เปิดกี่โมง", "ปิดกี่โมง"],
+    preferredTerms: ["开放", "开放时间", "闭馆", "运营", "演艺/开放信息", "opening", "closing", "운영 시간", "営業時間", "開放時間", "เวลาเปิด", "เวลาปิด"],
     preferredDocuments: ["doc_structured_lingshan_spots", "doc_lingshan_guide"]
   },
   {
     intent: "performance_time",
-    triggers: ["演出", "几点", "表演", "吉祥颂", "场次", "时长", "show", "performance", "start", "공연", "몇 시", "시작", "上演", "何時", "開始", "表演", "幾點"],
-    preferredTerms: ["演出", "表演", "时间", "时长", "10:35", "11:30", "14:00", "16:00", "吉祥颂", "show", "performance", "공연", "上演", "表演"],
+    triggers: ["演出", "几点", "表演", "吉祥颂", "吉祥頌", "场次", "时长", "show", "performance", "start", "공연", "몇 시", "시작", "上演", "何時", "開始", "表演", "幾點", "การแสดง", "กี่โมง", "เริ่มเวลา"],
+    preferredTerms: ["演出", "表演", "时间", "时长", "10:35", "11:30", "14:00", "16:00", "吉祥颂", "吉祥頌", "靈山梵宮", "約 20 分鐘", "show", "performance", "공연", "上演", "表演", "การแสดง", "เวลาเริ่ม"],
     preferredDocuments: ["doc_structured_lingshan_spots", "doc_lingshan_guide"]
   },
   {
     intent: "ticket",
-    triggers: ["门票", "票价", "多少钱", "费用", "成人票", "半价", "免票", "ticket", "admission", "price", "입장권", "요금", "入場券", "料金", "門票", "票價"],
-    preferredTerms: ["门票", "票价", "费用", "成人票", "半价", "免票", "210", "105", "ticket", "admission", "입장권", "入場券", "門票"],
+    triggers: ["门票", "票价", "多少钱", "费用", "成人票", "半价", "免票", "ticket", "admission", "price", "입장권", "요금", "入場券", "料金", "門票", "票價", "บัตรเข้าชม", "ค่าเข้า", "ราคาเท่าไร"],
+    preferredTerms: ["门票", "票价", "费用", "成人票", "半价", "免票", "210", "105", "ticket", "admission", "입장권", "入場券", "門票", "บัตรเข้าชม", "210 หยวน"],
     preferredDocuments: ["doc_lingshan_guide"]
   },
   {
     intent: "route",
-    triggers: ["路线", "游览", "推荐", "几小时", "半日", "route", "itinerary", "recommend", "관람 경로", "경로", "추천", "ルート", "提案", "路線", "推薦"],
-    preferredTerms: ["路线", "路线规划", "推荐", "历史文化爱好者路线", "自然风光爱好者路线", "亲子家庭路线", "小时", "route", "itinerary", "경로", "ルート", "路線"],
+    triggers: ["路线", "游览", "推荐", "几小时", "半日", "route", "itinerary", "recommend", "관람 경로", "경로", "추천", "ルート", "提案", "路線", "推薦", "เส้นทาง", "แนะนำ", "ครึ่งวัน", "เที่ยวอย่างไร"],
+    preferredTerms: ["路线", "路线规划", "推荐", "历史文化爱好者路线", "自然风光爱好者路线", "亲子家庭路线", "小时", "route", "itinerary", "경로", "ルート", "路線", "เส้นทางแนะนำ", "ชั่วโมง"],
     preferredDocuments: ["doc_lingshan_guide"]
   },
   {
     intent: "highlight",
-    triggers: ["看点", "亮点", "特色", "怎么玩", "拍照", "打卡", "highlight", "highlights", "what to see", "볼거리", "특징", "見どころ", "特徴", "看點", "亮點"],
-    preferredTerms: ["看点", "亮点", "特色", "游玩亮点", "最佳体验", "拍照", "打卡", "highlights", "볼거리", "見どころ", "看點"],
+    triggers: ["看点", "亮点", "特色", "怎么玩", "拍照", "打卡", "highlight", "highlights", "what to see", "볼거리", "특징", "見どころ", "特徴", "看點", "亮點", "จุดเด่น", "สถานที่น่าสนใจ", "ถ่ายรูป"],
+    preferredTerms: ["看点", "亮点", "特色", "游玩亮点", "最佳体验", "拍照", "打卡", "highlights", "볼거리", "見どころ", "看點", "จุดเด่น", "สถานที่น่าสนใจ"],
     preferredDocuments: ["doc_structured_lingshan_spots", "doc_lingshan_guide"]
   },
   {
     intent: "history",
-    triggers: ["历史", "玄奘", "小灵山", "灵鹫山", "起源", "渊源", "关系", "history", "origin", "Xuanzang", "역사", "현장", "歴史", "玄奘", "歷史", "淵源"],
-    preferredTerms: ["历史", "玄奘", "小灵山", "灵鹫山", "佛教缘起", "渊源", "唐贞观", "history", "Xuanzang", "역사", "歴史", "歷史"],
+    triggers: ["历史", "玄奘", "小灵山", "灵鹫山", "起源", "渊源", "关系", "history", "origin", "Xuanzang", "역사", "현장", "歴史", "玄奘", "歷史", "淵源", "ประวัติ", "ที่มา", "กำเนิด"],
+    preferredTerms: ["历史", "玄奘", "小灵山", "灵鹫山", "佛教缘起", "渊源", "唐贞观", "history", "Xuanzang", "역사", "歴史", "歷史", "ประวัติ", "ราชวงศ์ถัง"],
     preferredDocuments: ["doc_lingshan_guide", "doc_structured_lingshan_spots"]
   }
 ];
@@ -126,6 +139,11 @@ const directQuerySynonyms = {
   "自助": ["自助", "餐饮", "50元"],
   "孩子": ["亲子家庭路线", "轻松游", "百子戏弥勒"],
   "轻松": ["亲子家庭路线", "轻松游"],
+  "family": ["family route", "about 4 hours", "children"],
+  "가족": ["가족 코스", "약 4시간", "아이"],
+  "ファミリー": ["ファミリールート", "約4時間", "百子戯弥勒"],
+  "親子": ["親子輕鬆路線", "約 4 小時", "百子戲彌勒"],
+  "ครอบครัว": ["เส้นทางครอบครัว", "ประมาณ 4 ชั่วโมง", "เด็ก"],
   "钟": ["祥符禅钟", "江南第一钟", "12.8吨"],
   "五明": ["声明", "因明", "内明", "医方明", "工巧明"],
   "落成开光": ["1997年11月15日", "落成开光"],
@@ -160,8 +178,8 @@ const directIntentRules = [
   },
   {
     intent: "family_route",
-    triggers: ["孩子", "亲子", "轻松"],
-    preferredTerms: ["亲子家庭路线", "轻松游", "百子戏弥勒", "孩子"],
+    triggers: ["孩子", "亲子", "轻松", "family", "with children", "가족", "아이", "ファミリー", "家族", "子ども", "親子", "輕鬆", "ครอบครัว", "เด็ก"],
+    preferredTerms: ["亲子家庭路线", "轻松游", "百子戏弥勒", "孩子", "family route", "가족", "ファミリールート", "親子輕鬆路線", "百子戲彌勒", "เส้นทางครอบครัว"],
     preferredDocuments: ["doc_lingshan_guide"]
   },
   {
@@ -222,7 +240,14 @@ const topicKeywords = [
   "門票",
   "路線",
   "看點",
-  "歷史"
+  "歷史",
+  "ความสูง",
+  "เวลาเปิด",
+  "การแสดง",
+  "บัตรเข้าชม",
+  "เส้นทาง",
+  "จุดเด่น",
+  "ประวัติ"
 ];
 
 /** @type {Set<string>} 英文检索停用词。 */
@@ -232,7 +257,7 @@ const stopWords = new Set([
 ]);
 
 /** @type {Set<string>} 不足以进行景点局部匹配的通用灵山名称。 */
-const genericSpotTokens = new Set(["灵山", "靈山", "霊山", "lingshan", "링산"]);
+const genericSpotTokens = new Set(["灵山", "靈山", "霊山", "lingshan", "링산", "หลิงซาน"]);
 
 /**
  * 使用关键词匹配、实体和意图权重检索知识库。
@@ -296,6 +321,7 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
   const config = dependencies.config || buildRemoteRagConfig();
   const finalLimit = clamp(Number(options.limit || 5), 1, 20);
   if (!isRemoteDenseReady(config)) {
+    const configurationIssues = getRemoteRagConfigIssues(config, ["shared", "embedding", "vector"]);
     return {
       ...hybridSearch(query, { ...options, limit: finalLimit }),
       remote: {
@@ -303,7 +329,10 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
         dense: false,
         reranked: false,
         degraded: false,
-        reason: config.enabled ? "remote_credentials_missing" : "remote_disabled"
+        reason: config.enabled
+          ? configurationIssues[0] || "remote_credentials_missing"
+          : "remote_disabled",
+        configurationIssues
       }
     };
   }
@@ -338,7 +367,7 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
         tenantId: options.tenantId || "default",
         scenicArea: options.scenicArea || null,
         documentType: options.documentType || null,
-        language: options.strictLanguage ? options.locale || null : null
+        language: options.strictLanguage ? normalizeLanguageFilter(options.locale) : null
       }, { fetchImpl: dependencies.fetchImpl })
     ))), config.subqueryTimeoutMs, "SUBQUERY_TIMEOUT");
     const vectorMs = performance.now() - vectorStartedAt;
@@ -737,8 +766,8 @@ function resolveDecisionThresholds(locale, intents = []) {
  */
 function shouldPreferRuleChannel(intents = [], spotMatches = []) {
   const names = new Set(intents.map((item) => item.intent));
-  if (["ticket", "route", "performance_time"].some((intent) => names.has(intent))) return true;
-  if (["history", "family_route", "highlight"].some((intent) => names.has(intent))) return false;
+  if (["ticket", "route", "family_route", "performance_time"].some((intent) => names.has(intent))) return true;
+  if (["history", "highlight"].some((intent) => names.has(intent))) return false;
   return names.size === 0 && spotMatches.some((item) => item.confidence >= 0.9);
 }
 
@@ -757,7 +786,7 @@ function passesMetadataFilter(chunk, options) {
   if (chunk.enabled === false) return false;
   if (options.scenicArea && (chunk.scenicArea || "") !== options.scenicArea) return false;
   if (options.documentType && (chunk.documentType || chunk.fileType || "") !== options.documentType) return false;
-  if (options.strictLanguage && options.locale && !languageMatches(chunk.language, options.locale)) return false;
+  if (options.strictLanguage && options.locale && !languageMatchesExactly(chunk.language, options.locale)) return false;
   if (chunk.validFrom && new Date(chunk.validFrom).getTime() > Date.now()) return false;
   if (options.includeExpired !== true && chunk.validTo && new Date(chunk.validTo).getTime() < Date.now()) return false;
   return true;
@@ -804,6 +833,32 @@ function languageMatches(documentLanguage, requestedLocale) {
   if (!requestedCode || documentCode === "und") return false;
   return documentCode === requestedCode
     || documentCode.split("-")[0] === requestedCode.split("-")[0];
+}
+
+/**
+ * 严格区分简体与繁体中文，其余语言按规范化主语言码匹配。
+ * @private
+ * @param {*} documentLanguage 分块语言。
+ * @param {*} requestedLocale 请求语言。
+ * @returns {boolean} 精确语言匹配时为 `true`。
+ */
+function languageMatchesExactly(documentLanguage, requestedLocale) {
+  const documentCode = normalizeLanguageFilter(documentLanguage);
+  const requestedCode = normalizeLanguageFilter(requestedLocale);
+  return Boolean(documentCode && requestedCode && documentCode === requestedCode);
+}
+
+/**
+ * 将客户端 locale 转换为知识索引使用的精确语言值，供 Qdrant 元数据过滤使用。
+ * @param {*} locale 客户端语言。
+ * @returns {string|null} 索引语言；未指定时返回 `null`。
+ */
+function normalizeLanguageFilter(locale) {
+  const normalized = String(locale || "").trim().toLowerCase();
+  if (!normalized) return null;
+  if (/^zh-(tw|hk|mo|hant)/u.test(normalized)) return "zh-TW";
+  if (normalized.startsWith("zh")) return "zh";
+  return normalized.split("-")[0] || null;
 }
 
 /**
@@ -948,7 +1003,7 @@ function scoreDirectIntent(chunk, intent) {
     reasons.push("餐饮信息加权");
   }
 
-  if (intent.intent === "family_route" && /(亲子家庭路线|轻松游|百子戏弥勒|孩子)/.test(raw)) {
+  if (intent.intent === "family_route" && /(亲子家庭路线|轻松游|百子戏弥勒|孩子|family route|가족|아이|ファミリールート|子ども|親子輕鬆路線|百子戲彌勒|เส้นทางครอบครัว|เด็ก)/iu.test(raw)) {
     score += 90;
     reasons.push("亲子轻松路线加权");
   }
@@ -1411,10 +1466,12 @@ function tokenize(query) {
 
   const scenicNouns = [
     "灵山胜境", "灵山大佛", "九龙灌浴", "灵山梵宫", "五印坛城", "祥符禅寺", "大佛", "梵宫",
+    "拈花湾禅意小镇", "拈花湾", "拈花广场", "五灯湖", "鹿鸣谷",
     "lingshan grand buddha", "nine dragons bathing", "brahma palace", "five mudra mandala", "xiangfu chan temple",
     "링산대불", "구룡관욕", "링산 범궁", "오인단성", "상부선사",
-    "靈山大佛", "九龍灌浴", "靈山梵宮", "五印壇城", "祥符禪寺",
-    "霊山大仏", "九龍灌浴", "霊山梵宮", "五印壇城", "祥符禅寺"
+    "靈山大佛", "九龍灌浴", "靈山梵宮", "五印壇城", "祥符禪寺", "拈花灣禪意小鎮", "拈花灣", "拈花廣場", "五燈湖", "鹿鳴谷",
+    "霊山大仏", "九龍灌浴", "霊山梵宮", "五印壇城", "祥符禅寺",
+    "พระใหญ่หลิงซาน", "เก้ามังกรสรงน้ำ", "พระราชวังฝานกงหลิงซาน", "วิหารห้าตราประทับ", "วัดเซียงฝูฉาน"
   ];
   for (const noun of scenicNouns) {
     if (clean.includes(noun)) {

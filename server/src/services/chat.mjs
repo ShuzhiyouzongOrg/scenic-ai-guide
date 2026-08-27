@@ -517,9 +517,10 @@ export async function answerQuestion({
   if (!preSensitive.sensitive && !preScope.outOfScope) {
     const retrievalStart = nowMs();
     try {
-      retrieval = experiment.enabled && experiment.variant === "control"
-        ? hybridSearch(query, { limit: 5, locale: responseLocale })
-        : await hybridSearchAsync(query, { limit: 5, locale: responseLocale });
+      const search = experiment.enabled && experiment.variant === "control"
+        ? (options) => hybridSearch(query, options)
+        : (options) => hybridSearchAsync(query, options);
+      retrieval = await retrieveWithLanguagePreference(query, responseLocale, search);
     } catch (error) {
       if (error.code !== "KNOWLEDGE_NOT_BUILT") {
         throw error;
@@ -660,6 +661,7 @@ export async function answerQuestion({
         removedUnsupportedSegments: citationEnforcement.removedUnsupportedSegments.length
       },
       anchoredSpot,
+      languageFallback: retrieval?.languageFallback === true,
       remote: retrieval?.remote || null
     },
     citationValidation,
@@ -824,6 +826,30 @@ export function validateAnswerCitations(answer, citations, results = []) {
 }
 
 /**
+ * 优先使用与回答语言一致的知识；该语种无法形成可靠答案时再受控回退到全语种资料。
+ * @param {string} query 检索问题。
+ * @param {string} locale 回答语言。
+ * @param {(options: object) => object|Promise<object>} search 检索函数。
+ * @returns {Promise<object>} 带语言回退标记的检索结果。
+ */
+async function retrieveWithLanguagePreference(query, locale, search) {
+  const preferred = await search({ limit: 5, locale, strictLanguage: true });
+  if (preferred?.decision?.answerable !== false) {
+    return { ...preferred, languageFallback: false };
+  }
+
+  const fallback = await search({ limit: 5, locale, strictLanguage: false });
+  if (fallback?.decision?.answerable === true) {
+    return {
+      ...fallback,
+      languageFallback: true,
+      preferredLanguageDecision: preferred.decision || null
+    };
+  }
+  return { ...preferred, languageFallback: false };
+}
+
+/**
  * 删除伪造引用和无证据数字事实，并为可核验的数字、时间、地点句附上稳定引用。
  * @param {*} answer 模型回答。
  * @param {object[]} citations 可公开引用。
@@ -839,7 +865,7 @@ export function enforceAnswerCitations(answer, citations = [], results = []) {
   const allEvidence = [...evidenceByCitation.values()].join(" ");
   const removedUnsupportedSegments = [];
   const segments = String(answer || "")
-    .split(/(?<=[。！？.!?])\s*|\n+/u)
+    .split(/(?<=[。！？!?])\s*|(?<=\.)\s+|\n+/u)
     .map((segment) => segment.trim())
     .filter(Boolean);
   const kept = [];
@@ -955,7 +981,11 @@ export async function* answerQuestionStream({
   let retrieval = { results: [], intents: [], spotMatches: [] };
   if (!preSensitive.sensitive && !preScope.outOfScope) {
     try {
-      retrieval = await hybridSearchAsync(query, { limit: 5, locale: responseLocale });
+      retrieval = await retrieveWithLanguagePreference(
+        query,
+        responseLocale,
+        (options) => hybridSearchAsync(query, options)
+      );
     } catch (error) {
       if (error.code !== "KNOWLEDGE_NOT_BUILT") {
         throw error;

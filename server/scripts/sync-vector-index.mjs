@@ -3,7 +3,11 @@
  * 仅在显式配置 `RAG_REMOTE_ENABLED=true` 和全部凭据后访问外部服务。
  */
 import { loadKnowledge } from "../src/services/knowledgeBuild.mjs";
-import { buildRemoteRagConfig, isRemoteDenseReady } from "../src/services/retrieval/remoteProviders.mjs";
+import {
+  buildRemoteRagConfig,
+  getRemoteRagConfigIssues,
+  isRemoteDenseReady
+} from "../src/services/retrieval/remoteProviders.mjs";
 import { syncRemoteVectorIndex } from "../src/services/retrieval/remoteIndex.mjs";
 
 const knowledge = loadKnowledge();
@@ -13,7 +17,8 @@ if (!knowledge) {
 } else {
   const config = buildRemoteRagConfig();
   if (!isRemoteDenseReady(config)) {
-    console.error("Remote RAG is not configured. Check RAG_REMOTE_ENABLED, RAG_DASHSCOPE_WORKSPACE_ID, RAG_DASHSCOPE_API_KEY, RAG_QDRANT_URL and RAG_QDRANT_API_KEY.");
+    const issues = getRemoteRagConfigIssues(config, ["shared", "embedding", "vector"]);
+    console.error(`Remote RAG is not configured: ${issues.join(", ") || "RAG_REMOTE_DISABLED"}.`);
     process.exitCode = 2;
   } else {
     const result = await syncRemoteVectorIndex(knowledge, {

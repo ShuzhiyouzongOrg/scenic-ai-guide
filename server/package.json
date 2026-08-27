@@ -31,6 +31,7 @@
     "test:knowledge-index-tasks": "node scripts/test-knowledge-index-tasks.mjs",
     "rag:process-document-tasks": "node scripts/process-document-tasks.mjs",
     "rag:sync-vectors": "node scripts/sync-vector-index.mjs",
+    "rag:probe-remote": "node scripts/probe-remote-rag.mjs",
     "rag:verify-store": "node scripts/verify-knowledge-store.mjs",
     "test:retrieval": "node scripts/test-retrieval.mjs",
     "eval:retrieval": "node scripts/eval-retrieval.mjs",

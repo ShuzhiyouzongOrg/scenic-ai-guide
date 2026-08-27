@@ -7,6 +7,9 @@ import {
   deleteQdrantPointsByIndexVersions,
   embedTexts,
   ensureQdrantCollection,
+  getRemoteRagConfigIssues,
+  isRemoteDenseReady,
+  isRemoteRerankerReady,
   queryQdrant,
   rerankDocuments,
   stablePointId
@@ -32,6 +35,51 @@ try {
     RAG_QDRANT_COLLECTION: "test-knowledge",
     RAG_REMOTE_MAX_RETRIES: "0"
   });
+  const apiHostConfig = buildRemoteRagConfig({
+    RAG_REMOTE_ENABLED: "true",
+    RAG_DASHSCOPE_API_HOST: "workspace-host.cn-beijing.maas.aliyuncs.com/",
+    RAG_DASHSCOPE_API_KEY: "valid_key",
+    RAG_QDRANT_URL: "https://qdrant.test",
+    RAG_QDRANT_API_KEY: "qdrant-key"
+  });
+  assert.equal(
+    apiHostConfig.embedding.endpoint,
+    "https://workspace-host.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/embeddings"
+  );
+  assert.equal(
+    apiHostConfig.reranker.endpoint,
+    "https://workspace-host.cn-beijing.maas.aliyuncs.com/compatible-api/v1/reranks"
+  );
+  const escapedCredentialConfig = buildRemoteRagConfig({
+    RAG_REMOTE_ENABLED: "true",
+    RAG_DASHSCOPE_API_HOST: "workspace-host.cn-beijing.maas.aliyuncs.com",
+    RAG_DASHSCOPE_API_KEY: "sk-ws-example\\_escaped",
+    RAG_QDRANT_URL: "https://qdrant.test",
+    RAG_QDRANT_API_KEY: "qdrant-key"
+  });
+  assert.equal(isRemoteDenseReady(escapedCredentialConfig), false);
+  assert.equal(isRemoteRerankerReady(escapedCredentialConfig), false);
+  assert.deepEqual(
+    getRemoteRagConfigIssues(escapedCredentialConfig),
+    ["DASHSCOPE_API_KEY_MARKDOWN_ESCAPE"]
+  );
+  const invalidHostConfig = buildRemoteRagConfig({
+    RAG_REMOTE_ENABLED: "true",
+    RAG_DASHSCOPE_API_HOST: "http://insecure.example.com",
+    RAG_DASHSCOPE_API_KEY: "valid-key",
+    RAG_QDRANT_URL: "https://qdrant.test",
+    RAG_QDRANT_API_KEY: "qdrant-key"
+  });
+  assert.ok(getRemoteRagConfigIssues(invalidHostConfig).includes("DASHSCOPE_API_HOST_INVALID"));
+  const mismatchedEndpointConfig = buildRemoteRagConfig({
+    RAG_REMOTE_ENABLED: "true",
+    RAG_DASHSCOPE_API_HOST: "workspace-host.cn-beijing.maas.aliyuncs.com",
+    RAG_DASHSCOPE_API_KEY: "valid-key",
+    RAG_EMBEDDING_ENDPOINT: "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings",
+    RAG_QDRANT_URL: "https://qdrant.test",
+    RAG_QDRANT_API_KEY: "qdrant-key"
+  });
+  assert.ok(getRemoteRagConfigIssues(mismatchedEndpointConfig).includes("EMBEDDING_API_HOST_MISMATCH"));
   const calls = [];
   let collectionExists = false;
   let queryChunkIds = ["chunk-a"];
@@ -126,6 +174,18 @@ try {
       && error.retryable === false
   );
   assert.equal(calls.filter((call) => call.url.endsWith("/index?wait=true")).length, 16);
+  await assert.rejects(
+    () => embedTexts(["鉴权测试"], config, { fetchImpl: async () => jsonResponse(401, {}) }),
+    (error) => error?.code === "REMOTE_AUTHENTICATION_FAILED"
+      && error?.operation === "EMBEDDING_REQUEST_FAILED"
+  );
+  await assert.rejects(
+    () => rerankDocuments("权限测试", ["候选"], config, {
+      fetchImpl: async () => jsonResponse(403, {})
+    }),
+    (error) => error?.code === "REMOTE_ACCESS_DENIED"
+      && error?.operation === "RERANK_REQUEST_FAILED"
+  );
   const dense = await queryQdrant(embedded.vectors[0], config, {
     indexVersion: "version-test",
     knowledgeScope: "visitor_qa",
@@ -213,6 +273,38 @@ try {
   assert.equal(ready.remote.dense, true);
   assert.equal(ready.remote.reranked, true);
   assert.equal(ready.channels.find((channel) => channel.name === "dense")?.count, 1);
+
+  const strictCallStart = calls.length;
+  const strictLanguageReady = await hybridSearchAsync(
+    "灵山大佛多高",
+    { limit: 3, locale: "zh-CN", strictLanguage: true },
+    { config: runtimeConfig, fetchImpl: fakeFetch }
+  );
+  assert.equal(strictLanguageReady.remote.status, "ready");
+  const strictQuery = calls.slice(strictCallStart).find((call) => call.url.endsWith("/points/query"));
+  assert.equal(
+    strictQuery.body.filter.must.find((item) => item.key === "language").match.value,
+    "zh"
+  );
+  for (const [locale, expectedLanguage] of [
+    ["en-US", "en"],
+    ["ja-JP", "ja"],
+    ["ko-KR", "ko"],
+    ["th-TH", "th"],
+    ["zh-Hant", "zh-TW"]
+  ]) {
+    const callStart = calls.length;
+    await hybridSearchAsync(
+      "灵山大佛多高",
+      { limit: 3, locale, strictLanguage: true },
+      { config: runtimeConfig, fetchImpl: fakeFetch }
+    );
+    const queryCall = calls.slice(callStart).find((call) => call.url.endsWith("/points/query"));
+    assert.equal(
+      queryCall.body.filter.must.find((item) => item.key === "language").match.value,
+      expectedLanguage
+    );
+  }
 
   const callStart = calls.length;
   const complexReady = await hybridSearchAsync("灵山胜境演出时间，并且推荐亲子路线", { limit: 3 }, {

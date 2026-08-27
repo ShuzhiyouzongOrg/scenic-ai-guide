@@ -5,7 +5,11 @@ import { runDocumentParserTasks } from "../src/services/documentParserTasks.mjs"
 import { runKnowledgeIndexTasks } from "../src/services/uploads.mjs";
 import { loadKnowledge } from "../src/services/knowledgeBuild.mjs";
 import { syncRemoteVectorIndex } from "../src/services/retrieval/remoteIndex.mjs";
-import { buildRemoteRagConfig, isRemoteDenseReady } from "../src/services/retrieval/remoteProviders.mjs";
+import {
+  buildRemoteRagConfig,
+  getRemoteRagConfigIssues,
+  isRemoteDenseReady
+} from "../src/services/retrieval/remoteProviders.mjs";
 
 const indexing = await runKnowledgeIndexTasks({
   limit: Number(process.env.KNOWLEDGE_INDEX_WORKER_BATCH || 1)
@@ -23,7 +27,13 @@ console.log(JSON.stringify({ indexing, parser: result, remoteSync }, null, 2));
  */
 async function syncChangedKnowledgeVersion() {
   const remoteConfig = buildRemoteRagConfig();
-  if (!isRemoteDenseReady(remoteConfig)) return { status: "disabled" };
+  if (!isRemoteDenseReady(remoteConfig)) {
+    const issues = getRemoteRagConfigIssues(remoteConfig, ["shared", "embedding", "vector"]);
+    return {
+      status: remoteConfig.enabled ? "misconfigured" : "disabled",
+      issues
+    };
+  }
   const knowledge = loadKnowledge();
   if (!knowledge?.indexVersion) return { status: "knowledge_unavailable" };
   const markerPath = join(config.dataDir, "generated", "remote-index.json");

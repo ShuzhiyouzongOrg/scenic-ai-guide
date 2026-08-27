@@ -17,40 +17,58 @@ const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 export function buildRemoteRagConfig(env = process.env) {
   const workspaceId = String(env.RAG_DASHSCOPE_WORKSPACE_ID || "").trim();
   const region = String(env.RAG_DASHSCOPE_REGION || "cn-beijing").trim();
-  const workspaceBase = workspaceId
+  const enabled = toBoolean(env.RAG_REMOTE_ENABLED, false);
+  const configuredApiHostRaw = String(env.RAG_DASHSCOPE_API_HOST || "").trim();
+  const configuredApiHost = normalizeApiHost(configuredApiHostRaw);
+  const workspaceBase = configuredApiHost || (workspaceId
     ? `https://${workspaceId}.${region}.maas.aliyuncs.com`
-    : "";
+    : "");
+  const dashscopeApiKey = normalizeCredential(env.RAG_DASHSCOPE_API_KEY);
+  const qdrantApiKey = normalizeCredential(env.RAG_QDRANT_API_KEY);
+  const embeddingEndpoint = String(env.RAG_EMBEDDING_ENDPOINT || (workspaceBase
+    ? `${workspaceBase}/compatible-mode/v1/embeddings`
+    : "")).trim();
+  const rerankerEndpoint = String(env.RAG_RERANK_ENDPOINT || (workspaceBase
+    ? `${workspaceBase}/compatible-api/v1/reranks`
+    : "")).trim();
+  const qdrantUrl = String(env.RAG_QDRANT_URL || "").replace(/\/+$/u, "");
+  const issues = enabled ? buildConfigurationIssues({
+    configuredApiHostRaw,
+    configuredApiHost,
+    dashscopeApiKey,
+    embeddingEndpoint,
+    rerankerEndpoint,
+    qdrantUrl,
+    qdrantApiKey
+  }) : [];
   return Object.freeze({
-    enabled: toBoolean(env.RAG_REMOTE_ENABLED, false),
+    enabled,
+    issues: Object.freeze(issues),
     timeoutMs: boundedNumber(env.RAG_REMOTE_TIMEOUT_MS, 3_000, 300, 30_000),
     maxRetries: boundedNumber(env.RAG_REMOTE_MAX_RETRIES, 1, 0, 3),
     candidateLimit: boundedNumber(env.RAG_REMOTE_CANDIDATE_LIMIT, 20, 5, 100),
     subqueryTimeoutMs: boundedNumber(env.RAG_SUBQUERY_TIMEOUT_MS, 4_500, 500, 30_000),
     embedding: Object.freeze({
       provider: String(env.RAG_EMBEDDING_PROVIDER || "dashscope").trim(),
-      apiKey: String(env.RAG_DASHSCOPE_API_KEY || "").trim(),
+      apiKey: dashscopeApiKey,
       model: String(env.RAG_EMBEDDING_MODEL || "qwen3.7-text-embedding").trim(),
       dimensions: boundedNumber(env.RAG_EMBEDDING_DIMENSIONS, 1024, 64, 4096),
-      endpoint: String(env.RAG_EMBEDDING_ENDPOINT || (workspaceBase
-        ? `${workspaceBase}/compatible-mode/v1/embeddings`
-        : "")).trim(),
+      endpoint: embeddingEndpoint,
       batchSize: boundedNumber(env.RAG_EMBEDDING_BATCH_SIZE, 10, 1, 25)
     }),
     vector: Object.freeze({
       provider: String(env.RAG_VECTOR_PROVIDER || "qdrant").trim(),
-      url: String(env.RAG_QDRANT_URL || "").replace(/\/+$/u, ""),
-      apiKey: String(env.RAG_QDRANT_API_KEY || "").trim(),
+      url: qdrantUrl,
+      apiKey: qdrantApiKey,
       collection: String(env.RAG_QDRANT_COLLECTION || "scenic_knowledge").trim(),
       minScore: boundedDecimal(env.RAG_DENSE_MIN_SCORE, 0.35, 0, 1)
     }),
     retainIndexVersions: boundedNumber(env.RAG_REMOTE_RETAIN_INDEX_VERSIONS, 2, 1, 10),
     reranker: Object.freeze({
       provider: String(env.RAG_RERANK_PROVIDER || "dashscope").trim(),
-      apiKey: String(env.RAG_DASHSCOPE_API_KEY || "").trim(),
+      apiKey: dashscopeApiKey,
       model: String(env.RAG_RERANK_MODEL || "qwen3-rerank").trim(),
-      endpoint: String(env.RAG_RERANK_ENDPOINT || (workspaceBase
-        ? `${workspaceBase}/compatible-api/v1/reranks`
-        : "")).trim(),
+      endpoint: rerankerEndpoint,
       instruct: String(env.RAG_RERANK_INSTRUCT || "Retrieve evidence that answers the scenic-area visitor question.").trim(),
       timeoutMs: boundedNumber(env.RAG_RERANK_TIMEOUT_MS, 1_200, 300, 10_000)
     })
@@ -67,7 +85,8 @@ export function isRemoteDenseReady(config) {
     && config.embedding?.provider === "dashscope"
     && Boolean(config.embedding.apiKey && config.embedding.endpoint)
     && config.vector?.provider === "qdrant"
-    && Boolean(config.vector.url && config.vector.apiKey && config.vector.collection);
+    && Boolean(config.vector.url && config.vector.apiKey && config.vector.collection)
+    && getRemoteRagConfigIssues(config, ["shared", "embedding", "vector"]).length === 0;
 }
 
 /**
@@ -78,7 +97,21 @@ export function isRemoteDenseReady(config) {
 export function isRemoteRerankerReady(config) {
   return config?.enabled === true
     && config.reranker?.provider === "dashscope"
-    && Boolean(config.reranker.apiKey && config.reranker.endpoint);
+    && Boolean(config.reranker.apiKey && config.reranker.endpoint)
+    && getRemoteRagConfigIssues(config, ["shared", "reranker"]).length === 0;
+}
+
+/**
+ * 返回不含任何凭证值的远程 RAG 配置问题码。
+ * @param {object} config 远程 RAG 配置。
+ * @param {string[]} [components] 需要筛选的组件。
+ * @returns {string[]} 可安全写入日志和管理端状态的稳定问题码。
+ */
+export function getRemoteRagConfigIssues(config, components = []) {
+  const allowed = new Set(components);
+  return (config?.issues || [])
+    .filter((issue) => allowed.size === 0 || allowed.has(issue.component))
+    .map((issue) => issue.code);
 }
 
 /**
@@ -440,7 +473,12 @@ async function requestJson(url, init, options) {
         payload = {};
       }
       if (accepted) return { ...payload, __status: response.status };
-      const error = providerError(options.errorCode, `Remote service returned HTTP ${response.status}.`, response.status);
+      const error = providerError(
+        classifyRemoteHttpError(response.status, options.errorCode),
+        `Remote service returned HTTP ${response.status}.`,
+        response.status
+      );
+      error.operation = options.errorCode;
       if (!RETRYABLE_STATUS.has(response.status)) error.retryable = false;
       if (error.retryable === false || attempt >= options.maxRetries) throw error;
       lastError = error;
@@ -477,6 +515,76 @@ function normalizeVector(vector, dimensions) {
 function toBoolean(value, fallback) {
   if (value === undefined || value === null || value === "") return fallback;
   return ["1", "true", "yes", "on"].includes(String(value).toLowerCase());
+}
+
+/** @param {*} value API Host。 @returns {string} 仅保留 HTTPS origin；非法值返回空串。 */
+function normalizeApiHost(value) {
+  const raw = String(value || "").trim().replace(/\/+$/u, "");
+  if (!raw) return "";
+  try {
+    const parsed = new URL(/^https?:\/\//iu.test(raw) ? raw : `https://${raw}`);
+    return parsed.protocol === "https:" ? parsed.origin : "";
+  } catch {
+    return "";
+  }
+}
+
+/** @param {*} value 凭证。 @returns {string} 去除首尾空白后的原始凭证，不静默修复内容。 */
+function normalizeCredential(value) {
+  return String(value || "").trim();
+}
+
+/**
+ * 构建脱敏配置诊断。反斜杠通常来自 Markdown 中对下划线的转义，不能作为真实 Key 发送。
+ * @param {object} input 原始配置摘要。
+ * @returns {Array<{component:string,code:string}>} 配置问题。
+ */
+function buildConfigurationIssues(input) {
+  const issues = [];
+  if (input.configuredApiHostRaw && !input.configuredApiHost) {
+    issues.push({ component: "shared", code: "DASHSCOPE_API_HOST_INVALID" });
+  }
+  appendCredentialIssues(issues, "shared", "DASHSCOPE_API_KEY", input.dashscopeApiKey);
+  appendCredentialIssues(issues, "vector", "QDRANT_API_KEY", input.qdrantApiKey);
+  if (!input.embeddingEndpoint) issues.push({ component: "embedding", code: "EMBEDDING_ENDPOINT_MISSING" });
+  if (!input.rerankerEndpoint) issues.push({ component: "reranker", code: "RERANK_ENDPOINT_MISSING" });
+  if (input.configuredApiHost && input.embeddingEndpoint
+    && !endpointUsesApiHost(input.embeddingEndpoint, input.configuredApiHost)) {
+    issues.push({ component: "embedding", code: "EMBEDDING_API_HOST_MISMATCH" });
+  }
+  if (input.configuredApiHost && input.rerankerEndpoint
+    && !endpointUsesApiHost(input.rerankerEndpoint, input.configuredApiHost)) {
+    issues.push({ component: "reranker", code: "RERANK_API_HOST_MISMATCH" });
+  }
+  if (!input.qdrantUrl) issues.push({ component: "vector", code: "QDRANT_URL_MISSING" });
+  return issues;
+}
+
+/** @param {Array<object>} issues 问题集合。 @param {string} component 组件。 @param {string} name 名称。 @param {string} value 凭证。 @returns {void} */
+function appendCredentialIssues(issues, component, name, value) {
+  if (!value) {
+    issues.push({ component, code: `${name}_MISSING` });
+    return;
+  }
+  if (value.includes("\\")) issues.push({ component, code: `${name}_MARKDOWN_ESCAPE` });
+  if (/\s/u.test(value)) issues.push({ component, code: `${name}_WHITESPACE` });
+}
+
+/** @param {string} endpoint 完整接口。 @param {string} apiHost 专属 Host。 @returns {boolean} origin 一致时为 `true`。 */
+function endpointUsesApiHost(endpoint, apiHost) {
+  try {
+    return new URL(endpoint).origin === new URL(apiHost).origin;
+  } catch {
+    return false;
+  }
+}
+
+/** @param {number} status HTTP 状态。 @param {string} fallback 默认错误码。 @returns {string} 稳定错误码。 */
+function classifyRemoteHttpError(status, fallback) {
+  if (status === 401) return "REMOTE_AUTHENTICATION_FAILED";
+  if (status === 403) return "REMOTE_ACCESS_DENIED";
+  if (status === 429) return "REMOTE_RATE_LIMITED";
+  return fallback;
 }
 
 /** @param {*} value 值。 @param {number} fallback 默认值。 @param {number} min 下限。 @param {number} max 上限。 @returns {number} 整数。 */
