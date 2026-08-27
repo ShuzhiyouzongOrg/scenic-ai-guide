@@ -1,0 +1,227 @@
+name: Web quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/web-quality.yml"
+      - "web/**"
+      - "server/package.json"
+      - "server/package-lock.json"
+      - "server/scripts/test-pagespeed-static.mjs"
+      - "server/scripts/test-web-vitals.mjs"
+      - "server/src/app.mjs"
+      - "server/src/contracts/openapi.json"
+      - "server/src/db/database.mjs"
+      - "server/src/db/schema.mjs"
+      - "server/src/services/webVitals.mjs"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/web-quality.yml"
+      - "web/**"
+      - "server/package.json"
+      - "server/package-lock.json"
+      - "server/scripts/test-pagespeed-static.mjs"
+      - "server/scripts/test-web-vitals.mjs"
+      - "server/src/app.mjs"
+      - "server/src/contracts/openapi.json"
+      - "server/src/db/database.mjs"
+      - "server/src/db/schema.mjs"
+      - "server/src/services/webVitals.mjs"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "11.13.0"
+  LIGHTHOUSE_VERSION: "13.4.1"
+  CHROME_VERSION: "151.0.7922.175"
+
+jobs:
+  build-quality:
+    name: Build and static quality gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Validate main-site static delivery and Web Vitals storage
+        working-directory: server
+        run: |
+          npm run check
+          npm run test:pagespeed-static
+          npm run test:web-vitals
+
+      - name: Install web dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Run web tests
+        working-directory: web
+        run: pnpm test
+
+      - name: Build production web output and archive hidden sourcemaps
+        working-directory: web
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+          BUILD_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          VITE_XF_AVATAR_APPID: quality-placeholder-app-id
+          VITE_XF_AVATAR_APIKEY: quality-placeholder-api-key
+          VITE_XF_AVATAR_APISECRET: quality-placeholder-api-secret
+        run: pnpm build
+
+      - name: Assert public dist contains no sourcemaps
+        working-directory: web
+        run: |
+          if find dist -type f \( -name '*.map' -o -name '*.map.gz' -o -name '*.map.br' \) -print -quit | grep -q .; then
+            echo "Public dist contains a sourcemap." >&2
+            exit 1
+          fi
+
+      - name: Scan public output and private sourcemaps for sensitive values
+        working-directory: web
+        run: pnpm quality:sensitive
+
+      - name: Report resource budgets relative to baseline
+        working-directory: web
+        run: pnpm quality:budget
+
+      - name: Upload private sourcemaps
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-sourcemaps-${{ github.sha }}
+          path: web/performance/artifacts/sourcemaps
+          if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: true
+
+      - name: Upload production web dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-quality-dist
+          path: web/dist
+          if-no-files-found: error
+          retention-days: 1
+          include-hidden-files: false
+
+      - name: Upload static quality reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-static-quality-reports
+          path: web/performance/reports
+          if-no-files-found: warn
+          retention-days: 14
+
+  lighthouse:
+    name: Lighthouse ${{ matrix.profile }} (3 runs per route)
+    needs: build-quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        profile:
+          - mobile
+          - desktop
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install web dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Download production web dist
+        uses: actions/download-artifact@v8
+        with:
+          name: web-quality-dist
+          path: web/dist
+
+      - name: Set up pinned Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+          install-dependencies: true
+
+      - name: Run pinned Lighthouse reports
+        working-directory: web
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="performance/reports/lighthouse/${{ matrix.profile }}"
+          mkdir -p "$output"
+          pnpm exec vite preview --host 127.0.0.1 --port 4173 --strictPort > "$output/preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..60}; do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:4173/ >/dev/null
+
+          for route in login register forget-password; do
+            for run in 1 2 3; do
+              args=(
+                "http://127.0.0.1:4173/#/auth/${route}"
+                "--output=json"
+                "--output-path=${output}/${route}-${run}.json"
+                "--only-categories=performance,accessibility,best-practices,seo"
+                "--chrome-flags=--headless=new --no-sandbox --disable-dev-shm-usage"
+                "--quiet"
+              )
+              if [[ "${{ matrix.profile }}" == "desktop" ]]; then
+                args+=("--preset=desktop")
+              fi
+              pnpm dlx "lighthouse@${LIGHTHOUSE_VERSION}" "${args[@]}"
+            done
+          done
+          node scripts/summarize-lighthouse.mjs "$output" "${{ matrix.profile }}"
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-${{ matrix.profile }}-${{ github.sha }}
+          path: web/performance/reports/lighthouse/${{ matrix.profile }}
+          if-no-files-found: warn
+          retention-days: 14

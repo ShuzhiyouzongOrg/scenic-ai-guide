@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-27T10:51:09.820Z",
+  "commit": "cd7cb2b21cb6f4e29435ca7c51e12414162a9b28",
+  "dirty": true,
+  "distFingerprint": "d75e03772ab8023cb840e1e02a76b32c1703c4c7a25a8e8113748af425725dff",
+  "metrics": {
+    "entryJavaScriptGzipBytes": 197651,
+    "entryCssGzipBytes": 18553,
+    "backgroundAssetMaxBytes": 285006,
+    "chunkGzipMaxBytes": 375761,
+    "maximumAssetBytes": 4832204,
+    "totalAssetBytes": 29199414,
+    "estimatedCompressibleGzipBytes": 2416608
+  }
+}

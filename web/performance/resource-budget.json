@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "budgets": {
+    "entryJavaScriptGzipBytes": 512000,
+    "entryCssGzipBytes": 61440,
+    "backgroundAssetMaxBytes": 256000,
+    "chunkGzipMaxBytes": 512000,
+    "maximumAssetBytes": 5242880
+  },
+  "backgroundAssetPatterns": [
+    "^images/(?:login-bg(?:\\.optimized)?|page-bg(?:-dark)?(?:-optimized)?|sidebar-bg)\\.(?:png|webp)$"
+  ],
+  "compressibleExtensions": [
+    ".css",
+    ".html",
+    ".js",
+    ".json",
+    ".svg",
+    ".txt",
+    ".xml"
+  ]
+}

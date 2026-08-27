@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "scanRoots": [
+    "dist",
+    "performance/artifacts/sourcemaps"
+  ],
+  "environmentFiles": [
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local"
+  ],
+  "allowedClientEnvironmentNames": [
+    "VITE_TENCENT_MAP_KEY",
+    "VITE_XF_AVATAR_APPID",
+    "VITE_XF_AVATAR_APIKEY",
+    "VITE_XF_AVATAR_APISECRET"
+  ],
+  "sensitiveEnvironmentNamePattern": "(?:API_?KEY|API_?SECRET|SECRET|TOKEN|PASSWORD|PASSWD|PRIVATE_?KEY|ACCESS_?KEY|CREDENTIAL)",
+  "minimumEnvironmentValueLength": 8,
+  "maximumFileBytes": 33554432,
+  "textExtensions": [
+    ".css",
+    ".html",
+    ".js",
+    ".json",
+    ".map",
+    ".svg",
+    ".txt",
+    ".webmanifest",
+    ".xml"
+  ],
+  "patterns": [
+    {
+      "id": "private-key",
+      "expression": "-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----",
+      "flags": "g"
+    },
+    {
+      "id": "aws-access-key",
+      "expression": "\\b(?:AKIA|ASIA)[0-9A-Z]{16}\\b",
+      "flags": "g"
+    },
+    {
+      "id": "github-token",
+      "expression": "\\b(?:gh[pousr]_[A-Za-z0-9]{36,255}|github_pat_[A-Za-z0-9_]{40,255})\\b",
+      "flags": "g"
+    },
+    {
+      "id": "openai-style-key",
+      "expression": "\\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\\b",
+      "flags": "g"
+    },
+    {
+      "id": "google-api-key",
+      "expression": "\\bAIza[0-9A-Za-z_-]{35}\\b",
+      "flags": "g"
+    },
+    {
+      "id": "jwt",
+      "expression": "\\beyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\b",
+      "flags": "g"
+    },
+    {
+      "id": "public-sourcemap-reference",
+      "expression": "sourceMappingURL\\s*=\\s*[^\\s]+\\.map(?:\\s|$)",
+      "flags": "g"
+    }
+  ]
+}
