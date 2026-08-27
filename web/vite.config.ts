@@ -8,12 +8,20 @@ import AutoImport from 'unplugin-auto-import/vite'
 import ElementPlus from 'unplugin-element-plus/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import tailwindcss from '@tailwindcss/vite'
-// import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default ({ mode }: { mode: string }) => {
   const root = process.cwd()
   const env = loadEnv(mode, root)
-  const { VITE_VERSION, VITE_PORT, VITE_BASE_URL, VITE_API_URL, VITE_API_PROXY_URL } = env
+  const {
+    VITE_VERSION,
+    VITE_PORT,
+    VITE_BASE_URL,
+    VITE_API_URL,
+    VITE_API_PROXY_URL,
+    VITE_BUNDLE_REPORT
+  } = env
+  const bundleReport = VITE_BUNDLE_REPORT === 'true'
 
   console.log(`🚀 API_URL = ${VITE_API_URL}`)
   console.log(`🚀 VERSION = ${VITE_VERSION}`)
@@ -52,6 +60,7 @@ export default ({ mode }: { mode: string }) => {
     build: {
       target: 'es2015',
       outDir: 'dist',
+      sourcemap: mode === 'production' ? 'hidden' : false,
       chunkSizeWarningLimit: 2000,
       minify: 'terser',
       terserOptions: {
@@ -66,6 +75,22 @@ export default ({ mode }: { mode: string }) => {
         warnOnError: true,
         exclude: [],
         include: ['src/views/**/*.vue']
+      },
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            const normalizedId = id.replaceAll('\\', '/')
+            const dependencyChunks: Array<[RegExp, string]> = [
+              [/(?:\/node_modules\/|\/\.pnpm\/)(?:echarts|zrender)(?:@|\/)/u, 'charts'],
+              [/(?:\/node_modules\/|\/\.pnpm\/)pdfjs-dist(?:@|\/)/u, 'pdf-preview'],
+              [/(?:\/node_modules\/|\/\.pnpm\/)xlsx(?:@|\/)/u, 'spreadsheet'],
+              [/(?:\/node_modules\/|\/\.pnpm\/)@wangeditor(?:\+|\/)/u, 'editor'],
+              [/(?:\/node_modules\/|\/\.pnpm\/)xgplayer(?:@|\/)/u, 'video']
+            ]
+
+            return dependencyChunks.find(([pattern]) => pattern.test(normalizedId))?.[1]
+          }
+        }
       }
     },
     plugins: [
@@ -98,15 +123,27 @@ export default ({ mode }: { mode: string }) => {
         algorithm: 'gzip', // 压缩算法
         ext: '.gz', // 压缩后的文件名后缀
         threshold: 10240, // 只有大小大于该值的资源会被处理 10240B = 10KB
-        deleteOriginFile: false // 压缩后是否删除原文件
-      })
-      // 打包分析
-      // visualizer({
-      //   open: true,
-      //   gzipSize: true,
-      //   brotliSize: true,
-      //   filename: 'dist/stats.html' // 分析图生成的文件名及路径
-      // }),
+        deleteOriginFile: false // 保留原文件，服务器可按 Accept-Encoding 选择压缩版本
+      }),
+      viteCompression({
+        verbose: false,
+        disable: false,
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 10240,
+        deleteOriginFile: false
+      }),
+      ...(bundleReport
+        ? [
+            visualizer({
+              open: false,
+              gzipSize: true,
+              brotliSize: true,
+              template: 'raw-data',
+              filename: 'performance/pagespeed/current/bundle-stats.json'
+            })
+          ]
+        : [])
     ],
     // 依赖预构建：避免运行时重复请求与转换，提升首次加载速度
     optimizeDeps: {

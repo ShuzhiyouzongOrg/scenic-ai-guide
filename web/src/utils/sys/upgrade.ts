@@ -34,7 +34,7 @@
  * @module utils/sys/upgrade
  * @author Scenic AI Guide Team
  */
-import { upgradeLogList } from '@/mock/upgrade/changeLog'
+import type { ProjectChangeLog } from '@/mock/upgrade/changeLog'
 import { ElNotification } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { StorageConfig } from '@/utils/storage/storage-config'
@@ -48,7 +48,7 @@ class VersionManager {
    * 规范化版本号字符串，移除前缀 'v'
    */
   private normalizeVersion(version: string): string {
-    return version.replace(/^v/, '')
+    return String(version ?? '').replace(/^v/, '')
   }
 
   /**
@@ -62,7 +62,7 @@ class VersionManager {
    * 设置版本号到存储
    */
   private setStoredVersion(version: string): void {
-    localStorage.setItem(StorageConfig.VERSION_KEY, version)
+    localStorage.setItem(StorageConfig.VERSION_KEY, String(version))
   }
 
   /**
@@ -83,7 +83,7 @@ class VersionManager {
    * 检查版本是否相同
    */
   private isSameVersion(storedVersion: string): boolean {
-    return storedVersion === StorageConfig.CURRENT_VERSION
+    return storedVersion === String(StorageConfig.CURRENT_VERSION)
   }
 
   /**
@@ -114,11 +114,14 @@ class VersionManager {
   /**
    * 检查是否需要重新登录
    */
-  private shouldRequireReLogin(storedVersion: string): boolean {
+  private shouldRequireReLogin(
+    storedVersion: string,
+    projectChangeLog: ProjectChangeLog[]
+  ): boolean {
     const normalizedCurrent = this.normalizeVersion(StorageConfig.CURRENT_VERSION)
     const normalizedStored = this.normalizeVersion(storedVersion)
 
-    return upgradeLogList.value.some((item) => {
+    return projectChangeLog.some((item) => {
       const itemVersion = this.normalizeVersion(item.version)
       return (
         item.requireReLogin && itemVersion > normalizedStored && itemVersion <= normalizedCurrent
@@ -129,8 +132,11 @@ class VersionManager {
   /**
    * 构建升级通知消息
    */
-  private buildUpgradeMessage(requireReLogin: boolean): string {
-    const { title: content } = upgradeLogList.value[0]
+  private buildUpgradeMessage(
+    requireReLogin: boolean,
+    projectChangeLog: ProjectChangeLog[]
+  ): string {
+    const { title: content } = projectChangeLog[0]
 
     const messageParts = [
       `<p style="color: var(--art-gray-800) !important; padding-bottom: 5px;">`,
@@ -198,13 +204,15 @@ class VersionManager {
     legacyStorage: ReturnType<typeof this.findLegacyStorage>
   ): Promise<void> {
     try {
-      if (!upgradeLogList.value.length) {
+      const { projectChangeLog } = await import('@/mock/upgrade/changeLog')
+
+      if (!projectChangeLog.length) {
         console.warn('[Upgrade] 升级日志列表为空')
         return
       }
 
-      const requireReLogin = this.shouldRequireReLogin(storedVersion)
-      const message = this.buildUpgradeMessage(requireReLogin)
+      const requireReLogin = this.shouldRequireReLogin(storedVersion, projectChangeLog)
+      const message = this.buildUpgradeMessage(requireReLogin, projectChangeLog)
 
       // 显示升级通知
       this.showUpgradeNotification(message)
