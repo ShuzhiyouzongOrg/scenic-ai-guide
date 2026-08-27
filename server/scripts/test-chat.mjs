@@ -6,7 +6,10 @@ import assert from "node:assert";
 process.env.LLM_PROVIDER = "mock";
 const {
   answerQuestion,
+  createPublicAnswerStreamFilter,
   enforceAnswerCitations,
+  formatPublicAssistantText,
+  formatPublicConversationMessages,
   hasRouteStructure,
   validateAnswerCitations
 } = await import("../src/services/chat.mjs");
@@ -31,8 +34,8 @@ await record("factual height answer is grounded and short", async () => {
   assert.ok(r.citations.length > 0, "expected citations");
   assert.ok(/88|米|通高|高/.test(r.answer), `answer should mention height: ${r.answer}`);
   assert.ok(charLen(r.answer) <= 200, `qa answer too long: ${charLen(r.answer)}`);
-  assert.match(r.answer, /\[C-[^\]]+\]/u, "factual answer must include a stable citation");
-  assert.ok(["verified", "implicit"].includes(r.citationValidation.status));
+  assert.doesNotMatch(r.answer, /\[(?:C-|C\d)/u, "public answer must hide internal citation identifiers");
+  assert.equal(r.citationValidation.status, "verified");
 });
 
 await record("fabricated citations and unsupported facts are removed", async () => {
@@ -56,6 +59,54 @@ await record("citation enforcement preserves decimal facts", async () => {
   const enforced = enforceAnswerCitations("灵山大佛含台基总高101.5米。", citations, evidence);
   assert.match(enforced.answer, /101\.5米。\s+\[C-height\]/u);
   assert.doesNotMatch(enforced.answer, /101\.\s*\[C-height\]\s*5米/u);
+});
+
+await record("public answer keeps decimals and numbered route steps without citation identifiers", async () => {
+  const citations = [{ citationId: "C-route", quote: "1. 南门入园。2. 灵山大佛含台基总高101.5米。" }];
+  const evidence = [{ content: citations[0].quote, citation: citations[0] }];
+  const enforced = enforceAnswerCitations(
+    "1. 南门入园。\n2. 灵山大佛含台基总高101.5米。",
+    citations,
+    evidence
+  );
+  const answer = formatPublicAssistantText(enforced.answer);
+  assert.match(answer, /^1\. 南门入园。$/mu);
+  assert.match(answer, /^2\. 灵山大佛含台基总高101\.5米。$/mu);
+  assert.doesNotMatch(answer, /\[C-route\]/u);
+});
+
+await record("stream and legacy history filters hide citation identifiers across chunk boundaries", async () => {
+  const filter = createPublicAnswerStreamFilter();
+  const streamed = [
+    filter.push("灵山大佛高88米。 [C-"),
+    filter.push("chunk_height]继续讲解。"),
+    filter.flush()
+  ].join("");
+  assert.equal(streamed, "灵山大佛高88米。继续讲解。");
+  const history = formatPublicConversationMessages([
+    { role: "user", content: "[C-user] 保留用户原文" },
+    { role: "assistant", content: "回答。[C-old-cache]" }
+  ]);
+  assert.equal(history[0].content, "[C-user] 保留用户原文");
+  assert.equal(history[1].content, "回答。");
+});
+
+await record("area opening-hours question does not mix venue or arrival schedules", async () => {
+  const r = await answerQuestion({ question: "景区开放时间", locale: "zh-CN" });
+  assert.doesNotMatch(r.answer, /\[(?:C-|C\d)/u);
+  assert.doesNotMatch(r.answer, /佛教文化博览馆|建议上午9点前入园|吉祥颂.*10:35/u);
+  assert.ok(r.sources.every((source) => !/佛教文化博览馆|最佳游览时间/u.test(source.sectionTitle || "")));
+});
+
+await record("specific schedules, area tickets and routes stay within their requested entity", async () => {
+  const performance = await answerQuestion({ question: "九龙灌浴几点演出", locale: "zh-CN" });
+  assert.doesNotMatch(performance.answer, /吉祥颂|10:35/u);
+  const venueHours = await answerQuestion({ question: "灵山梵宫开放时间", locale: "zh-CN" });
+  assert.doesNotMatch(venueHours.answer, /吉祥颂|10:35|11:30|14:00|16:00/u);
+  const unrelatedTicket = await answerQuestion({ question: "拈花湾门票多少钱", locale: "zh-CN" });
+  assert.doesNotMatch(unrelatedTicket.answer, /成人票|210元|105元/u);
+  const route = await answerQuestion({ question: "推荐一条经典路线", locale: "zh-CN" });
+  assert.ok(route.sources.every((source) => !/拈花/u.test(`${source.sectionTitle || ""}${source.scenicSpotName || ""}`)));
 });
 
 const multilingualQuestions = [

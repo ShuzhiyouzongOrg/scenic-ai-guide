@@ -83,7 +83,7 @@
                   {{ $t('app.responseMs', { latency: answer.latency.totalMs }) }}
                 </span>
               </div>
-              <p class="answer-text">{{ answer.answer }}</p>
+              <p class="answer-text">{{ formatGuideAnswer(answer.answer) }}</p>
               <div v-if="answer.sources?.length" class="sources">
                 <p class="sources-label">{{ $t('app.sourcesLabel') }}</p>
                 <ElTag v-for="(src, i) in answer.sources" :key="i" size="small" class="source-tag">
@@ -108,6 +108,7 @@
   import { ChatDotRound, Search } from '@element-plus/icons-vue'
   import { searchKnowledge, type KnowledgeHit } from '@/api/admin'
   import { askQuestion, type ChatAnswer } from '@/api/guide'
+  import { formatGuideAnswer } from '@/utils/guide-answer'
 
   defineOptions({ name: 'KnowledgeSearchTest' })
 

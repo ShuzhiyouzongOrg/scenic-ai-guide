@@ -10,7 +10,7 @@
  */
 import { createHmac, randomBytes } from "node:crypto";
 import { config } from "../config.mjs";
-import { answerQuestion } from "./chat.mjs";
+import { answerQuestion, formatPublicAssistantText } from "./chat.mjs";
 import { getCachedAnswer, setCachedAnswer } from "./faqCache.mjs";
 
 /** @type {Map<string, AudioClip>} 可通过临时 API URL 获取的合成音频片段。 */
@@ -317,7 +317,7 @@ function asrServiceError(message, code) {
  */
 export async function synthesizeSpeech({ text = "", voice = "guide_female", speed = 1, signal } = {}) {
   const started = nowMs();
-  const cleanText = String(text || "").trim();
+  const cleanText = formatPublicAssistantText(text);
   if (!cleanText) {
     const error = new Error("Text is required.");
     error.statusCode = 400;
@@ -635,11 +635,19 @@ export function getAudioClip(id) {
  * splitForTts("欢迎来到灵山。祝您游览愉快！");
  */
 export function splitForTts(text) {
-  const sentences = String(text || "")
-    .replace(/\s+/g, " ")
-    .split(/(?<=[。！？；.!?;])\s*/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+  const sentences = [];
+  for (const line of String(text || "").split(/\n+/u)) {
+    const normalized = line.replace(/[ \t]+/gu, " ").trim();
+    if (!normalized) continue;
+    if (/^\d{1,2}[.)、）]\s*\S/u.test(normalized)) {
+      sentences.push(normalized);
+      continue;
+    }
+    sentences.push(...normalized
+      .split(/(?<=[。！？；!?;])\s*/u)
+      .map((item) => item.trim())
+      .filter(Boolean));
+  }
 
   const parts = [];
   for (const sentence of sentences.length ? sentences : [String(text || "").trim()]) {

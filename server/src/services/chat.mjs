@@ -111,6 +111,64 @@ export function normalizeAssistantText(value) {
 }
 
 /**
+ * 将经过服务端核验的回答转换为游客可见正文，移除内部引用编号并整理标点空白。
+ * 结构化 `citations` 与 `sources` 字段保持不变，供界面单独展示来源。
+ * @param {*} value 已核验回答或旧缓存正文。
+ * @returns {string} 不含内部技术标记的公开正文。
+ * @example
+ * formatPublicAssistantText("灵山大佛通高 88 米。[C-height]"); // "灵山大佛通高 88 米。"
+ */
+export function formatPublicAssistantText(value) {
+  return normalizeAssistantText(value)
+    .replace(/\s*\[(?:C-[^\]\r\n]+|C\d+)\]/giu, "")
+    .replace(/[ \t]+([，。！？；：,.!?])/gu, "$1")
+    .replace(/[ \t]{2,}/gu, " ")
+    .replace(/\n{3,}/gu, "\n\n")
+    .trim();
+}
+
+/** @param {object[]} messages 会话消息。 @returns {object[]} 清理旧助手正文且保留用户消息的公开历史。 */
+export function formatPublicConversationMessages(messages = []) {
+  return messages.map((message) => (
+    message.role === "assistant"
+      ? { ...message, content: formatPublicAssistantText(message.content) }
+      : message
+  ));
+}
+
+/**
+ * 创建增量回答清理器，处理可能被拆到多个 SSE 数据块中的内部引用编号。
+ * @returns {{push: (value: *) => string, flush: () => string}} 增量写入与末尾冲刷函数。
+ */
+export function createPublicAnswerStreamFilter() {
+  let pending = "";
+  const stripCompleteMarkers = (value) => String(value || "")
+    .replace(/\s*\[(?:C-[^\]\r\n]+|C\d+)\]/giu, "");
+  return {
+    push(value) {
+      let text = pending + String(value || "");
+      pending = "";
+      const openIndex = text.lastIndexOf("[");
+      if (openIndex >= 0) {
+        const tail = text.slice(openIndex);
+        if (/^\[(?:C(?:-[^\]\r\n]*|\d*)?)?$/iu.test(tail)) {
+          let pendingStart = openIndex;
+          while (pendingStart > 0 && /[ \t]/u.test(text[pendingStart - 1])) pendingStart -= 1;
+          pending = text.slice(pendingStart);
+          text = text.slice(0, pendingStart);
+        }
+      }
+      return stripCompleteMarkers(text);
+    },
+    flush() {
+      const tail = pending;
+      pending = "";
+      return /^\[(?:C(?:-[^\]\r\n]*|\d*)?)?$/iu.test(tail.trimStart()) ? "" : stripCompleteMarkers(tail);
+    }
+  };
+}
+
+/**
  * 判断回答中是否至少包含两个编号路线步骤。
  * @param {*} value 回答文本。
  * @returns {boolean} 具备基本路线结构时为 `true`。
@@ -453,7 +511,7 @@ export async function answerQuestion({
     ? null
     : getCachedAnswer(cacheQuestion, mode, knowledgeVersionAtStart, cacheContext);
   if (cached) {
-    const normalizedCachedAnswer = normalizeAssistantText(cached.answer);
+    const normalizedCachedAnswer = formatPublicAssistantText(cached.answer);
     if (!normalizedCachedAnswer) {
       // Ignore an incompatible legacy cache entry and regenerate the answer.
     } else {
@@ -630,8 +688,8 @@ export async function answerQuestion({
   const citationEnforcement = scenario === "grounded"
     ? enforceAnswerCitations(answerText, citations, results)
     : { answer: answerText, removedUnsupportedSegments: [] };
-  answerText = citationEnforcement.answer;
-  const citationValidation = validateAnswerCitations(answerText, citations, results);
+  const citationValidation = validateAnswerCitations(citationEnforcement.answer, citations, results);
+  answerText = formatPublicAssistantText(citationEnforcement.answer);
 
   const answerPayload = {
     answer: answerText,
@@ -864,10 +922,7 @@ export function enforceAnswerCitations(answer, citations = [], results = []) {
   }));
   const allEvidence = [...evidenceByCitation.values()].join(" ");
   const removedUnsupportedSegments = [];
-  const segments = String(answer || "")
-    .split(/(?<=[。！？!?])\s*|(?<=\.)\s+|\n+/u)
-    .map((segment) => segment.trim())
-    .filter(Boolean);
+  const segments = splitAnswerSegments(answer);
   const kept = [];
   for (const original of segments) {
     const segment = original.replace(/\[([^\]]+)\]/gu, (full, id) => (
@@ -902,6 +957,28 @@ export function enforceAnswerCitations(answer, citations = [], results = []) {
     answer: `${short} [${citations[0].citationId}]`,
     removedUnsupportedSegments
   };
+}
+
+/**
+ * 按换行和中英文句末标点切分回答，同时保留 `1. 路线节点` 这类编号与正文。
+ * @param {*} value 回答正文。
+ * @returns {string[]} 可独立核验的回答片段。
+ */
+function splitAnswerSegments(value) {
+  const segments = [];
+  for (const line of String(value || "").split(/\n+/u)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (/^\d{1,2}[.)、）]\s*\S/u.test(trimmed)) {
+      segments.push(trimmed);
+      continue;
+    }
+    segments.push(...trimmed
+      .split(/(?<=[。！？!?])\s*/u)
+      .map((segment) => segment.trim())
+      .filter(Boolean));
+  }
+  return segments;
 }
 
 /** @param {string} text 回答句。 @returns {string[]} 数字、日期、时间、金额和度量事实。 */
@@ -1028,6 +1105,7 @@ export async function* answerQuestionStream({
   });
 
   let full = "";
+  const publicStream = createPublicAnswerStreamFilter();
   for await (const delta of llmStream({
     messages,
     meta,
@@ -1035,8 +1113,12 @@ export async function* answerQuestionStream({
     signal,
   })) {
     full += delta;
-    yield delta;
+    const publicDelta = publicStream.push(delta);
+    if (publicDelta) yield publicDelta;
   }
+  const publicTail = publicStream.flush();
+  if (publicTail) yield publicTail;
+  const publicFull = formatPublicAssistantText(full);
 
   if (sessionId) {
     const label = qualityLabel({ scenario, mode, emotion });
@@ -1047,7 +1129,7 @@ export async function* answerQuestionStream({
     });
     appendMessage(sessionId, {
       role: "assistant",
-      content: full,
+      content: publicFull,
       intentLabel: label,
       emotionLabel: emotionTag({ scenario, label, emotion }),
     });

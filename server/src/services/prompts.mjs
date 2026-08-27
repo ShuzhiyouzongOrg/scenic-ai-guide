@@ -29,7 +29,8 @@ const GROUNDING_RULES = [
   "如果资料中没有相关信息,要如实说明“当前资料未覆盖”,并给出可以追问的方向,绝不猜测。",
   "游客询问灵山胜境以外的景区或与景区无关的问题时,礼貌说明你只负责灵山胜境,并把话题引导回灵山胜境。",
   "涉及辱骂、政治、医疗、投资、危险行为等敏感或无关内容,礼貌拒答并引导回景区导览服务。",
-  "面向现场游客,重点信息优先,不要输出资料里的原始字段名或编号。"
+  "面向现场游客,重点信息优先,不要输出资料里的原始字段名、资料编号、引用编号或类似[C-...]的内部技术标记。",
+  "景区、场馆、景点和演出的开放时间属于不同对象；仅回答游客实际询问的对象，不得把建议入园时间或演出时刻当作景区开放时间。"
 ].join("");
 
 /** @type {Record<PromptMode, string>} 各回答模式的结构和长度要求。 */
@@ -219,7 +220,7 @@ export function buildMessages({ mode, question, results, conflicts = [], history
 
   for (const turn of history.slice(-6)) {
     if (turn.role === "user" || turn.role === "assistant") {
-      messages.push({ role: turn.role, content: turn.content });
+      messages.push({ role: turn.role, content: stripInternalCitationMarkers(turn.content) });
     }
   }
 
@@ -229,8 +230,19 @@ export function buildMessages({ mode, question, results, conflicts = [], history
     : "";
   messages.push({
     role: "user",
-    content: `${context}${conflictNotice}\n\n游客问题:${question}\n\n请依据以上资料回答。引用资料中的事实时，在对应句末使用有效引用标记，例如 [C-...]；不得编造或使用不存在的引用标记。${localeInstruction(normalizedLocale)}`
+    content: `${context}${conflictNotice}\n\n游客问题:${question}\n\n请依据以上资料回答。系统会在服务端核验事实并通过独立的来源字段展示出处；正文只输出自然语言，不得复述资料编号、引用编号或任何方括号技术标记。${localeInstruction(normalizedLocale)}`
   });
 
   return messages;
+}
+
+/**
+ * 清除历史回答中的内部引用编号，防止旧会话把技术标记再次带入模型输出。
+ * @param {*} value 历史消息正文。
+ * @returns {string} 面向模型的自然语言正文。
+ */
+function stripInternalCitationMarkers(value) {
+  return String(value || "")
+    .replace(/\s*\[(?:C-[^\]\r\n]+|C\d+)\]/giu, "")
+    .trim();
 }

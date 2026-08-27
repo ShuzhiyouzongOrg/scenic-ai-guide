@@ -389,6 +389,53 @@ try {
     { id: "b", content: "开放时间为11:00", citation: { citationId: "C-b" } }
   ], [{ intent: "open_time" }]);
   assert.deepEqual(conflicts[0]?.values, ["10:00", "11:00"]);
+  const unrelatedVenueHours = detectConflictingFacts([
+    {
+      id: "museum",
+      scenicSpotId: "LS-012",
+      scenicArea: "灵山胜境",
+      content: "佛教文化博览馆开放时间为8:00-17:00。",
+      citation: { citationId: "C-museum" }
+    },
+    {
+      id: "palace",
+      scenicSpotId: "LS-013",
+      scenicArea: "灵山胜境",
+      content: "灵山梵宫开放时间为9:00-17:00。",
+      citation: { citationId: "C-palace" }
+    }
+  ], [{ intent: "open_time" }]);
+  assert.equal(unrelatedVenueHours.length, 0, "different venue schedules must not be treated as a conflict");
+  const unrelatedPerformanceTimes = detectConflictingFacts([
+    {
+      id: "bath-show",
+      scenicSpotId: "LS-006",
+      content: "九龙灌浴演出时间为10:00、11:30。",
+      citation: { citationId: "C-bath" }
+    },
+    {
+      id: "palace-show",
+      scenicSpotId: "LS-013",
+      content: "《灵山吉祥颂》演出时间为10:35、14:00。",
+      citation: { citationId: "C-palace-show" }
+    }
+  ], [{ intent: "performance_time" }]);
+  assert.equal(unrelatedPerformanceTimes.length, 0, "different performances must not be treated as a conflict");
+  const ticketCategories = detectConflictingFacts([
+    {
+      id: "ticket-a",
+      scenicArea: "灵山胜境",
+      content: "成人票210元，半价票105元。",
+      citation: { citationId: "C-ticket-a" }
+    },
+    {
+      id: "ticket-b",
+      scenicArea: "灵山胜境",
+      content: "成人票210元，半价票105元。",
+      citation: { citationId: "C-ticket-b" }
+    }
+  ], [{ intent: "ticket" }]);
+  assert.equal(ticketCategories.length, 0, "different ticket categories must not be treated as a price conflict");
   const closureConflict = detectConflictingFacts([
     { id: "open", content: "景区正常开放", citation: { citationId: "C-open" } },
     { id: "closed", content: "景区因天气临时闭园", citation: { citationId: "C-closed" } }

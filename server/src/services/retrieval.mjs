@@ -259,6 +259,351 @@ const stopWords = new Set([
 /** @type {Set<string>} 不足以进行景点局部匹配的通用灵山名称。 */
 const genericSpotTokens = new Set(["灵山", "靈山", "霊山", "lingshan", "링산", "หลิงซาน"]);
 
+/** @type {RegExp} 景区或景点营业时间相关的多语言词汇。 */
+const OPEN_TIME_TERMS = /(开放时间|開放時間|营业时间|營業時間|运营时间|運營時間|开园|開園|闭园|閉園|闭馆|閉館|开放|開放|全天开放|opening\s*hours?|open(?:ing)?|clos(?:e|es|ing)|운영\s*시간|개장|폐장|営業時間|開園|閉園|เวลาเปิด|เวลาปิด)/iu;
+
+/** @type {RegExp} 可确认正在描述营业时段而非“建成开放”等历史事件的模式。 */
+const OPENING_HOURS_FACT = /(?:\d{1,2}:\d{2}\s*(?:[-–—~～至到]|to)\s*\d{1,2}:\d{2}\s*(?:开放|開放|营业|營業|运营|運營|open)?|(?:开放时间|開放時間|营业时间|營業時間|运营时间|運營時間|开园|開園|闭园|閉園|闭馆|閉館|opening\s*hours?|closes?|closing|운영\s*시간|개장|폐장|営業時間|開園|閉園|เวลาเปิด|เวลาปิด)[^。；;\n]{0,32}\d{1,2}:\d{2}|全天开放|全天開放|open\s+all\s+day)/iu;
+
+/**
+ * 从问题中推断景区范围。AI 导游默认服务灵山胜境，只有明确提及拈花湾时切换范围。
+ * @param {string} query 规范化问题。
+ * @returns {string|null} 知识元数据中的景区名称。
+ */
+function inferScenicAreaFromQuery(query) {
+  const text = normalize(query);
+  if (/(拈花湾|拈花灣|nianhua\s*bay|녠화완|ニェンホワワン|เหนียนฮวาวาน)/iu.test(text)) {
+    return "拈花湾禅意小镇";
+  }
+  if (/(灵山胜境|靈山勝境|霊山|lingshan|링산|หลิงซาน)/iu.test(text)) {
+    return "灵山胜境";
+  }
+  if (/(景区|景區|园区|園區|scenic\s*area|tourist\s*area|관광지|観光地|เขตท่องเที่ยว)/iu.test(text)
+    && OPEN_TIME_TERMS.test(text)) {
+    return "灵山胜境";
+  }
+  return null;
+}
+
+/** @param {SpotMatch[]} spotMatches 景点命中。 @returns {SpotMatch[]} 排除景区公共别名后的具体景点命中。 */
+function specificSpotMatches(spotMatches) {
+  const areaAliases = new Set([
+    "灵山", "靈山", "霊山", "lingshan", "링산", "หลิงซาน",
+    "拈花湾", "拈花灣", "nianhua bay", "녠화완", "ニェンホワワン", "เหนียนฮวาวาน"
+  ].map(normalize));
+  return spotMatches.filter((spot) => !areaAliases.has(normalize(spot.alias || "")));
+}
+
+/**
+ * 为景区级时间、票价和路线问题确定事实范围；未点名景区时按当前导游默认的灵山胜境处理。
+ * @param {string} query 规范化问题。
+ * @param {RetrievalIntent[]} intents 业务意图。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @param {string|null} inferredArea 显式推断景区。
+ * @returns {string|null} 事实作用域景区。
+ */
+function resolveFactScenicArea(query, intents, spotMatches, inferredArea) {
+  if (inferredArea) return inferredArea;
+  if (specificSpotMatches(spotMatches).length > 0) return null;
+  if (intents.some((intent) => ["open_time", "ticket", "route"].includes(intent.intent))) {
+    return "灵山胜境";
+  }
+  return inferScenicAreaFromQuery(query);
+}
+
+/**
+ * 判断问题是否询问整个景区的开放时间，而不是已识别出的具体景点。
+ * @param {string} query 规范化问题。
+ * @param {RetrievalIntent[]} intents 业务意图。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否属于景区级开放时间问题。
+ */
+function isAreaOpeningHoursQuery(query, intents, spotMatches) {
+  if (specificSpotMatches(spotMatches).length > 0
+    || !intents.some((intent) => intent.intent === "open_time")
+    || !OPEN_TIME_TERMS.test(query)) return false;
+  const text = normalize(query);
+  if (/(景区|景區|园区|園區|灵山胜境|靈山勝境|拈花湾|拈花灣|scenic\s*area|tourist\s*area|nianhua\s*bay|관광지|観光地|เขตท่องเที่ยว)/iu.test(text)) {
+    return true;
+  }
+  const residual = text
+    .replace(/(开放时间|開放時間|营业时间|營業時間|运营时间|運營時間|几点开|幾點開|几点关|幾點關|开园|開園|闭园|閉園|闭馆|閉館|opening\s*hours?|open|close|closing|운영\s*시간|개장|폐장|営業時間|開園|閉園|เวลาเปิด|เวลาปิด)/giu, "")
+    .replace(/(请问|請問|一下|是什么|是什麼|多少|几点|幾點|when|what|time|please|は|ですか|나요|니까|กี่โมง|คือ)/giu, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+  return residual.length === 0;
+}
+
+/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问景区整体票务。 */
+function isAreaTicketQuery(intents, spotMatches) {
+  return specificSpotMatches(spotMatches).length === 0
+    && intents.some((intent) => intent.intent === "ticket");
+}
+
+/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问景区整体路线。 */
+function isAreaRouteQuery(intents, spotMatches) {
+  return specificSpotMatches(spotMatches).length === 0
+    && intents.some((intent) => ["route", "family_route"].includes(intent.intent));
+}
+
+/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问具体景点或演出的场次。 */
+function isSpecificPerformanceQuery(intents, spotMatches) {
+  return specificSpotMatches(spotMatches).length > 0
+    && intents.some((intent) => intent.intent === "performance_time");
+}
+
+/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问具体景点开放时间。 */
+function isSpecificOpeningHoursQuery(intents, spotMatches) {
+  return specificSpotMatches(spotMatches).length > 0
+    && intents.some((intent) => intent.intent === "open_time")
+    && !intents.some((intent) => intent.intent === "performance_time");
+}
+
+/**
+ * 景区级开放时间只允许使用明确描述整个景区/小镇营业安排的资料。
+ * @param {object} chunk 知识分块。
+ * @param {string|null} scenicArea 已确定的景区范围。
+ * @returns {boolean} 分块是否能回答景区级开放时间。
+ */
+function isAreaOpeningHoursEvidence(chunk, scenicArea) {
+  if (!matchesRequestedScenicArea(chunk, scenicArea)) return false;
+  return extractAreaOpeningEvidence(chunk, scenicArea).length > 0;
+}
+
+/** @param {object} item 分块或结果。 @param {string|null} scenicArea 请求景区。 @returns {boolean} 元数据或文本能否确认属于请求景区。 */
+function matchesRequestedScenicArea(item, scenicArea) {
+  if (!scenicArea) return true;
+  if (item.scenicArea) return normalize(item.scenicArea) === normalize(scenicArea);
+  const text = normalize(`${item.documentId || ""} ${item.source || ""} ${item.title || ""} ${item.content || ""}`);
+  if (scenicArea === "拈花湾禅意小镇") {
+    return /(拈花湾|拈花灣|nianhua\s*bay|녠화완|ニェンホワワン|เหนียนฮวาวาน)/iu.test(text);
+  }
+  if (scenicArea === "灵山胜境") {
+    return !/(拈花湾|拈花灣|nianhua\s*bay|녠화완|ニェンホワワン|เหนียนฮวาวาน)/iu.test(text);
+  }
+  return true;
+}
+
+/** @param {object} chunk 知识分块。 @param {string|null} scenicArea 景区范围。 @returns {boolean} 是否为景区整体票务证据。 */
+function isAreaTicketEvidence(chunk, scenicArea) {
+  if (!matchesRequestedScenicArea(chunk, scenicArea)) return false;
+  const text = `${chunk.title || ""}\n${chunk.content || ""}`;
+  const ticketTerms = /(门票|門票|票价|票價|优惠票|優惠票|免票|ticket|admission|입장권|入場券|บัตรเข้าชม|ค่าเข้า)/iu;
+  if (!ticketTerms.test(text)) return false;
+  if (!chunk.scenicSpotId) return true;
+  const aliases = scenicArea === "拈花湾禅意小镇"
+    ? /(拈花湾|拈花灣|nianhua\s*bay|녠화완|ニェンホワワン|เหนียนฮวาวาน)/iu
+    : /(灵山胜境|靈山勝境|lingshan\s*scenic|링산\s*관광지|霊山|หลิงซาน)/iu;
+  return String(chunk.content || "").split(/[。；;\n]+/u).some((clause) => aliases.test(clause) && ticketTerms.test(clause));
+}
+
+/** @param {object} chunk 知识分块。 @param {string|null} scenicArea 景区范围。 @returns {boolean} 是否为景区整体路线证据。 */
+function isAreaRouteEvidence(chunk, scenicArea) {
+  if (!matchesRequestedScenicArea(chunk, scenicArea)) return false;
+  if (chunk.scenicSpotId) return false;
+  return /(路线规划|推荐路线|游览路线|路线|route|itinerary|경로|ルート|路線|เส้นทาง)/iu.test(`${chunk.title || ""}\n${chunk.content || ""}`);
+}
+
+/** @param {object} chunk 分块。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否含目标演出证据。 */
+function isTargetPerformanceEvidence(chunk, spotMatches) {
+  return extractPerformanceEvidence(chunk, spotMatches).length > 0;
+}
+
+/** @param {object} chunk 分块。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否含目标景点开放时间证据。 */
+function isTargetOpeningHoursEvidence(chunk, spotMatches) {
+  return extractTargetOpeningHoursEvidence(chunk, spotMatches).length > 0;
+}
+
+/**
+ * 对景区级开放时间查询应用事实作用域过滤，避免混入场馆、演出和建议入园时间。
+ * @param {object[]} chunks 候选分块。
+ * @param {{query: string, intents: RetrievalIntent[], spotMatches: SpotMatch[], scenicArea: string|null}} context 查询上下文。
+ * @returns {object[]} 作用域一致的候选。
+ */
+function filterChunksByFactScope(chunks, context) {
+  if (isAreaOpeningHoursQuery(context.query, context.intents, context.spotMatches)) {
+    return chunks.filter((chunk) => isAreaOpeningHoursEvidence(chunk, context.scenicArea));
+  }
+  if (isAreaTicketQuery(context.intents, context.spotMatches)) {
+    return chunks.filter((chunk) => isAreaTicketEvidence(chunk, context.scenicArea));
+  }
+  if (isAreaRouteQuery(context.intents, context.spotMatches)) {
+    return chunks.filter((chunk) => isAreaRouteEvidence(chunk, context.scenicArea));
+  }
+  if (isSpecificOpeningHoursQuery(context.intents, context.spotMatches)) {
+    return chunks.filter((chunk) => isTargetOpeningHoursEvidence(chunk, context.spotMatches));
+  }
+  if (isSpecificPerformanceQuery(context.intents, context.spotMatches)) {
+    return chunks.filter((chunk) => isTargetPerformanceEvidence(chunk, context.spotMatches));
+  }
+  return chunks;
+}
+
+/** @param {object[]} candidates 带 `chunk` 的排序候选。 @param {object} context 查询上下文。 @returns {object[]} 作用域一致的候选。 */
+function filterCandidatesByFactScope(candidates, context) {
+  if (isAreaOpeningHoursQuery(context.query, context.intents, context.spotMatches)) {
+    return candidates.filter((candidate) => isAreaOpeningHoursEvidence(candidate.chunk, context.scenicArea));
+  }
+  if (isAreaTicketQuery(context.intents, context.spotMatches)) {
+    return candidates.filter((candidate) => isAreaTicketEvidence(candidate.chunk, context.scenicArea));
+  }
+  if (isAreaRouteQuery(context.intents, context.spotMatches)) {
+    return candidates.filter((candidate) => isAreaRouteEvidence(candidate.chunk, context.scenicArea));
+  }
+  if (isSpecificOpeningHoursQuery(context.intents, context.spotMatches)) {
+    return candidates.filter((candidate) => isTargetOpeningHoursEvidence(candidate.chunk, context.spotMatches));
+  }
+  if (isSpecificPerformanceQuery(context.intents, context.spotMatches)) {
+    return candidates.filter((candidate) => isTargetPerformanceEvidence(candidate.chunk, context.spotMatches));
+  }
+  return candidates;
+}
+
+/**
+ * 将景区级开放时间候选收敛为直接相关语句，避免完整景点分块把演出时刻带入回答。
+ * @param {RetrievalResult[]} results 已格式化结果。
+ * @param {{query: string, intents: RetrievalIntent[], spotMatches: SpotMatch[], scenicArea: string|null}} context 查询上下文。
+ * @returns {RetrievalResult[]} 面向提示词与引用校验的聚焦结果。
+ */
+function focusResultsByFactScope(results, context) {
+  if (isSpecificOpeningHoursQuery(context.intents, context.spotMatches)) {
+    const focusedResults = results.map((result) => {
+      const content = extractTargetOpeningHoursEvidence(result, context.spotMatches).join("；");
+      if (!content) return null;
+      return {
+        ...result,
+        content,
+        contextContent: content,
+        parentContent: content,
+        citation: { ...result.citation, quote: summarizeCitation(content) }
+      };
+    }).filter(Boolean);
+    return deduplicateFocusedResults(focusedResults);
+  }
+  if (isSpecificPerformanceQuery(context.intents, context.spotMatches)) {
+    const focusedResults = results.map((result) => {
+      const content = extractPerformanceEvidence(result, context.spotMatches).join("；");
+      if (!content) return null;
+      return {
+        ...result,
+        content,
+        contextContent: content,
+        parentContent: content,
+        citation: { ...result.citation, quote: summarizeCitation(content) }
+      };
+    }).filter(Boolean);
+    return deduplicateFocusedResults(focusedResults);
+  }
+  if (!isAreaOpeningHoursQuery(context.query, context.intents, context.spotMatches)) return results;
+  const focusedResults = results.map((result) => {
+    const focused = extractAreaOpeningEvidence(result, context.scenicArea).join("；");
+    if (!focused) return result;
+    const areaName = context.scenicArea || result.scenicArea || "景区";
+    return {
+      ...result,
+      title: `${areaName}开放时间`,
+      content: focused,
+      contextContent: focused,
+      parentContent: focused,
+      scenicSpotId: null,
+      scenicSpotName: null,
+      citation: {
+        ...result.citation,
+        sectionTitle: `${areaName}开放时间`,
+        scenicSpotId: null,
+        scenicSpotName: null,
+        quote: summarizeCitation(focused)
+      }
+    };
+  });
+  return deduplicateFocusedResults(focusedResults);
+}
+
+/** @param {RetrievalResult[]} results 聚焦结果。 @returns {RetrievalResult[]} 按标题和正文去重的结果。 */
+function deduplicateFocusedResults(results) {
+  const seen = new Set();
+  return results.filter((result) => {
+    const key = `${normalize(result.title)}\u0000${normalize(result.content)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * 提取与目标景点关联的演出场次语句，排除同一父分块中的其他演出。
+ * @param {object} item 分块或检索结果。
+ * @param {SpotMatch[]} spotMatches 目标景点命中。
+ * @returns {string[]} 目标演出证据。
+ */
+function extractPerformanceEvidence(item, spotMatches) {
+  const targets = specificSpotMatches(spotMatches);
+  const targetIds = new Set(targets.map((spot) => spot.id));
+  const targetNames = targets.flatMap((spot) => [spot.name, spot.alias]).filter(Boolean);
+  const allowedEvents = new Set(targetNames);
+  const eventBySpot = {
+    "LS-006": ["九龙灌浴", "九龍灌浴"],
+    "LS-013": ["灵山吉祥颂", "靈山吉祥頌", "吉祥颂", "吉祥頌"],
+    "NH-001": ["开园仪式", "開園儀式"],
+    "NH-005": ["禅行", "禪行", "水上禅舞", "水上禪舞"]
+  };
+  for (const id of targetIds) {
+    for (const event of eventBySpot[id] || []) allowedEvents.add(event);
+  }
+  const exactSpot = targetIds.has(item.scenicSpotId);
+  const targetPerformanceSection = exactSpot
+    && /(演出|表演|场次|場次|上演|公演|show|performance|공연|การแสดง)/iu.test(String(item.title || ""));
+  const eventPattern = /(九龙灌浴|九龍灌浴|灵山吉祥颂|靈山吉祥頌|吉祥颂|吉祥頌|禅行|禪行|水上禅舞|水上禪舞|开园仪式|開園儀式)/gu;
+  return String(item.content || "").split(/[。；;\n]+/u).map((clause) => clause.trim()).filter((clause) => {
+    if (!clause) return false;
+    const hasPerformanceTerm = /(演出|表演|场次|場次|上演|公演|时长|時長|show|performance|공연|การแสดง)/iu.test(clause);
+    const hasScheduleCue = /(?:\d[^。；;\n]{0,12}(?:回|場|场|รอบ)|開始時刻|固定時刻|当日の[^。；;\n]{0,12}時刻|演出時間|演出时间|表演時間|表演时间|schedule|start\s*time|minutes?|회|시각|時間|時刻|分間|เวลา|นาที|以[^。]{0,16}公告)/iu.test(clause);
+    if (!hasPerformanceTerm && !(targetPerformanceSection && hasScheduleCue)) return false;
+    if (!/\d/u.test(clause) && !hasScheduleCue) return false;
+    const namedEvents = [...clause.matchAll(eventPattern)].map((match) => match[1]);
+    if (namedEvents.length > 0 && !namedEvents.some((event) => allowedEvents.has(event))) return false;
+    if (targetNames.some((name) => clause.includes(name))) return true;
+    return exactSpot;
+  });
+}
+
+/** @param {object} item 分块或检索结果。 @param {SpotMatch[]} spotMatches 目标景点。 @returns {string[]} 目标景点营业时间语句。 */
+function extractTargetOpeningHoursEvidence(item, spotMatches) {
+  const targets = specificSpotMatches(spotMatches);
+  const targetIds = new Set(targets.map((spot) => spot.id));
+  const targetNames = targets.flatMap((spot) => [spot.name, spot.alias]).filter(Boolean);
+  const exactSpot = targetIds.has(item.scenicSpotId);
+  const content = String(item.content || "");
+  const structuredRowMatches = Boolean(item.sheetName || item.rowStart || item.range)
+    && targetNames.some((name) => content.includes(name));
+  return content.split(/[。；;\n]+/u).map((clause) => clause.trim()).filter((clause) => {
+    if (!clause || !OPENING_HOURS_FACT.test(clause)) return false;
+    if (targetNames.some((name) => clause.includes(name))) return true;
+    return exactSpot || structuredRowMatches;
+  });
+}
+
+/** @param {object} item 分块或格式化结果。 @param {string|null} scenicArea 景区范围。 @returns {string[]} 景区开放时间证据语句。 */
+function extractAreaOpeningEvidence(item, scenicArea) {
+  const title = String(item.title || "");
+  const content = String(item.content || "");
+  const titleDeclaresHours = !item.scenicSpotId && OPEN_TIME_TERMS.test(title);
+  const areaAliases = scenicArea === "拈花湾禅意小镇"
+    ? ["拈花湾", "拈花灣", "Nianhua Bay", "녠화완", "ニェンホワワン", "เหนียนฮวาวาน"]
+    : ["灵山胜境", "靈山勝境", "Lingshan", "링산", "霊山", "หลิงซาน"];
+  return content.split(/[。；;\n]+/u).map((clause) => clause.trim()).filter((clause) => {
+    if (!clause || !OPEN_TIME_TERMS.test(clause)) return false;
+    const disclaimer = /(?:(没有|沒有|未提供|does\s+not|no\s+single|없습니다|ありません|ไม่ได้ระบุ)[^。\n]{0,100}(开放|開放|开园|開園|opening|운영|営業時間|เวลาเปิด)|(开放|開放|开园|開園|opening|운영|営業時間|เวลาเปิด)[^。\n]{0,100}(没有|沒有|未提供|does\s+not|no\s+single|없습니다|ありません|ไม่ได้ระบุ))/iu.test(clause);
+    if (titleDeclaresHours && (OPENING_HOURS_FACT.test(clause) || disclaimer)) return true;
+    const normalizedClause = normalize(clause);
+    const aliasSchedule = areaAliases.some((alias) => {
+      const index = normalizedClause.indexOf(normalize(alias));
+      return index >= 0 && OPEN_TIME_TERMS.test(normalizedClause.slice(index, index + 64));
+    });
+    const areaSchedule = /(景区|景區|园区|園區|小镇|小鎮|scenic\s*area|tourist\s*area|town|관광지|観光地|เขตท่องเที่ยว)[^。；;\n]{0,32}(开放时间|開放時間|营业时间|營業時間|运营时间|運營時間|开园|開園|闭园|閉園|opening\s*hours?|opening\s+and\s+closing|운영\s*시간|개장|폐장|営業時間|開園|閉園|เวลาเปิด|เวลาปิด)/iu.test(clause);
+    return (aliasSchedule || areaSchedule) && (OPENING_HOURS_FACT.test(clause) || disclaimer);
+  });
+}
+
 /**
  * 使用关键词匹配、实体和意图权重检索知识库。
  * @param {*} query 查询文本。
@@ -340,10 +685,21 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
   const startedAt = performance.now();
   const candidateLimit = Math.max(finalLimit, config.candidateLimit || 20);
   const local = hybridSearch(query, { ...options, limit: candidateLimit });
+  const effectiveOptions = {
+    ...options,
+    scenicArea: options.scenicArea || local.filters?.scenicArea || undefined
+  };
+  const queryScenicArea = effectiveOptions.scenicArea || inferScenicAreaFromQuery(normalize(query));
+  const factScenicArea = resolveFactScenicArea(
+    normalize(query),
+    local.intents || [],
+    local.spotMatches || [],
+    queryScenicArea
+  );
   const knowledge = loadKnowledgeFromSqlite();
   const activeIndexVersion = local.indexVersion || knowledge?.indexVersion || getActiveKnowledgeVersion();
   const chunkById = new Map((knowledge?.chunks || [])
-    .filter((chunk) => passesMetadataFilter(chunk, options))
+    .filter((chunk) => passesMetadataFilter(chunk, effectiveOptions))
     .map((chunk) => [chunk.id, chunk]));
   try {
     const queryPlan = buildQueryPlan(query);
@@ -365,7 +721,7 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
         knowledgeScope: options.knowledgeScope || "visitor_qa",
         accessScopes: normalizeAccessScopes(options.accessScopes),
         tenantId: options.tenantId || "default",
-        scenicArea: options.scenicArea || null,
+        scenicArea: effectiveOptions.scenicArea || null,
         documentType: options.documentType || null,
         language: options.strictLanguage ? normalizeLanguageFilter(options.locale) : null
       }, { fetchImpl: dependencies.fetchImpl })
@@ -424,19 +780,36 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
         rerankMs = performance.now() - rerankStartedAt;
       }
     }
-    const ranked = maximalMarginalRelevance(applyFreshnessPreference(fused, local.intents || []), {
+    const factScoped = filterCandidatesByFactScope(fused, {
+      query: normalize(query),
+      intents: local.intents || [],
+      spotMatches: local.spotMatches || [],
+      scenicArea: factScenicArea || null
+    });
+    const ranked = maximalMarginalRelevance(applyFreshnessPreference(factScoped, local.intents || []), {
       limit: finalLimit,
       maxPerParent: options.maxPerParent || 2
     });
     const parentLookup = buildParentLookup(
-      (knowledge.chunks || []).filter((chunk) => passesMetadataFilter(chunk, options))
+      (knowledge.chunks || []).filter((chunk) => passesMetadataFilter(chunk, effectiveOptions))
     );
-    const results = ranked.map((item) => formatResult(item, knowledge.spots || [], parentLookup));
+    const results = focusResultsByFactScope(
+      ranked.map((item) => formatResult(item, knowledge.spots || [], parentLookup)),
+      {
+        query: normalize(query),
+        intents: local.intents || [],
+        spotMatches: local.spotMatches || [],
+        scenicArea: factScenicArea || null
+      }
+    );
     return {
       ...local,
       total: results.length,
       results,
-      conflicts: detectConflictingFacts(results, local.intents || []),
+      conflicts: detectConflictingFacts(results, local.intents || [], {
+        query: normalize(query),
+        spotMatches: local.spotMatches || []
+      }),
       channels: [
         ...(local.channels || []),
         { name: "dense", count: dense.length },
@@ -509,6 +882,9 @@ function searchKnowledge(query, options) {
   }
 
   const limit = clamp(Number(options.limit || 5), 1, 20);
+  const resolvedScenicArea = options.scenicArea || null;
+  const queryScenicArea = resolvedScenicArea || inferScenicAreaFromQuery(normalizedQuery);
+  const effectiveOptions = { ...options, scenicArea: resolvedScenicArea || undefined };
   const traceId = createRetrievalTraceId();
   const traceStartedAt = Date.now();
   const cacheKey = JSON.stringify({
@@ -521,7 +897,7 @@ function searchKnowledge(query, options) {
     knowledgeScope: options.knowledgeScope || "visitor_qa",
     accessScopes: normalizeAccessScopes(options.accessScopes),
     tenantId: options.tenantId || "default",
-    scenicArea: options.scenicArea || null,
+    scenicArea: resolvedScenicArea,
     documentType: options.documentType || null,
     includeExpired: options.includeExpired === true
   });
@@ -553,10 +929,17 @@ function searchKnowledge(query, options) {
   const expandedTerms = expandTerms(variantTokens);
   const intents = detectIntents(queryVariants.join(" "), variantTokens);
   const spotMatches = matchSpots(normalizedQuery, tokens, knowledge.spots);
+  const factScenicArea = resolveFactScenicArea(normalizedQuery, intents, spotMatches, queryScenicArea);
   const scopeDetection = detectOutOfScope(query);
-  const eligibleChunks = scopeDetection.outOfScope
+  const metadataEligibleChunks = scopeDetection.outOfScope
     ? []
-    : (knowledge.chunks || []).filter((chunk) => passesMetadataFilter(chunk, options));
+    : (knowledge.chunks || []).filter((chunk) => passesMetadataFilter(chunk, effectiveOptions));
+  const eligibleChunks = filterChunksByFactScope(metadataEligibleChunks, {
+    query: normalizedQuery,
+    intents,
+    spotMatches,
+    scenicArea: factScenicArea
+  });
   const ruleQueries = queryPlan.subQueries?.length > 1 ? queryPlan.subQueries : [normalizedQuery];
   const ruleScored = mergeSubqueryScores(ruleQueries.map((subQuery, index) => {
     const subTokens = tokenize(normalize(subQuery));
@@ -637,8 +1020,11 @@ function searchKnowledge(query, options) {
     ranked = applyFreshnessPreference(ruleScored, intents).slice(0, limit);
   }
   const parentLookup = buildParentLookup(eligibleChunks);
-  const results = ranked.map((item) => formatResult(item, knowledge.spots, parentLookup));
-  const conflicts = detectConflictingFacts(results, intents);
+  const results = focusResultsByFactScope(
+    ranked.map((item) => formatResult(item, knowledge.spots, parentLookup)),
+    { query: normalizedQuery, intents, spotMatches, scenicArea: factScenicArea }
+  );
+  const conflicts = detectConflictingFacts(results, intents, { query: normalizedQuery, spotMatches });
   const strongestRuleScore = ranked.reduce((max, item) => Math.max(
     max,
     ...(item.channels || [])
@@ -680,7 +1066,7 @@ function searchKnowledge(query, options) {
       knowledgeScope: options.knowledgeScope || "visitor_qa",
       accessScopes: normalizeAccessScopes(options.accessScopes),
       tenantId: options.tenantId || "default",
-      scenicArea: options.scenicArea || null,
+      scenicArea: resolvedScenicArea,
       documentType: options.documentType || null,
       strictLanguage: options.strictLanguage === true,
       includeExpired: options.includeExpired === true
@@ -1037,6 +1423,7 @@ function formatResult(item, spots, parentLookup = new Map()) {
     parentChunkIds: parent?.chunkIds || [item.chunk.id],
     source: item.chunk.source,
     documentId: item.chunk.documentId,
+    scenicArea: item.chunk.scenicArea || null,
     scenicSpotId: item.chunk.scenicSpotId,
     scenicSpotName: spot?.name || null,
     keywords: item.chunk.keywords || [],
@@ -1088,37 +1475,186 @@ function createCitation(chunk, spot) {
  * 过期内容已在候选过滤阶段排除；仍然同时有效的不同来源只记录冲突，不擅自合并。
  * @param {object[]} results 已格式化候选。
  * @param {object[]} intents 当前查询意图。
+ * @param {{query?: string, spotMatches?: SpotMatch[]}} [context={}] 查询实体上下文。
  * @returns {Array<{field: string, values: string[], citations: string[]}>} 冲突审计摘要。
  */
-export function detectConflictingFacts(results, intents = []) {
-  const fields = [];
-  if (intents.some((intent) => ["open_time", "performance_time"].includes(intent.intent))) {
-    fields.push({ name: "time", pattern: /\b\d{1,2}:\d{2}\b/gu });
+export function detectConflictingFacts(results, intents = [], context = {}) {
+  const conflicts = [];
+  const selected = selectConflictResults(results, context.spotMatches || []);
+  if (intents.some((intent) => intent.intent === "open_time")) {
+    conflicts.push(...collectScopedConflicts(
+      selected.flatMap((result) => extractOpeningTimeFacts(result)),
+      "time"
+    ));
+  }
+  if (intents.some((intent) => intent.intent === "performance_time")) {
+    conflicts.push(...collectScopedConflicts(
+      selected.flatMap((result) => extractPerformanceTimeFacts(result)),
+      "time"
+    ));
   }
   if (intents.some((intent) => intent.intent === "ticket")) {
-    fields.push({ name: "price", pattern: /\b\d+(?:\.\d+)?\s*元\b/gu });
+    conflicts.push(...collectScopedConflicts(
+      selected.flatMap((result) => extractPriceFacts(result)),
+      "price"
+    ));
   }
-  fields.push({
-    name: "opening_status",
-    pattern: /(?:临时闭园|临时关闭|暂停开放|暂停营业|正常开放|恢复开放|闭馆)/gu
-  });
-  return fields.flatMap(({ name, pattern }) => {
-    const values = new Map();
-    for (const result of results.slice(0, 8)) {
-      const facts = [...new Set(String(result.content || "").match(pattern) || [])];
-      for (const fact of facts) {
-        const entry = values.get(fact) || [];
-        entry.push(result.citation?.citationId || result.id);
-        values.set(fact, entry);
+  conflicts.push(...collectScopedConflicts(
+    selected.flatMap((result) => extractPatternFacts(
+      result,
+      /(?:临时闭园|临时关闭|暂停开放|暂停营业|正常开放|恢复开放|闭馆)/gu
+    )),
+    "opening_status"
+  ));
+  return conflicts;
+}
+
+/** @param {object[]} results 候选结果。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {object[]} 与明确景点一致的冲突候选。 */
+function selectConflictResults(results, spotMatches) {
+  const ids = new Set(spotMatches.map((spot) => spot.id));
+  if (ids.size === 0) return results.slice(0, 8);
+  const exact = results.filter((result) => ids.has(result.scenicSpotId));
+  return (exact.length > 0 ? exact : results).slice(0, 8);
+}
+
+/**
+ * 提取开放/闭馆语句中的营业时刻，忽略演出时间、建议入园时间和开园仪式。
+ * @param {object} result 检索结果。
+ * @returns {Array<{scope: string, value: string, citation: string}>} 带实体与季节作用域的时刻事实。
+ */
+function extractOpeningTimeFacts(result) {
+  const facts = [];
+  const clauses = String(result.content || "").split(/[。；;，,\n]+/u).map((item) => item.trim()).filter(Boolean);
+  for (const rawClause of clauses) {
+    const clause = rawClause.replace(/开园仪式|開園儀式/gu, "");
+    if (!OPEN_TIME_TERMS.test(clause) || !OPENING_HOURS_FACT.test(clause)) continue;
+    const condition = /(冬季|winter|겨울|冬期|ฤดูหนาว)/iu.test(clause) ? "winter" : "general";
+    const scope = `${resolveFactEntity(result, clause)}:${condition}`;
+    const citation = result.citation?.citationId || result.id;
+    const ranges = [...clause.matchAll(/\b(\d{1,2}:\d{2})\s*(?:[-–—~～至到]|to)\s*(\d{1,2}:\d{2})\b/giu)];
+    if (ranges.length > 0) {
+      for (const match of ranges) facts.push({ scope, value: `${match[1]}-${match[2]}`, citation });
+      continue;
+    }
+    if (/(全天开放|全天開放|open\s+all\s+day)/iu.test(clause)) {
+      facts.push({ scope, value: "全天开放", citation });
+      continue;
+    }
+    for (const time of [...new Set(clause.match(/\b\d{1,2}:\d{2}\b/gu) || [])]) {
+      facts.push({ scope, value: time, citation });
+    }
+  }
+  return facts;
+}
+
+/** @param {object} result 检索结果。 @returns {Array<{scope: string, value: string, citation: string}>} 演出时刻事实。 */
+function extractPerformanceTimeFacts(result) {
+  const facts = [];
+  const clauses = String(result.content || "").split(/[。；;\n]+/u).map((item) => item.trim()).filter(Boolean);
+  for (const clause of clauses) {
+    if (!/(演出|表演|场次|上演|show|performance|공연|การแสดง)/iu.test(clause)) continue;
+    const citation = result.citation?.citationId || result.id;
+    const scope = `${resolvePerformanceEntity(result, clause)}:performance`;
+    for (const time of [...new Set(clause.match(/\b\d{1,2}:\d{2}\b/gu) || [])]) {
+      facts.push({ scope, value: time, citation });
+    }
+  }
+  return facts;
+}
+
+/** @param {object} result 检索结果。 @param {string} clause 演出语句。 @returns {string} 演出实体作用域。 */
+function resolvePerformanceEntity(result, clause) {
+  const namedEvents = [
+    [/(九龙灌浴|九龍灌浴)/u, "九龙灌浴"],
+    [/(灵山吉祥颂|靈山吉祥頌|吉祥颂|吉祥頌)/u, "灵山吉祥颂"],
+    [/(禅行|禪行)/u, "禅行"],
+    [/(水上禅舞|水上禪舞)/u, "水上禅舞"],
+    [/(开园仪式|開園儀式)/u, "开园仪式"]
+  ];
+  const named = namedEvents.find(([pattern]) => pattern.test(clause));
+  if (named) return `event:${named[1]}`;
+  return resolveFactEntity(result, clause);
+}
+
+/** @param {object} result 检索结果。 @param {RegExp} pattern 事实模式。 @returns {Array<{scope: string, value: string, citation: string}>} 作用域事实。 */
+function extractPatternFacts(result, pattern) {
+  const citation = result.citation?.citationId || result.id;
+  return [...new Set(String(result.content || "").match(pattern) || [])].map((value) => ({
+    scope: resolveFactEntity(result, String(result.content || "")),
+    value,
+    citation
+  }));
+}
+
+/** @param {object} result 检索结果。 @returns {Array<{scope: string, value: string, citation: string}>} 按票种分类的价格事实。 */
+function extractPriceFacts(result) {
+  const facts = [];
+  const citation = result.citation?.citationId || result.id;
+  const lines = String(result.content || "").split(/[\n。；;]/u).map((line) => line.trim()).filter(Boolean);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const matches = [...line.matchAll(/\b\d+(?:\.\d+)?\s*元\b/gu)];
+    if (matches.length === 0) continue;
+    for (const match of matches) {
+      const labelContext = `${lines[index - 1] || ""} ${line.slice(0, match.index)}`.slice(-64);
+      const category = priceCategory(labelContext);
+      const entity = resolveFactEntity(result, labelContext);
+      facts.push({ scope: `${entity}:${category}`, value: match[0], citation });
+    }
+  }
+  return facts;
+}
+
+/** @param {string} value 价格邻近标签。 @returns {string} 稳定票种类别。 */
+function priceCategory(value) {
+  const categories = [
+    ["adult", /(成人|adult)/giu],
+    ["concession", /(半价|半價|优惠|優惠|学生|學生|concession|student|割引)/giu],
+    ["free", /(免票|免费|免費|free)/giu],
+    ["bundle", /(联票|聯票|套票|package|bundle)/giu],
+    ["shuttle", /(观光车|觀光車|接驳|接駁|shuttle)/giu],
+    ["dining", /(素斋|素齋|餐饮|餐飲|套餐|自助|面|麵|dining|buffet)/giu]
+  ];
+  let selected = "general";
+  let selectedIndex = -1;
+  for (const [category, pattern] of categories) {
+    for (const match of String(value || "").matchAll(pattern)) {
+      if (match.index > selectedIndex) {
+        selected = category;
+        selectedIndex = match.index;
       }
     }
-    if (values.size <= 1) return [];
-    return [{
-      field: name,
-      values: [...values.keys()],
-      citations: [...new Set([...values.values()].flat())]
-    }];
-  });
+  }
+  return selected;
+}
+
+/** @param {object} result 检索结果。 @param {string} clause 事实所在语句。 @returns {string} 实体作用域键。 */
+function resolveFactEntity(result, clause) {
+  const explicitArea = inferScenicAreaFromQuery(clause);
+  if (explicitArea) return `area:${explicitArea}`;
+  if (/(景区|景區|园区|園區|scenic\s*area|tourist\s*area|관광지|観光地|เขตท่องเที่ยว)/iu.test(clause)) {
+    return `area:${result.scenicArea || "global"}`;
+  }
+  return `entity:${result.scenicSpotId || result.scenicSpotName || result.scenicArea || "global"}`;
+}
+
+/** @param {Array<{scope: string, value: string, citation: string}>} facts 事实记录。 @param {string} field 字段名。 @returns {Array<{field: string, values: string[], citations: string[]}>} 冲突摘要。 */
+function collectScopedConflicts(facts, field) {
+  const groups = new Map();
+  for (const fact of facts) {
+    const group = groups.get(fact.scope) || new Map();
+    const citations = group.get(fact.value) || [];
+    citations.push(fact.citation);
+    group.set(fact.value, citations);
+    groups.set(fact.scope, group);
+  }
+  const conflicts = [];
+  for (const values of groups.values()) {
+    const citations = [...new Set([...values.values()].flat())];
+    if (values.size <= 1 || citations.length <= 1) continue;
+    conflicts.push({ field, values: [...values.keys()], citations });
+  }
+  return conflicts;
 }
 
 /**
@@ -1408,7 +1944,7 @@ function scoreIntent(chunk, context) {
     reasons.push("演出时间事实信息加权");
   }
 
-  if (context.intent.intent === "open_time" && /(\d{1,2}:\d{2}|开放|闭馆|全天)/.test(context.content)) {
+  if (context.intent.intent === "open_time" && OPENING_HOURS_FACT.test(context.content)) {
     score += 18;
     reasons.push("开放时间事实信息加权");
   }

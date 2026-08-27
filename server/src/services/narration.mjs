@@ -14,6 +14,7 @@ import { loadKnowledge } from "./knowledgeBuild.mjs";
 import { hybridSearch } from "./retrieval.mjs";
 import { llmComplete } from "./llm.mjs";
 import { buildNarrationSystemPrompt, buildAccompanySystemPrompt, buildContextBlock } from "./prompts.mjs";
+import { formatPublicAssistantText } from "./chat.mjs";
 
 /**
  * 按精确 ID、精确名称或别名从知识库定位景点。
@@ -97,7 +98,7 @@ export async function generateSpotNarration({ spotId, spotName, signal } = {}) {
   return {
     spotId: spot?.id || null,
     spotName: targetName,
-    narration: completion.text,
+    narration: formatPublicAssistantText(completion.text),
     citations: results.slice(0, 3).map((item) => item.citation),
     provider: completion.provider,
     model: completion.model
@@ -150,7 +151,7 @@ export async function generateAccompanyNarration({ spotId, spotName, interests =
     spotId: spot?.id || null,
     spotName: targetName,
     interests,
-    narration: completion.text,
+    narration: formatPublicAssistantText(completion.text),
     citations: results.slice(0, 2).map((item) => item.citation),
     provider: completion.provider,
     model: completion.model

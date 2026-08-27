@@ -41,7 +41,12 @@ import {
   restoreBundledKnowledge
 } from "./services/knowledgeBuild.mjs";
 import { hybridSearchAsync, keywordSearch } from "./services/retrieval.mjs";
-import { answerQuestion, answerQuestionStream } from "./services/chat.mjs";
+import {
+  answerQuestion,
+  answerQuestionStream,
+  formatPublicAssistantText,
+  formatPublicConversationMessages
+} from "./services/chat.mjs";
 import { generateSpotNarration, generateAccompanyNarration } from "./services/narration.mjs";
 import { getRouteGraph, recommendRoute, saveRouteSelection, listSavedRoutes, narrateRouteNode } from "./services/routePlanner.mjs";
 import { transcribeAudio, synthesizeSpeech, voiceAsk, getAudioClip } from "./services/voice.mjs";
@@ -502,7 +507,7 @@ async function route(req, res, url) {
     const fixedFaq = findAdminFaqAnswer(body.question);
     if (fixedFaq) {
       ok(res, {
-        answer: fixedFaq.answer,
+        answer: formatPublicAssistantText(fixedFaq.answer),
         label: "事实问答",
         emotion: "平静",
         scenario: "grounded",
@@ -735,7 +740,7 @@ async function route(req, res, url) {
 
   if (url.pathname === "/api/chat/history" && req.method === "GET") {
     const sessionId = url.searchParams.get("sessionId") || "";
-    ok(res, getMessages(sessionId));
+    ok(res, formatPublicConversationMessages(getMessages(sessionId)));
     return;
   }
 

@@ -1,4 +1,5 @@
 const MARKDOWN_LINK = /\[([^\]]+)\]\([^\s)]+(?:\s+[^)]*)?\)/g
+const INTERNAL_CITATION = /\s*\[(?:C-[^\]\r\n]+|C\d+)\]/giu
 
 /**
  * Converts legacy model answers containing lightweight Markdown into safe
@@ -13,7 +14,9 @@ export function formatGuideAnswer(value: string): string {
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/__([^_]+)__/g, '$1')
     .replace(/`([^`]+)`/g, '$1')
+    .replace(INTERNAL_CITATION, '')
     .replace(/^\s*[-*+]\s+/gm, '• ')
+    .replace(/[ \t]+([，。！？；：,.!?])/g, '$1')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }
