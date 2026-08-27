@@ -6,9 +6,9 @@
     <div class="relative flex-1">
       <AuthTopBar />
 
-      <div class="auth-right-wrap">
+      <main class="auth-right-wrap">
         <div class="form">
-          <h3 class="title">{{ $t('register.title') }}</h3>
+          <h2 class="title">{{ $t('register.title') }}</h2>
           <p class="sub-title">{{ $t('register.subTitle') }}</p>
           <ElForm
             class="mt-7.5"
@@ -23,6 +23,7 @@
                 class="custom-height"
                 v-model.trim="formData.username"
                 :placeholder="$t('register.placeholder.username')"
+                :aria-label="$t('register.placeholder.username')"
               />
             </ElFormItem>
 
@@ -31,6 +32,7 @@
                 class="custom-height"
                 v-model.trim="formData.password"
                 :placeholder="$t('register.placeholder.password')"
+                :aria-label="$t('register.placeholder.password')"
                 type="password"
                 autocomplete="off"
                 show-password
@@ -42,6 +44,7 @@
                 class="custom-height"
                 v-model.trim="formData.confirmPassword"
                 :placeholder="$t('register.placeholder.confirmPassword')"
+                :aria-label="$t('register.placeholder.confirmPassword')"
                 type="password"
                 autocomplete="off"
                 @keyup.enter="register"
@@ -50,14 +53,16 @@
             </ElFormItem>
 
             <ElFormItem :label="$t('register.avatarLabel')" prop="avatar">
-              <div class="avatar-picker">
+              <div class="avatar-picker" role="radiogroup" :aria-label="$t('register.avatarLabel')">
                 <button
                   v-for="(avatar, index) in avatarOptions"
                   :key="avatar"
                   type="button"
                   class="avatar-option"
                   :class="{ selected: formData.avatar === avatar }"
+                  role="radio"
                   :aria-label="$t('register.avatarOption', { index: index + 1 })"
+                  :aria-checked="formData.avatar === avatar"
                   @click="formData.avatar = avatar"
                 >
                   <img :src="avatar" :alt="$t('app.avatarAlt')" />
@@ -96,7 +101,7 @@
             </div>
           </ElForm>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 </template>

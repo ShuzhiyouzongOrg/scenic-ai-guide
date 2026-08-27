@@ -34,8 +34,18 @@
       @touchstart="dragStart"
       ref="handler"
       :style="handlerStyle"
+      role="slider"
+      tabindex="0"
+      :aria-label="message"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      :aria-valuenow="value ? 100 : keyboardProgress"
+      @keydown.right.prevent="moveByKeyboard(10)"
+      @keydown.left.prevent="moveByKeyboard(-10)"
+      @keydown.end.prevent="moveByKeyboard(100)"
+      @keydown.home.prevent="reset"
     >
-      <ArtSvgIcon :icon="value ? successIcon : handlerIcon" class="text-g-600"></ArtSvgIcon>
+      <AuthIcon :icon="value ? successIcon : handlerIcon" class="text-g-600"></AuthIcon>
     </div>
   </div>
 </template>
@@ -69,9 +79,9 @@
     /** 圆角大小 */
     radius?: string
     /** 滑块图标 */
-    handlerIcon?: string
+    handlerIcon?: 'solar:double-alt-arrow-right-linear'
     /** 成功图标 */
-    successIcon?: string
+    successIcon?: 'ri:check-fill'
     /** 滑块背景色 */
     handlerBg?: string
     /** 文本大小 */
@@ -121,6 +131,7 @@
   const messageRef = ref()
   const handler = ref()
   const progressBar = ref()
+  const keyboardProgress = ref(0)
 
   // 触摸事件变量 - 用于禁止页面滑动
   let startX: number, startY: number, moveX: number, moveY: number
@@ -257,6 +268,7 @@
       if (_x > 0 && _x <= numericWidth - props.height) {
         handler.value.style.left = _x + 'px'
         progressBar.value.style.width = _x + props.height / 2 + 'px'
+        keyboardProgress.value = Math.round((_x / (numericWidth - props.height)) * 100)
       } else if (_x > numericWidth - props.height) {
         // 拖拽到末端，触发验证成功
         handler.value.style.left = numericWidth - props.height + 'px'
@@ -282,6 +294,7 @@
         handler.value.style.left = '0'
         handler.value.style.transition = 'all 0.2s'
         progressBar.value.style.width = '0'
+        keyboardProgress.value = 0
         state.isOk = false
       } else {
         // 拖拽到末端，保持验证成功状态
@@ -298,6 +311,7 @@
    * 验证通过处理函数
    */
   const passVerify = () => {
+    keyboardProgress.value = 100
     emit('update:value', true)
     state.isMoving = false
     // 更新样式为成功状态
@@ -306,6 +320,24 @@
     messageRef.value.style.animation = 'slidetounlock2 2s cubic-bezier(0, 0.2, 1, 1) infinite'
     messageRef.value.style.color = '#fff'
     emit('passCallback')
+  }
+
+  /**
+   * 以 10% 为步长推进键盘滑块，保持与拖拽验证一致的渐进操作语义。
+   */
+  const moveByKeyboard = (step: number) => {
+    if (props.value) return
+    const nextProgress = Math.min(100, Math.max(0, step === 100 ? 100 : keyboardProgress.value + step))
+    const numericWidth = getNumericWidth()
+    const travel = Math.max(0, numericWidth - props.height)
+    const offset = (travel * nextProgress) / 100
+
+    keyboardProgress.value = nextProgress
+    handler.value.style.left = `${offset}px`
+    progressBar.value.style.width = `${offset + props.height / 2}px`
+    emit('handlerMove')
+
+    if (nextProgress === 100) passVerify()
   }
 
   /**
@@ -322,6 +354,7 @@
     messageRef.value.style.color = props.background
     // 重置状态
     emit('update:value', false)
+    keyboardProgress.value = 0
     state.isOk = false
     state.isMoving = false
     state.x = 0

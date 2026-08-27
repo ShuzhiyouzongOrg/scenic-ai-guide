@@ -24,12 +24,24 @@
     hideContent?: boolean // 是否隐藏内容，只显示 logo
   }>()
 
+  const desktopMediaQuery = window.matchMedia('(min-width: 1181px)')
+  const shouldLoadBackground = ref(desktopMediaQuery.matches)
+
+  const syncBackgroundLoading = (event: MediaQueryListEvent) => {
+    shouldLoadBackground.value = event.matches
+  }
+
+  onMounted(() => desktopMediaQuery.addEventListener('change', syncBackgroundLoading))
+  onBeforeUnmount(() => desktopMediaQuery.removeEventListener('change', syncBackgroundLoading))
+
   // 景区背景图放在 public 目录，走 BASE_URL 引用（兼容子路径部署）。
   // 图片缺失时不会导致构建失败，会回退到下方的主题底色。
-  // 替换 web/public/images/login-bg.webp 即可换成正式景区实景图。
-  const bgStyle = computed(() => ({
-    backgroundImage: `url('${import.meta.env.BASE_URL}images/login-bg.webp')`
-  }))
+  // 替换 web/public/images/login-bg.optimized.webp 即可换成正式景区实景图。
+  const bgStyle = computed(() =>
+    shouldLoadBackground.value
+      ? { backgroundImage: `url('${import.meta.env.BASE_URL}images/login-bg.optimized.webp')` }
+      : {}
+  )
 </script>
 
 <style lang="scss" scoped>

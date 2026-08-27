@@ -64,6 +64,7 @@ declare module 'vue' {
     ArtWangEditor: typeof import('./../../components/core/forms/art-wang-editor/index.vue')['default']
     ArtWatermark: typeof import('./../../components/core/others/art-watermark/index.vue')['default']
     ArtWorkTab: typeof import('./../../components/core/layouts/art-work-tab/index.vue')['default']
+    AuthIcon: typeof import('./../../components/core/base/auth-icon/index.vue')['default']
     AuthTopBar: typeof import('./../../components/core/views/login/AuthTopBar.vue')['default']
     BasicSettings: typeof import('./../../components/core/layouts/art-settings-panel/widget/BasicSettings.vue')['default']
     BoxStyleSettings: typeof import('./../../components/core/layouts/art-settings-panel/widget/BoxStyleSettings.vue')['default']

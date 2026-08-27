@@ -6,9 +6,9 @@
     <div class="relative flex-1">
       <AuthTopBar />
 
-      <div class="auth-right-wrap">
+      <main class="auth-right-wrap">
         <div class="form">
-          <h3 class="title">{{ $t('login.title') }}</h3>
+          <h2 class="title">{{ $t('login.title') }}</h2>
           <p class="sub-title">{{ $t('login.subTitle') }}</p>
           <ElForm
             ref="formRef"
@@ -19,7 +19,11 @@
             style="margin-top: 25px"
           >
             <ElFormItem prop="account">
-              <ElSelect v-model="formData.account" @change="setupAccount">
+              <ElSelect
+                v-model="formData.account"
+                :aria-label="$t('app.roleSelectPlaceholder')"
+                @change="setupAccount"
+              >
                 <ElOption
                   v-for="account in accounts"
                   :key="account.key"
@@ -34,6 +38,7 @@
               <ElInput
                 class="custom-height"
                 :placeholder="$t('login.placeholder.username')"
+                :aria-label="$t('login.placeholder.username')"
                 v-model.trim="formData.username"
               />
             </ElFormItem>
@@ -41,6 +46,7 @@
               <ElInput
                 class="custom-height"
                 :placeholder="$t('login.placeholder.password')"
+                :aria-label="$t('login.placeholder.password')"
                 v-model.trim="formData.password"
                 type="password"
                 autocomplete="off"
@@ -102,7 +108,7 @@
             </div>
           </ElForm>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 </template>
