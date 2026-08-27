@@ -1,5 +1,14 @@
 /// <reference types="vite/client" />
 
+interface ImportMetaEnv {
+  readonly VITE_WEB_VITALS_ENABLED?: string
+  readonly VITE_WEB_VITALS_SAMPLE_RATE?: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
 declare module 'nprogress'
 
 declare module 'crypto-js'

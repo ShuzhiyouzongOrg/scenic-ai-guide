@@ -79,6 +79,7 @@ import { createFeedback, listFeedback } from "./services/feedback.mjs";
 import { createAdminFaq, findAdminFaqAnswer, listAdminFaqs, updateAdminFaq } from "./services/adminFaq.mjs";
 import { createScenicSpot, disableScenicSpot, listAllManagedScenicSpots, listManagedScenicSpots, updateScenicSpot } from "./services/scenicAdmin.mjs";
 import { getDashboardAnalytics, loadBehaviorDataset } from "./services/behaviorAnalytics.mjs";
+import { getWebVitalReport, recordWebVital } from "./services/webVitals.mjs";
 import {
   annotateMessage,
   buildServiceQualityReport,
@@ -136,6 +137,8 @@ const digitalHumanPageDir = resolve(join(rootDir, "server", "src", "web", "digit
 // path resolver below; no credentials or API session data are exposed here.
 /** @type {string} 本地 Live2D 页面及模型资源目录。 */
 const live2dPageDir = resolve(join(rootDir, "server", "src", "web", "live2d"));
+/** @type {string} Vue public 目录构建后的 Live2D 共享资源根目录。 */
+const live2dPublicDir = resolve(join(publicDir, "live2d"));
 /** @type {Map<string, number>} 管理员知识重建最短间隔记录。 */
 const knowledgeRebuildRateLimits = new Map();
 /** @type {number} 同一管理员两次知识重建的最短间隔。 */
@@ -774,6 +777,11 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/web-vitals" && req.method === "POST") {
+    created(res, recordWebVital(await readJson(req)));
+    return;
+  }
+
   if (url.pathname === "/api/admin/knowledge/index-versions" && req.method === "GET") {
     if (!requirePermission(req, res, "/admin/knowledge")) return;
     ok(res, listKnowledgeVersions());
@@ -997,6 +1005,12 @@ async function route(req, res, url) {
     return;
   }
 
+  if (url.pathname === "/api/admin/analytics/web-vitals" && req.method === "GET") {
+    if (!requirePermission(req, res, "/admin/analytics")) return;
+    ok(res, getWebVitalReport({ limit: url.searchParams.get("limit") }));
+    return;
+  }
+
   if (url.pathname === "/api/knowledge/retrieval-traces" && req.method === "GET") {
     if (!requirePermission(req, res, "/admin/knowledge")) return;
     const traceId = url.searchParams.get("traceId") || "";
@@ -1121,7 +1135,7 @@ async function route(req, res, url) {
     return;
   }
 
-  serveStatic(res, url.pathname);
+  serveStatic(req, res, url.pathname);
 }
 
 /**
@@ -1264,15 +1278,17 @@ function toAuthUser(user, fallback = {}) {
 /**
  * 从 Web 构建目录提供静态文件，并对无扩展名路由执行 SPA 回退。
  *
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @param {string} pathname URL pathname。
  * @returns {void}
  * @throws {Error} 文件存在但无法读取时透传文件系统异常。
  * @private
  */
-function serveStatic(res, pathname) {
+function serveStatic(req, res, pathname) {
   let filePath = resolveStaticFilePath(publicDir, pathname);
   if (!filePath) {
+    res.setHeader("cache-control", "no-store");
     fail(res, 400, "INVALID_PATH", "Resource path is invalid.");
     return;
   }
@@ -1284,6 +1300,7 @@ function serveStatic(res, pathname) {
       filePath = join(publicDir, "index.html");
     }
     if (!existsSync(filePath)) {
+      res.setHeader("cache-control", "no-store");
       fail(res, 404, "NOT_FOUND", "Resource not found.");
       return;
     }
@@ -1291,19 +1308,140 @@ function serveStatic(res, pathname) {
 
   const extension = extname(filePath);
   const contentType = mimeTypes[extension] || "application/octet-stream";
-  const body = readFileSync(filePath);
   const relativePath = filePath.slice(publicDir.length).replaceAll("\\", "/");
   const cacheControl = extension === ".html"
-    ? "no-store, no-cache, must-revalidate"
-    : relativePath.startsWith("/assets/")
+    ? "no-cache"
+    : isHashedAsset(relativePath)
       ? "public, max-age=31536000, immutable"
       : "no-cache";
-  res.writeHead(200, {
+
+  const compressedRepresentations = [
+    { encoding: "br", path: `${filePath}.br` },
+    { encoding: "gzip", path: `${filePath}.gz` }
+  ].filter((item) => existsSync(item.path) && statSync(item.path).isFile());
+  const selectedEncoding = selectStaticEncoding(
+    req.headers["accept-encoding"],
+    compressedRepresentations.map((item) => item.encoding)
+  );
+  const representationPath = compressedRepresentations.find(
+    (item) => item.encoding === selectedEncoding
+  )?.path || filePath;
+  const representationStat = statSync(representationPath);
+  const etag = createStaticEtag(representationStat, selectedEncoding || "identity");
+  const headers = {
     "content-type": contentType,
-    "content-length": body.length,
-    "cache-control": cacheControl
-  });
-  res.end(body);
+    "content-length": representationStat.size,
+    "cache-control": cacheControl,
+    "last-modified": representationStat.mtime.toUTCString(),
+    etag,
+    vary: "Accept-Encoding"
+  };
+  if (selectedEncoding) headers["content-encoding"] = selectedEncoding;
+
+  if (isStaticRequestFresh(req, etag, representationStat.mtimeMs)) {
+    delete headers["content-length"];
+    res.writeHead(304, headers);
+    res.end();
+    return;
+  }
+
+  const body = readFileSync(representationPath);
+  res.writeHead(200, headers);
+  res.end(req.method === "HEAD" ? undefined : body);
+}
+
+/**
+ * 判断主站构建资源名是否包含 Vite 内容哈希。
+ *
+ * @param {string} relativePath 相对 Web 构建目录的正斜杠路径。
+ * @returns {boolean} 仅 `/assets/` 下带至少 8 位哈希的文件返回 `true`。
+ * @private
+ */
+function isHashedAsset(relativePath) {
+  return /^\/assets\/.+-[A-Za-z0-9_-]{8,}\.[^/]+$/u.test(relativePath);
+}
+
+/**
+ * 按 RFC 9110 质量值选择可用的预压缩表示；质量相同时优先 Brotli。
+ *
+ * @param {string|string[]|undefined} header Accept-Encoding 请求头。
+ * @param {string[]} availableEncodings 已存在的预压缩编码，按服务端偏好排序。
+ * @returns {string|null} 选中的编码；没有可接受的预压缩表示时返回 `null`。
+ * @private
+ */
+function selectStaticEncoding(header, availableEncodings) {
+  const qualities = new Map();
+  let wildcardQuality;
+  for (const item of String(header || "").split(",")) {
+    const [rawCoding, ...parameters] = item.trim().split(";");
+    const coding = rawCoding.trim().toLowerCase();
+    if (!coding) continue;
+
+    let quality = 1;
+    const qualityParameter = parameters.find((parameter) => /^\s*q\s*=/iu.test(parameter));
+    if (qualityParameter) {
+      const parsedQuality = Number(qualityParameter.split("=", 2)[1]);
+      quality = Number.isFinite(parsedQuality) && parsedQuality >= 0 && parsedQuality <= 1
+        ? parsedQuality
+        : 0;
+    }
+
+    if (coding === "*") wildcardQuality = quality;
+    else qualities.set(coding, quality);
+  }
+
+  return availableEncodings
+    .map((encoding, preference) => ({
+      encoding,
+      preference,
+      quality: qualities.get(encoding) ?? wildcardQuality ?? 0
+    }))
+    .filter((item) => item.quality > 0)
+    .sort((left, right) => right.quality - left.quality || left.preference - right.preference)[0]
+    ?.encoding || null;
+}
+
+/**
+ * 根据具体传输表示生成弱 ETag，确保 br、gzip 与 identity 不共享验证器。
+ *
+ * @param {import("node:fs").Stats} fileStat 实际传输文件的状态。
+ * @param {"br"|"gzip"|"identity"} encoding 表示使用的内容编码。
+ * @returns {string} 可用于条件 GET/HEAD 的弱实体标签。
+ * @private
+ */
+function createStaticEtag(fileStat, encoding) {
+  return `W/"${fileStat.size.toString(16)}-${Math.trunc(fileStat.mtimeMs).toString(16)}-${encoding}"`;
+}
+
+/**
+ * 按 If-None-Match 优先、If-Modified-Since 次之的顺序判断主站静态资源是否仍新鲜。
+ *
+ * @param {import("node:http").IncomingMessage} req HTTP 请求。
+ * @param {string} etag 当前传输表示的 ETag。
+ * @param {number} modifiedTimeMs 当前传输表示的修改时间戳。
+ * @returns {boolean} GET/HEAD 可直接响应 304 时返回 `true`。
+ * @private
+ */
+function isStaticRequestFresh(req, etag, modifiedTimeMs) {
+  if (req.method !== "GET" && req.method !== "HEAD") return false;
+
+  const ifNoneMatch = req.headers["if-none-match"];
+  if (ifNoneMatch !== undefined) {
+    const normalizedEtag = etag.replace(/^W\//iu, "");
+    return String(ifNoneMatch)
+      .split(",")
+      .some((candidate) => {
+        const normalizedCandidate = candidate.trim();
+        return normalizedCandidate === "*"
+          || normalizedCandidate.replace(/^W\//iu, "") === normalizedEtag;
+      });
+  }
+
+  const ifModifiedSince = req.headers["if-modified-since"];
+  if (ifModifiedSince === undefined) return false;
+  const sinceTime = Date.parse(String(ifModifiedSince));
+  return Number.isFinite(sinceTime)
+    && Math.floor(modifiedTimeMs / 1000) <= Math.floor(sinceTime / 1000);
 }
 
 /**
@@ -1391,7 +1529,8 @@ function serveLive2dStatic(res, pathname, headOnly = false) {
   }
 
   const relativePath = pathname.slice("/live2d/".length) || "index.html";
-  const filePath = resolveStaticFilePath(live2dPageDir, relativePath);
+  const resourceRoot = /^(?:ui|motionsync)\//u.test(relativePath) ? live2dPublicDir : live2dPageDir;
+  const filePath = resolveStaticFilePath(resourceRoot, relativePath);
   if (!filePath || !existsSync(filePath) || !statSync(filePath).isFile()) {
     fail(res, 404, "NOT_FOUND", "Live2D resource not found.");
     return;

@@ -94,6 +94,16 @@
         "summary": "Return database schema draft"
       }
     },
+    "/api/web-vitals": {
+      "post": {
+        "summary": "Record an opt-in anonymous Web Vital without URL or identity fields"
+      }
+    },
+    "/api/admin/analytics/web-vitals": {
+      "get": {
+        "summary": "Return version, device and metric Web Vital P75 aggregates"
+      }
+    },
     "/api/knowledge/summary": {
       "get": {
         "summary": "Return generated knowledge base summary"

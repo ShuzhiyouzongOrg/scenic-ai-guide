@@ -282,5 +282,17 @@ export const schema = {
       group_size: "integer",
       satisfaction: "integer"
     }
+  },
+  webVitalEvents: {
+    description: "Anonymous browser performance metrics for version-level P75 reporting.",
+    columns: {
+      id: "integer primary key",
+      metric: "CLS, FCP, INP, LCP or TTFB",
+      value: "real not null",
+      rating: "good, needs-improvement or poor",
+      app_version: "text not null",
+      device_class: "mobile or desktop",
+      created_at: "datetime not null"
+    }
   }
 };

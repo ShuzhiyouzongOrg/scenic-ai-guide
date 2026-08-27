@@ -484,6 +484,18 @@ CREATE TABLE IF NOT EXISTS message_annotations (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS web_vital_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  metric TEXT NOT NULL,
+  value REAL NOT NULL,
+  rating TEXT NOT NULL,
+  app_version TEXT NOT NULL,
+  device_class TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_web_vitals_version_metric_time
+  ON web_vital_events(app_version, metric, created_at DESC);
 `;
 
 /**
