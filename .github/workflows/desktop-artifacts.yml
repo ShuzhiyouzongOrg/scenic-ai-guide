@@ -2,9 +2,25 @@ name: Build desktop artifacts
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/desktop-artifacts.yml"
+      - "desktop/**"
+      - "server/src/**"
+      - "server/data/generated/**"
+      - "server/package.json"
+      - "server/package-lock.json"
+      - "web/**"
+      - "vendor/xlsx-0.20.3.tgz"
 
 permissions:
   contents: read
+
+concurrency:
+  group: desktop-artifacts-${{ github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -13,7 +29,6 @@ defaults:
 env:
   NODE_VERSION: "22"
   PNPM_VERSION: "10.15.1"
-  DESKTOP_VERSION: "0.2.0"
 
 jobs:
   build-web:
@@ -24,8 +39,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Validate required build secrets
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          XFYUN_APP_ID: ${{ secrets.XFYUN_APP_ID }}
+          XFYUN_API_KEY: ${{ secrets.XFYUN_API_KEY }}
+          XFYUN_API_SECRET: ${{ secrets.XFYUN_API_SECRET }}
+        run: |
+          missing=()
+          for name in DEEPSEEK_API_KEY XFYUN_APP_ID XFYUN_API_KEY XFYUN_API_SECRET; do
+            if [[ -z "${!name:-}" ]]; then
+              missing+=("$name")
+            fi
+          done
+          if (( ${#missing[@]} > 0 )); then
+            printf 'Missing required repository secret: %s\n' "${missing[@]}" >&2
+            exit 1
+          fi
+
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -40,10 +73,6 @@ jobs:
         working-directory: web
         run: pnpm install --frozen-lockfile
 
-      - name: Run map guide tests
-        working-directory: web
-        run: pnpm test
-
       - name: Build web application
         working-directory: web
         env:
@@ -51,6 +80,10 @@ jobs:
           VITE_XF_AVATAR_APIKEY: ${{ secrets.XFYUN_API_KEY }}
           VITE_XF_AVATAR_APISECRET: ${{ secrets.XFYUN_API_SECRET }}
         run: pnpm build
+
+      - name: Run map guide tests against production output
+        working-directory: web
+        run: pnpm test
 
       - name: Verify avatar credentials in web build
         working-directory: desktop
@@ -116,10 +149,10 @@ jobs:
         working-directory: desktop
         run: npm ci
 
-      - name: Verify desktop release version
+      - name: Verify desktop release metadata
         working-directory: desktop
         run: |
-          node -e "const { readFileSync } = require('node:fs'); const version = JSON.parse(readFileSync('package.json', 'utf8')).version; if (version !== process.env.DESKTOP_VERSION) { throw new Error('desktop/package.json version ' + version + ' does not match DESKTOP_VERSION ' + process.env.DESKTOP_VERSION); }"
+          node -e "const { readFileSync } = require('node:fs'); const pkg = JSON.parse(readFileSync('package.json', 'utf8')); const lock = JSON.parse(readFileSync('package-lock.json', 'utf8')); const lockedVersion = lock.packages?.['']?.version ?? lock.version; if (pkg.version !== lockedVersion) { throw new Error('desktop/package.json version ' + pkg.version + ' does not match package-lock.json version ' + lockedVersion); }"
 
       - name: Download web build
         uses: actions/download-artifact@v8

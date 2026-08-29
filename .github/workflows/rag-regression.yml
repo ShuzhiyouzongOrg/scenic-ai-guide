@@ -38,8 +38,8 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -76,7 +76,7 @@ jobs:
           --bm25=../artifacts/rag-smoke-bm25.json
           --fusion=../artifacts/rag-smoke-evaluation.json
           --output=../artifacts/rag-smoke-ablation-gate.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rag-regression-smoke-${{ github.run_number }}
@@ -95,8 +95,8 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -132,7 +132,7 @@ jobs:
           --bm25=../artifacts/rag-full-bm25.json
           --fusion=../artifacts/rag-full-evaluation.json
           --output=../artifacts/rag-full-ablation-gate.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rag-regression-full-${{ github.run_number }}

@@ -29,16 +29,17 @@ Windows 本地构建缓存和打包输出会自动写入工作区的 `LocalTemp`
 
 ## GitHub Actions
 
-`.github/workflows/desktop-artifacts.yml` 仅支持手动触发。它分别在 Windows x64、macOS x64、macOS arm64 与 Linux x64 环境生成 `.exe`、`.dmg`、`.AppImage` 和 `.deb`，并上传为 Actions Artifacts。
+`.github/workflows/desktop-artifacts.yml` 同时支持自动触发与手动触发。工作流、桌面端、Web 端、桌面运行时服务代码或数据，以及共用 XLSX 依赖发生变更并推送到 `main` 后，会自动构建一次 Web 产物，再分别在 Windows x64、macOS x64、macOS arm64 与 Linux x64 环境生成 `.exe`、`.dmg`、`.AppImage` 和 `.deb`，并上传为 Actions Artifacts。仅修改文档或游客移动端时不会触发桌面构建；需要构建其他分支时仍可使用 `workflow_dispatch` 手动运行。
 
 Electron 43 的官方平台基线包含 Ubuntu 18.04 及以上版本。Linux 打包任务会检查 `.deb`、`.AppImage` 和解包运行时，并在发现 Node 原生模块时失败，防止再次引入依赖构建机 glibc 的文件。正式发布前仍建议在 Ubuntu 18.04、20.04 和 22.04 的干净环境中分别执行安装、启动和数据库读写验收。
 
-该工作流不会创建或发布 GitHub Release，也不会自动更新应用。待审核后将工作流提交到默认分支，才会在仓库的 **Actions** 页面出现手动运行入口。构建产物保留 30 天，可直接下载测试。
+该工作流不会创建或发布 GitHub Release，也不会自动更新应用。相同分支出现连续构建时，新任务会取消仍在运行的旧任务，避免重复消耗构建资源。桌面安装产物保留 30 天，可直接下载测试；用于各平台打包的中间 Web 产物保留 1 天。
 
 1. 在仓库 **Settings > Actions > General** 中允许 GitHub Actions 运行。
-2. 将工作流提交并推送到默认分支。
-3. 打开 **Actions > Build desktop artifacts > Run workflow**，选择默认分支并运行。
-4. 等待四个平台任务完成，在该次运行页面底部下载 Artifacts。
+2. 按下方清单配置构建所需的 Repository secrets。
+3. 将工作流提交并推送到默认分支；后续相关改动进入 `main` 时会自动运行。
+4. 如需手动构建，打开 **Actions > Build desktop artifacts > Run workflow** 并选择目标分支。
+5. 等待四个平台任务完成，在该次运行页面底部下载 Artifacts。
 
 在仓库 **Settings > Secrets and variables > Actions** 中配置以下 Repository secrets：
 
