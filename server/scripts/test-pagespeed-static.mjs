@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 静态资源性能策略集成测试脚本。
+ * @description 启动临时服务验证压缩协商、缓存、ETag、HEAD 请求、SPA 回退和安全响应头。
+ */
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -62,6 +66,11 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 创建包含预压缩脚本、缓存资源和 Live2D 文件的静态站点夹具。
+ * @returns {void}
+ * @throws {Error} 目录创建或文件写入失败时抛出。
+ */
 function createStaticFixture() {
   mkdirSync(join(webDistDir, "assets"), { recursive: true });
   mkdirSync(join(webDistDir, "images"), { recursive: true });
@@ -89,6 +98,11 @@ function createStaticFixture() {
   );
 }
 
+/**
+ * @description 验证 identity、Brotli、gzip 协商和缺失预压缩文件回退。
+ * @returns {Promise<void>} 全部响应断言通过后兑现。
+ * @throws {AssertionError|Error} HTTP 请求或响应断言失败时抛出。
+ */
 async function testPrecompressedDelivery() {
   const identity = await requestRaw("/assets/app-1234abcd.js", {
     headers: { "accept-encoding": "identity" }
@@ -137,6 +151,11 @@ async function testPrecompressedDelivery() {
   assert.deepEqual(noPrecompressedVariant.body, cssBody);
 }
 
+/**
+ * @description 验证哈希资源、普通资源、图片、HTML 和 SPA 回退的 MIME 与缓存策略。
+ * @returns {Promise<void>} 全部响应断言通过后兑现。
+ * @throws {AssertionError|Error} HTTP 请求或响应断言失败时抛出。
+ */
 async function testMimeAndCachePolicies() {
   const hashedAsset = await requestRaw("/assets/app-1234abcd.js", {
     headers: { "accept-encoding": "identity" }
@@ -176,6 +195,11 @@ async function testMimeAndCachePolicies() {
   assert.deepEqual(spaFallback.body, indexBody);
 }
 
+/**
+ * @description 验证 ETag、Last-Modified 和不同内容编码的条件请求行为。
+ * @returns {Promise<void>} 全部 304 与优先级断言通过后兑现。
+ * @throws {AssertionError|Error} HTTP 请求或响应断言失败时抛出。
+ */
 async function testConditionalRequests() {
   const html = await requestRaw("/", { headers: { "accept-encoding": "identity" } });
   const htmlNotModified = await requestRaw("/", {
@@ -261,6 +285,11 @@ async function testConditionalRequests() {
   assert.equal(etagPrecedence.statusCode, 200, "If-None-Match must take precedence over the date");
 }
 
+/**
+ * @description 验证 HEAD 响应以及缺失哈希资源的安全 404 策略。
+ * @returns {Promise<void>} 全部响应断言通过后兑现。
+ * @throws {AssertionError|Error|SyntaxError} HTTP、JSON 解析或响应断言失败时抛出。
+ */
 async function testHeadAndMissingResources() {
   const head = await requestRaw("/assets/app-1234abcd.js", {
     method: "HEAD",
@@ -281,6 +310,11 @@ async function testHeadAndMissingResources() {
   assert.equal(JSON.parse(missing.body.toString()).success, false);
 }
 
+/**
+ * @description 验证 Live2D 图片、MotionSync 脚本与配置使用独立静态路由。
+ * @returns {Promise<void>} 全部资源与 404 断言通过后兑现。
+ * @throws {AssertionError|Error|SyntaxError} HTTP、JSON 解析或响应断言失败时抛出。
+ */
 async function testLive2dRoutesRemainIndependent() {
   const image = await requestRaw("/live2d/ui/loading-lotus.webp", {
     headers: { "accept-encoding": "gzip" }
@@ -314,6 +348,13 @@ async function testLive2dRoutesRemainIndependent() {
   assert.doesNotMatch(missing.headers["cache-control"] || "", /immutable|31536000/u);
 }
 
+/**
+ * @description 通过 Node.js HTTP 客户端请求测试服务并收集原始响应体。
+ * @param {string} pathname 请求路径。
+ * @param {{method?: string, headers?: object}} [options={}] HTTP 方法和请求头。
+ * @returns {Promise<{statusCode: number|undefined, headers: object, body: Buffer}>} 原始响应。
+ * @throws {Error} 请求建立或传输失败时 Promise 拒绝。
+ */
 function requestRaw(pathname, { method = "GET", headers = {} } = {}) {
   return new Promise((resolveRequest, rejectRequest) => {
     const req = request(`${origin}${pathname}`, { method, headers }, (res) => {
@@ -332,6 +373,11 @@ function requestRaw(pathname, { method = "GET", headers = {} } = {}) {
   });
 }
 
+/**
+ * @description 轮询健康检查，直至测试服务可用、提前退出或超时。
+ * @returns {Promise<void>} 健康检查成功时兑现。
+ * @throws {Error} 子进程提前退出或十五秒内未启动时抛出。
+ */
 async function waitForServer() {
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {

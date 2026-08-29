@@ -1,5 +1,10 @@
 /**
- * useLayoutHeight - 页面布局高度管理
+ * @fileoverview 计算页面内容区域可用高度并同步 CSS 变量。
+ * @description 支持直接元素引用和按元素 ID 自动查找两种布局高度管理方式。
+ */
+
+/**
+ * @description useLayoutHeight - 页面布局高度管理
  *
  * 自动计算和管理页面内容区域的高度，确保内容区域能够正确填充剩余空间。
  * 监听头部元素高度变化，动态调整内容区域高度，避免出现滚动条或布局错乱。
@@ -13,24 +18,37 @@
  * 5. 自动查找模式 - 提供通过 ID 自动查找元素的便捷方式
  *
  * @module useLayoutHeight
- * @author Scenic AI Guide Team
+ *
  */
 
 import { ref, computed, watch, onMounted } from 'vue'
 import { useElementSize } from '@vueuse/core'
 
 /**
- * 页面容器高度配置
+ * @description 页面容器高度配置
  */
 interface LayoutHeightOptions {
-  /** 额外的间距（默认 15px） */
+  /**
+   * @description 额外的间距（默认 15px）
+   */
   extraSpacing?: number
-  /** 是否自动更新 CSS 变量（默认 true） */
+  /**
+   * @description 是否自动更新 CSS 变量（默认 true）
+   */
   updateCssVar?: boolean
-  /** CSS 变量名称（默认 '--art-full-height'） */
+  /**
+   * @description CSS 变量名称（默认 '--art-full-height'）
+   */
   cssVarName?: string
 }
 
+/**
+ * @description 监听两个头部元素的尺寸，计算内容区最小高度并按需同步 CSS 变量。
+ * @param {LayoutHeightOptions} [options={}] 额外间距、CSS 变量同步开关和变量名称。
+ * @returns {ReturnType<typeof useLayoutHeight>} 内容区最小高度、两个元素引用及对应高度的响应式对象。
+ * @example
+ * const { headerRef, contentHeaderRef, containerMinHeight } = useLayoutHeight()
+ */
 export function useLayoutHeight(options: LayoutHeightOptions = {}) {
   const { extraSpacing = 15, updateCssVar = true, cssVarName = '--art-full-height' } = options
 
@@ -61,27 +79,38 @@ export function useLayoutHeight(options: LayoutHeightOptions = {}) {
   }
 
   return {
-    /** 容器最小高度（响应式） */
+    /**
+     * @description 容器最小高度（响应式）
+     */
     containerMinHeight,
-    /** 头部元素引用 */
+    /**
+     * @description 头部元素引用
+     */
     headerRef,
-    /** 内容头部元素引用 */
+    /**
+     * @description 内容头部元素引用
+     */
     contentHeaderRef,
-    /** 头部高度（响应式） */
+    /**
+     * @description 头部高度（响应式）
+     */
     headerHeight,
-    /** 内容头部高度（响应式） */
+    /**
+     * @description 内容头部高度（响应式）
+     */
     contentHeaderHeight
   }
 }
 
 /**
- * 通过 ID 自动查找元素的布局高度管理
+ * @description 通过 ID 自动查找元素的布局高度管理
  * 适用于无法直接获取元素引用的场景
  *
- * @param headerIds 头部元素的 ID 数组
- * @param options 配置选项
- *
- * ```
+ * @param {string[]} [headerIds] 头部元素的 ID 数组，默认查找应用头部与内容头部。
+ * @param {LayoutHeightOptions} [options={}] 配置选项。
+ * @returns {ReturnType<typeof useAutoLayoutHeight>} 内容区最小高度、自动绑定的元素引用及对应高度的响应式对象。
+ * @example
+ * const layout = useAutoLayoutHeight(['app-header', 'app-content-header'])
  */
 export function useAutoLayoutHeight(
   headerIds: string[] = ['app-header', 'app-content-header'],
@@ -134,15 +163,25 @@ export function useAutoLayoutHeight(
   })
 
   return {
-    /** 容器最小高度（响应式） */
+    /**
+     * @description 容器最小高度（响应式）
+     */
     containerMinHeight,
-    /** 头部元素引用 */
+    /**
+     * @description 头部元素引用
+     */
     headerRef,
-    /** 内容头部元素引用 */
+    /**
+     * @description 内容头部元素引用
+     */
     contentHeaderRef,
-    /** 头部高度（响应式） */
+    /**
+     * @description 头部高度（响应式）
+     */
     headerHeight,
-    /** 内容头部高度（响应式） */
+    /**
+     * @description 内容头部高度（响应式）
+     */
     contentHeaderHeight
   }
 }

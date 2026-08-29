@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 游客头像上传集成测试脚本。
+ * @description 验证登录态头像上传、文件读取、类型限制和越权访问防护。
+ */
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -84,6 +88,14 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 调用当前测试服务 API，校验状态码并返回 JSON 正文。
+ * @param {string} pathname API 路径。
+ * @param {RequestInit} init Fetch 请求选项。
+ * @param {number} expectedStatus 期望 HTTP 状态码。
+ * @returns {Promise<object>} JSON 响应正文。
+ * @throws {AssertionError|TypeError|SyntaxError} 网络、JSON 解析或状态码断言失败时抛出。
+ */
 async function jsonRequest(pathname, init, expectedStatus) {
   const response = await fetch(baseUrl + pathname, init);
   const body = await response.json();

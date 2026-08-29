@@ -1,9 +1,14 @@
 // @ts-nocheck -- 移植自 awesome-digital-human-live2d 的第三方 Live2D(Cubism SDK)代码，不纳入本项目严格类型检查
-/**
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+/**
+ * @fileoverview Live2D 单画布子委托。
+ * @description 聚合画布、WebGL、纹理、视图、模型和指针交互的初始化与逐帧更新流程。
  */
 
 import * as LAppDefine from './lappdefine';
@@ -15,11 +20,14 @@ import { LAppView } from './lappview';
 import { ResourceModel } from '../resource';
 
 /**
- * Canvasに関連する操作を取りまとめるクラス
+ * @class
+ * @description 管理一个 Live2D 画布及其渲染和交互依赖。
+ * @example
+ * const subdelegate = new LAppSubdelegate();
  */
 export class LAppSubdelegate {
   /**
-   * コンストラクタ
+   * @description 创建尚未绑定画布的 WebGL、纹理、模型和视图管理对象。
    */
   public constructor() {
     this._canvas = null;
@@ -32,7 +40,8 @@ export class LAppSubdelegate {
   }
 
   /**
-   * デストラクタ相当の処理
+   * @description 断开尺寸观察器并依次释放模型、视图、纹理和 WebGL 管理器。
+   * @returns {void} 无返回值。
    */
   public release(): void {
     this._resizeObserver.unobserve(this._canvas);
@@ -53,7 +62,11 @@ export class LAppSubdelegate {
   }
 
   /**
-   * APPに必要な物を初期化する。
+   * @description 初始化画布尺寸、WebGL 状态、纹理管理器、视图、模型和尺寸观察器。
+   * @param {HTMLCanvasElement} canvas Live2D 渲染画布。
+   * @returns {boolean} WebGL 与应用依赖初始化成功时返回 `true`。
+   * @example
+   * const initialized = subdelegate.initialize(canvas);
    */
   public initialize(canvas: HTMLCanvasElement): boolean {
     if (!this._glManager.initialize(canvas)) {
@@ -97,7 +110,8 @@ export class LAppSubdelegate {
   }
 
   /**
-   * Resize canvas and re-initialize view.
+   * @description 按容器尺寸重设画布，并重新初始化视图和精灵资源。
+   * @returns {void} 无返回值。
    */
   public onResize(): void {
     this.resizeCanvas();
@@ -105,6 +119,13 @@ export class LAppSubdelegate {
     this._view.initializeSprite();
   }
 
+  /**
+   * @description 在自动画布模式下把尺寸变化记录为待处理状态。
+   * @param {ResizeObserverEntry[]} entries 尺寸变化条目。
+   * @param {ResizeObserver} observer 触发回调的观察器。
+   * @returns {void} 无返回值。
+   * @private
+   */
   private resizeObserverCallback(
     entries: ResizeObserverEntry[],
     observer: ResizeObserver
@@ -115,7 +136,8 @@ export class LAppSubdelegate {
   }
 
   /**
-   * ループ処理
+   * @description 处理待执行的尺寸调整，清理 WebGL 缓冲并绘制当前视图。
+   * @returns {void} 无返回值。
    */
   public update(): void {
     if (this._glManager.getGl().isContextLost()) {
@@ -153,7 +175,10 @@ export class LAppSubdelegate {
   }
 
   /**
-   * シェーダーを登録する。
+   * @description 编译并链接用于二维纹理精灵的顶点和片元着色器。
+   * @returns {WebGLProgram|null} 可用的着色器程序；着色器创建失败时返回 `null`。
+   * @example
+   * const program = subdelegate.createShader();
    */
   public createShader(): WebGLProgram {
     const gl = this._glManager.getGl();
@@ -215,28 +240,50 @@ export class LAppSubdelegate {
     return programId;
   }
 
+  /**
+   * @description 获取当前画布使用的纹理管理器。
+   * @returns {LAppTextureManager} 纹理管理器实例。
+   */
   public getTextureManager(): LAppTextureManager {
     return this._textureManager;
   }
 
+  /**
+   * @description 获取初始化时保存的 WebGL 帧缓冲对象。
+   * @returns {WebGLFramebuffer|null} 当前帧缓冲；默认帧缓冲可能为 `null`。
+   */
   public getFrameBuffer(): WebGLFramebuffer {
     return this._frameBuffer;
   }
 
+  /**
+   * @description 获取当前子委托绑定的渲染画布。
+   * @returns {HTMLCanvasElement} Live2D 渲染画布。
+   */
   public getCanvas(): HTMLCanvasElement {
     return this._canvas;
   }
 
+  /**
+   * @description 获取当前画布的 WebGL 上下文管理器。
+   * @returns {LAppGlManager} WebGL 管理器实例。
+   */
   public getGlManager(): LAppGlManager {
     return this._glManager;
   }
 
+  /**
+   * @description 获取当前画布的 Live2D 模型管理器。
+   * @returns {LAppLive2DManager} 模型管理器实例。
+   */
   public getLive2DManager(): LAppLive2DManager {
     return this._live2dManager;
   }
 
   /**
-   * Resize the canvas to fill the screen.
+   * @description 按 CSS 尺寸和设备像素比调整画布，并同步 WebGL 视口。
+   * @returns {void} 无返回值。
+   * @private
    */
   private resizeCanvas(): void {
     this._canvas.width = this._canvas.clientWidth * window.devicePixelRatio;
@@ -248,7 +295,10 @@ export class LAppSubdelegate {
   }
 
   /**
-   * マウスダウン、タッチダウンしたときに呼ばれる。
+   * @description 将页面指针按下坐标转换为画布局部坐标并开始触摸跟踪。
+   * @param {number} pageX 页面横坐标。
+   * @param {number} pageY 页面纵坐标。
+   * @returns {void} 无返回值。
    */
   public onPointBegan(pageX: number, pageY: number): void {
     if (!this._view) {
@@ -264,7 +314,10 @@ export class LAppSubdelegate {
   }
 
   /**
-   * マウスポインタが動いたら呼ばれる。
+   * @description 在指针已捕获时转发画布局部移动坐标。
+   * @param {number} pageX 页面横坐标。
+   * @param {number} pageY 页面纵坐标。
+   * @returns {void} 无返回值。
    */
   public onPointMoved(pageX: number, pageY: number): void {
     if (!this._captured) {
@@ -278,7 +331,10 @@ export class LAppSubdelegate {
   }
 
   /**
-   * クリックが終了したら呼ばれる。
+   * @description 结束指针捕获并转发画布局部抬起坐标。
+   * @param {number} pageX 页面横坐标。
+   * @param {number} pageY 页面纵坐标。
+   * @returns {void} 无返回值。
    */
   public onPointEnded(pageX: number, pageY: number): void {
     this._captured = false;
@@ -295,7 +351,10 @@ export class LAppSubdelegate {
   }
 
   /**
-   * タッチがキャンセルされると呼ばれる。
+   * @description 取消指针捕获，并以结束事件通知当前视图。
+   * @param {number} pageX 页面横坐标。
+   * @param {number} pageY 页面纵坐标。
+   * @returns {void} 无返回值。
    */
   public onTouchCancel(pageX: number, pageY: number): void {
     this._captured = false;
@@ -311,10 +370,19 @@ export class LAppSubdelegate {
     this._view.onTouchesEnded(localX, localY);
   }
 
+  /**
+   * @description 判断当前 WebGL 上下文是否已经丢失。
+   * @returns {boolean} 上下文丢失时返回 `true`。
+   */
   public isContextLost(): boolean {
     return this._glManager.getGl().isContextLost();
   }
 
+  /**
+   * @description 将角色切换请求交给当前画布的模型管理器。
+   * @param {ResourceModel|null} character 新角色资源；传入 `null` 表示卸载。
+   * @returns {void} 无返回值。
+   */
   public changeCharacter(character: ResourceModel | null) {
     // _subdelegates中只有一个画布, 所以设置第一个即可
     this._live2dManager.changeCharacter(character);
@@ -323,12 +391,16 @@ export class LAppSubdelegate {
   private _canvas: HTMLCanvasElement;
 
   /**
-   * View情報
+   * @description 保存当前画布的视图控制器。
+   * @type {LAppView|null}
+   * @private
    */
   private _view: LAppView;
 
   /**
-   * テクスチャマネージャー
+   * @description 保存当前画布的纹理管理器。
+   * @type {LAppTextureManager|null}
+   * @private
    */
   private _textureManager: LAppTextureManager;
   private _frameBuffer: WebGLFramebuffer;
@@ -336,12 +408,16 @@ export class LAppSubdelegate {
   private _live2dManager: LAppLive2DManager;
 
   /**
-   * ResizeObserver
+   * @description 观察画布容器尺寸变化。
+   * @type {ResizeObserver|null}
+   * @private
    */
   private _resizeObserver: ResizeObserver;
 
   /**
-   * クリックしているか
+   * @description 表示当前是否已捕获指针交互。
+   * @type {boolean}
+   * @private
    */
   private _captured: boolean;
 

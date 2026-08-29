@@ -1,7 +1,11 @@
 /**
  * @fileoverview 管理端账号、个人资料、角色、状态和密码维护服务。
- *
+ * @description 提供管理账号查询、创建、资料维护、密码修改和受保护删除能力。
+ */
+
+/**
  * @typedef {object} AdminUser
+ * @description 不包含密码哈希的管理端用户对象。
  * @property {string} id 用户 ID。
  * @property {string} username 登录名。
  * @property {string} displayName 显示名称。
@@ -22,7 +26,7 @@ import { getDb } from "../db/database.mjs";
 import { hashPassword, verifyPassword } from "../db/password.mjs";
 
 /**
- * 将用户数据库行转换为不含密码哈希的 API 对象。
+ * @description 将用户数据库行转换为不含密码哈希的 API 对象。
  * @private
  * @param {Record<string, *>} row 用户数据库行。
  * @returns {AdminUser} 管理端用户对象。
@@ -47,7 +51,7 @@ function toUser(row) {
 }
 
 /**
- * 列出全部管理端账号。
+ * @description 列出全部管理端账号。
  * @returns {AdminUser[]} 按创建时间升序排列的用户列表。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example
@@ -61,8 +65,13 @@ export function listAdminUsers() {
 }
 
 /**
- * 创建管理端账号，并使用安全哈希保存密码。
- * @param {{username?: *, password?: *, displayName?: *, avatar?: *, role?: *}} [input={}] 用户输入。
+ * @description 创建管理端账号，并使用安全哈希保存密码。
+ * @param {object} [input={}] 用户输入。
+ * @param {*} [input.username] 登录名。
+ * @param {*} [input.password] 登录密码。
+ * @param {*} [input.displayName] 显示名称。
+ * @param {*} [input.avatar] 头像地址。
+ * @param {*} [input.role] 角色代码。
  * @returns {AdminUser} 新建用户。
  * @throws {Error & {statusCode: 400, code: "USER_REQUIRED"|"ROLE_INVALID"}} 必填字段缺失或角色无效时抛出。
  * @throws {Error & {statusCode: 409, code: "USER_EXISTS"}} 登录名已存在时抛出。
@@ -112,9 +121,13 @@ export function createAdminUser(input = {}) {
 }
 
 /**
- * 更新账号显示名、角色、状态及可选的新密码。
+ * @description 更新账号显示名、角色、状态及可选的新密码。
  * @param {string} id 用户 ID。
- * @param {{displayName?: *, role?: *, status?: *, password?: *}} [input={}] 待更新字段。
+ * @param {object} [input={}] 待更新字段。
+ * @param {*} [input.displayName] 显示名称。
+ * @param {*} [input.role] 角色代码。
+ * @param {*} [input.status] 账号状态。
+ * @param {*} [input.password] 新登录密码。
  * @returns {AdminUser} 更新后的用户。
  * @throws {Error & {statusCode: 404, code: "USER_NOT_FOUND"}} 用户不存在时抛出。
  * @throws {Error & {statusCode: 400, code: "ROLE_INVALID"}} 目标角色不存在或已停用时抛出。
@@ -153,7 +166,7 @@ export function updateAdminUser(id, input = {}) {
 }
 
 /**
- * 获取单个管理端用户的完整公开资料。
+ * @description 获取单个管理端用户的完整公开资料。
  * @param {string} id 用户 ID。
  * @returns {AdminUser|null} 用户资料；用户不存在时返回 `null`。
  * @throws {Error} 数据库查询失败时透传异常。
@@ -166,9 +179,17 @@ export function getAdminUserProfile(id) {
 }
 
 /**
- * 部分更新用户的头像和个人资料字段。
+ * @description 部分更新用户的头像和个人资料字段。
  * @param {string} id 用户 ID。
- * @param {{nickname?: *, avatar?: *, realName?: *, gender?: *, email?: *, phone?: *, address?: *, bio?: *}} [input={}] 资料字段。
+ * @param {object} [input={}] 资料字段。
+ * @param {*} [input.nickname] 昵称。
+ * @param {*} [input.avatar] 头像地址。
+ * @param {*} [input.realName] 真实姓名。
+ * @param {*} [input.gender] 性别。
+ * @param {*} [input.email] 邮箱地址。
+ * @param {*} [input.phone] 电话号码。
+ * @param {*} [input.address] 联系地址。
+ * @param {*} [input.bio] 个人简介。
  * @returns {AdminUser} 更新后的用户资料。
  * @throws {Error & {statusCode: 404, code: "USER_NOT_FOUND"}} 用户不存在时抛出。
  * @throws {Error} 数据库更新失败时透传异常。
@@ -204,7 +225,7 @@ export function updateAdminUserProfile(id, input = {}) {
 }
 
 /**
- * 校验当前密码后修改管理端用户密码。
+ * @description 校验当前密码后修改管理端用户密码。
  * @param {string} id 用户 ID。
  * @param {*} currentPassword 当前明文密码。
  * @param {*} newPassword 新明文密码，至少 6 个字符。
@@ -235,7 +256,7 @@ export function changeAdminUserPassword(id, currentPassword, newPassword) {
 }
 
 /**
- * 删除管理端账号；内置 `admin` 账号受保护。
+ * @description 删除管理端账号；内置 `admin` 账号受保护。
  * @param {string} id 用户 ID。
  * @returns {{id: string}} 被删除用户的 ID。
  * @throws {Error & {statusCode: 404, code: "USER_NOT_FOUND"}} 用户不存在时抛出。
@@ -264,7 +285,7 @@ export function deleteAdminUser(id) {
 }
 
 /**
- * 判断角色代码是否对应启用中的系统角色。
+ * @description 判断角色代码是否对应启用中的系统角色。
  * @private
  * @param {import("better-sqlite3").Database} db 数据库连接。
  * @param {string} role 角色代码。

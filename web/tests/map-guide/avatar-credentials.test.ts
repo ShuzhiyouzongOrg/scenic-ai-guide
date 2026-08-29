@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 数字人凭证解析与降级规则测试。
+ * @description 验证数字人凭证在 Web 构建配置与桌面桥接通道之间的解析和降级规则。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 

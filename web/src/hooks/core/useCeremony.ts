@@ -1,5 +1,10 @@
 /**
- * useCeremony - 节日庆祝管理
+ * @fileoverview 管理节庆日期匹配、烟花触发和祝福文本展示。
+ * @description 根据节庆配置与用户设置编排动画次数、延时任务和清理流程。
+ */
+
+/**
+ * @description useCeremony - 节日庆祝管理
  *
  * 提供节日烟花效果和祝福文本展示功能，为系统增添节日氛围。
  * 自动检测当前日期是否为节日，并在首次进入时播放烟花动画和显示祝福语。
@@ -37,7 +42,7 @@
  * ```
  *
  * @module useCeremony
- * @author Scenic AI Guide Team
+ *
  */
 
 import { useTimeoutFn, useIntervalFn, useDateFormat } from '@vueuse/core'
@@ -48,22 +53,33 @@ import { mittBus } from '@/utils/sys'
 import { festivalConfigList } from '@/config/modules/festival'
 
 /**
- * 节日庆祝配置常量
+ * @description 节日庆祝配置常量
  */
 const FESTIVAL_CONFIG = {
-  /** 初始延迟（毫秒） */
+  /**
+   * @description 初始延迟（毫秒）
+   */
   INITIAL_DELAY: 300,
-  /** 烟花播放间隔（毫秒） */
+  /**
+   * @description 烟花播放间隔（毫秒）
+   */
   FIREWORK_INTERVAL: 1000,
-  /** 文本显示延迟（毫秒） */
+  /**
+   * @description 文本显示延迟（毫秒）
+   */
   TEXT_DELAY: 2000,
-  /** 默认烟花播放次数 */
+  /**
+   * @description 默认烟花播放次数
+   */
   DEFAULT_FIREWORKS_COUNT: 3
 } as const
 
 /**
- * 节日庆祝功能
- * 提供节日烟花效果和祝福文本展示
+ * @description 创建节庆日期匹配、烟花触发、祝福显示及资源清理控制器。
+ * @returns {ReturnType<typeof useCeremony>} 包含庆典开启与清理方法、资源加载状态、当前节庆数据和烟花开关状态的对象。
+ * @example
+ * const ceremony = useCeremony()
+ * ceremony.openFestival()
  */
 export function useCeremony() {
   const settingStore = useSettingStore()
@@ -72,10 +88,10 @@ export function useCeremony() {
   let fireworksInterval: { pause: () => void } | null = null
 
   /**
-   * 检查日期是否在节日范围内
-   * @param currentDate 当前日期
-   * @param festivalDate 节日开始日期
-   * @param festivalEndDate 节日结束日期（可选）
+   * @description 检查日期是否在节日范围内。
+   * @param {string} currentDate 当前日期。
+   * @param {string} festivalDate 节日开始日期。
+   * @param {string} [festivalEndDate] 节日结束日期。
    */
   const isDateInRange = (
     currentDate: string,
@@ -96,7 +112,7 @@ export function useCeremony() {
   }
 
   /**
-   * 获取当前日期对应的节日数据
+   * @description 获取当前日期对应的节日数据
    */
   const currentFestivalData = computed(() => {
     const currentDate = useDateFormat(new Date(), 'YYYY-MM-DD').value
@@ -104,21 +120,21 @@ export function useCeremony() {
   })
 
   /**
-   * 更新节日日期到 store
+   * @description 更新节日日期到 store
    */
   const updateFestivalDate = () => {
     settingStore.setFestivalDate(currentFestivalData.value?.date || '')
   }
 
   /**
-   * 触发烟花效果
+   * @description 触发烟花效果
    */
   const triggerFirework = () => {
     mittBus.emit('triggerFireworks', currentFestivalData.value?.image)
   }
 
   /**
-   * 完成烟花效果后显示文本
+   * @description 完成烟花效果后显示文本
    */
   const showFestivalText = () => {
     settingStore.setholidayFireworksLoaded(true)
@@ -130,7 +146,7 @@ export function useCeremony() {
   }
 
   /**
-   * 启动烟花循环
+   * @description 启动烟花循环
    */
   const startFireworksLoop = () => {
     let playedCount = 0
@@ -151,7 +167,7 @@ export function useCeremony() {
   }
 
   /**
-   * 开启节日庆祝
+   * @description 开启节日庆祝
    */
   const openFestival = () => {
     if (!currentFestivalData.value || !isShowFireworks.value) {
@@ -163,7 +179,7 @@ export function useCeremony() {
   }
 
   /**
-   * 清理烟花效果
+   * @description 清理烟花效果
    */
   const cleanup = () => {
     if (fireworksInterval) {

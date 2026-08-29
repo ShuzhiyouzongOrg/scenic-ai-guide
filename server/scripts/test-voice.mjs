@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 语音问答服务测试脚本。
+ * @description 验证转写、文本切分、语音合成、音频缓存和语音问答组合流程。
+ */
 import assert from "node:assert";
 import { transcribeAudio, synthesizeSpeech, voiceAsk, splitForTts, getAudioClip } from "../src/services/voice.mjs";
 

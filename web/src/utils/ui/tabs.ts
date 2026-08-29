@@ -1,5 +1,6 @@
 /**
- * 标签页布局配置模块
+ * @fileoverview 工作标签页样式对应的布局尺寸配置。
+ * @description 为默认、卡片和浏览器风格标签页提供打开与关闭状态的顶部距离和总高度。
  *
  * 提供不同标签页样式的高度和间距配置
  *
@@ -31,7 +32,10 @@
  * - tab-google: 谷歌浏览器风格标签页
  *
  * @module utils/ui/tabs
- * @author Scenic AI Guide Team
+ */
+/**
+ * @description 各标签页样式在打开和关闭状态下的布局尺寸映射。
+ * @type {Record<string, {openTop: number, closeTop: number, openHeight: number, closeHeight: number}>}
  */
 export const TAB_CONFIG = {
   'tab-default': {
@@ -54,7 +58,13 @@ export const TAB_CONFIG = {
   }
 }
 
-// 获取当前 tab 样式配置，设置默认值
+/**
+ * @description 获取指定标签页样式的布局配置，未知样式回退为卡片样式。
+ * @param {string} style 标签页样式名称。
+ * @returns {(typeof TAB_CONFIG)[keyof typeof TAB_CONFIG]} 对应的布局尺寸配置。
+ * @example
+ * const config = getTabConfig('tab-default')
+ */
 export const getTabConfig = (style: string) => {
   return TAB_CONFIG[style as keyof typeof TAB_CONFIG] || TAB_CONFIG['tab-card'] // 默认使用 tab-card 配置
 }

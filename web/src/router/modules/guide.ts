@@ -1,8 +1,12 @@
+/**
+ * @fileoverview 游客导览路由配置。
+ * @description 声明 AI 数字人导览和景区地图导览页面路由。
+ */
 import { AppRouteRecord } from '@/types/router'
 
 /**
- * 游客导览模块（游客交互端）
- * 数字人导览、智能问答、语音交互、路线推荐等游客侧功能。
+ * @description 游客 AI 导览与地图导览路由树。
+ * @type {AppRouteRecord}
  */
 export const guideRoutes: AppRouteRecord = {
   name: 'Guide',

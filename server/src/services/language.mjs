@@ -1,12 +1,23 @@
 /**
  * @fileoverview 用户问题语言识别、区域语言代码归一化及回答语言提示服务。
- * @typedef {"zh"|"en"|"ko"|"zh-TW"|"ja"|"th"} SupportedLocale
+ * @description
+ * 识别用户问题语言、归一化客户端区域代码，并生成回答语言约束。
  */
 
-/** @type {Set<SupportedLocale>} 系统能够生成回答的标准语言代码集合。 */
+/**
+ * @typedef {"zh"|"en"|"ko"|"zh-TW"|"ja"|"th"} SupportedLocale
+ * @description 系统支持的标准回答语言代码。
+ */
+
+/**
+ * @description
+ * 系统能够生成回答的标准语言代码集合。
+ * @type {Set<SupportedLocale>} 系统能够生成回答的标准语言代码集合。
+ */
 const supportedLocales = new Set(["zh", "en", "ko", "zh-TW", "ja", "th"]);
 
 /**
+ * @description
  * 将浏览器或客户端传入的区域语言代码归一化为受支持代码。
  * 无法识别时根据问题文本自动推断。
  * @param {*} value 待归一化的语言代码，例如 `zh-CN` 或 `en-US`。
@@ -38,6 +49,7 @@ export function normalizeLocale(value, question = "") {
 }
 
 /**
+ * @description
  * 根据字符范围启发式识别用户问题的主要语言。
  * @param {*} question 用户问题；非字符串值会先转换为字符串。
  * @returns {SupportedLocale} 推断出的标准语言代码，无法确定时为 `zh`。
@@ -55,6 +67,7 @@ export function detectQuestionLocale(question) {
 }
 
 /**
+ * @description
  * 生成要求大模型使用指定语言回答的系统提示。
  * @param {*} locale 语言代码或可归一化的区域语言代码。
  * @returns {string} 对应语言编写的回答约束；未知语言回退为简体中文。

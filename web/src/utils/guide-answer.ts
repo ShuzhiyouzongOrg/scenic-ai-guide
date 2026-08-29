@@ -1,10 +1,17 @@
+/**
+ * @fileoverview AI 导览回答文本净化工具。
+ * @description 将模型返回的轻量 Markdown 与内部引用标记转换为可直接渲染的安全纯文本。
+ */
+
 const MARKDOWN_LINK = /\[([^\]]+)\]\([^\s)]+(?:\s+[^)]*)?\)/g
 const INTERNAL_CITATION = /\s*\[(?:C-[^\]\r\n]+|C\d+)\]/giu
 
 /**
- * Converts legacy model answers containing lightweight Markdown into safe
- * plain text. The chat view deliberately avoids v-html so model output never
- * becomes executable markup.
+ * @description 移除代码围栏、标题、强调语法、链接地址和内部引用标记，保留可读文本与列表层次。
+ * @param {string} value 模型返回的回答文本。
+ * @returns {string} 适合使用文本节点渲染的规范化纯文本。
+ * @example
+ * formatGuideAnswer('**推荐**：[梵宫](https://example.com) [C-12]')
  */
 export function formatGuideAnswer(value: string): string {
   return String(value || '')

@@ -1,12 +1,13 @@
 /**
  * @fileoverview 面向 `/api/schema` 和项目文档的领域数据表说明。
+ * @description 导出供接口和项目文档使用的可序列化表用途与核心字段说明。
  *
  * 此对象不是建表 SQL；实际迁移定义位于 `database.mjs`。它为前端和维护人员提供稳定、
  * 可序列化的表用途与核心列概览。
  */
 
 /**
- * 领域表结构说明映射。
+ * @description 领域表结构说明映射。
  *
  * @type {Record<string, {description: string, columns: Record<string, string>}>}
  * @example

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 离线演示模式测试脚本。
+ * @description 确认模拟模型与语音配置在无外部凭据时仍可提供确定性演示。
+ */
 import assert from "node:assert/strict";
 
 process.env.DEMO_MODE = "true";

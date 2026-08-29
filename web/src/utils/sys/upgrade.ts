@@ -1,5 +1,6 @@
 /**
- * 系统版本升级管理模块
+ * @fileoverview 前端版本升级检测、通知与旧存储清理工具。
+ * @description 对比本地和当前版本，展示更新日志，并按升级配置清理旧数据或要求重新登录。
  *
  * 提供完整的应用版本升级检测和处理功能
  *
@@ -32,7 +33,6 @@
  * 6. 更新本地版本号
  *
  * @module utils/sys/upgrade
- * @author Scenic AI Guide Team
  */
 import type { ProjectChangeLog } from '@/mock/upgrade/changeLog'
 import { ElNotification } from 'element-plus'
@@ -40,54 +40,64 @@ import { useUserStore } from '@/store/modules/user'
 import { StorageConfig } from '@/utils/storage/storage-config'
 
 /**
- * 版本管理器
- * 负责处理版本比较、升级检测和数据清理
+ * @description 封装版本比较、旧存储识别、升级通知和重新登录流程。
  */
 class VersionManager {
   /**
-   * 规范化版本号字符串，移除前缀 'v'
+   * @description 将版本值转换为字符串并移除可选的 v 前缀。
+   * @param {string} version 原始版本号。
+   * @returns {string} 可用于比较的规范化版本号。
    */
   private normalizeVersion(version: string): string {
     return String(version ?? '').replace(/^v/, '')
   }
 
   /**
-   * 获取存储的版本号
+   * @description 读取本地存储中的应用版本号。
+   * @returns {string | null} 已记录版本；不存在时返回 null。
    */
   private getStoredVersion(): string | null {
     return localStorage.getItem(StorageConfig.VERSION_KEY)
   }
 
   /**
-   * 设置版本号到存储
+   * @description 将指定应用版本写入本地存储。
+   * @param {string} version 待保存的版本号。
+   * @returns {void} 无返回值。
    */
   private setStoredVersion(version: string): void {
     localStorage.setItem(StorageConfig.VERSION_KEY, String(version))
   }
 
   /**
-   * 检查是否应该跳过升级处理
+   * @description 判断当前构建是否为配置中无需执行升级流程的版本。
+   * @returns {boolean} 应跳过升级处理时返回 true。
    */
   private shouldSkipUpgrade(): boolean {
     return StorageConfig.CURRENT_VERSION === StorageConfig.SKIP_UPGRADE_VERSION
   }
 
   /**
-   * 检查是否为首次访问
+   * @description 根据本地版本是否缺失判断当前访问是否为首次访问。
+   * @param {string | null} storedVersion 本地保存的版本号。
+   * @returns {boolean} 未保存版本号时返回 true。
    */
   private isFirstVisit(storedVersion: string | null): boolean {
     return !storedVersion
   }
 
   /**
-   * 检查版本是否相同
+   * @description 判断本地版本是否与当前应用版本完全一致。
+   * @param {string} storedVersion 本地保存的版本号。
+   * @returns {boolean} 两个版本一致时返回 true。
    */
   private isSameVersion(storedVersion: string): boolean {
     return storedVersion === String(StorageConfig.CURRENT_VERSION)
   }
 
   /**
-   * 查找旧的存储结构
+   * @description 扫描本地存储，查找旧版单键结构和历史版本的分离 Store 键。
+   * @returns {{oldSysKey: string | null, oldVersionKeys: string[]}} 待迁移或清理的旧键集合。
    */
   private findLegacyStorage(): { oldSysKey: string | null; oldVersionKeys: string[] } {
     const storageKeys = Object.keys(localStorage)
@@ -112,7 +122,10 @@ class VersionManager {
   }
 
   /**
-   * 检查是否需要重新登录
+   * @description 判断本地版本到当前版本之间是否包含要求重新登录的更新记录。
+   * @param {string} storedVersion 本地保存的版本号。
+   * @param {ProjectChangeLog[]} projectChangeLog 项目更新日志。
+   * @returns {boolean} 升级后需要重新登录时返回 true。
    */
   private shouldRequireReLogin(
     storedVersion: string,
@@ -130,7 +143,10 @@ class VersionManager {
   }
 
   /**
-   * 构建升级通知消息
+   * @description 使用最新更新日志和重新登录要求构建升级通知 HTML。
+   * @param {boolean} requireReLogin 是否要求升级后重新登录。
+   * @param {ProjectChangeLog[]} projectChangeLog 项目更新日志。
+   * @returns {string} 可供 Element Plus 通知展示的 HTML 字符串。
    */
   private buildUpgradeMessage(
     requireReLogin: boolean,
@@ -155,7 +171,9 @@ class VersionManager {
   }
 
   /**
-   * 显示升级通知
+   * @description 显示不会自动关闭的系统升级通知。
+   * @param {string} message 升级通知 HTML 内容。
+   * @returns {void} 无返回值。
    */
   private showUpgradeNotification(message: string): void {
     ElNotification({
@@ -168,7 +186,10 @@ class VersionManager {
   }
 
   /**
-   * 清理旧版本数据
+   * @description 删除旧版单键结构和历史版本 Store 键。
+   * @param {string | null} oldSysKey 旧版单一系统存储键。
+   * @param {string[]} oldVersionKeys 历史版本的分离存储键列表。
+   * @returns {void} 无返回值。
    */
   private cleanupLegacyData(oldSysKey: string | null, oldVersionKeys: string[]): void {
     // 清理旧的单一存储结构
@@ -185,7 +206,8 @@ class VersionManager {
   }
 
   /**
-   * 执行升级后的登出操作
+   * @description 执行升级后的用户登出，并在失败时记录错误。
+   * @returns {void} 无返回值。
    */
   private performLogout(): void {
     try {
@@ -197,7 +219,10 @@ class VersionManager {
   }
 
   /**
-   * 执行升级流程
+   * @description 加载更新日志、展示通知、更新版本、清理旧数据并按需登出。
+   * @param {string} storedVersion 升级前的本地版本号。
+   * @param {ReturnType<VersionManager['findLegacyStorage']>} legacyStorage 待处理的旧存储键。
+   * @returns {Promise<void>} 升级处理完成后的 Promise。
    */
   private async executeUpgrade(
     storedVersion: string,
@@ -235,7 +260,8 @@ class VersionManager {
   }
 
   /**
-   * 系统升级处理主流程
+   * @description 判断是否需要升级，并在应用加载后调度实际升级流程。
+   * @returns {Promise<void>} 升级检查完成后的 Promise；实际清理可能由延迟任务继续执行。
    */
   async processUpgrade(): Promise<void> {
     // 跳过特定版本
@@ -274,11 +300,17 @@ class VersionManager {
   }
 }
 
-// 创建版本管理器实例
+/**
+ * @description 模块级版本管理器单例。
+ * @type {VersionManager}
+ */
 const versionManager = new VersionManager()
 
 /**
- * 系统升级处理入口函数
+ * @description 执行应用启动阶段的版本升级检查。
+ * @returns {Promise<void>} 升级检查完成后的 Promise。
+ * @example
+ * await systemUpgrade()
  */
 export async function systemUpgrade(): Promise<void> {
   await versionManager.processUpgrade()

@@ -1,24 +1,54 @@
 /**
  * @fileoverview 云端 OpenAI Chat Completions 兼容供应商与离线确定性模拟供应商的统一适配层。
+ * @description
+ * 统一封装云端兼容模型与离线模拟模型的完整响应、流式响应、重试和取消逻辑。
  *
  * 支持超时、重试、流式响应和供应商实例缓存；演示模式缺少密钥时使用基于检索元数据的本地回答。
- *
- * @typedef {{role: "system"|"user"|"assistant", content: string}} LlmMessage
- * @typedef {{text: string, model: string, provider: string, usage: object|null}} LlmCompletion
- * @typedef {{messages?: LlmMessage[], meta?: object, temperature?: number, maxTokens?: number, signal?: AbortSignal}} LlmRequestOptions
+ */
+
+/**
+ * @typedef {object} LlmMessage
+ * @description 发送给 Chat Completions 兼容接口的对话消息。
+ * @property {"system"|"user"|"assistant"} role 消息角色。
+ * @property {string} content 消息正文。
+ */
+
+/**
+ * @typedef {object} LlmCompletion
+ * @description 非流式模型补全结果。
+ * @property {string} text 回答文本。
+ * @property {string} model 实际响应模型。
+ * @property {string} provider 供应商标识。
+ * @property {Record<string, *>|null} usage 上游 token 用量；模拟供应商为 `null`。
+ */
+
+/**
+ * @typedef {object} LlmRequestOptions
+ * @description 统一模型补全请求选项。
+ * @property {LlmMessage[]} [messages] 对话消息；真实供应商调用时必填。
+ * @property {object} [meta] 离线模拟供应商使用的检索与场景元数据。
+ * @property {number} [temperature] 采样温度。
+ * @property {number} [maxTokens] 最大输出 token 数。
+ * @property {AbortSignal} [signal] 外部取消信号。
  */
 import { config } from "../config.mjs";
 import { logInfo, logError } from "../logger.mjs";
 import { composeMockAnswer } from "./mockComposer.mjs";
 
-/**
- * 带 HTTP 状态码和业务错误码的大模型服务异常。
+  /**
+   * @class
+   * @description
+   * 带 HTTP 状态码和业务错误码的大模型服务异常。
  * @extends Error
+ * @property {number} statusCode HTTP 状态码。
+ * @property {string} code 业务错误码。
  * @example
  * throw new LlmError("模型不可用", { statusCode: 503, code: "LLM_UNAVAILABLE" });
  */
 class LlmError extends Error {
   /**
+   * @description
+   * 初始化带 HTTP 状态码和业务错误码的大模型异常。
    * @param {string} message 错误说明。
    * @param {{statusCode?: number, code?: string}} [options={}] HTTP 与业务错误信息。
    */
@@ -30,6 +60,7 @@ class LlmError extends Error {
 }
 
 /**
+ * @description
  * 等待指定时长，用于重试退避和模拟流式输出。
  * @private
  * @param {number} ms 等待毫秒数。
@@ -40,6 +71,7 @@ function sleep(ms) {
 }
 
 /**
+ * @description
  * 判断 HTTP 状态是否适合自动重试。
  * @private
  * @param {number} status HTTP 状态码。
@@ -50,10 +82,13 @@ function isRetryable(status) {
 }
 
 /**
+ * @description
  * OpenAI Chat Completions 兼容供应商实现，可连接 DeepSeek、通义兼容模式、Moonshot 等服务。
+ * @class OpenAiCompatibleProvider
  */
 class OpenAiCompatibleProvider {
   /**
+   * @description
    * 初始化真实云端供应商。
    * @param {{baseUrl: string, apiKey: string, model: string, timeoutMs: number, maxRetries: number, temperature: number}} options 供应商配置。
    * @throws {LlmError} 缺少 API Key 时抛出 `LLM_API_KEY_MISSING`。
@@ -77,6 +112,7 @@ class OpenAiCompatibleProvider {
   }
 
   /**
+   * @description
    * 根据模型能力构建 Chat Completions 请求体。
    * @param {{messages: LlmMessage[], temperature?: number, maxTokens?: number, stream?: boolean}} options 请求参数。
    * @returns {object} OpenAI 兼容请求体；GPT-5 系列使用 `max_completion_tokens`。
@@ -101,6 +137,7 @@ class OpenAiCompatibleProvider {
   }
 
   /**
+   * @description
    * 向上游发送请求，并对限流、服务端错误和网络故障进行有限重试。
    * @param {object} body Chat Completions 请求体。
    * @param {{signal?: AbortSignal}} [options={}] 可选的外部中止信号。
@@ -113,7 +150,11 @@ class OpenAiCompatibleProvider {
     for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), this.timeoutMs);
-      /** 将外部取消信号转发给本次上游请求。 @returns {void} */
+      /**
+       * @description
+       * 将外部取消信号转发给本次上游模型请求。
+       * @returns {void}
+       */
       const onAbort = () => controller.abort();
       if (signal) {
         signal.addEventListener("abort", onAbort, { once: true });
@@ -170,6 +211,7 @@ class OpenAiCompatibleProvider {
   }
 
   /**
+   * @description
    * 执行一次非流式补全。
    * @param {LlmRequestOptions} options 请求选项。
    * @returns {Promise<LlmCompletion>} 回答文本、实际模型、供应商和用量。
@@ -189,6 +231,7 @@ class OpenAiCompatibleProvider {
   }
 
   /**
+   * @description
    * 执行流式补全并解析上游 SSE 的文本增量。
    * @param {LlmRequestOptions} options 请求选项。
    * @returns {AsyncGenerator<string, void, void>} 按到达顺序产生的回答片段。
@@ -233,16 +276,22 @@ class OpenAiCompatibleProvider {
 }
 
 /**
+ * @description
  * 离线确定性供应商，根据 `meta` 中的检索上下文组合导游回答，不依赖云端服务。
+ * @class MockProvider
  */
 class MockProvider {
-  /** 初始化模拟供应商的固定名称和模型标识。 */
+  /**
+   * @description
+   * 初始化离线模拟供应商的固定名称和模型标识。
+   */
   constructor() {
     this.name = "mock";
     this.model = "lingshan-mock-1";
   }
 
   /**
+   * @description
    * 根据结构化元数据同步组合回答，并包装为异步补全结果。
    * @param {{meta?: object}} options 请求选项。
    * @returns {Promise<LlmCompletion>} 不含用量信息的模拟回答。
@@ -258,6 +307,7 @@ class MockProvider {
   }
 
   /**
+   * @description
    * 按可口播句段模拟流式输出。
    * @param {LlmRequestOptions} options 请求选项。
    * @returns {AsyncGenerator<string, void, void>} 回答句段。
@@ -273,12 +323,21 @@ class MockProvider {
   }
 }
 
-/** @type {OpenAiCompatibleProvider|MockProvider|null} 最近一次构建并复用的供应商实例。 */
+/**
+ * @description
+ * 最近一次构建并复用的供应商实例。
+ * @type {OpenAiCompatibleProvider|MockProvider|null} 最近一次构建并复用的供应商实例。
+ */
 let cachedProvider = null;
-/** @type {string} 供应商缓存对应的配置签名。 */
+/**
+ * @description
+ * 供应商缓存对应的配置签名。
+ * @type {string} 供应商缓存对应的配置签名。
+ */
 let cachedKey = "";
 
 /**
+ * @description
  * 按当前配置获取供应商，并在供应商、模型和地址未变化时复用实例。
  * @returns {OpenAiCompatibleProvider|MockProvider} 真实或模拟供应商。
  * @throws {LlmError} 配置要求真实供应商但缺少 API Key 时抛出。
@@ -303,6 +362,7 @@ export function getLlmProvider() {
 }
 
 /**
+ * @description
  * 执行非流式大模型补全并记录失败日志。
  * `meta` 供模拟供应商使用，真实供应商只读取 `messages`。
  * @param {LlmRequestOptions} options 请求选项。
@@ -322,6 +382,7 @@ export async function llmComplete({ messages, meta, temperature, maxTokens, sign
 }
 
 /**
+ * @description
  * 以统一接口流式输出真实或模拟供应商的文本片段。
  * @param {LlmRequestOptions} options 请求选项。
  * @returns {AsyncGenerator<string, void, void>} 文本片段流。

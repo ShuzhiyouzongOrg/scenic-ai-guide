@@ -1,3 +1,20 @@
+/**
+ * @fileoverview 具备心跳、消息队列和自动重连能力的 WebSocket 客户端。
+ * @description 以单例方式管理 WebSocket 生命周期，并为断线、超时和发送失败提供恢复机制。
+ */
+
+/**
+ * @typedef WebSocketOptions
+ * @description 创建或更新 WebSocketClient 实例时使用的连接参数。
+ * @property {string} [url] WebSocket 服务地址；省略时读取登录 WebSocket 环境变量。
+ * @property {(event: MessageEvent) => void} messageHandler 接收服务端消息的回调函数。
+ * @property {number} [reconnectInterval] 基础重连间隔毫秒数。
+ * @property {number} [heartbeatInterval] 心跳状态检查间隔毫秒数。
+ * @property {number} [pingInterval] 主动发送 ping 的间隔毫秒数。
+ * @property {number} [reconnectTimeout] 心跳失败后的重连超时毫秒数。
+ * @property {number} [maxReconnectAttempts] 最大连续重连次数。
+ * @property {number} [connectionTimeout] 单次连接建立的超时毫秒数。
+ */
 interface WebSocketOptions {
   url?: string
   messageHandler: (event: MessageEvent) => void
@@ -9,6 +26,16 @@ interface WebSocketOptions {
   connectionTimeout?: number // 连接建立超时时间(ms)
 }
 
+/**
+ * @class
+ * @description 管理 WebSocket 连接、消息缓冲、心跳和指数退避重连的单例客户端。
+ * @example
+ * const client = WebSocketClient.getInstance({
+ *   url: 'wss://example.com/socket',
+ *   messageHandler: (event) => console.log(event.data)
+ * })
+ * client.init()
+ */
 export default class WebSocketClient {
   private static instance: WebSocketClient | null = null
   private ws: WebSocket | null = null
@@ -38,6 +65,10 @@ export default class WebSocketClient {
   private stopReconnect: boolean = false
   private isReconnecting: boolean = false
 
+  /**
+   * @description 使用指定连接参数创建单例客户端；构造过程仅允许由 getInstance 调用。
+   * @param {WebSocketOptions} options WebSocket 连接与重连配置。
+   */
   private constructor(options: WebSocketOptions) {
     this.url = options.url || (process.env.VUE_APP_LOGIN_WEBSOCKET as string)
     this.messageHandler = options.messageHandler
@@ -49,7 +80,13 @@ export default class WebSocketClient {
     this.connectionTimeout = options.connectionTimeout ?? 10 * 1000 // 连接超时10秒
   }
 
-  // 单例模式获取实例
+  /**
+   * @description 获取全局客户端单例；已有实例会更新消息处理器，并在 URL 改变时重新连接。
+   * @param {WebSocketOptions} options WebSocket 连接与回调配置。
+   * @returns {WebSocketClient} 全局共享的客户端实例。
+   * @example
+   * const client = WebSocketClient.getInstance({ messageHandler })
+   */
   static getInstance(options: WebSocketOptions): WebSocketClient {
     if (!WebSocketClient.instance) {
       WebSocketClient.instance = new WebSocketClient(options)
@@ -66,7 +103,12 @@ export default class WebSocketClient {
     return WebSocketClient.instance
   }
 
-  // 初始化连接
+  /**
+   * @description 初始化 WebSocket 连接，并重置历史重连计数。
+   * @returns {void} 无返回值。
+   * @example
+   * client.init()
+   */
   init(): void {
     this.connect(true)
   }
@@ -123,7 +165,13 @@ export default class WebSocketClient {
     }
   }
 
-  // 关闭连接
+  /**
+   * @description 清除定时器并主动关闭当前连接，同时停止后续自动重连。
+   * @param {boolean} [force] 是否使用强制关闭状态码和原因。
+   * @returns {void} 无返回值。
+   * @example
+   * client.close(true)
+   */
   close(force?: boolean): void {
     this.clearAllTimers()
     this.stopReconnect = true
@@ -139,7 +187,14 @@ export default class WebSocketClient {
     this.isConnected = false
   }
 
-  // 发送消息 - 增加消息队列
+  /**
+   * @description 发送 WebSocket 消息；未连接时可将消息加入队列，待连接恢复后发送。
+   * @param {string | ArrayBufferLike | Blob | ArrayBufferView} data 待发送的数据。
+   * @param {boolean} [immediate=false] 是否要求立即发送并在未连接时放弃该消息。
+   * @returns {void} 无返回值。
+   * @example
+   * client.send(JSON.stringify({ type: 'ping' }))
+   */
   send(data: string | ArrayBufferLike | Blob | ArrayBufferView, immediate: boolean = false): void {
     // 如果要求立即发送且未连接，则直接报错
     if (immediate && (!this.ws || this.ws.readyState !== WebSocket.OPEN)) {
@@ -399,12 +454,18 @@ export default class WebSocketClient {
     this.clearTimer('connectionTimer')
   }
 
-  // 获取当前连接状态
+  /**
+   * @description 获取客户端当前是否已建立可用连接。
+   * @returns {boolean} WebSocket 已连接时返回 true。
+   */
   get isWebSocketConnected(): boolean {
     return this.isConnected
   }
 
-  // 获取当前连接状态文本
+  /**
+   * @description 获取包含连接或重连进度的中文状态文本。
+   * @returns {string} 当前连接状态文本。
+   */
   get connectionStatusText(): string {
     if (this.isConnecting) return '正在连接'
     if (this.isConnected) return '已连接'
@@ -413,7 +474,12 @@ export default class WebSocketClient {
     return '已断开'
   }
 
-  // 销毁实例
+  /**
+   * @description 关闭并清除全局客户端单例，使后续调用可创建新实例。
+   * @returns {void} 无返回值。
+   * @example
+   * WebSocketClient.destroyInstance()
+   */
   static destroyInstance(): void {
     if (WebSocketClient.instance) {
       WebSocketClient.instance.close()

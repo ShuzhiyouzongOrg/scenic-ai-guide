@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 知识文档上传安全测试脚本。
+ * @description 覆盖文件类型、魔数、体积、路径、内容消毒和异常文档拒绝策略。
+ */
 import assert from "node:assert";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -120,6 +124,10 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 生成包含景点开放时间的安全 XLSX 夹具。
+ * @returns {Buffer} XLSX 二进制内容。
+ */
 function createWorkbookBuffer() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(
@@ -130,6 +138,13 @@ function createWorkbookBuffer() {
   return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 }
 
+/**
+ * @description 向 ZIP 末尾追加可配置标志和大小的中央目录项。
+ * @param {Buffer} buffer 原始 ZIP 或 XLSX 内容。
+ * @param {string} fileName 目录项文件名。
+ * @param {{flags?: number, compressedSize?: number, uncompressedSize?: number}} [options={}] 目录项字段。
+ * @returns {Buffer} 追加目录项后的内容。
+ */
 function appendZipDirectoryEntry(buffer, fileName, {
   flags = 0,
   compressedSize = 1,
@@ -146,6 +161,11 @@ function appendZipDirectoryEntry(buffer, fileName, {
   return Buffer.concat([buffer, entry]);
 }
 
+/**
+ * @description 生成声明指定页数的最小 PDF 夹具。
+ * @param {number} pageCount 页面对象数量。
+ * @returns {Buffer} PDF 二进制内容。
+ */
 function createOversizedPageCountPdf(pageCount) {
   const pages = Array.from(
     { length: pageCount },
@@ -154,6 +174,11 @@ function createOversizedPageCountPdf(pageCount) {
   return Buffer.from(`%PDF-1.4\n${pages}\n%%EOF`, "ascii");
 }
 
+/**
+ * @description 构造同时校验业务错误码和 422 状态码的断言谓词。
+ * @param {string} code 期望业务错误码。
+ * @returns {(error: *) => boolean} 异常匹配函数。
+ */
 function hasCode(code) {
   return (error) => error?.code === code && error.statusCode === 422;
 }

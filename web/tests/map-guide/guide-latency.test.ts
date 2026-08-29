@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 智能问答展示时延规则测试。
+ * @description 验证智能问答真实时延与本地展示时延之间的边界和掩码计算规则。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 

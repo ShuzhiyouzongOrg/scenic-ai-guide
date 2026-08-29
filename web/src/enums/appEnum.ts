@@ -1,89 +1,122 @@
 /**
- * 系统级别枚举定义模块
- *
- * ## 主要功能
- *
- * - 菜单类型枚举（左侧、顶部、混合、双栏）
- * - 主题类型枚举（亮色、暗色、自动）
- * - 菜单主题枚举（设计、亮色、暗色）
- * - 语言类型枚举（简体中文、英文、韩文、繁体中文、日文、泰文）
- * - 容器宽度枚举（全屏、固定）
- * - 菜单宽度枚举（收起宽度）
- *
- * @module enums/appEnum
- * @author Scenic AI Guide Team
+ * @fileoverview 应用基础枚举模块。
+ * @description 定义菜单布局、系统主题、菜单主题、菜单宽度、语言和容器宽度枚举。
  */
 
 /**
- * 菜单类型
+ * @description 定义系统支持的菜单布局。
+ * @enum {string}
  */
 export enum MenuTypeEnum {
-  /** 左侧菜单 */
+  /**
+   * @description 左侧菜单
+   */
   LEFT = 'left',
-  /** 顶部菜单 */
+  /**
+   * @description 顶部菜单
+   */
   TOP = 'top',
-  /** 顶部+左侧菜单 */
+  /**
+   * @description 顶部+左侧菜单
+   */
   TOP_LEFT = 'top-left',
-  /** 双栏菜单 */
+  /**
+   * @description 双栏菜单
+   */
   DUAL_MENU = 'dual-menu'
 }
 
 /**
- * 系统主题
+ * @description 定义系统支持的明暗主题模式。
+ * @enum {string}
  */
 export enum SystemThemeEnum {
-  /** 暗色主题 */
+  /**
+   * @description 暗色主题
+   */
   DARK = 'dark',
-  /** 亮色主题 */
+  /**
+   * @description 亮色主题
+   */
   LIGHT = 'light',
-  /** 自动主题（跟随系统） */
+  /**
+   * @description 自动主题（跟随系统）
+   */
   AUTO = 'auto'
 }
 
 /**
- * 菜单主题
+ * @description 定义菜单区域支持的主题样式。
+ * @enum {string}
  */
 export enum MenuThemeEnum {
-  /** 暗色主题 */
+  /**
+   * @description 暗色主题
+   */
   DARK = 'dark',
-  /** 亮色主题 */
+  /**
+   * @description 亮色主题
+   */
   LIGHT = 'light',
-  /** 设计主题 */
+  /**
+   * @description 设计主题
+   */
   DESIGN = 'design'
 }
 
 /**
- * 菜单宽度
+ * @description 定义菜单折叠状态使用的宽度。
+ * @enum {string}
  */
 export enum MenuWidth {
-  /** 收起宽度 */
+  /**
+   * @description 收起宽度
+   */
   CLOSE = '64px'
 }
 
 /**
- * 语言类型
+ * @description 定义界面支持的语言代码。
+ * @enum {string}
  */
 export enum LanguageEnum {
-  /** 简体中文 */
+  /**
+   * @description 简体中文
+   */
   ZH = 'zh',
-  /** 英文 */
+  /**
+   * @description 英文
+   */
   EN = 'en',
-  /** 韩文 */
+  /**
+   * @description 韩文
+   */
   KO = 'ko',
-  /** 繁体中文 */
+  /**
+   * @description 繁体中文
+   */
   ZH_TW = 'zh-TW',
-  /** 日文 */
+  /**
+   * @description 日文
+   */
   JA = 'ja',
-  /** 泰文 */
+  /**
+   * @description 泰文
+   */
   TH = 'th'
 }
 
 /**
- * 容器宽度
+ * @description 定义页面容器的宽度模式。
+ * @enum {string}
  */
 export enum ContainerWidthEnum {
-  /** 全屏宽度 */
+  /**
+   * @description 全屏宽度
+   */
   FULL = '100%',
-  /** 固定宽度 */
+  /**
+   * @description 固定宽度
+   */
   BOXED = '1200px'
 }

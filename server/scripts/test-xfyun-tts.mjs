@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 讯飞语音合成联调测试脚本。
+ * @description 调用真实讯飞 TTS 并校验供应商标识、音频片段和缓存内容。
+ */
 import assert from "node:assert/strict";
 
 process.env.DEMO_MODE = "false";

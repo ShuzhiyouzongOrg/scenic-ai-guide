@@ -1,5 +1,6 @@
 /**
- * 颜色处理工具模块
+ * @fileoverview 颜色格式转换、混合和 Element Plus 主题变量工具。
+ * @description 校验 Hex 与 RGB 值，生成明暗色阶，并同步更新页面主题 CSS 变量。
  *
  * 提供完整的颜色格式转换和处理功能
  *
@@ -39,12 +40,16 @@
  * - RGBA: rgba(255, 255, 255, 0.5)
  *
  * @module utils/ui/colors
- * @author Scenic AI Guide Team
  */
 import { useSettingStore } from '@/store/modules/setting'
 
 /**
- * 颜色转换结果接口
+ * @typedef RgbaResult
+ * @description Hex 颜色转换后的 RGB 分量与 RGBA 文本。
+ * @property {number} red 红色通道值。
+ * @property {number} green 绿色通道值。
+ * @property {number} blue 蓝色通道值。
+ * @property {string} rgba CSS rgba 颜色字符串。
  */
 interface RgbaResult {
   red: number
@@ -54,18 +59,20 @@ interface RgbaResult {
 }
 
 /**
- * 获取CSS变量值（别名函数）
- * @param name CSS变量名
- * @returns CSS变量值
+ * @description 读取根元素上指定 CSS 自定义属性的计算值。
+ * @param {string} name CSS 变量名。
+ * @returns {string} CSS 变量的计算值。
+ * @example
+ * getCssVar('--el-color-primary')
  */
 export function getCssVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name)
 }
 
 /**
- * 验证hex颜色格式
- * @param hex hex颜色值
- * @returns 是否为有效的hex颜色
+ * @description 判断字符串是否为三位或六位 Hex 颜色。
+ * @param {string} hex 待验证的 Hex 颜色。
+ * @returns {boolean} 格式有效时返回 true。
  */
 function isValidHexColor(hex: string): boolean {
   const cleanHex = hex.trim().replace(/^#/, '')
@@ -73,11 +80,11 @@ function isValidHexColor(hex: string): boolean {
 }
 
 /**
- * 验证RGB颜色值
- * @param r 红色值
- * @param g 绿色值
- * @param b 蓝色值
- * @returns 是否为有效的RGB值
+ * @description 判断三个通道是否均为 0 至 255 的整数。
+ * @param {number} r 红色通道值。
+ * @param {number} g 绿色通道值。
+ * @param {number} b 蓝色通道值。
+ * @returns {boolean} 三个通道均有效时返回 true。
  */
 function isValidRgbValue(r: number, g: number, b: number): boolean {
   const isValid = (value: number) => Number.isInteger(value) && value >= 0 && value <= 255
@@ -85,10 +92,13 @@ function isValidRgbValue(r: number, g: number, b: number): boolean {
 }
 
 /**
- * 将hex颜色转换为RGBA
- * @param hex hex颜色值 (支持 #FFF 或 #FFFFFF 格式)
- * @param opacity 透明度 (0-1)
- * @returns 包含RGB值和RGBA字符串的对象
+ * @description 将三位或六位 Hex 颜色转换为 RGB 分量和 RGBA 字符串，透明度会限制在 0 至 1。
+ * @param {string} hex Hex 颜色，支持 #FFF 和 #FFFFFF 格式。
+ * @param {number} opacity 目标透明度。
+ * @returns {RgbaResult} RGB 分量和 RGBA 字符串。
+ * @throws {Error} Hex 颜色格式无效时抛出。
+ * @example
+ * hexToRgba('#16a085', 0.5)
  */
 export function hexToRgba(hex: string, opacity: number): RgbaResult {
   if (!isValidHexColor(hex)) {
@@ -119,9 +129,12 @@ export function hexToRgba(hex: string, opacity: number): RgbaResult {
 }
 
 /**
- * 将hex颜色转换为RGB数组
- * @param hexColor hex颜色值
- * @returns RGB数组 [r, g, b]
+ * @description 将三位或六位 Hex 颜色转换为 RGB 数组。
+ * @param {string} hexColor Hex 颜色。
+ * @returns {number[]} 按红、绿、蓝顺序排列的通道数组。
+ * @throws {Error} Hex 颜色格式无效或无法拆分通道时抛出。
+ * @example
+ * hexToRgb('#ffffff')
  */
 export function hexToRgb(hexColor: string): number[] {
   if (!isValidHexColor(hexColor)) {
@@ -149,11 +162,14 @@ export function hexToRgb(hexColor: string): number[] {
 }
 
 /**
- * 将RGB颜色转换为hex
- * @param r 红色值 (0-255)
- * @param g 绿色值 (0-255)
- * @param b 蓝色值 (0-255)
- * @returns hex颜色值
+ * @description 将三个 RGB 整数通道转换为六位 Hex 颜色。
+ * @param {number} r 0 至 255 的红色通道值。
+ * @param {number} g 0 至 255 的绿色通道值。
+ * @param {number} b 0 至 255 的蓝色通道值。
+ * @returns {string} 六位 Hex 颜色。
+ * @throws {Error} 任一通道不是有效整数时抛出。
+ * @example
+ * rgbToHex(255, 255, 255)
  */
 export function rgbToHex(r: number, g: number, b: number): string {
   if (!isValidRgbValue(r, g, b)) {
@@ -170,11 +186,12 @@ export function rgbToHex(r: number, g: number, b: number): string {
 }
 
 /**
- * 颜色混合
- * @param color1 第一个颜色
- * @param color2 第二个颜色
- * @param ratio 混合比例 (0-1)
- * @returns 混合后的颜色
+ * @description 按指定比例线性混合两种 Hex 颜色。
+ * @param {string} color1 比例为 0 时使用的颜色。
+ * @param {string} color2 比例为 1 时使用的颜色。
+ * @param {number} ratio 混合比例，超出范围时限制在 0 至 1。
+ * @returns {string} 混合后的 Hex 颜色。
+ * @throws {Error} 任一输入颜色格式无效时抛出。
  */
 export function colourBlend(color1: string, color2: string, ratio: number): string {
   const validRatio = Math.max(0, Math.min(1, Number(ratio)))
@@ -191,11 +208,12 @@ export function colourBlend(color1: string, color2: string, ratio: number): stri
 }
 
 /**
- * 获取变浅的颜色
- * @param color 原始颜色
- * @param level 变浅程度 (0-1)
- * @param isDark 是否为暗色主题
- * @returns 变浅后的颜色
+ * @description 根据层级将 Hex 颜色向白色方向提亮；暗色主题下改为调用压暗逻辑。
+ * @param {string} color 原始 Hex 颜色。
+ * @param {number} level 明暗变化比例。
+ * @param {boolean} [isDark=false] 是否按暗色主题规则处理。
+ * @returns {string} 调整后的 Hex 颜色。
+ * @throws {Error} 输入颜色格式无效时抛出。
  */
 export function getLightColor(color: string, level: number, isDark: boolean = false): string {
   if (!isValidHexColor(color)) {
@@ -214,10 +232,11 @@ export function getLightColor(color: string, level: number, isDark: boolean = fa
 }
 
 /**
- * 获取变深的颜色
- * @param color 原始颜色
- * @param level 变深程度 (0-1)
- * @returns 变深后的颜色
+ * @description 根据层级降低 Hex 颜色各 RGB 通道值。
+ * @param {string} color 原始 Hex 颜色。
+ * @param {number} level 变暗比例。
+ * @returns {string} 调整后的 Hex 颜色。
+ * @throws {Error} 输入颜色格式无效时抛出。
  */
 export function getDarkColor(color: string, level: number): string {
   if (!isValidHexColor(color)) {
@@ -232,9 +251,11 @@ export function getDarkColor(color: string, level: number): string {
 }
 
 /**
- * 处理 Element Plus 主题颜色
- * @param theme 主题颜色
- * @param isDark 是否为暗色主题
+ * @description 设置 Element Plus 主色，并生成九级亮色与暗色变量。
+ * @param {string} theme 主题 Hex 颜色。
+ * @param {boolean} [isDark=false] 是否使用暗色主题的色阶规则。
+ * @returns {void} 无返回值。
+ * @throws {Error} 主题颜色格式无效时抛出。
  */
 export function handleElementThemeColor(theme: string, isDark: boolean = false): void {
   document.documentElement.style.setProperty('--el-color-primary', theme)
@@ -255,8 +276,12 @@ export function handleElementThemeColor(theme: string, isDark: boolean = false):
 }
 
 /**
- * 设置 Element Plus 主题颜色
- * @param color 主题颜色
+ * @description 设置完整 Element Plus 主色体系，并生成额外十五级自定义浅色变量。
+ * @param {string} color 主题 Hex 颜色。
+ * @returns {void} 无返回值。
+ * @throws {Error} 主题颜色格式无效时抛出。
+ * @example
+ * setElementThemeColor('#16a085')
  */
 export function setElementThemeColor(color: string): void {
   const mixColor = '#ffffff'

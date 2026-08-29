@@ -1,18 +1,48 @@
 /**
  * @fileoverview SQLite 活动知识版本读取器。
+ * @description
+ * 从 SQLite 活动版本装配检索知识对象，并校验数据库与发布快照的一致性。
  *
  * SQLite 保存活动版本的文档和片段元数据，JSON 只负责发布快照恢复及补充景点展示资料。
  * 检索链路通过本模块读取一致的活动版本，避免 JSON 和数据库分别演进。
+ */
+
+/**
+ * @typedef {object} ActiveKnowledgeStore
+ * @description 从活动 SQLite 版本装配的检索知识对象。
+ * @property {string} generatedAt 活动版本生成时间。
+ * @property {string} indexVersion 活动索引版本。
+ * @property {string} chunkerVersion 分块器版本。
+ * @property {string} [sourceDir] 原始资料目录名称。
+ * @property {string} [scope] 快照适用范围。
+ * @property {object[]} documents 活动版本文档。
+ * @property {object[]} spots 景点知识记录。
+ * @property {object[]} [guideSections] 综合导览章节。
+ * @property {object[]} chunks 活动版本分块。
+ */
+
+/**
+ * @typedef {object} KnowledgeStoreConsistency
+ * @description SQLite 活动知识版本的一致性检查结果。
+ * @property {boolean} ok 是否未发现一致性问题。
+ * @property {string|null} indexVersion 活动索引版本。
+ * @property {number} documents 活动文档数量。
+ * @property {number} chunks 活动分块数量。
+ * @property {string[]} issues 一致性问题代码。
  */
 import { getDb } from "../db/database.mjs";
 import { loadKnowledge as loadJsonKnowledge } from "./knowledgeBuild.mjs";
 
 /**
+ * @description
  * 从 SQLite 活动版本组装检索所需知识对象。
  *
  * 数据库尚未完成同步时回退到 JSON，确保旧部署可以平滑启动；一旦存在活动 SQLite 版本，
  * 文档和片段正文均以 SQLite 为准。
- * @returns {object|null} 活动知识对象；尚未构建时返回 null。
+ * @returns {ActiveKnowledgeStore|object|null} SQLite 活动知识对象；数据库尚未同步时返回 JSON 快照，均未构建时返回 `null`。
+ * @throws {Error|SyntaxError} SQLite 查询、JSON 文件读取或解析失败时透传异常。
+ * @example
+ * const knowledge = loadKnowledgeFromSqlite();
  */
 export function loadKnowledgeFromSqlite() {
   const jsonKnowledge = loadJsonKnowledge();
@@ -85,8 +115,12 @@ export function loadKnowledgeFromSqlite() {
 }
 
 /**
+ * @description
  * 校验 SQLite 活动知识版本的文档、片段和统计信息是否一致。
- * @returns {{ok: boolean, indexVersion: string|null, documents: number, chunks: number, issues: string[]}} 校验结果。
+ * @returns {KnowledgeStoreConsistency} 校验结果。
+ * @throws {Error} SQLite 查询失败时透传数据库异常。
+ * @example
+ * const consistency = verifyKnowledgeStoreConsistency();
  */
 export function verifyKnowledgeStoreConsistency() {
   const db = getDb();
@@ -135,7 +169,12 @@ export function verifyKnowledgeStoreConsistency() {
   };
 }
 
-/** @param {Record<string, *>} row SQLite文档行。 @returns {Record<string, *>} 检索文档。 */
+/**
+ * @description
+ * 将 SQLite 文档记录转换为检索使用的知识文档对象。
+ * @param {Record<string, *>} row SQLite文档行。
+ * @returns {Record<string, *>} 检索文档。
+ */
 function toKnowledgeDocument(row) {
   return {
     id: row.id,
@@ -159,7 +198,12 @@ function toKnowledgeDocument(row) {
   };
 }
 
-/** @param {import("better-sqlite3").Database} db SQLite连接。 @returns {Record<string, *>[]} 景点列表。 */
+/**
+ * @description
+ * 读取 SQLite 景点记录并转换为检索使用的景点列表。
+ * @param {import("better-sqlite3").Database} db SQLite连接。
+ * @returns {Record<string, *>[]} 景点列表。
+ */
 function loadSqliteSpots(db) {
   return db.prepare(
     `SELECT id, scenic_area, name, aliases, location_text, parameters, core_function,
@@ -181,7 +225,12 @@ function loadSqliteSpots(db) {
   }));
 }
 
-/** @param {*} value JSON数组字段。 @returns {Array<*>} 解析后的数组。 */
+/**
+ * @description
+ * 解析数据库中的 JSON 数组字段，异常或非数组值回退为空数组。
+ * @param {*} value JSON数组字段。
+ * @returns {Array<*>} 解析后的数组。
+ */
 function parseJsonArray(value) {
   if (!value) return [];
   try {

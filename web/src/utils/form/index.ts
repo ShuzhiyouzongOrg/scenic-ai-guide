@@ -1,8 +1,6 @@
 /**
- * 表单工具函数统一导出
- *
- * @module utils/form
- * @author Scenic AI Guide Team
+ * @fileoverview 表单工具统一导出入口。
+ * @description 聚合字段校验与响应式栅格计算工具，供表单和搜索组件通过稳定路径引用。
  */
 
 // 表单验证器

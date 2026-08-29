@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Live2D 启发式口型分析测试。
+ * @description 验证 Live2D 启发式口型分析在静音、暂停、元音和不同帧率下的稳定性。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { Live2dLipSyncAnalyzer, type LipSyncFrame } from '../../src/lib/live2d/lipSyncAnalyzer'

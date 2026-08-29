@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 知识缺口闭环测试脚本。
+ * @description 验证低置信问题记录、聚合、状态流转、导出和敏感信息清理。
+ */
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

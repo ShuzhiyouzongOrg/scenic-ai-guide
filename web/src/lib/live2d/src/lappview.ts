@@ -1,9 +1,14 @@
 // @ts-nocheck -- 移植自 awesome-digital-human-live2d 的第三方 Live2D(Cubism SDK)代码，不纳入本项目严格类型检查
-/**
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+/**
+ * @fileoverview Live2D 视图与坐标转换控制器。
+ * @description 管理视图矩阵、设备坐标转换、着色器初始化、模型绘制和触摸交互。
  */
 
 import { CubismMatrix44 } from '@framework/math/cubismmatrix44';
@@ -18,11 +23,14 @@ import { TouchManager } from './touchmanager';
 import { LAppSubdelegate } from './lappsubdelegate';
 
 /**
- * 描画クラス。
+ * @class
+ * @description 协调画布视图矩阵、触摸状态和当前 Live2D 模型绘制。
+ * @example
+ * const view = new LAppView();
  */
 export class LAppView {
   /**
-   * コンストラクタ
+   * @description 创建触摸管理器、设备到屏幕矩阵和默认视图矩阵。
    */
   public constructor() {
     this._programId = null;
@@ -40,7 +48,9 @@ export class LAppView {
   }
 
   /**
-   * 初期化する。
+   * @description 根据画布宽高建立逻辑屏幕范围、缩放限制和设备坐标转换矩阵。
+   * @param {LAppSubdelegate} subdelegate 当前视图所属的画布子委托。
+   * @returns {void} 无返回值。
    */
   public initialize(subdelegate: LAppSubdelegate): void {
     this._subdelegate = subdelegate;
@@ -79,7 +89,8 @@ export class LAppView {
   }
 
   /**
-   * 解放する
+   * @description 清空矩阵与触摸状态，并删除视图使用的 WebGL 着色器程序。
+   * @returns {void} 无返回值。
    */
   public release(): void {
     this._viewMatrix = null;
@@ -97,7 +108,8 @@ export class LAppView {
   }
 
   /**
-   * 描画する。
+   * @description 激活精灵着色器、刷新 WebGL 命令并更新绘制当前 Live2D 模型。
+   * @returns {void} 无返回值。
    */
   public render(): void {
     this._subdelegate.getGlManager().getGl().useProgram(this._programId);
@@ -120,7 +132,8 @@ export class LAppView {
   }
 
   /**
-   * 画像の初期化を行う。
+   * @description 初始化视图精灵资源，并按需创建二维纹理着色器程序。
+   * @returns {void} 无返回值。
    */
   public initializeSprite(): void {
     const width: number = this._subdelegate.getCanvas().width;
@@ -174,10 +187,10 @@ export class LAppView {
   }
 
   /**
-   * タッチされた時に呼ばれる。
-   *
-   * @param pointX スクリーンX座標
-   * @param pointY スクリーンY座標
+   * @description 按设备像素比换算触摸起点并交给触摸管理器记录。
+   * @param {number} pointX CSS 像素下的屏幕横坐标。
+   * @param {number} pointY CSS 像素下的屏幕纵坐标。
+   * @returns {void} 无返回值。
    */
   public onTouchesBegan(pointX: number, pointY: number): void {
     this._touchManager.touchesBegan(
@@ -187,10 +200,10 @@ export class LAppView {
   }
 
   /**
-   * タッチしているときにポインタが動いたら呼ばれる。
-   *
-   * @param pointX スクリーンX座標
-   * @param pointY スクリーンY座標
+   * @description 更新触摸位置并把转换后的视图坐标传给模型拖拽控制。
+   * @param {number} pointX CSS 像素下的屏幕横坐标。
+   * @param {number} pointY CSS 像素下的屏幕纵坐标。
+   * @returns {void} 无返回值。
    */
   public onTouchesMoved(pointX: number, pointY: number): void {
     const posX = pointX * window.devicePixelRatio;
@@ -207,10 +220,10 @@ export class LAppView {
   }
 
   /**
-   * タッチが終了したら呼ばれる。
-   *
-   * @param pointX スクリーンX座標
-   * @param pointY スクリーンY座標
+   * @description 结束模型拖拽，将触摸终点转换为视图坐标并触发点击处理。
+   * @param {number} pointX CSS 像素下的屏幕横坐标。
+   * @param {number} pointY CSS 像素下的屏幕纵坐标。
+   * @returns {void} 无返回值。
    */
   public onTouchesEnded(pointX: number, pointY: number): void {
     const posX = pointX * window.devicePixelRatio;
@@ -237,9 +250,9 @@ export class LAppView {
   }
 
   /**
-   * X座標をView座標に変換する。
-   *
-   * @param deviceX デバイスX座標
+   * @description 将设备横坐标转换为缩放和平移后的视图横坐标。
+   * @param {number} deviceX 设备像素横坐标。
+   * @returns {number} Live2D 视图横坐标。
    */
   public transformViewX(deviceX: number): number {
     const screenX: number = this._deviceToScreen.transformX(deviceX); // 論理座標変換した座標を取得。
@@ -247,9 +260,9 @@ export class LAppView {
   }
 
   /**
-   * Y座標をView座標に変換する。
-   *
-   * @param deviceY デバイスY座標
+   * @description 将设备纵坐标转换为缩放和平移后的视图纵坐标。
+   * @param {number} deviceY 设备像素纵坐标。
+   * @returns {number} Live2D 视图纵坐标。
    */
   public transformViewY(deviceY: number): number {
     const screenY: number = this._deviceToScreen.transformY(deviceY); // 論理座標変換した座標を取得。
@@ -257,17 +270,18 @@ export class LAppView {
   }
 
   /**
-   * X座標をScreen座標に変換する。
-   * @param deviceX デバイスX座標
+   * @description 将设备横坐标转换为逻辑屏幕横坐标。
+   * @param {number} deviceX 设备像素横坐标。
+   * @returns {number} 逻辑屏幕横坐标。
    */
   public transformScreenX(deviceX: number): number {
     return this._deviceToScreen.transformX(deviceX);
   }
 
   /**
-   * Y座標をScreen座標に変換する。
-   *
-   * @param deviceY デバイスY座標
+   * @description 将设备纵坐标转换为逻辑屏幕纵坐标。
+   * @param {number} deviceY 设备像素纵坐标。
+   * @returns {number} 逻辑屏幕纵坐标。
    */
   public transformScreenY(deviceY: number): number {
     return this._deviceToScreen.transformY(deviceY);

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 地图讲解协调器行为测试。
+ * @description 验证讲解协调器的驱动选择、状态迁移、暂停恢复与错误降级行为。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {

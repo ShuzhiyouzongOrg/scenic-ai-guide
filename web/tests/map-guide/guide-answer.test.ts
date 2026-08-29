@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 智能导览回答清理规则测试。
+ * @description 验证智能导览回答的 Markdown 清理、路线编号保留和内部引用隐藏逻辑。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { formatGuideAnswer } from '../../src/utils/guide-answer'

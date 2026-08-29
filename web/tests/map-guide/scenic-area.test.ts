@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 多景区状态与数据完整性测试。
+ * @description 验证多景区状态隔离、切换清理、手绘图配置及拈花湾数据完整性。
+ */
+
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

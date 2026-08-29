@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 数据库迁移与数据访问测试脚本。
+ * @description 覆盖建表、参考数据、知识快照、迁移幂等性以及桌面 SQLite 适配行为。
+ */
 // Round-trip test for the SQLite persistence layer (in-memory database).
 import assert from "node:assert/strict";
 
@@ -14,6 +18,13 @@ const { getActiveDigitalHumanConfig, listDigitalHumanConfigs, updateDigitalHuman
 const { login, register, createVisitorSession, getVisitorSession } = await import("../src/services/auth.mjs");
 
 let passed = 0;
+/**
+ * @description 执行同步数据库断言并累计通过数。
+ * @param {string} name 测试名称。
+ * @param {() => void} fn 断言回调。
+ * @returns {void}
+ * @throws {*} 断言回调失败时原样抛出异常。
+ */
 function check(name, fn) {
   fn();
   passed += 1;

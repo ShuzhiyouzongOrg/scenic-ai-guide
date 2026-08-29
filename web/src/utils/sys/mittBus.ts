@@ -1,5 +1,6 @@
 /**
- * 全局事件总线模块
+ * @fileoverview 基于 mitt 的全局类型安全事件总线。
+ * @description 定义设置面板、搜索、锁屏和烟花效果等跨组件事件并导出共享实例。
  *
  * 基于 mitt 库实现的类型安全的事件总线
  *
@@ -38,11 +39,17 @@
  * - openLockScreen: 打开锁屏
  *
  * @module utils/sys/mittBus
- * @author Scenic AI Guide Team
  */
 import mitt, { type Emitter } from 'mitt'
 
-// 定义事件类型映射
+/**
+ * @typedef Events
+ * @description 全局事件总线支持的事件名称与载荷映射。
+ * @property {string | undefined} triggerFireworks 烟花效果使用的可选图片地址。
+ * @property {void} openSetting 打开设置面板事件。
+ * @property {void} openSearchDialog 打开搜索对话框事件。
+ * @property {void} openLockScreen 打开锁屏事件。
+ */
 type Events = {
   // 烟花效果事件 - 可选的图片URL参数
   triggerFireworks: string | undefined
@@ -54,7 +61,16 @@ type Events = {
   openLockScreen: void
 }
 
-// 创建类型安全的事件总线实例
+/**
+ * @description 供全局组件共享的类型安全事件总线实例。
+ * @type {Emitter<Events>}
+ * @example
+ * mittBus.emit('openSetting')
+ */
 const mittBus: Emitter<Events> = mitt<Events>()
 
+/**
+ * @description 导出供全局组件共享的类型安全事件总线实例。
+ * @type {Emitter<Events>}
+ */
 export default mittBus

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG A/B 实验服务测试脚本。
+ * @description 验证稳定分流、样本聚合、质量门禁、重置操作和隐私处理。
+ */
 import assert from "node:assert/strict";
 
 process.env.SQLITE_PATH = ":memory:";
@@ -113,6 +117,11 @@ console.log(JSON.stringify({
   rollback
 }, null, 2));
 
+/**
+ * @description 枚举测试会话，直到找到分别命中 control 和 treatment 的会话 ID。
+ * @returns {{control: string, treatment: string}} 两个实验分组的测试会话。
+ * @throws {AssertionError} 一万次枚举内未找到两个分组时抛出。
+ */
 function findSessionsForBothVariants() {
   const found = {};
   for (let index = 0; index < 10_000 && (!found.control || !found.treatment); index += 1) {
@@ -124,6 +133,13 @@ function findSessionsForBothVariants() {
   return found;
 }
 
+/**
+ * @description 构造可写入实验事件的固定测试分组。
+ * @param {"control"|"treatment"} variant 实验分组。
+ * @param {number} index 样本序号。
+ * @param {string} experimentId 实验 ID。
+ * @returns {object} 测试实验分组对象。
+ */
 function assignment(variant, index, experimentId) {
   return {
     id: experimentId,

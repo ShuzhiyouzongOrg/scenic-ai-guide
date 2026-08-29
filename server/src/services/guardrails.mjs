@@ -1,14 +1,32 @@
 /**
  * @fileoverview 用户问题的敏感内容、服务范围和情绪分类规则。
  *
- * 所有判断均为确定性的关键词匹配，可在知识检索前短路拒答、话题引导及数字人情绪选择。
- *
- * @typedef {{sensitive: boolean, category: string|null}} SensitiveDetection
- * @typedef {{outOfScope: boolean, place: string|null}} ScopeDetection
- * @typedef {"negative"|"confused"|"tired"|"happy"} DetectedEmotion
+ * @description 所有判断均为确定性的关键词匹配，可在知识检索前短路拒答、话题引导及数字人情绪选择。
  */
 
-/** @type {Array<{category: string, terms: string[]}>} 敏感内容类别及触发词。 */
+/**
+ * @typedef {object} SensitiveDetection
+ * @description 敏感内容检测结果。
+ * @property {boolean} sensitive 是否命中敏感内容。
+ * @property {string|null} category 首个命中的敏感类别。
+ */
+
+/**
+ * @typedef {object} ScopeDetection
+ * @description 景区服务范围检测结果。
+ * @property {boolean} outOfScope 是否超出服务范围。
+ * @property {string|null} place 命中的范围外景区名称。
+ */
+
+/**
+ * @typedef {"negative"|"confused"|"tired"|"happy"} DetectedEmotion
+ * @description 可用于数字人反馈策略的游客情绪。
+ */
+
+/**
+ * @description 定义敏感内容类别及其触发词。
+ * @type {Array<{category: string, terms: string[]}>} 敏感内容类别及触发词。
+ */
 const SENSITIVE_RULES = [
   {
     category: "abuse",
@@ -33,7 +51,7 @@ const SENSITIVE_RULES = [
 ];
 
 /**
- * 明确不属于灵山服务范围的其他景区名称。
+ * @description 明确不属于灵山服务范围的其他景区名称。
  * 拈花湾是灵山子区域，故不在此列表中。
  * @type {string[]}
  */
@@ -56,7 +74,7 @@ const OTHER_PLACES = [
 ];
 
 /**
- * 表示问题属于灵山或拈花湾服务范围的关键词；比较问题只要命中其中之一也视为范围内。
+ * @description 表示问题属于灵山或拈花湾服务范围的关键词；比较问题只要命中其中之一也视为范围内。
  * @type {string[]}
  */
 const LINGSHAN_SIGNALS = [
@@ -84,7 +102,7 @@ const LINGSHAN_SIGNALS = [
 ];
 
 /**
- * 将待匹配值转换为小写文本。
+ * @description 将待匹配值转换为小写文本。
  * @private
  * @param {*} value 任意输入值。
  * @returns {string} 小写字符串。
@@ -94,7 +112,7 @@ function normalize(value) {
 }
 
 /**
- * 检测问题是否命中辱骂、政治、医疗、投资或危险行为规则。
+ * @description 检测问题是否命中辱骂、政治、医疗、投资或危险行为规则。
  * @param {*} question 用户问题。
  * @returns {SensitiveDetection} 敏感标记及首个命中的类别。
  * @example
@@ -111,7 +129,7 @@ export function detectSensitive(question) {
 }
 
 /**
- * 检测问题是否明确询问服务范围外的其他景区。
+ * @description 检测问题是否明确询问服务范围外的其他景区。
  * @param {*} question 用户问题。
  * @returns {ScopeDetection} 范围外标记及命中的景区名称。
  * @example
@@ -132,7 +150,10 @@ export function detectOutOfScope(question) {
   return { outOfScope: false, place: null };
 }
 
-/** @type {Array<{emotion: DetectedEmotion, terms: string[]}>} 情绪类别及触发词。 */
+/**
+ * @description 定义情绪类别及其触发词。
+ * @type {Array<{emotion: DetectedEmotion, terms: string[]}>} 情绪类别及触发词。
+ */
 const EMOTION_RULES = [
   { emotion: "negative", terms: ["失望", "太差", "不好玩", "坑", "浪费", "生气", "投诉", "退票"] },
   { emotion: "confused", terms: ["看不懂", "不明白", "怎么走", "迷路", "找不到", "搞不清"] },
@@ -141,7 +162,7 @@ const EMOTION_RULES = [
 ];
 
 /**
- * 检测问题中可用于安抚策略和数字人表情的情绪信号。
+ * @description 检测问题中可用于安抚策略和数字人表情的情绪信号。
  * @param {*} question 用户问题。
  * @returns {DetectedEmotion|null} 首个命中的情绪；无匹配时返回 `null`。
  * @example

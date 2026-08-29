@@ -1,10 +1,146 @@
 /**
  * @fileoverview 灵山知识库的关键词与混合检索、实体识别、意图加权和引用生成服务。
- *
- * @typedef {{intent: string, preferredTerms: string[], preferredDocuments: string[]}} RetrievalIntent
- * @typedef {{id: string, name: string, alias: string, confidence: number}} SpotMatch
- * @typedef {{chunkId: string, documentId: string, documentName: string, sectionTitle: string, scenicSpotId: string|null, scenicSpotName: string|null, quote: string}} Citation
- * @typedef {{id: string, score: number, title: string, content: string, contextContent?: string, parentContent?: string, parentChunkIds?: string[], source: string, documentId: string, scenicSpotId: string|null, scenicSpotName: string|null, keywords: string[], citation: Citation, reasons: string[]}} RetrievalResult
+ * @description
+ * 组合关键词、BM25 与远程稠密检索，执行实体识别、意图加权、冲突检测和引用生成。
+ */
+
+/**
+ * @typedef {object} RetrievalIntent
+ * @description 查询识别出的业务意图及其检索偏好。
+ * @property {string} intent 意图标识。
+ * @property {string[]} preferredTerms 优先匹配的事实词项。
+ * @property {string[]} preferredDocuments 优先匹配的文档 ID。
+ */
+
+/**
+ * @typedef {object} SpotMatch
+ * @description 查询文本命中的景点实体。
+ * @property {string} id 景点 ID。
+ * @property {string} name 标准景点名称。
+ * @property {string} alias 实际命中的名称或别名。
+ * @property {number} confidence 实体匹配置信度。
+ */
+
+/**
+ * @typedef {object} Citation
+ * @description 指向知识分块及原始文档位置的结构化引用。
+ * @property {string} citationId 对外引用 ID。
+ * @property {string} chunkId 分块 ID。
+ * @property {string} documentId 文档 ID。
+ * @property {string} documentName 文档名称。
+ * @property {string} sectionTitle 章节标题。
+ * @property {string|null} scenicSpotId 景点 ID。
+ * @property {string|null} scenicSpotName 景点名称。
+ * @property {string} quote 不超过约 120 字符的引用摘要。
+ * @property {number|null} page PDF 页码。
+ * @property {string|null} sheetName XLSX 工作表名称。
+ * @property {string|null} range XLSX 单元格范围。
+ * @property {number|null} rowStart XLSX 起始行号。
+ * @property {number|null} rowEnd XLSX 结束行号。
+ * @property {string|null} indexVersion 索引版本。
+ */
+
+/**
+ * @typedef {object} RetrievalResult
+ * @description 已排序并补充上下文、实体和引用的检索结果。
+ * @property {string} id 分块 ID。
+ * @property {number} score 最终相关性分数。
+ * @property {string} title 分块标题。
+ * @property {string} content 分块正文。
+ * @property {string} contextContent 所属父级上下文正文。
+ * @property {string} parentContent 父级分块正文。
+ * @property {string[]} parentChunkIds 父级覆盖的子分块 ID。
+ * @property {string} source 来源文档名称。
+ * @property {string} documentId 来源文档 ID。
+ * @property {string|null} scenicArea 所属景区。
+ * @property {string|null} scenicSpotId 景点 ID。
+ * @property {string|null} scenicSpotName 景点名称。
+ * @property {string[]} keywords 检索关键词。
+ * @property {string|null} parentId 父级分块 ID。
+ * @property {string|null} sectionPath 章节路径。
+ * @property {number|null} page PDF 页码。
+ * @property {string|null} sheetName XLSX 工作表名称。
+ * @property {string|null} range XLSX 单元格范围。
+ * @property {number|null} rowStart XLSX 起始行号。
+ * @property {number|null} rowEnd XLSX 结束行号。
+ * @property {string} knowledgeScope 知识用途范围。
+ * @property {string|null} documentType 文档类型。
+ * @property {string|null} indexVersion 索引版本。
+ * @property {object[]} channelRanks 各检索通道的排名信息。
+ * @property {number|null} mmrScore MMR 多样性分数。
+ * @property {Citation} citation 结构化引用。
+ * @property {string[]} reasons 评分理由。
+ */
+
+/**
+ * @typedef {object} RetrievalSearchOptions
+ * @description 本地与远程检索共用的过滤和排序选项。
+ * @property {number} [limit] 最大结果数，最终限制在 1 至 20。
+ * @property {string} [locale] 查询语言。
+ * @property {string} [scenicArea] 景区过滤值。
+ * @property {string} [documentType] 文档类型过滤值。
+ * @property {string} [knowledgeScope] 知识用途范围，默认为 `visitor_qa`。
+ * @property {boolean} [strictLanguage] 是否严格匹配文档语言。
+ * @property {string} [tenantId] 租户标识，默认为 `default`。
+ * @property {string[]} [accessScopes] 可访问的知识范围，默认为 `public`。
+ * @property {boolean} [includeExpired] 是否包含已过期资料。
+ * @property {number} [maxPerParent] MMR 每个父级允许保留的最大候选数。
+ */
+
+/**
+ * @typedef {object} RetrievalSearchResponse
+ * @description 一次检索的查询分析、决策、候选和追踪信息。
+ * @property {string} traceId 检索追踪 ID。
+ * @property {*} query 原始查询。
+ * @property {"keyword"|"hybrid"|"bm25"} mode 检索模式。
+ * @property {string|null} locale 查询语言。
+ * @property {string} indexVersion 索引版本。
+ * @property {object} filters 实际应用的元数据过滤条件。
+ * @property {string[]} tokens 查询词。
+ * @property {string[]} expandedTerms 同义扩展词。
+ * @property {object} queryPlan 查询改写和子问题计划。
+ * @property {RetrievalIntent[]} intents 识别出的业务意图。
+ * @property {SpotMatch[]} spotMatches 景点实体命中。
+ * @property {RetrievalConflict[]} conflicts 多来源事实冲突。
+ * @property {object[]} channels 各检索通道的候选统计。
+ * @property {object} confidence 检索置信度指标。
+ * @property {object} decision 可回答性决策。
+ * @property {number} total 返回结果数。
+ * @property {RetrievalResult[]} results 排序后的检索结果。
+ * @property {boolean} cached 是否命中版本化检索缓存。
+ */
+
+/**
+ * @typedef {object} RetrievalConflict
+ * @description 同一事实作用域内的多来源冲突。
+ * @property {string} field 冲突字段。
+ * @property {string[]} values 不同事实值。
+ * @property {string[]} citations 相关引用 ID。
+ */
+
+/**
+ * @typedef {object} RemoteRetrievalInfo
+ * @description 托管向量和重排通道的运行状态。
+ * @property {string} status 远程通道状态。
+ * @property {boolean} dense 是否完成稠密检索。
+ * @property {boolean} reranked 是否完成远程重排。
+ * @property {boolean} degraded 是否发生降级。
+ * @property {string|null} reason 降级或未启用原因。
+ * @property {string[]} [configurationIssues] 缺失或冲突的配置项。
+ * @property {object} [model] 实际使用的向量和重排模型。
+ * @property {object} [latencyMs] 各远程阶段的毫秒时延。
+ * @property {object|null} [usage] 向量模型用量。
+ * @property {number} [queryCount] 执行的稠密子查询数量。
+ */
+
+/**
+ * @typedef {object} RankedRetrievalCandidate
+ * @description 排序流程内部使用的知识分块候选。
+ * @property {object} chunk 知识分块。
+ * @property {number} score 当前排序分数。
+ * @property {string[]} reasons 评分理由。
+ * @property {object[]} [channels] 各检索通道分数。
+ * @property {number} [mmrScore] MMR 多样性分数。
  */
 import { createHash } from "node:crypto";
 import { loadKnowledgeFromSqlite } from "./knowledgeRepository.mjs";
@@ -25,16 +161,36 @@ import {
   rerankDocuments
 } from "./retrieval/remoteProviders.mjs";
 
-/** @type {Map<string, object>} 按知识版本缓存的 BM25 统计量。 */
+/**
+ * @description
+ * 按知识版本缓存的 BM25 统计量。
+ * @type {Map<string, object>} 按知识版本缓存的 BM25 统计量。
+ */
 const bm25Indexes = new Map();
-/** @type {Map<string, object>} 版本化检索结果缓存。 */
+/**
+ * @description
+ * 版本化检索结果缓存。
+ * @type {Map<string, object>} 版本化检索结果缓存。
+ */
 const retrievalCache = new Map();
-/** @type {number} 检索缓存上限。 */
+/**
+ * @description
+ * 检索缓存上限。
+ * @type {number} 检索缓存上限。
+ */
 const MAX_RETRIEVAL_CACHE_ENTRIES = 500;
-/** @type {number} 检索缓存有效期。 */
+/**
+ * @description
+ * 检索缓存有效期。
+ * @type {number} 检索缓存有效期。
+ */
 const RETRIEVAL_CACHE_TTL_MS = 10 * 60 * 1000;
 
-/** @type {Record<string, string[]>} 常见问题词到检索扩展词的多语言映射。 */
+/**
+ * @description
+ * 常见问题词到检索扩展词的多语言映射。
+ * @type {Record<string, string[]>} 常见问题词到检索扩展词的多语言映射。
+ */
 const querySynonyms = {
   多高: ["高", "高度", "通高", "总高", "建筑/景观参数"],
   高度: ["高", "通高", "总高", "建筑/景观参数"],
@@ -80,7 +236,11 @@ const querySynonyms = {
   "จุดเด่น": ["สถานที่น่าสนใจ", "ประสบการณ์", "ถ่ายรูป"]
 };
 
-/** @type {Array<RetrievalIntent & {triggers: string[]}>} 通用业务意图识别与加权规则。 */
+/**
+ * @description
+ * 识别开放时间、票价、交通等通用问法，并配置相应的检索词与文档加权。
+ * @type {(RetrievalIntent & {triggers: string[]})[]} 通用问法的触发词与检索加权规则列表。
+ */
 const intentRules = [
   {
     intent: "height",
@@ -126,7 +286,11 @@ const intentRules = [
   }
 ];
 
-/** @type {Record<string, string[]>} 面向特定事实问题的直接检索扩展词。 */
+/**
+ * @description
+ * 面向特定事实问题的直接检索扩展词。
+ * @type {Record<string, string[]>} 面向特定事实问题的直接检索扩展词。
+ */
 const directQuerySynonyms = {
   "无锡": ["坐落", "位于", "马山镇", "太湖西北部"],
   "占地": ["占地面积", "平方米", "30万平方米"],
@@ -150,7 +314,11 @@ const directQuerySynonyms = {
   "五方五佛": ["赵朴初", "五方五佛", "东方空缺"]
 };
 
-/** @type {Array<RetrievalIntent & {triggers: string[]}>} 景区概况、游览季节等精确事实意图规则。 */
+/**
+ * @description
+ * 识别景区概况、游览季节、入园时间、餐饮和亲子等精确事实问法。
+ * @type {(RetrievalIntent & {triggers: string[]})[]} 精确事实问法的触发词与检索加权规则列表。
+ */
 const directIntentRules = [
   {
     intent: "overview",
@@ -190,7 +358,11 @@ const directIntentRules = [
   }
 ];
 
-/** @type {string[]} 分词阶段主动保留的中英日韩繁体主题词。 */
+/**
+ * @description
+ * 分词阶段主动保留的中英日韩繁体主题词。
+ * @type {string[]} 分词阶段主动保留的中英日韩繁体主题词。
+ */
 const topicKeywords = [
   "历史",
   "文化",
@@ -250,22 +422,39 @@ const topicKeywords = [
   "ประวัติ"
 ];
 
-/** @type {Set<string>} 英文检索停用词。 */
+/**
+ * @description
+ * 英文检索停用词。
+ * @type {Set<string>} 英文检索停用词。
+ */
 const stopWords = new Set([
   "a", "an", "and", "are", "at", "for", "how", "in", "is", "me", "of", "on", "please", "the", "to", "what", "when",
   "about", "does", "recommend", "tell", "you", "your"
 ]);
 
-/** @type {Set<string>} 不足以进行景点局部匹配的通用灵山名称。 */
+/**
+ * @description
+ * 不足以进行景点局部匹配的通用灵山名称。
+ * @type {Set<string>} 不足以进行景点局部匹配的通用灵山名称。
+ */
 const genericSpotTokens = new Set(["灵山", "靈山", "霊山", "lingshan", "링산", "หลิงซาน"]);
 
-/** @type {RegExp} 景区或景点营业时间相关的多语言词汇。 */
+/**
+ * @description
+ * 景区或景点营业时间相关的多语言词汇。
+ * @type {RegExp} 景区或景点营业时间相关的多语言词汇。
+ */
 const OPEN_TIME_TERMS = /(开放时间|開放時間|营业时间|營業時間|运营时间|運營時間|开园|開園|闭园|閉園|闭馆|閉館|开放|開放|全天开放|opening\s*hours?|open(?:ing)?|clos(?:e|es|ing)|운영\s*시간|개장|폐장|営業時間|開園|閉園|เวลาเปิด|เวลาปิด)/iu;
 
-/** @type {RegExp} 可确认正在描述营业时段而非“建成开放”等历史事件的模式。 */
+/**
+ * @description
+ * 可确认正在描述营业时段而非“建成开放”等历史事件的模式。
+ * @type {RegExp} 可确认正在描述营业时段而非“建成开放”等历史事件的模式。
+ */
 const OPENING_HOURS_FACT = /(?:\d{1,2}:\d{2}\s*(?:[-–—~～至到]|to)\s*\d{1,2}:\d{2}\s*(?:开放|開放|营业|營業|运营|運營|open)?|(?:开放时间|開放時間|营业时间|營業時間|运营时间|運營時間|开园|開園|闭园|閉園|闭馆|閉館|opening\s*hours?|closes?|closing|운영\s*시간|개장|폐장|営業時間|開園|閉園|เวลาเปิด|เวลาปิด)[^。；;\n]{0,32}\d{1,2}:\d{2}|全天开放|全天開放|open\s+all\s+day)/iu;
 
 /**
+ * @description
  * 从问题中推断景区范围。AI 导游默认服务灵山胜境，只有明确提及拈花湾时切换范围。
  * @param {string} query 规范化问题。
  * @returns {string|null} 知识元数据中的景区名称。
@@ -285,7 +474,12 @@ function inferScenicAreaFromQuery(query) {
   return null;
 }
 
-/** @param {SpotMatch[]} spotMatches 景点命中。 @returns {SpotMatch[]} 排除景区公共别名后的具体景点命中。 */
+/**
+ * @description
+ * 排除景区公共别名命中，仅保留具体景点候选。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {SpotMatch[]} 排除景区公共别名后的具体景点命中。
+ */
 function specificSpotMatches(spotMatches) {
   const areaAliases = new Set([
     "灵山", "靈山", "霊山", "lingshan", "링산", "หลิงซาน",
@@ -295,6 +489,7 @@ function specificSpotMatches(spotMatches) {
 }
 
 /**
+ * @description
  * 为景区级时间、票价和路线问题确定事实范围；未点名景区时按当前导游默认的灵山胜境处理。
  * @param {string} query 规范化问题。
  * @param {RetrievalIntent[]} intents 业务意图。
@@ -312,6 +507,7 @@ function resolveFactScenicArea(query, intents, spotMatches, inferredArea) {
 }
 
 /**
+ * @description
  * 判断问题是否询问整个景区的开放时间，而不是已识别出的具体景点。
  * @param {string} query 规范化问题。
  * @param {RetrievalIntent[]} intents 业务意图。
@@ -333,25 +529,49 @@ function isAreaOpeningHoursQuery(query, intents, spotMatches) {
   return residual.length === 0;
 }
 
-/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问景区整体票务。 */
+/**
+ * @description
+ * 判断当前意图是否询问景区整体票务。
+ * @param {RetrievalIntent[]} intents 意图。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否询问景区整体票务。
+ */
 function isAreaTicketQuery(intents, spotMatches) {
   return specificSpotMatches(spotMatches).length === 0
     && intents.some((intent) => intent.intent === "ticket");
 }
 
-/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问景区整体路线。 */
+/**
+ * @description
+ * 判断当前意图是否询问景区整体游览路线。
+ * @param {RetrievalIntent[]} intents 意图。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否询问景区整体路线。
+ */
 function isAreaRouteQuery(intents, spotMatches) {
   return specificSpotMatches(spotMatches).length === 0
     && intents.some((intent) => ["route", "family_route"].includes(intent.intent));
 }
 
-/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问具体景点或演出的场次。 */
+/**
+ * @description
+ * 判断当前意图是否询问具体景点或演出的场次。
+ * @param {RetrievalIntent[]} intents 意图。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否询问具体景点或演出的场次。
+ */
 function isSpecificPerformanceQuery(intents, spotMatches) {
   return specificSpotMatches(spotMatches).length > 0
     && intents.some((intent) => intent.intent === "performance_time");
 }
 
-/** @param {RetrievalIntent[]} intents 意图。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否询问具体景点开放时间。 */
+/**
+ * @description
+ * 判断当前意图是否询问具体景点的开放时间。
+ * @param {RetrievalIntent[]} intents 意图。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否询问具体景点开放时间。
+ */
 function isSpecificOpeningHoursQuery(intents, spotMatches) {
   return specificSpotMatches(spotMatches).length > 0
     && intents.some((intent) => intent.intent === "open_time")
@@ -359,6 +579,7 @@ function isSpecificOpeningHoursQuery(intents, spotMatches) {
 }
 
 /**
+ * @description
  * 景区级开放时间只允许使用明确描述整个景区/小镇营业安排的资料。
  * @param {object} chunk 知识分块。
  * @param {string|null} scenicArea 已确定的景区范围。
@@ -369,7 +590,13 @@ function isAreaOpeningHoursEvidence(chunk, scenicArea) {
   return extractAreaOpeningEvidence(chunk, scenicArea).length > 0;
 }
 
-/** @param {object} item 分块或结果。 @param {string|null} scenicArea 请求景区。 @returns {boolean} 元数据或文本能否确认属于请求景区。 */
+/**
+ * @description
+ * 判断候选元数据或正文是否属于请求景区。
+ * @param {object} item 分块或结果。
+ * @param {string|null} scenicArea 请求景区。
+ * @returns {boolean} 元数据或文本能否确认属于请求景区。
+ */
 function matchesRequestedScenicArea(item, scenicArea) {
   if (!scenicArea) return true;
   if (item.scenicArea) return normalize(item.scenicArea) === normalize(scenicArea);
@@ -383,7 +610,13 @@ function matchesRequestedScenicArea(item, scenicArea) {
   return true;
 }
 
-/** @param {object} chunk 知识分块。 @param {string|null} scenicArea 景区范围。 @returns {boolean} 是否为景区整体票务证据。 */
+/**
+ * @description
+ * 判断知识分块是否构成景区整体票务证据。
+ * @param {object} chunk 知识分块。
+ * @param {string|null} scenicArea 景区范围。
+ * @returns {boolean} 是否为景区整体票务证据。
+ */
 function isAreaTicketEvidence(chunk, scenicArea) {
   if (!matchesRequestedScenicArea(chunk, scenicArea)) return false;
   const text = `${chunk.title || ""}\n${chunk.content || ""}`;
@@ -396,24 +629,43 @@ function isAreaTicketEvidence(chunk, scenicArea) {
   return String(chunk.content || "").split(/[。；;\n]+/u).some((clause) => aliases.test(clause) && ticketTerms.test(clause));
 }
 
-/** @param {object} chunk 知识分块。 @param {string|null} scenicArea 景区范围。 @returns {boolean} 是否为景区整体路线证据。 */
+/**
+ * @description
+ * 判断知识分块是否构成景区整体路线证据。
+ * @param {object} chunk 知识分块。
+ * @param {string|null} scenicArea 景区范围。
+ * @returns {boolean} 是否为景区整体路线证据。
+ */
 function isAreaRouteEvidence(chunk, scenicArea) {
   if (!matchesRequestedScenicArea(chunk, scenicArea)) return false;
   if (chunk.scenicSpotId) return false;
   return /(路线规划|推荐路线|游览路线|路线|route|itinerary|경로|ルート|路線|เส้นทาง)/iu.test(`${chunk.title || ""}\n${chunk.content || ""}`);
 }
 
-/** @param {object} chunk 分块。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否含目标演出证据。 */
+/**
+ * @description
+ * 判断知识分块是否包含目标演出的有效证据。
+ * @param {object} chunk 分块。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否含目标演出证据。
+ */
 function isTargetPerformanceEvidence(chunk, spotMatches) {
   return extractPerformanceEvidence(chunk, spotMatches).length > 0;
 }
 
-/** @param {object} chunk 分块。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {boolean} 是否含目标景点开放时间证据。 */
+/**
+ * @description
+ * 判断知识分块是否包含目标景点开放时间证据。
+ * @param {object} chunk 分块。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {boolean} 是否含目标景点开放时间证据。
+ */
 function isTargetOpeningHoursEvidence(chunk, spotMatches) {
   return extractTargetOpeningHoursEvidence(chunk, spotMatches).length > 0;
 }
 
 /**
+ * @description
  * 对景区级开放时间查询应用事实作用域过滤，避免混入场馆、演出和建议入园时间。
  * @param {object[]} chunks 候选分块。
  * @param {{query: string, intents: RetrievalIntent[], spotMatches: SpotMatch[], scenicArea: string|null}} context 查询上下文。
@@ -438,7 +690,13 @@ function filterChunksByFactScope(chunks, context) {
   return chunks;
 }
 
-/** @param {object[]} candidates 带 `chunk` 的排序候选。 @param {object} context 查询上下文。 @returns {object[]} 作用域一致的候选。 */
+/**
+ * @description
+ * 按问题的景区、景点和事实类型约束过滤排序候选。
+ * @param {object[]} candidates 带 `chunk` 的排序候选。
+ * @param {object} context 查询上下文。
+ * @returns {object[]} 作用域一致的候选。
+ */
 function filterCandidatesByFactScope(candidates, context) {
   if (isAreaOpeningHoursQuery(context.query, context.intents, context.spotMatches)) {
     return candidates.filter((candidate) => isAreaOpeningHoursEvidence(candidate.chunk, context.scenicArea));
@@ -459,6 +717,7 @@ function filterCandidatesByFactScope(candidates, context) {
 }
 
 /**
+ * @description
  * 将景区级开放时间候选收敛为直接相关语句，避免完整景点分块把演出时刻带入回答。
  * @param {RetrievalResult[]} results 已格式化结果。
  * @param {{query: string, intents: RetrievalIntent[], spotMatches: SpotMatch[], scenicArea: string|null}} context 查询上下文。
@@ -518,7 +777,12 @@ function focusResultsByFactScope(results, context) {
   return deduplicateFocusedResults(focusedResults);
 }
 
-/** @param {RetrievalResult[]} results 聚焦结果。 @returns {RetrievalResult[]} 按标题和正文去重的结果。 */
+/**
+ * @description
+ * 按标题和正文去除聚焦检索结果中的重复项。
+ * @param {RetrievalResult[]} results 聚焦结果。
+ * @returns {RetrievalResult[]} 按标题和正文去重的结果。
+ */
 function deduplicateFocusedResults(results) {
   const seen = new Set();
   return results.filter((result) => {
@@ -530,6 +794,7 @@ function deduplicateFocusedResults(results) {
 }
 
 /**
+ * @description
  * 提取与目标景点关联的演出场次语句，排除同一父分块中的其他演出。
  * @param {object} item 分块或检索结果。
  * @param {SpotMatch[]} spotMatches 目标景点命中。
@@ -566,7 +831,13 @@ function extractPerformanceEvidence(item, spotMatches) {
   });
 }
 
-/** @param {object} item 分块或检索结果。 @param {SpotMatch[]} spotMatches 目标景点。 @returns {string[]} 目标景点营业时间语句。 */
+/**
+ * @description
+ * 提取与目标景点一致的营业时间语句。
+ * @param {object} item 分块或检索结果。
+ * @param {SpotMatch[]} spotMatches 目标景点。
+ * @returns {string[]} 目标景点营业时间语句。
+ */
 function extractTargetOpeningHoursEvidence(item, spotMatches) {
   const targets = specificSpotMatches(spotMatches);
   const targetIds = new Set(targets.map((spot) => spot.id));
@@ -582,7 +853,13 @@ function extractTargetOpeningHoursEvidence(item, spotMatches) {
   });
 }
 
-/** @param {object} item 分块或格式化结果。 @param {string|null} scenicArea 景区范围。 @returns {string[]} 景区开放时间证据语句。 */
+/**
+ * @description
+ * 提取与请求景区一致的整体开放时间语句。
+ * @param {object} item 分块或格式化结果。
+ * @param {string|null} scenicArea 景区范围。
+ * @returns {string[]} 景区开放时间证据语句。
+ */
 function extractAreaOpeningEvidence(item, scenicArea) {
   const title = String(item.title || "");
   const content = String(item.content || "");
@@ -605,12 +882,14 @@ function extractAreaOpeningEvidence(item, scenicArea) {
 }
 
 /**
+ * @description
  * 使用关键词匹配、实体和意图权重检索知识库。
  * @param {*} query 查询文本。
- * @param {{limit?: number, locale?: string}} [options={}] 检索选项。
- * @returns {object} 查询分析与排序后的检索结果。
+ * @param {RetrievalSearchOptions} [options={}] 检索选项。
+ * @returns {RetrievalSearchResponse} 查询分析与排序后的检索结果。
  * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 知识库尚未构建时抛出。
  * @throws {Error & {statusCode: 400, code: "QUERY_REQUIRED"}} 查询为空时抛出。
+ * @throws {Error|SyntaxError} SQLite、知识快照或追踪记录读取失败时透传异常。
  * @example
  * const result = keywordSearch("灵山大佛高度", { limit: 3 });
  */
@@ -622,12 +901,14 @@ export function keywordSearch(query, options = {}) {
 }
 
 /**
+ * @description
  * 使用关键词、查询覆盖度、语种及结构化资料权重执行混合检索。
  * @param {*} query 查询文本。
- * @param {{limit?: number, locale?: string}} [options={}] 检索选项。
- * @returns {object} 查询分析与排序后的检索结果。
+ * @param {RetrievalSearchOptions} [options={}] 检索选项。
+ * @returns {RetrievalSearchResponse} 查询分析与排序后的检索结果。
  * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 知识库尚未构建时抛出。
  * @throws {Error & {statusCode: 400, code: "QUERY_REQUIRED"}} 查询为空时抛出。
+ * @throws {Error|SyntaxError} SQLite、知识快照或追踪记录读取失败时透传异常。
  * @example
  * const result = hybridSearch("九龙灌浴几点表演？", { locale: "zh" });
  */
@@ -639,10 +920,16 @@ export function hybridSearch(query, options = {}) {
 }
 
 /**
+ * @description
  * 仅使用 BM25 通道检索，主要用于离线消融评测和回归门禁。
  * @param {*} query 查询文本。
- * @param {{limit?: number, locale?: string}} [options={}] 检索选项。
- * @returns {object} 标准检索响应。
+ * @param {RetrievalSearchOptions} [options={}] 检索选项。
+ * @returns {RetrievalSearchResponse} 标准检索响应。
+ * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 知识库尚未构建时抛出。
+ * @throws {Error & {statusCode: 400, code: "QUERY_REQUIRED"}} 查询为空时抛出。
+ * @throws {Error|SyntaxError} SQLite、知识快照或追踪记录读取失败时透传异常。
+ * @example
+ * const result = bm25Search("灵山胜境门票", { limit: 5 });
  */
 export function bm25Search(query, options = {}) {
   return searchKnowledge(query, {
@@ -652,15 +939,23 @@ export function bm25Search(query, options = {}) {
 }
 
 /**
+ * @description
  * 执行可降级的企业级混合检索。
  *
  * 远程配置完整时使用“规则/BM25 + Dense + RRF + Reranker”；缺少密钥、
  * Qdrant 未同步、超时或限流时返回现有本地混合检索，不中断问答服务。
  *
  * @param {*} query 查询文本。
- * @param {{limit?: number, locale?: string, scenicArea?: string, documentType?: string, knowledgeScope?: string, strictLanguage?: boolean}} [options={}] 检索选项。
- * @param {{config?: object, fetchImpl?: typeof fetch}} [dependencies={}] 可注入远程配置和 fetch。
- * @returns {Promise<object>} 带远程通道状态的检索响应。
+ * @param {RetrievalSearchOptions} [options={}] 检索选项。
+ * @param {object} [dependencies={}] 可注入远程配置和网络请求实现。
+ * @param {object} [dependencies.config] 远程 RAG 配置；缺省时从环境变量构建。
+ * @param {typeof fetch} [dependencies.fetchImpl] 可替换的 Fetch 实现。
+ * @returns {Promise<RetrievalSearchResponse & {remote: RemoteRetrievalInfo}>} 带远程通道状态的检索响应。
+ * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 本地知识库尚未构建时抛出。
+ * @throws {Error & {statusCode: 400, code: "QUERY_REQUIRED"}} 查询为空时抛出。
+ * @throws {Error|SyntaxError} 本地 SQLite、知识快照或追踪记录读取失败时透传异常；远程通道异常会降级并写入 `remote` 状态。
+ * @example
+ * const result = await hybridSearchAsync("灵山大佛高度", { limit: 5 });
  */
 export async function hybridSearchAsync(query, options = {}, dependencies = {}) {
   const config = dependencies.config || buildRemoteRagConfig();
@@ -856,11 +1151,12 @@ export async function hybridSearchAsync(query, options = {}, dependencies = {}) 
 }
 
 /**
+ * @description
  * 执行共享检索流程：加载知识、规范化、分词、扩展、意图和实体识别、评分与格式化。
  * @private
  * @param {*} query 查询文本。
  * @param {{mode: "keyword"|"hybrid", limit?: number, locale?: string}} options 检索选项。
- * @returns {{query: *, mode: string, locale: string|null, tokens: string[], expandedTerms: string[], intents: RetrievalIntent[], spotMatches: SpotMatch[], total: number, results: RetrievalResult[]}} 检索响应。
+ * @returns {RetrievalSearchResponse} 检索响应。
  * @throws {Error} 知识库未构建、查询为空或知识数据读取失败时抛出。
  */
 function searchKnowledge(query, options) {
@@ -1121,10 +1417,11 @@ function searchKnowledge(query, options) {
 }
 
 /**
+ * @description
  * 按 locale 与主意图读取审计过的阈值覆盖，缺失字段回退全局默认值。
  * @param {*} locale 请求语言。
  * @param {object[]} intents 检索意图。
- * @returns {{minRuleScore: number, minBm25Score: number, minQueryCoverage: number, profile: string}}
+ * @returns {{minRuleScore: number, minBm25Score: number, minQueryCoverage: number, profile: string}} 当前语言和意图对应的检索阈值。
  */
 function resolveDecisionThresholds(locale, intents = []) {
   const localeKey = String(locale || "default");
@@ -1144,6 +1441,7 @@ function resolveDecisionThresholds(locale, intents = []) {
 }
 
 /**
+ * @description
  * 根据调参集中的稳定意图选择加权 RRF 主通道。
  * 精确票务、路线和演出规则拥有结构化业务权重；历史、亲子等开放问法优先 BM25。
  * @param {object[]} intents 检索意图。
@@ -1158,6 +1456,7 @@ function shouldPreferRuleChannel(intents = [], spotMatches = []) {
 }
 
 /**
+ * @description
  * 根据用途、启用状态、景区、语言和生效日期过滤候选，过滤发生在所有检索通道之前。
  * @private
  * @param {object} chunk 知识分块。
@@ -1179,25 +1478,44 @@ function passesMetadataFilter(chunk, options) {
 }
 
 /**
+ * @description
  * 返回不含原始问题的缓存统计，供测试和管理观测。
- * @returns {{size: number, keys: string[]}}
+ * @returns {{size: number, keys: string[]}} 缓存条目数及脱敏缓存键。
+ * @example
+ * const stats = getRetrievalCacheStats();
  */
 export function getRetrievalCacheStats() {
   return { size: retrievalCache.size, keys: [...retrievalCache.keys()] };
 }
 
-/** 清空检索缓存。 @returns {void} */
+/**
+ * @description
+ * 清空版本化检索结果缓存。
+ * @returns {void} 无返回值。
+ * @example
+ * clearRetrievalCache();
+ */
 export function clearRetrievalCache() {
   retrievalCache.clear();
 }
 
-/** @param {*} values 允许访问范围。 @returns {string[]} 规范化范围。 */
+/**
+ * @description
+ * 归一化检索请求允许访问的知识范围。
+ * @param {*} values 允许访问范围。
+ * @returns {string[]} 规范化范围。
+ */
 function normalizeAccessScopes(values) {
   const scopes = Array.isArray(values) ? values.map(String).filter(Boolean) : [];
   return scopes.length > 0 ? [...new Set(scopes)] : ["public"];
 }
 
-/** @param {*} query 查询。 @returns {boolean} 是否含不应进入缓存键或缓存值的个人信息。 */
+/**
+ * @description
+ * 检测查询是否包含不应进入缓存的个人敏感信息。
+ * @param {*} query 查询。
+ * @returns {boolean} 是否含不应进入缓存键或缓存值的个人信息。
+ */
 function containsSensitiveQuery(query) {
   const text = String(query || "");
   return /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/u.test(text)
@@ -1207,6 +1525,7 @@ function containsSensitiveQuery(query) {
 }
 
 /**
+ * @description
  * 判断文档语言与请求语言是否相同或属于同一语言族。
  * @private
  * @param {*} documentLanguage 分块语言。
@@ -1222,6 +1541,7 @@ function languageMatches(documentLanguage, requestedLocale) {
 }
 
 /**
+ * @description
  * 严格区分简体与繁体中文，其余语言按规范化主语言码匹配。
  * @private
  * @param {*} documentLanguage 分块语言。
@@ -1235,6 +1555,7 @@ function languageMatchesExactly(documentLanguage, requestedLocale) {
 }
 
 /**
+ * @description
  * 将客户端 locale 转换为知识索引使用的精确语言值，供 Qdrant 元数据过滤使用。
  * @param {*} locale 客户端语言。
  * @returns {string|null} 索引语言；未指定时返回 `null`。
@@ -1248,6 +1569,7 @@ function normalizeLanguageFilter(locale) {
 }
 
 /**
+ * @description
  * 按知识版本复用 BM25 索引，版本变化时自动丢弃旧统计量。
  * @private
  * @param {object} knowledge 知识快照。
@@ -1267,6 +1589,7 @@ function getBm25Index(knowledge, chunks) {
 }
 
 /**
+ * @description
  * 根据语种、景点实体、关键词、扩展词、意图与查询覆盖度为单个知识分块评分。
  * @private
  * @param {object} chunk 知识分块。
@@ -1358,6 +1681,7 @@ function scoreChunk(chunk, context) {
 }
 
 /**
+ * @description
  * 为景区概况、最佳季节、入园时间、餐饮、亲子和特定事实意图施加强规则加权。
  * @private
  * @param {object} chunk 知识分块。
@@ -1403,10 +1727,12 @@ function scoreDirectIntent(chunk, intent) {
 }
 
 /**
+ * @description
  * 将内部评分项转换为对外检索结果并附加景点和引用。
  * @private
  * @param {{chunk: object, score: number, reasons: string[]}} item 评分项。
  * @param {object[]} spots 景点知识列表。
+ * @param {Map<string, object>} [parentLookup=new Map()] 父分块 ID 到上下文分块的映射。
  * @returns {RetrievalResult} 对外检索结果。
  */
 function formatResult(item, spots, parentLookup = new Map()) {
@@ -1445,6 +1771,7 @@ function formatResult(item, spots, parentLookup = new Map()) {
 }
 
 /**
+ * @description
  * 从知识分块构建结构化引用。
  * @private
  * @param {object} chunk 知识分块。
@@ -1471,12 +1798,17 @@ function createCitation(chunk, spot) {
 }
 
 /**
+ * @description
  * 检测多个候选来源对同一类时间或价格事实给出不同值的情况。
  * 过期内容已在候选过滤阶段排除；仍然同时有效的不同来源只记录冲突，不擅自合并。
- * @param {object[]} results 已格式化候选。
- * @param {object[]} intents 当前查询意图。
- * @param {{query?: string, spotMatches?: SpotMatch[]}} [context={}] 查询实体上下文。
- * @returns {Array<{field: string, values: string[], citations: string[]}>} 冲突审计摘要。
+ * @param {RetrievalResult[]} results 已格式化候选。
+ * @param {RetrievalIntent[]} intents 当前查询意图。
+ * @param {object} [context={}] 查询实体上下文。
+ * @param {string} [context.query=""] 原始查询文本。
+ * @param {SpotMatch[]} [context.spotMatches=[]] 景点实体命中。
+ * @returns {RetrievalConflict[]} 冲突审计摘要。
+ * @example
+ * const conflicts = detectConflictingFacts(results, [{ intent: "ticket", preferredTerms: [], preferredDocuments: [] }]);
  */
 export function detectConflictingFacts(results, intents = [], context = {}) {
   const conflicts = [];
@@ -1509,7 +1841,13 @@ export function detectConflictingFacts(results, intents = [], context = {}) {
   return conflicts;
 }
 
-/** @param {object[]} results 候选结果。 @param {SpotMatch[]} spotMatches 景点命中。 @returns {object[]} 与明确景点一致的冲突候选。 */
+/**
+ * @description
+ * 选择与明确景点命中一致的事实冲突候选。
+ * @param {object[]} results 候选结果。
+ * @param {SpotMatch[]} spotMatches 景点命中。
+ * @returns {object[]} 与明确景点一致的冲突候选。
+ */
 function selectConflictResults(results, spotMatches) {
   const ids = new Set(spotMatches.map((spot) => spot.id));
   if (ids.size === 0) return results.slice(0, 8);
@@ -1518,6 +1856,7 @@ function selectConflictResults(results, spotMatches) {
 }
 
 /**
+ * @description
  * 提取开放/闭馆语句中的营业时刻，忽略演出时间、建议入园时间和开园仪式。
  * @param {object} result 检索结果。
  * @returns {Array<{scope: string, value: string, citation: string}>} 带实体与季节作用域的时刻事实。
@@ -1547,7 +1886,12 @@ function extractOpeningTimeFacts(result) {
   return facts;
 }
 
-/** @param {object} result 检索结果。 @returns {Array<{scope: string, value: string, citation: string}>} 演出时刻事实。 */
+/**
+ * @description
+ * 提取按演出实体分组的场次时间事实。
+ * @param {object} result 检索结果。
+ * @returns {Array<{scope: string, value: string, citation: string}>} 演出时刻事实。
+ */
 function extractPerformanceTimeFacts(result) {
   const facts = [];
   const clauses = String(result.content || "").split(/[。；;\n]+/u).map((item) => item.trim()).filter(Boolean);
@@ -1562,7 +1906,13 @@ function extractPerformanceTimeFacts(result) {
   return facts;
 }
 
-/** @param {object} result 检索结果。 @param {string} clause 演出语句。 @returns {string} 演出实体作用域。 */
+/**
+ * @description
+ * 从检索结果和语句中确定演出实体作用域。
+ * @param {object} result 检索结果。
+ * @param {string} clause 演出语句。
+ * @returns {string} 演出实体作用域。
+ */
 function resolvePerformanceEntity(result, clause) {
   const namedEvents = [
     [/(九龙灌浴|九龍灌浴)/u, "九龙灌浴"],
@@ -1576,7 +1926,13 @@ function resolvePerformanceEntity(result, clause) {
   return resolveFactEntity(result, clause);
 }
 
-/** @param {object} result 检索结果。 @param {RegExp} pattern 事实模式。 @returns {Array<{scope: string, value: string, citation: string}>} 作用域事实。 */
+/**
+ * @description
+ * 按指定模式提取带实体作用域的事实。
+ * @param {object} result 检索结果。
+ * @param {RegExp} pattern 事实模式。
+ * @returns {Array<{scope: string, value: string, citation: string}>} 作用域事实。
+ */
 function extractPatternFacts(result, pattern) {
   const citation = result.citation?.citationId || result.id;
   return [...new Set(String(result.content || "").match(pattern) || [])].map((value) => ({
@@ -1586,7 +1942,12 @@ function extractPatternFacts(result, pattern) {
   }));
 }
 
-/** @param {object} result 检索结果。 @returns {Array<{scope: string, value: string, citation: string}>} 按票种分类的价格事实。 */
+/**
+ * @description
+ * 提取按票种类别归一化的价格事实。
+ * @param {object} result 检索结果。
+ * @returns {Array<{scope: string, value: string, citation: string}>} 按票种分类的价格事实。
+ */
 function extractPriceFacts(result) {
   const facts = [];
   const citation = result.citation?.citationId || result.id;
@@ -1605,7 +1966,12 @@ function extractPriceFacts(result) {
   return facts;
 }
 
-/** @param {string} value 价格邻近标签。 @returns {string} 稳定票种类别。 */
+/**
+ * @description
+ * 将价格邻近标签归一化为稳定票种类别。
+ * @param {string} value 价格邻近标签。
+ * @returns {string} 稳定票种类别。
+ */
 function priceCategory(value) {
   const categories = [
     ["adult", /(成人|adult)/giu],
@@ -1628,7 +1994,13 @@ function priceCategory(value) {
   return selected;
 }
 
-/** @param {object} result 检索结果。 @param {string} clause 事实所在语句。 @returns {string} 实体作用域键。 */
+/**
+ * @description
+ * 根据检索结果和事实语句生成实体作用域键。
+ * @param {object} result 检索结果。
+ * @param {string} clause 事实所在语句。
+ * @returns {string} 实体作用域键。
+ */
 function resolveFactEntity(result, clause) {
   const explicitArea = inferScenicAreaFromQuery(clause);
   if (explicitArea) return `area:${explicitArea}`;
@@ -1638,7 +2010,13 @@ function resolveFactEntity(result, clause) {
   return `entity:${result.scenicSpotId || result.scenicSpotName || result.scenicArea || "global"}`;
 }
 
-/** @param {Array<{scope: string, value: string, citation: string}>} facts 事实记录。 @param {string} field 字段名。 @returns {Array<{field: string, values: string[], citations: string[]}>} 冲突摘要。 */
+/**
+ * @description
+ * 汇总同一实体作用域内取值不一致的事实。
+ * @param {Array<{scope: string, value: string, citation: string}>} facts 事实记录。
+ * @param {string} field 字段名。
+ * @returns {Array<{field: string, values: string[], citations: string[]}>} 冲突摘要。
+ */
 function collectScopedConflicts(facts, field) {
   const groups = new Map();
   for (const fact of facts) {
@@ -1658,11 +2036,14 @@ function collectScopedConflicts(facts, field) {
 }
 
 /**
+ * @description
  * 对票价、开放和演出类候选施加受限时效加权，只作为相关性相近时的次级排序。
  * 已过期资料仍由元数据过滤器直接排除。
- * @param {object[]} candidates 内部候选。
- * @param {object[]} intents 查询意图。
- * @returns {object[]} 带时效理由的候选副本。
+ * @param {RankedRetrievalCandidate[]} candidates 内部候选。
+ * @param {RetrievalIntent[]} intents 查询意图。
+ * @returns {RankedRetrievalCandidate[]} 带时效理由的候选副本。
+ * @example
+ * const ranked = applyFreshnessPreference(candidates, [{ intent: "open_time", preferredTerms: [], preferredDocuments: [] }]);
  */
 export function applyFreshnessPreference(candidates, intents = []) {
   const timeSensitive = intents.some((intent) => ["ticket", "open_time", "performance_time"].includes(intent.intent));
@@ -1691,6 +2072,7 @@ export function applyFreshnessPreference(candidates, intents = []) {
 }
 
 /**
+ * @description
  * 合并多个子问题的规则检索结果，保留同一 child 的最高相关性与全部理由。
  * @private
  * @param {Array<Array<{chunk: object, score: number, reasons: string[], channel: string}>>} rankedLists 子问题排序列表。
@@ -1723,6 +2105,7 @@ function mergeSubqueryScores(rankedLists, limit) {
 }
 
 /**
+ * @description
  * 按 parentId 聚合同一章节、页、工作表或景点的 child 分块。
  *
  * 检索排序仍然以 child 为单位，因此引用可以精确指向命中的页码、行号或
@@ -1752,6 +2135,7 @@ function buildParentLookup(chunks) {
 }
 
 /**
+ * @description
  * 合并带重叠窗口的 child 正文，去掉相邻块之间的重复前缀。
  * @private
  * @param {string} current 已合并正文。
@@ -1775,6 +2159,7 @@ function appendParentContent(current, next) {
 }
 
 /**
+ * @description
  * 将引用正文压缩为空白规范且不超过约 120 字符的摘要。
  * @private
  * @param {*} content 分块正文。
@@ -1790,6 +2175,7 @@ function summarizeCitation(content) {
 }
 
 /**
+ * @description
  * 按精确别名或排除通用词后的局部词匹配景点实体。
  * @private
  * @param {string} query 已规范化查询。
@@ -1835,6 +2221,7 @@ function matchSpots(query, tokens, spots) {
 }
 
 /**
+ * @description
  * 使用通用同义词、主题词和直接事实同义词扩展查询词。
  * @private
  * @param {string[]} tokens 原始查询词。
@@ -1873,6 +2260,7 @@ function expandTerms(tokens) {
 }
 
 /**
+ * @description
  * 根据规范化查询和查询词识别全部业务意图。
  * @private
  * @param {string} query 规范化查询。
@@ -1906,6 +2294,7 @@ function detectIntents(query, tokens) {
 }
 
 /**
+ * @description
  * 按偏好文档、偏好字段和事实模式计算通用意图加分。
  * @private
  * @param {object} chunk 知识分块。
@@ -1971,6 +2360,7 @@ function scoreIntent(chunk, context) {
 }
 
 /**
+ * @description
  * 规范化并拆分查询，同时保留主题词、同义词键和多语言景点专名。
  * @private
  * @param {*} query 查询文本。
@@ -2019,6 +2409,7 @@ function tokenize(query) {
 }
 
 /**
+ * @description
  * 计算查询词在目标文本中的覆盖比例。
  * @private
  * @param {string[]} tokens 查询词。
@@ -2035,6 +2426,7 @@ function queryCoverage(tokens, text) {
 }
 
 /**
+ * @description
  * 统计非重叠子串出现次数。
  * @private
  * @param {string} text 目标文本。
@@ -2056,6 +2448,7 @@ function countOccurrences(text, term) {
 }
 
 /**
+ * @description
  * 对检索文本执行 NFKC、转小写、合并空白和首尾清理。
  * @private
  * @param {*} value 原始值。
@@ -2070,6 +2463,7 @@ function normalize(value) {
 }
 
 /**
+ * @description
  * 将数值限制在闭区间；`NaN` 回退到下界。
  * @private
  * @param {number} value 候选数值。
@@ -2085,6 +2479,7 @@ function clamp(value, min, max) {
 }
 
 /**
+ * @description
  * 为复合检索阶段设置总预算，避免多个子问题把远程等待时间线性放大。
  * @private
  * @template T

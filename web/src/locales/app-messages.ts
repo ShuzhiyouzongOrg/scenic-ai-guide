@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 维护数智游踪业务界面的多语言文案目录。
+ * @description 将五种内嵌语言与独立泰语资源按同一键集合组装为业务消息对象。
+ */
+
 import { LanguageEnum } from '@/enums/appEnum'
 import thaiMessages from './langs/th-app.json'
 
@@ -12,10 +17,8 @@ const languageOrder = [
 ] as const
 
 /**
- * Scenic AI Guide business copy. Keeping the original five translations beside each
- * other makes missing global translations visible during review and avoids
- * business pages silently falling back to framework copy. Thai is maintained in
- * a dedicated locale file and validated against the same key set.
+ * @description 数智游踪业务文案目录将五种翻译并列维护，便于审查缺失项并避免业务页面静默回退到框架文案。
+ * 泰语由独立资源文件维护，并使用同一键集合进行完整性校验。
  */
 const catalog = {
   navGuide: ['游客导览', 'Visitor Guide', '관람객 가이드', '遊客導覽', '来場者ガイド'],
@@ -2226,6 +2229,10 @@ const catalog = {
   ]
 } satisfies Record<string, TranslationTuple>
 
+/**
+ * @description 表示业务文案目录中全部有效的国际化键。
+ * @typedef {keyof typeof catalog} AppMessageKey
+ */
 export type AppMessageKey = keyof typeof catalog
 
 const fiveLanguageMessages = Object.fromEntries(
@@ -2237,6 +2244,10 @@ const fiveLanguageMessages = Object.fromEntries(
   ])
 ) as Record<(typeof languageOrder)[number], Record<AppMessageKey, string>>
 
+/**
+ * @description 按语言代码索引的完整业务文案集合，包含五种内嵌语言和独立泰语资源。
+ * @type {Record<LanguageEnum, Record<AppMessageKey, string>>}
+ */
 export const appMessages = {
   ...fiveLanguageMessages,
   [LanguageEnum.TH]: thaiMessages

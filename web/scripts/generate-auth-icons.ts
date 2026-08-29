@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 登录与注册页面本地图标生成脚本。
+ * @description 扫描授权页面所需 Iconify 图标，生成固定白名单并支持一致性检查。
+ */
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { extname, join, relative, resolve } from 'node:path'
 
@@ -30,6 +34,12 @@ if (!existsSync(outputPath) || JSON.stringify(generatedNames) !== JSON.stringify
 }
 console.log(`PASS  auth icon whitelist is current (${names.size} icons)`)
 
+/**
+ * @description 递归列出授权页面扫描目录中的全部文件。
+ * @param {string} directory 待遍历的目录绝对路径。
+ * @returns {string[]} 目录树中的文件绝对路径列表。
+ * @throws {Error} 目录无法读取时由文件系统接口抛出。
+ */
 function walk(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)

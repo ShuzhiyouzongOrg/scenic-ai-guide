@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Live2D 模型资源完整性测试。
+ * @description 验证可选 Live2D 模型的资源图、MotionSync 映射和肖像配置均可加载。
+ */
+
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

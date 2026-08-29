@@ -1,5 +1,10 @@
 /**
- * v-ripple 水波纹效果指令
+ * @fileoverview 提供元素点击水波纹反馈的 Vue 指令。
+ * @description 根据元素尺寸、按钮类型和自定义颜色生成并自动清理波纹动画。
+ */
+
+/**
+ * @description 提供 `v-ripple` 水波纹效果指令。
  *
  * 为元素添加 Material Design 风格的水波纹点击效果。
  * 点击时从点击位置扩散出圆形水波纹动画，提升交互体验。
@@ -34,18 +39,33 @@
  * - 自定义：通过 color 参数指定任意颜色
  *
  * @module directives/ripple
- * @author Scenic AI Guide Team
+ *
  */
 
 import type { App, Directive, DirectiveBinding } from 'vue'
 
+/**
+ * @description 定义水波纹指令可接收的样式配置。
+ * @interface RippleOptions
+ * @property {string} [color] 覆盖自动推导结果的 CSS 波纹颜色。
+ */
 export interface RippleOptions {
-  /** 水波纹颜色 */
+  /**
+   * @description 水波纹颜色。
+   */
   color?: string
 }
 
+/**
+ * @description 表示绑定到 HTML 元素并接收水波纹配置的 Vue 指令类型。
+ * @typedef {Directive<HTMLElement, RippleOptions>} RippleDirective
+ */
 export type RippleDirective = Directive<HTMLElement, RippleOptions>
 
+/**
+ * @description 在元素按下时创建自适应尺寸的波纹，并在动画结束后移除临时节点。
+ * @type {RippleDirective}
+ */
 export const vRipple: RippleDirective = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
     // 获取指令的配置参数
@@ -111,6 +131,13 @@ export const vRipple: RippleDirective = {
   }
 }
 
+/**
+ * @description 将水波纹指令以 `v-ripple` 名称注册到 Vue 应用实例。
+ * @param {App} app 待注册全局指令的 Vue 应用实例。
+ * @returns {void} 无返回值。
+ * @example
+ * setupRippleDirective(app)
+ */
 export function setupRippleDirective(app: App) {
   app.directive('ripple', vRipple)
 }

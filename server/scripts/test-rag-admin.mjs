@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG 管理接口集成测试脚本。
+ * @description 覆盖索引版本、知识缺口、实验报告、审计记录和管理员权限。
+ */
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -169,6 +173,14 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 调用 RAG 管理 API，并自动序列化可选 JSON 请求体。
+ * @param {string} origin 服务根地址。
+ * @param {string} path API 路径。
+ * @param {{method?: string, headers?: object, body?: *}} [options={}] 请求选项。
+ * @returns {Promise<{response: Response, body: object}>} 原始响应和 JSON 正文。
+ * @throws {TypeError|SyntaxError} 网络请求或 JSON 解析失败时抛出。
+ */
 async function request(origin, path, options = {}) {
   const response = await fetch(`${origin}${path}`, {
     method: options.method || "GET",

@@ -1,5 +1,15 @@
 /**
- * 接口状态码
+ * @fileoverview HTTP 接口状态码定义。
+ * @description 汇总请求层用于成功判断、错误展示和重试决策的标准状态码。
+ */
+
+/**
+ * @description 请求层支持的 HTTP 状态码枚举。
+ * @enum {number}
+ * @example
+ * if (status === ApiStatus.unauthorized) {
+ *   // 处理未授权状态
+ * }
  */
 export enum ApiStatus {
   success = 200, // 成功

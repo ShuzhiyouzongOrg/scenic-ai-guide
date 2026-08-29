@@ -1,15 +1,26 @@
 /**
  * @fileoverview 管理端 FAQ 的 SQLite CRUD 与问句命中服务。
  *
- * 已启用 FAQ 会在 RAG 前被对话服务优先匹配，并按优先级处理高频问题。
- *
- * @typedef {{id: string, question: string, answer: string, keywords: string[], priority: number, enabled: boolean, createdAt: string, updatedAt: string}} AdminFaq
+ * @description 已启用 FAQ 会在 RAG 前被对话服务优先匹配，并按优先级处理高频问题。
+ */
+
+/**
+ * @typedef {object} AdminFaq
+ * @description 管理端 FAQ 记录。
+ * @property {string} id FAQ ID。
+ * @property {string} question 标准问题。
+ * @property {string} answer 标准答案。
+ * @property {string[]} keywords 辅助匹配关键词。
+ * @property {number} priority 匹配优先级。
+ * @property {boolean} enabled 是否启用。
+ * @property {string} createdAt ISO 8601 创建时间。
+ * @property {string} updatedAt ISO 8601 更新时间。
  */
 import { randomBytes } from "node:crypto";
 import { getDb } from "../db/database.mjs";
 
 /**
- * 归一化 FAQ 匹配文本，消除大小写、空白和常见标点差异。
+ * @description 归一化 FAQ 匹配文本，消除大小写、空白和常见标点差异。
  * @param {unknown} text 原始文本。
  * @returns {string} 适合包含关系比较的文本。
  * @private
@@ -22,7 +33,7 @@ function normalize(text) {
 }
 
 /**
- * 将数据库行转换为 API FAQ 结构。
+ * @description 将数据库行转换为 API FAQ 结构。
  * @param {Record<string, any>} row `admin_faqs` 数据库行。
  * @returns {AdminFaq} 规范化 FAQ。
  * @private
@@ -41,7 +52,7 @@ function toFaq(row) {
 }
 
 /**
- * 安全解析关键词 JSON。
+ * @description 安全解析关键词 JSON。
  * @param {string|null|undefined} value JSON 文本。
  * @returns {string[]} 关键词数组；格式错误时返回空数组。
  * @private
@@ -56,7 +67,7 @@ function parseKeywords(value) {
 }
 
 /**
- * 按优先级列出全部管理 FAQ。
+ * @description 按优先级列出全部管理 FAQ。
  * @returns {AdminFaq[]} FAQ 列表。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example
@@ -70,8 +81,13 @@ export function listAdminFaqs() {
 }
 
 /**
- * 创建一条管理 FAQ。
- * @param {{question?: string, answer?: string, keywords?: unknown[], priority?: number, enabled?: boolean}} [input={}] FAQ 输入。
+ * @description 创建一条管理 FAQ。
+ * @param {object} [input={}] FAQ 输入。
+ * @param {string} [input.question=""] FAQ 问题。
+ * @param {string} [input.answer=""] FAQ 答案。
+ * @param {unknown[]} [input.keywords=[]] FAQ 检索关键词。
+ * @param {number} [input.priority=0] FAQ 排序优先级。
+ * @param {boolean} [input.enabled=true] 是否启用 FAQ。
  * @returns {AdminFaq} 已持久化的 FAQ。
  * @throws {Error & {statusCode: number, code: string}} 问题或答案为空时抛出 `FAQ_REQUIRED`。
  * @throws {Error} 数据库写入失败时透传异常。
@@ -111,9 +127,14 @@ export function createAdminFaq(input = {}) {
 }
 
 /**
- * 局部更新指定 FAQ。
+ * @description 局部更新指定 FAQ。
  * @param {string} id FAQ ID。
- * @param {{question?: string, answer?: string, keywords?: unknown[], priority?: number, enabled?: boolean}} [input={}] 待更新字段。
+ * @param {object} [input={}] 待更新字段。
+ * @param {string} [input.question] FAQ 问题。
+ * @param {string} [input.answer] FAQ 答案。
+ * @param {unknown[]} [input.keywords] FAQ 检索关键词。
+ * @param {number} [input.priority] FAQ 排序优先级。
+ * @param {boolean} [input.enabled] 是否启用 FAQ。
  * @returns {AdminFaq} 更新后的 FAQ。
  * @throws {Error & {statusCode: number, code: string}} ID 不存在时抛出 `FAQ_NOT_FOUND`。
  * @throws {Error} 数据库查询或更新失败时透传异常。
@@ -157,7 +178,7 @@ export function updateAdminFaq(id, input = {}) {
 }
 
 /**
- * 在已启用 FAQ 中查找可直接回答当前问句的记录。
+ * @description 在已启用 FAQ 中查找可直接回答当前问句的记录。
  * @param {string} question 用户问题。
  * @returns {AdminFaq|null} 首个问题或关键词命中的 FAQ。
  * @throws {Error} FAQ 数据库查询失败时透传异常。

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview PageSpeed 优化契约测试。
+ * @description 验证首屏资源、懒加载、无障碍语义和性能遥测遵守 PageSpeed 优化契约。
+ */
+
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'

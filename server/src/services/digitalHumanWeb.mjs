@@ -1,7 +1,11 @@
 /**
  * @fileoverview 讯飞 Web 数字人的短期会话签发、校验、鉴权 URL 和启动参数构建服务。
- *
+ * @description 讯飞 Web 数字人的短期会话签发、校验、鉴权 URL 和启动参数构建服务。
+ */
+
+/**
  * @typedef {object} DigitalHumanWebTokenPayload
+ * @description 已通过签名与有效期校验的 Web 数字人会话载荷。
  * @property {1} v 令牌结构版本。
  * @property {string} iss 签发者。
  * @property {string} aud 使用方。
@@ -10,21 +14,36 @@
  * @property {string} sid 游客会话 ID。
  * @property {number} iat 签发 Unix 秒时间戳。
  * @property {number} exp 过期 Unix 秒时间戳。
- * @typedef {Error & {statusCode: number, code: string}} DigitalHumanWebError
+ */
+
+/**
+ * @typedef {Error} DigitalHumanWebError
+ * @description 携带 HTTP 状态码和稳定业务错误码的 Web 数字人异常。
+ * @property {number} statusCode HTTP 状态码。
+ * @property {string} code 稳定业务错误码。
  */
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { config } from "../config.mjs";
 import { getActiveDigitalHumanConfig, listDigitalHumanConfigs } from "./digitalHuman.mjs";
 
-/** @type {string} Web 数字人会话令牌的固定 audience。 */
+/**
+ * @description 定义 Web 数字人会话令牌的固定使用方。
+ * @type {string} Web 数字人会话令牌的固定 audience。
+ */
 const SESSION_AUDIENCE = "scenic-digital-human-web";
-/** @type {string} Web 数字人会话令牌的固定 issuer。 */
+/**
+ * @description 定义 Web 数字人会话令牌的固定签发者。
+ * @type {string} Web 数字人会话令牌的固定 issuer。
+ */
 const SESSION_ISSUER = "scenic-ai-guide";
-/** @type {number} 游客会话 ID 允许的最大字符数。 */
+/**
+ * @description 定义游客会话 ID 允许的最大字符数。
+ * @type {number} 游客会话 ID 允许的最大字符数。
+ */
 const MAX_SESSION_ID_LENGTH = 128;
 
 /**
- * 为可用的在线讯飞数字人配置签发短期 Web 会话。
+ * @description 为可用的在线讯飞数字人配置签发短期 Web 会话。
  * @param {{configId?: string, visitorSessionId?: string}} [input={}] 会话输入。
  * @returns {{token: string, configId: string, expiresAt: string, sessionUrl: string, pageUrl: string, bootstrapUrl: string}} 会话令牌和页面/API 地址。
  * @throws {DigitalHumanWebError} 配置不存在、不可用，游客会话 ID 非法或讯飞凭据未配置时抛出。
@@ -65,7 +84,7 @@ export function createDigitalHumanWebSession({ configId = "", visitorSessionId =
 }
 
 /**
- * 验证短期会话并构建浏览器启动讯飞数字人所需的公开配置。
+ * @description 验证短期会话并构建浏览器启动讯飞数字人所需的公开配置。
  * @param {*} token 会话令牌。
  * @returns {{session: {id: string, visitorSessionId: string, expiresAt: string}, digitalHuman: object, apiInfo: object, globalParams: object, endpoints: {ask: string}}} Web 启动数据。
  * @throws {DigitalHumanWebError} 令牌无效或过期、配置不可用、凭据缺失时抛出。
@@ -105,7 +124,7 @@ export function getDigitalHumanWebBootstrap(token) {
 }
 
 /**
- * 按讯飞 WebSocket 鉴权规范生成包含 authorization、date 和 host 的签名 URL。
+ * @description 按讯飞 WebSocket 鉴权规范生成包含 authorization、date 和 host 的签名 URL。
  * @param {{serverUrl?: *, apiKey?: string, apiSecret?: string, date?: Date}} [options={}] 签名参数。
  * @returns {string} 可用于建立 WebSocket 连接的完整 URL。
  * @throws {DigitalHumanWebError} 地址不是合法 `wss:` URL 或鉴权信息缺失时抛出。
@@ -145,7 +164,7 @@ export function buildXfyunAvatarSignedUrl({
 }
 
 /**
- * 以恒定时间比较 HMAC，并验证会话结构、签发时间和最长有效期。
+ * @description 以恒定时间比较 HMAC，并验证会话结构、签发时间和最长有效期。
  * @param {*} token 待校验令牌。
  * @param {{now?: number}} [options={}] 可注入的当前 Unix 毫秒时间，便于测试。
  * @returns {DigitalHumanWebTokenPayload} 已验证的令牌载荷。
@@ -194,7 +213,7 @@ export function verifyWebSessionToken(token, { now = Date.now() } = {}) {
 }
 
 /**
- * 将会话载荷编码并附加 HMAC 签名。
+ * @description 将会话载荷编码并附加 HMAC 签名。
  * @private
  * @param {DigitalHumanWebTokenPayload} payload 会话载荷。
  * @returns {string} `base64url-payload.signature` 格式令牌。
@@ -205,7 +224,7 @@ function signWebSessionPayload(payload) {
 }
 
 /**
- * 计算已编码会话载荷的 SHA-256 HMAC。
+ * @description 计算已编码会话载荷的 SHA-256 HMAC。
  * @private
  * @param {string} encodedPayload Base64URL 载荷。
  * @returns {string} Base64URL 签名。
@@ -217,7 +236,7 @@ function sessionSignature(encodedPayload) {
 }
 
 /**
- * 解析指定或活动的在线讯飞配置，并验证启动所需资源字段。
+ * @description 解析指定或活动的在线讯飞配置，并验证启动所需资源字段。
  * @private
  * @param {*} [configId=""] 可选配置 ID。
  * @returns {import("./digitalHuman.mjs").DigitalHumanConfig|object} 可启动的数字人配置。
@@ -252,7 +271,7 @@ function resolveOnlineXfyunConfig(configId = "") {
 }
 
 /**
- * 过滤后台专用字段，生成可返回浏览器的数字人配置。
+ * @description 过滤后台专用字段，生成可返回浏览器的数字人配置。
  * @private
  * @param {object} digitalHuman 完整数字人配置。
  * @returns {{id: string, name: string, engine: "xfyun", avatarId: string, vcn: string, speechRate: number, welcomeText: string, emotionStyle: string, serviceStatus: string}} 公开配置。
@@ -272,7 +291,7 @@ function publicDigitalHumanConfig(digitalHuman) {
 }
 
 /**
- * 将后台数字人配置转换为讯飞 SDK 的全局流、形象、TTS、动作和字幕参数。
+ * @description 将后台数字人配置转换为讯飞 SDK 的全局流、形象、TTS、动作和字幕参数。
  * @private
  * @param {object} digitalHuman 数字人配置。
  * @returns {object} 讯飞互动数字人 SDK 全局参数。
@@ -303,9 +322,9 @@ function buildAvatarGlobalParams(digitalHuman) {
 }
 
 /**
- * 校验讯飞 Web 数字人凭据和至少 32 字符的会话签名密钥。
+ * @description 校验讯飞 Web 数字人凭据和至少 32 字符的会话签名密钥。
  * @private
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {DigitalHumanWebError} 任一必要配置缺失时抛出 `XFYUN_AVATAR_UNAVAILABLE`。
  */
 function assertAvatarCredentials() {
@@ -321,7 +340,7 @@ function assertAvatarCredentials() {
 }
 
 /**
- * 规范化游客会话 ID；空值自动生成随机 ID。
+ * @description 规范化游客会话 ID；空值自动生成随机 ID。
  * @private
  * @param {*} value 候选会话 ID。
  * @returns {string} 合法会话 ID。
@@ -337,7 +356,7 @@ function normalizeVisitorSessionId(value) {
 }
 
 /**
- * 创建携带 HTTP 状态码和业务错误码的 Web 数字人异常。
+ * @description 创建携带 HTTP 状态码和业务错误码的 Web 数字人异常。
  * @private
  * @param {number} statusCode HTTP 状态码。
  * @param {string} code 业务错误码。

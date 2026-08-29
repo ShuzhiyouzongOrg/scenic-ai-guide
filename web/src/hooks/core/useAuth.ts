@@ -1,5 +1,10 @@
 /**
- * useAuth - 权限验证管理
+ * @fileoverview 提供兼容前后端权限模式的按钮权限校验。
+ * @description 根据用户按钮列表或路由授权元数据判断指定权限标识是否可用。
+ */
+
+/**
+ * @description useAuth - 权限验证管理
  *
  * 提供统一的权限验证功能，支持前端和后端两种权限模式。
  * 用于控制页面按钮、操作等功能的显示和访问权限。
@@ -27,7 +32,7 @@
  * ```
  *
  * @module useAuth
- * @author Scenic AI Guide Team
+ *
  */
 
 import { useRoute } from 'vue-router'
@@ -40,6 +45,13 @@ type AuthItem = NonNullable<AppRouteRecord['meta']['authList']>[number]
 
 const userStore = useUserStore()
 
+/**
+ * @description 创建适配前端按钮列表与后端路由元数据的统一权限检查器。
+ * @returns {ReturnType<typeof useAuth>} 包含 `hasAuth` 权限判定方法的对象。
+ * @example
+ * const { hasAuth } = useAuth()
+ * const canEdit = hasAuth('edit')
+ */
 export const useAuth = () => {
   const route = useRoute()
   const { isFrontendMode } = useAppMode()
@@ -54,9 +66,9 @@ export const useAuth = () => {
     : []
 
   /**
-   * 检查是否拥有某权限标识（前后端模式通用）
-   * @param auth 权限标识
-   * @returns 是否有权限
+   * @description 检查是否拥有某权限标识（前后端模式通用）。
+   * @param {string} auth 权限标识。
+   * @returns {boolean} 是否有权限。
    */
   const hasAuth = (auth: string): boolean => {
     // 前端模式

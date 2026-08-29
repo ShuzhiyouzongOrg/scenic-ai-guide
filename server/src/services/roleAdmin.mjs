@@ -1,7 +1,11 @@
 /**
  * @fileoverview 系统角色、权限集合和层级权限匹配的管理服务。
- *
+ * @description 提供角色查询、创建、更新、删除及层级权限判定能力。
+ */
+
+/**
  * @typedef {object} SystemRole
+ * @description 管理端使用的系统角色对象。
  * @property {number} roleId 角色主键。
  * @property {string} roleName 角色显示名称。
  * @property {string} roleCode 登录和鉴权使用的唯一代码。
@@ -13,7 +17,7 @@
 import { getDb } from "../db/database.mjs";
 
 /**
- * 将角色数据库行转换为 API 对象，并容错无效权限 JSON。
+ * @description 将角色数据库行转换为 API 对象，并容错无效权限 JSON。
  * @private
  * @param {Record<string, *>} row 角色数据库行。
  * @returns {SystemRole} 角色对象。
@@ -37,7 +41,7 @@ function toRole(row) {
 }
 
 /**
- * 查询必须存在的角色。
+ * @description 查询必须存在的角色。
  * @private
  * @param {string|number} id 角色主键。
  * @returns {Record<string, *>} 原始数据库行。
@@ -56,8 +60,12 @@ function requireRole(id) {
 }
 
 /**
- * 按名称、代码、描述和启用状态筛选角色。
- * @param {{roleName?: *, roleCode?: *, description?: *, enabled?: boolean|string}} [filters={}] 查询条件。
+ * @description 按名称、代码、描述和启用状态筛选角色。
+ * @param {object} [filters={}] 查询条件。
+ * @param {*} [filters.roleName] 角色名称模糊筛选值。
+ * @param {*} [filters.roleCode] 角色代码模糊筛选值。
+ * @param {*} [filters.description] 角色描述模糊筛选值。
+ * @param {boolean|string} [filters.enabled] 启用状态筛选值。
  * @returns {SystemRole[]} 按主键升序排列的角色列表。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example
@@ -82,7 +90,7 @@ export function listRoles(filters = {}) {
 }
 
 /**
- * 获取已启用角色的有效权限字符串。
+ * @description 获取已启用角色的有效权限字符串。
  * @param {*} roleCode 角色代码。
  * @returns {string[]} 权限列表；角色不存在、未启用或权限 JSON 无效时为空数组。
  * @throws {Error} 数据库查询失败时透传异常。
@@ -105,7 +113,7 @@ export function getRolePermissions(roleCode) {
 }
 
 /**
- * 判断角色是否拥有某项精确权限、父路径权限或全局通配权限。
+ * @description 判断角色是否拥有某项精确权限、父路径权限或全局通配权限。
  * @param {*} roleCode 角色代码。
  * @param {*} requiredPermission 待校验的权限路径，末尾斜杠会被忽略。
  * @returns {boolean} 已启用角色的任一权限覆盖目标时为 `true`。
@@ -126,8 +134,13 @@ export function hasRolePermission(roleCode, requiredPermission) {
 }
 
 /**
- * 创建系统角色。
- * @param {{roleName?: *, roleCode?: *, description?: *, enabled?: boolean, permissions?: Array<*>}} [input={}] 角色输入。
+ * @description 创建系统角色。
+ * @param {object} [input={}] 角色输入。
+ * @param {*} [input.roleName] 角色名称。
+ * @param {*} [input.roleCode] 角色代码。
+ * @param {*} [input.description] 角色描述。
+ * @param {boolean} [input.enabled=true] 是否启用角色。
+ * @param {Array<*>} [input.permissions=[]] 角色权限集合。
  * @returns {SystemRole} 新建角色。
  * @throws {Error & {statusCode: 400, code: "ROLE_REQUIRED"}} 名称或代码为空时抛出。
  * @throws {Error & {statusCode: 409, code: "ROLE_EXISTS"}} 唯一约束冲突时抛出。
@@ -168,9 +181,13 @@ export function createRole(input = {}) {
 }
 
 /**
- * 更新角色的基础信息和启用状态。
+ * @description 更新角色的基础信息和启用状态。
  * @param {string|number} id 角色主键。
- * @param {{roleName?: *, roleCode?: *, description?: *, enabled?: boolean}} [input={}] 需要更新的字段。
+ * @param {object} [input={}] 需要更新的字段。
+ * @param {*} [input.roleName] 角色名称。
+ * @param {*} [input.roleCode] 角色代码。
+ * @param {*} [input.description] 角色描述。
+ * @param {boolean} [input.enabled] 是否启用角色。
  * @returns {SystemRole} 更新后的角色。
  * @throws {Error & {statusCode: 404, code: "ROLE_NOT_FOUND"}} 角色不存在时抛出。
  * @throws {Error} 数据库更新失败时透传异常。
@@ -191,7 +208,7 @@ export function updateRole(id, input = {}) {
 }
 
 /**
- * 整体替换角色权限列表。
+ * @description 整体替换角色权限列表。
  * @param {string|number} id 角色主键。
  * @param {Array<*>} permissions 新权限集合；非数组会归一化为空数组。
  * @returns {SystemRole} 更新后的角色。
@@ -208,7 +225,7 @@ export function updateRolePermissions(id, permissions) {
 }
 
 /**
- * 删除自定义角色；内置管理员、运营人员和游客角色受保护。
+ * @description 删除自定义角色；内置管理员、运营人员和游客角色受保护。
  * @param {string|number} id 角色主键。
  * @returns {{roleId: number}} 被删除角色的数值 ID。
  * @throws {Error & {statusCode: 404, code: "ROLE_NOT_FOUND"}} 角色不存在时抛出。

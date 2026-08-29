@@ -1,5 +1,10 @@
 /**
- * useTableHeight - 表格高度自动计算
+ * @fileoverview 根据表头和分页区域计算表格容器高度。
+ * @description 将响应式高度配置转换为可直接绑定的容器样式对象。
+ */
+
+/**
+ * @description useTableHeight - 表格高度自动计算
  *
  * 自动计算表格容器的最佳高度，确保表格在不同布局场景下都能正确显示。
  * 根据表格头部、分页器等元素的高度动态调整容器高度，避免出现滚动条或布局错乱。
@@ -12,27 +17,35 @@
  * 4. 智能适配 - 无额外元素时自动使用 100% 高度
  *
  * @module useTableHeight
- * @author Scenic AI Guide Team
+ *
  */
 
 import { computed, type Ref } from 'vue'
 
 /**
- * 表格高度计算器配置接口
+ * @description 表格高度计算器配置接口
  */
 interface TableHeightOptions {
-  /** 是否显示表格头部 */
+  /**
+   * @description 是否显示表格头部
+   */
   showTableHeader: Ref<boolean>
-  /** 分页器高度 */
+  /**
+   * @description 分页器高度
+   */
   paginationHeight: Ref<number>
-  /** 表格头部高度 */
+  /**
+   * @description 表格头部高度
+   */
   tableHeaderHeight: Ref<number>
-  /** 分页器间距 */
+  /**
+   * @description 分页器间距
+   */
   paginationSpacing: Ref<number>
 }
 
 /**
- * 表格高度计算器类
+ * @description 表格高度计算器类
  */
 class TableHeightCalculator {
   // 常量配置
@@ -42,7 +55,7 @@ class TableHeightCalculator {
   constructor(private options: TableHeightOptions) {}
 
   /**
-   * 计算容器高度
+   * @description 计算容器高度
    */
   calculate(): { height: string } {
     const offset = this.calculateOffset()
@@ -52,7 +65,7 @@ class TableHeightCalculator {
   }
 
   /**
-   * 计算偏移量
+   * @description 计算偏移量
    */
   private calculateOffset(): number {
     if (!this.options.showTableHeader.value) {
@@ -66,14 +79,14 @@ class TableHeightCalculator {
   }
 
   /**
-   * 获取表格头部高度
+   * @description 获取表格头部高度
    */
   private getHeaderHeight(): number {
     return this.options.tableHeaderHeight.value || TableHeightCalculator.DEFAULT_TABLE_HEADER_HEIGHT
   }
 
   /**
-   * 计算分页器偏移量
+   * @description 计算分页器偏移量
    */
   private calculatePaginationOffset(): number {
     const { paginationHeight, paginationSpacing } = this.options
@@ -82,15 +95,17 @@ class TableHeightCalculator {
 }
 
 /**
- * 表格高度计算 Hook
+ * @description 表格高度计算 Hook
  *
  * 提供表格容器高度的自动计算功能，支持：
  * - 表格头部高度
  * - 分页器高度
  * - 动态间距计算
  *
- * @param options 配置选项
- * @returns 容器高度计算结果
+ * @param {TableHeightOptions} options 配置选项。
+ * @returns {ReturnType<typeof useTableHeight>} 容器高度计算结果。
+ * @example
+ * const { containerHeight } = useTableHeight(options)
  */
 export function useTableHeight(options: TableHeightOptions) {
   const containerHeight = computed(() => {
@@ -99,7 +114,9 @@ export function useTableHeight(options: TableHeightOptions) {
   })
 
   return {
-    /** 容器高度样式对象 */
+    /**
+     * @description 容器高度样式对象
+     */
     containerHeight
   }
 }

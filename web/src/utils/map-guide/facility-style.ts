@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 景区设施分类配色工具。
+ * @description 按设施分类编号返回稳定的地图标记色，并为未知分类提供默认颜色。
+ */
+
 const FACILITY_COLORS: Readonly<Record<string, string>> = {
   '41': '#667b86',
   '37': '#3f7f6f',
@@ -22,6 +27,13 @@ const FACILITY_COLORS: Readonly<Record<string, string>> = {
 
 const DEFAULT_FACILITY_COLOR = '#687a73'
 
+/**
+ * @description 获取设施分类对应的十六进制地图标记色。
+ * @param {string} categoryId 景区设施分类编号。
+ * @returns {string} 已配置分类色；未知分类返回默认灰绿色。
+ * @example
+ * facilityColor('37')
+ */
 export function facilityColor(categoryId: string): string {
   return FACILITY_COLORS[categoryId] || DEFAULT_FACILITY_COLOR
 }

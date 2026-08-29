@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 初始化并挂载数智游踪 Web 应用。
+ * @description 依次注册状态管理、路由、全局指令、异常处理与国际化插件后挂载根组件。
+ */
+
 import App from './App.vue'
 import { createApp } from 'vue'
 import { initStore } from './store'                 // Store

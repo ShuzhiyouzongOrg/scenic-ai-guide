@@ -1,5 +1,8 @@
 /**
- * @fileoverview 将活动知识快照增量同步到托管 Embedding 与 Qdrant。
+ * @fileoverview 远程向量索引同步模块。
+ * @description
+ * 将活动知识快照中的游客问答分块增量向量化并写入 Qdrant，
+ * 同时复用 SQLite Embedding 缓存并按知识版本清理过期向量。
  */
 import {
   buildRemoteRagConfig,
@@ -13,14 +16,21 @@ import {
 import { createSqliteEmbeddingCache, embeddingCacheEntry } from "./embeddingCache.mjs";
 
 /**
+ * @description
  * 将游客问答分块同步到远程向量索引。
- *
  * Qdrant 查询始终按 `indexVersion` 过滤，因此新版本写完前不会影响活动检索，
  * 旧版本向量也可以支持知识快照回滚。
- *
  * @param {object} knowledge 活动知识快照。
- * @param {{config?: object, fetchImpl?: typeof fetch, onProgress?: (event: object) => void, cleanupIndexVersions?: string[], embeddingCache?: object|null}} [options={}] 同步选项。
+ * @param {object} [options={}] 同步选项。
+ * @param {object} [options.config] 远程 RAG 配置；缺省时从环境变量构建。
+ * @param {typeof fetch} [options.fetchImpl] 可替换的 Fetch 实现。
+ * @param {(event: object) => void} [options.onProgress] 每批同步后的进度回调。
+ * @param {string[]} [options.cleanupIndexVersions] 同步完成后需要清理的旧索引版本。
+ * @param {object|null} [options.embeddingCache] 向量缓存适配器；传入 `null` 时禁用缓存。
  * @returns {Promise<{indexVersion:string, chunks:number, batches:number, inputTokens:number|null, collectionCreated:boolean, cacheHits:number, embeddedChunks:number, cleanedIndexVersions?: number}>} 同步统计。
+ * @throws {Error & {code:string,statusCode:number}} 快照无效、远程配置缺失或远程服务调用失败时抛出。
+ * @example
+ * const result = await syncRemoteVectorIndex(knowledge, { onProgress: console.log });
  */
 export async function syncRemoteVectorIndex(knowledge, options = {}) {
   if (!knowledge?.indexVersion || !Array.isArray(knowledge.chunks)) {
@@ -113,7 +123,10 @@ export async function syncRemoteVectorIndex(knowledge, options = {}) {
   };
 }
 
-/** @returns {Promise<object|null>} 默认 SQLite 缓存；初始化失败时仅禁用缓存。 */
+/**
+ * @description 延迟加载默认 SQLite Embedding 缓存；初始化异常不会中断远程同步。
+ * @returns {Promise<object|null>} 默认缓存适配器；初始化失败时返回 `null`。
+ */
 async function defaultEmbeddingCache() {
   try {
     const { getDb } = await import("../../db/database.mjs");
@@ -124,9 +137,11 @@ async function defaultEmbeddingCache() {
 }
 
 /**
- * 为 Embedding 增加来源、景区和章节上下文，减少孤立短片段歧义。
+ * @description 为 Embedding 文本增加来源、景区和章节上下文，减少孤立短片段歧义。
  * @param {object} chunk 知识分块。
  * @returns {string} 向量化文本。
+ * @example
+ * const text = buildEmbeddingText({ scenicArea: "灵山胜境", title: "开放时间", content: "每日开放" });
  */
 export function buildEmbeddingText(chunk) {
   return [
@@ -138,7 +153,12 @@ export function buildEmbeddingText(chunk) {
   ].filter(Boolean).join("\n");
 }
 
-/** @param {object} chunk 分块。 @param {string} indexVersion 版本。 @returns {object} Qdrant载荷。 */
+/**
+ * @description 将知识分块映射为用于权限过滤和来源追踪的 Qdrant 载荷。
+ * @param {object} chunk 知识分块。
+ * @param {string} indexVersion 知识索引版本。
+ * @returns {object} 不包含正文的 Qdrant 载荷。
+ */
 function chunkPayload(chunk, indexVersion) {
   return {
     chunkId: chunk.id,
@@ -158,7 +178,13 @@ function chunkPayload(chunk, indexVersion) {
   };
 }
 
-/** @param {string} code 错误码。 @param {string} message 消息。 @param {number} statusCode HTTP状态。 @returns {Error & {code:string,statusCode:number}} 错误。 */
+/**
+ * @description 创建带稳定业务错误码和 HTTP 状态码的索引同步异常。
+ * @param {string} code 业务错误码。
+ * @param {string} message 错误消息。
+ * @param {number} statusCode HTTP 状态码。
+ * @returns {Error & {code:string,statusCode:number}} 索引同步异常对象。
+ */
 function indexError(code, message, statusCode) {
   const error = new Error(message);
   error.code = code;

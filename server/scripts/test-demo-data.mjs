@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 演示数据生成与接口测试脚本。
+ * @description 验证演示数据的生成、聚合、数据库持久化和管理端 HTTP 调用。
+ */
 import assert from "node:assert/strict";
 import { randomInt } from "node:crypto";
 import { rmSync } from "node:fs";
@@ -77,6 +81,12 @@ assertRealRowsPreserved(db);
 await testHttpEndpoint();
 console.log("Demo data tests passed.");
 
+/**
+ * @description 插入一组不带演示批次前缀的真实业务基准记录。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @returns {void}
+ * @throws {Error} 任一基准记录写入失败时透传数据库异常。
+ */
 function seedRealRows(instance) {
   const now = new Date().toISOString();
   instance.prepare(
@@ -112,6 +122,12 @@ function seedRealRows(instance) {
   ).run(now, now);
 }
 
+/**
+ * @description 统计演示数据涉及的六张业务表记录数。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @returns {Record<string, number>} 各业务表记录数。
+ * @throws {Error} 数据库查询失败时透传异常。
+ */
 function tableCounts(instance) {
   return {
     visitorSessions: countTable(instance, "visitor_sessions"),
@@ -123,10 +139,25 @@ function tableCounts(instance) {
   };
 }
 
+/**
+ * @description 读取指定表的总记录数。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @param {string} table 已知业务表名。
+ * @returns {number} 表记录数。
+ * @throws {Error} SQL 准备或查询失败时透传异常。
+ */
 function countTable(instance, table) {
   return instance.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
 }
 
+/**
+ * @description 断言当前各表记录数等于基线与本批新增数之和。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @param {Record<string, number>} baseline 生成前基线计数。
+ * @param {Record<string, number>} counts 当前演示批次计数。
+ * @returns {void}
+ * @throws {AssertionError|Error} 计数不符或数据库查询失败时抛出。
+ */
 function assertCountDeltas(instance, baseline, counts) {
   const current = tableCounts(instance);
   for (const key of Object.keys(baseline)) {
@@ -134,6 +165,13 @@ function assertCountDeltas(instance, baseline, counts) {
   }
 }
 
+/**
+ * @description 断言演示批次覆盖性别、景点、满意度、年龄、停留时长、路线和标注维度。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @param {{batchId: string, counts: Record<string, number>}} result 演示数据生成结果。
+ * @returns {void}
+ * @throws {AssertionError|Error} 覆盖断言或数据库查询失败时抛出。
+ */
 function assertBatchCoverage(instance, result) {
   const pattern = `${result.batchId}*`;
   const behavior = instance.prepare(
@@ -188,6 +226,12 @@ function assertBatchCoverage(instance, result) {
   assert.equal(pairedSessions, result.counts.visitorSessions);
 }
 
+/**
+ * @description 断言重新生成演示数据后真实业务基准记录仍然存在。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @returns {void}
+ * @throws {AssertionError|Error} 记录缺失或数据库查询失败时抛出。
+ */
 function assertRealRowsPreserved(instance) {
   const checks = [
     ["visitor_sessions", "id", "real_session"],
@@ -203,10 +247,24 @@ function assertRealRowsPreserved(instance) {
   }
 }
 
+/**
+ * @description 统计指定列以批次前缀开头的记录数。
+ * @param {import("better-sqlite3").Database} instance SQLite 数据库。
+ * @param {string} table 已知业务表名。
+ * @param {string} column 已知 ID 列名。
+ * @param {string} prefix 批次前缀。
+ * @returns {number} 匹配记录数。
+ * @throws {Error} SQL 准备或查询失败时透传异常。
+ */
 function countByPrefix(instance, table, column, prefix) {
   return instance.prepare(`SELECT COUNT(*) AS count FROM ${table} WHERE ${column} GLOB ?`).get(`${prefix}*`).count;
 }
 
+/**
+ * @description 启动独立服务进程，验证演示数据生成及管理端查询接口。
+ * @returns {Promise<void>} 接口断言和临时文件清理完成后兑现。
+ * @throws {AssertionError|Error|TypeError|SyntaxError} 服务启动、网络请求、JSON 解析或接口断言失败时抛出。
+ */
 async function testHttpEndpoint() {
   const serverDir = fileURLToPath(new URL("..", import.meta.url));
   const port = randomInt(20_000, 30_000);
@@ -280,6 +338,13 @@ async function testHttpEndpoint() {
   }
 }
 
+/**
+ * @description 轮询健康检查，直至子进程可用、提前退出或超时。
+ * @param {number} port 服务端口。
+ * @param {import("node:child_process").ChildProcess} child 服务子进程。
+ * @returns {Promise<void>} 健康检查成功时兑现。
+ * @throws {Error} 子进程提前退出或十二秒内未启动时抛出。
+ */
 async function waitForServer(port, child) {
   const deadline = Date.now() + 12_000;
   while (Date.now() < deadline) {

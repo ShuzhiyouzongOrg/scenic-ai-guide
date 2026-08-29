@@ -1,5 +1,6 @@
 /**
- * 表格全局配置模块
+ * @fileoverview 表格请求与响应字段映射配置。
+ * @description 定义记录、总数、页码和每页大小的候选字段，以适配不同后端分页结构。
  *
  * 提供表格与后端接口的字段映射配置
  *
@@ -31,7 +32,12 @@
  * 例如：recordFields: ['list', 'data', 'records', 'items', 'yourCustomField']
  *
  * @module utils/table/tableConfig
- * @author Scenic AI Guide Team
+ */
+/**
+ * @description 表格响应候选字段与请求分页键的全局配置。
+ * @type {{recordFields: string[], totalFields: string[], currentFields: string[], sizeFields: string[], paginationKey: {current: string, size: string}}}
+ * @example
+ * const recordsField = tableConfig.recordFields[0]
  */
 export const tableConfig = {
   // 响应数据字段映射配置，系统会从接口返回数据中按顺序查找这些字段

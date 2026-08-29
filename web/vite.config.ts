@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Web 应用 Vite 开发与生产构建配置。
+ * @description 配置环境变量、开发代理、路径别名、依赖分包、资源压缩和构建报告。
+ */
+
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
@@ -10,6 +15,14 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import tailwindcss from '@tailwindcss/vite'
 import { visualizer } from 'rollup-plugin-visualizer'
 
+/**
+ * @description 根据运行模式读取环境变量并生成 Vite 配置。
+ * @param {{mode: string}} options Vite 配置上下文。
+ * @param {string} options.mode 当前开发或构建模式。
+ * @returns {import('vite').UserConfig} 当前模式对应的 Vite 配置。
+ * @example
+ * vite --mode production
+ */
 export default ({ mode }: { mode: string }) => {
   const root = process.cwd()
   const env = loadEnv(mode, root)
@@ -190,6 +203,11 @@ export default ({ mode }: { mode: string }) => {
   })
 }
 
+/**
+ * @description 将相对于 Web 工程根目录的路径解析为绝对路径。
+ * @param {string} paths 待解析的工程内相对路径。
+ * @returns {string} 解析后的绝对路径。
+ */
 function resolvePath(paths: string) {
   return path.resolve(__dirname, paths)
 }

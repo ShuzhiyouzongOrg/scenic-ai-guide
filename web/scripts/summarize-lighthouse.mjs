@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Lighthouse 报告摘要脚本。
+ * @description 从 Lighthouse JSON 中提取核心评分、体验指标和主要优化机会并输出摘要。
+ */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { basename, join, resolve } from 'node:path'
 
@@ -39,6 +43,11 @@ const metrics = [
   'cls',
   'speedIndexMs'
 ]
+/**
+ * @description 计算数值样本排序后的中位位置值。
+ * @param {number[]} values 非空数值样本列表。
+ * @returns {number} 排序后位于中间索引的样本值。
+ */
 const median = (values) => [...values].sort((left, right) => left - right)[Math.floor(values.length / 2)]
 const routes = [...new Set(entries.map((entry) => entry.route))]
 const routeMedians = Object.fromEntries(

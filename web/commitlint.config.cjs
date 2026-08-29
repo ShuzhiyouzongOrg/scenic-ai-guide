@@ -1,10 +1,14 @@
 /**
- * commitlint 配置文件
- * 文档
- * https://commitlint.js.org/#/reference-rules
- * https://cz-git.qbb.sh/zh/guide/
+ * @fileoverview Git 提交信息与交互式提交配置。
+ * @description 约束 Conventional Commits 类型，并配置 cz-git 的中文交互提示。
  */
 
+/**
+ * @description 导出 Commitlint 规则和 cz-git 提示配置。
+ * @type {import('@commitlint/types').UserConfig}
+ * @example
+ * echo "feat(web): add guide" | npx commitlint
+ */
 module.exports = {
   // 继承的规则
   extends: ['@commitlint/config-conventional'],

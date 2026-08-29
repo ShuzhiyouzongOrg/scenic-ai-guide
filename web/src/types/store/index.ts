@@ -1,157 +1,309 @@
 /**
- * Store 状态类型定义模块
- *
- * 提供 Pinia Store 的状态类型定义
- *
- * ## 主要功能
- *
- * - 系统主题类型
- * - 菜单主题类型
- * - 设置状态类型
- * - 工作标签页类型
- * - 用户状态类型
- * - 菜单状态类型
- * - 根状态类型
- *
- * ## 使用场景
- *
- * - Store 状态类型约束
- * - 状态数据结构定义
- * - 类型提示和自动补全
- *
- * @module types/store/index
- * @author Scenic AI Guide Team
+ * @fileoverview 状态管理类型定义。
+ * @description 声明系统主题、菜单主题、设置、工作标签页、用户和根状态结构。
  */
 
 import { MenuThemeEnum, SystemThemeEnum } from '@/enums/appEnum'
 import { LocationQueryRaw } from 'vue-router'
 
 // 系统主题样式（light | dark）
+/**
+ * @description 描述系统主题对应的 CSS 类名。
+ * @typedef {object} SystemThemeType
+ * @property {string} className 主题 CSS 类名。
+ */
 export interface SystemThemeType {
-  /** 主题类名 */
+  /**
+   * @description 主题类名
+   */
   className: string
 }
 
 // 定义包含多个主题的类型
+/**
+ * @description 定义亮色和暗色主题到样式配置的映射。
+ * @typedef {{ [key in Exclude<SystemThemeEnum, SystemThemeEnum.AUTO>]: SystemThemeType }} SystemThemeTypes
+ */
 export type SystemThemeTypes = {
   [key in Exclude<SystemThemeEnum, SystemThemeEnum.AUTO>]: SystemThemeType
 }
 
 // 菜单主题样式
+/**
+ * @description 描述菜单主题的背景、文字、图标和图片。
+ * @typedef {object} MenuThemeType
+ * @property {MenuThemeEnum} theme 主题类型。
+ * @property {string} background 背景颜色。
+ * @property {string} systemNameColor 系统名称颜色。
+ * @property {string} textColor 文字颜色。
+ * @property {string} iconColor 图标颜色。
+ * @property {string} [img] 预览或背景图片。
+ */
 export interface MenuThemeType {
-  /** 主题类型 */
+  /**
+   * @description 主题类型
+   */
   theme: MenuThemeEnum
-  /** 背景颜色 */
+  /**
+   * @description 背景颜色
+   */
   background: string
-  /** 系统名称颜色 */
+  /**
+   * @description 系统名称颜色
+   */
   systemNameColor: string
-  /** 文本颜色 */
+  /**
+   * @description 文本颜色
+   */
   textColor: string
-  /** 图标颜色 */
+  /**
+   * @description 图标颜色
+   */
   iconColor: string
-  /** 背景图片 */
+  /**
+   * @description 背景图片
+   */
   img?: string
 }
 
 // 设置中心
+/**
+ * @description 描述设置中心的主题与界面显示状态。
+ * @typedef {object} SettingState
+ * @property {string} theme 主题类型。
+ * @property {boolean} uniqueOpened 是否只展开一个子菜单。
+ * @property {boolean} menuButton 菜单按钮配置或状态。
+ * @property {boolean} showRefreshButton 是否显示刷新按钮。
+ * @property {boolean} showCrumbs 是否显示面包屑。
+ * @property {boolean} autoClose 是否自动关闭。
+ * @property {boolean} showWorkTab 是否显示工作标签页。
+ * @property {boolean} showLanguage 是否显示语言切换。
+ * @property {boolean} showNprogress 是否显示顶部进度条。
+ * @property {string} themeModel 主题模式。
+ */
 export interface SettingState {
-  /** 主题 */
+  /**
+   * @description 主题
+   */
   theme: string
-  /** 是否只保持一个子菜单的展开 */
+  /**
+   * @description 是否只保持一个子菜单的展开
+   */
   uniqueOpened: boolean
-  /** 是否显示菜单按钮 */
+  /**
+   * @description 是否显示菜单按钮
+   */
   menuButton: boolean
-  /** 是否显示刷新按钮 */
+  /**
+   * @description 是否显示刷新按钮
+   */
   showRefreshButton: boolean
-  /** 是否显示面包屑 */
+  /**
+   * @description 是否显示面包屑
+   */
   showCrumbs: boolean
-  /** 是否自动关闭 */
+  /**
+   * @description 是否自动关闭
+   */
   autoClose: boolean
-  /** 是否显示工作标签页 */
+  /**
+   * @description 是否显示工作标签页
+   */
   showWorkTab: boolean
-  /** 是否显示语言切换 */
+  /**
+   * @description 是否显示语言切换
+   */
   showLanguage: boolean
-  /** 是否显示进度条 */
+  /**
+   * @description 是否显示进度条
+   */
   showNprogress: boolean
-  /** 主题模式 */
+  /**
+   * @description 主题模式
+   */
   themeModel: string
 }
 
 // 多标签
+/**
+ * @description 描述一个工作标签页的路由、缓存和固定状态。
+ * @typedef {object} WorkTab
+ * @property {string} title 标题。
+ * @property {string} [customTitle] 自定义标签标题。
+ * @property {string} path 路由或资源路径。
+ * @property {string} name 名称。
+ * @property {boolean} keepAlive 是否缓存页面。
+ * @property {boolean} [fixedTab] 是否固定标签页。
+ * @property {object} [params] 标签页对应的动态路由参数。
+ * @property {LocationQueryRaw} [query] 路由查询参数或检索问题。
+ * @property {string} [icon] 图标标识。
+ * @property {boolean} [isActive] 是否激活。
+ */
 export interface WorkTab {
-  /** 标签标题 */
+  /**
+   * @description 标签标题
+   */
   title: string
-  /** 自定义标题 */
+  /**
+   * @description 自定义标题
+   */
   customTitle?: string
-  /** 路由路径 */
+  /**
+   * @description 路由路径
+   */
   path: string
-  /** 路由名称 */
+  /**
+   * @description 路由名称
+   */
   name: string
-  /** 是否缓存 */
+  /**
+   * @description 是否缓存
+   */
   keepAlive: boolean
-  /** 是否固定标签 */
+  /**
+   * @description 是否固定标签
+   */
   fixedTab?: boolean
-  /** 路由参数 */
+  /**
+   * @description 路由参数
+   */
   params?: object
-  /** 路由查询参数 */
+  /**
+   * @description 路由查询参数
+   */
   query?: LocationQueryRaw
-  /** 图标 */
+  /**
+   * @description 图标
+   */
   icon?: string
-  /** 是否激活 */
+  /**
+   * @description 是否激活
+   */
   isActive?: boolean
 }
 
 // 用户Store状态
+/**
+ * @description 描述用户身份、令牌、角色和权限状态。
+ * @typedef {object} UserState
+ * @property {Api.Auth.UserInfo | null} userInfo 用户信息。
+ * @property {string | null} token 访问令牌。
+ * @property {string[]} roles 角色列表。
+ * @property {string[]} permissions 权限标识列表。
+ */
 export interface UserState {
-  /** 用户信息 */
+  /**
+   * @description 用户信息
+   */
   userInfo: Api.Auth.UserInfo | null
-  /** 认证令牌 */
+  /**
+   * @description 认证令牌
+   */
   token: string | null
-  /** 用户角色列表 */
+  /**
+   * @description 用户角色列表
+   */
   roles: string[]
-  /** 用户权限列表 */
+  /**
+   * @description 用户权限列表
+   */
   permissions: string[]
 }
 
 // 设置Store状态
+/**
+ * @description 描述设置 Store 扩展的设备、语言和折叠状态。
+ * @typedef {object} SettingStoreState
+ * @property {boolean} collapsed 菜单是否折叠。
+ * @property {'desktop' | 'mobile'} device 设备类型。
+ * @property {string} language 内容语言。
+ */
 export interface SettingStoreState extends SettingState {
   // 额外的设置状态
-  /** 菜单是否折叠 */
+  /**
+   * @description 菜单是否折叠
+   */
   collapsed: boolean
-  /** 设备类型 */
+  /**
+   * @description 设备类型
+   */
   device: 'desktop' | 'mobile'
-  /** 当前语言 */
+  /**
+   * @description 当前语言
+   */
   language: string
 }
 
 // 工作标签页Store状态
+/**
+ * @description 描述工作标签页列表、活动项和缓存项。
+ * @typedef {object} WorkTabState
+ * @property {WorkTab[]} tabs 标签页列表。
+ * @property {string} activeTab 当前活动标签。
+ * @property {string[]} cachedTabs 缓存标签页列表。
+ */
 export interface WorkTabState {
-  /** 标签页列表 */
+  /**
+   * @description 标签页列表
+   */
   tabs: WorkTab[]
-  /** 当前激活的标签页 */
+  /**
+   * @description 当前激活的标签页
+   */
   activeTab: string
-  /** 缓存的标签页列表 */
+  /**
+   * @description 缓存的标签页列表
+   */
   cachedTabs: string[]
 }
 
 // 菜单Store状态
+/**
+ * @description 描述菜单列表、加载和折叠状态。
+ * @typedef {object} MenuState
+ * @property {any[]} menuList 菜单列表。
+ * @property {boolean} isLoaded 菜单是否已加载。
+ * @property {boolean} collapsed 菜单是否折叠。
+ */
 export interface MenuState {
-  /** 菜单列表 */
+  /**
+   * @description 菜单列表
+   */
   menuList: any[]
-  /** 菜单是否已加载 */
+  /**
+   * @description 菜单是否已加载
+   */
   isLoaded: boolean
-  /** 菜单是否折叠 */
+  /**
+   * @description 菜单是否折叠
+   */
   collapsed: boolean
 }
 
 // 根Store状态类型
+/**
+ * @description 描述应用各业务 Store 组成的根状态。
+ * @typedef {object} RootState
+ * @property {UserState} user 用户状态。
+ * @property {SettingStoreState} setting 设置状态。
+ * @property {WorkTabState} workTab 工作标签页状态。
+ * @property {MenuState} menu 菜单状态。
+ */
 export interface RootState {
-  /** 用户状态 */
+  /**
+   * @description 用户状态
+   */
   user: UserState
-  /** 设置状态 */
+  /**
+   * @description 设置状态
+   */
   setting: SettingStoreState
-  /** 工作标签页状态 */
+  /**
+   * @description 工作标签页状态
+   */
   workTab: WorkTabState
-  /** 菜单状态 */
+  /**
+   * @description 菜单状态
+   */
   menu: MenuState
 }

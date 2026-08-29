@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 游客行为分析服务测试脚本。
+ * @description 验证官方 Excel 数据加载、灵山数据过滤和运营看板指标聚合。
+ */
 import assert from "node:assert/strict";
 import { getDashboardAnalytics, loadBehaviorDataset } from "../src/services/behaviorAnalytics.mjs";
 

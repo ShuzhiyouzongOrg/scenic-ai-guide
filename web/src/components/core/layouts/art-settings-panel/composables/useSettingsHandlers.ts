@@ -1,9 +1,17 @@
+/**
+ * @fileoverview 封装系统设置面板的状态变更处理器。
+ * @description 将设置仓库操作、主题 DOM 更新和通用值处理组合为可复用方法。
+ */
+
 import { useSettingStore } from '@/store/modules/setting'
 import { storeToRefs } from 'pinia'
 import type { ContainerWidthEnum } from '@/enums/appEnum'
 
 /**
- * 设置项通用处理逻辑
+ * @description 设置项通用处理逻辑
+ * @returns {object} DOM 操作、基础设置、盒子样式、颜色和容器宽度处理器。
+ * @example
+ * const { basicHandlers, colorHandlers } = useSettingsHandlers()
  */
 export function useSettingsHandlers() {
   const settingStore = useSettingStore()

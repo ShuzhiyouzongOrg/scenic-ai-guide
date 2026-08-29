@@ -1,13 +1,64 @@
 /**
  * @fileoverview 数字人导游 RAG 问答编排服务。
  *
- * 处理链依次执行安全规则、FAQ 缓存、追问改写、知识检索、场景分类、大模型生成、
+ * @description 处理链依次执行安全规则、FAQ 缓存、追问改写、知识检索、场景分类、大模型生成、
  * 纯文本与路线结构校验，并附加引用、质量标签、数字人状态和延迟明细。
- *
+ */
+
+/**
  * @typedef {"qa"|"explain"|"route"} AnswerMode
+ * @description 智能问答支持的回答模式。
+ */
+
+/**
  * @typedef {"sensitive"|"out_of_scope"|"chitchat"|"no_data"|"grounded"} AnswerScenario
- * @typedef {{results: object[], intents?: object[], spotMatches?: object[], tokens?: string[]}} RetrievalContext
- * @typedef {{answer: string, mode: AnswerMode, locale: string, scenario: AnswerScenario, label: string, emotion: string, citations: object[], sources: object[], retrieval: object, provider: string, model: string, digitalHuman: object, cached: boolean, latency: object}} AnswerPayload
+ * @description 护栏与检索共同判定的回答场景。
+ */
+
+/**
+ * @typedef {object} RetrievalContext
+ * @description 混合检索返回并供问答编排使用的上下文。
+ * @property {string} [traceId] 检索追踪 ID。
+ * @property {string} [query] 规范化检索问题。
+ * @property {string} [mode] 检索模式。
+ * @property {string|null} [locale] 首选资料语言。
+ * @property {string} [indexVersion] 知识索引版本。
+ * @property {object} [filters] 生效的知识范围过滤条件。
+ * @property {string[]} [tokens] 查询词项。
+ * @property {string[]} [expandedTerms] 扩展检索词项。
+ * @property {object} [queryPlan] 查询拆解计划。
+ * @property {object[]} [intents] 命中的意图。
+ * @property {object[]} [spotMatches] 命中的景点实体。
+ * @property {object[]} [conflicts] 检索证据冲突。
+ * @property {object[]} [channels] 各检索通道摘要。
+ * @property {object} [confidence] 检索置信度指标。
+ * @property {object|null} [decision] 可回答性决策。
+ * @property {number} [total] 结果数量。
+ * @property {object[]} results 排序后的知识结果。
+ * @property {boolean} [languageFallback] 是否执行了跨语言回退。
+ * @property {object|null} [remote] 远程向量检索状态。
+ */
+
+/**
+ * @typedef {object} AnswerPayload
+ * @description 非流式智能问答的完整返回载荷。
+ * @property {string} answer 公开回答正文。
+ * @property {AnswerMode} mode 回答模式。
+ * @property {string} locale 回答语言。
+ * @property {AnswerScenario} scenario 回答场景。
+ * @property {string} label 质量标签。
+ * @property {string} emotion 数字人情绪标签。
+ * @property {object[]} citations 稳定引用列表。
+ * @property {object[]} sources 客户端展示的来源摘要。
+ * @property {object} retrieval 检索过程公开摘要。
+ * @property {object} citationValidation 引用与事实校验摘要。
+ * @property {string} provider 大模型供应商。
+ * @property {string} model 大模型名称。
+ * @property {object} digitalHuman 数字人播报状态。
+ * @property {string|null} messageId 已保存的助手消息 ID。
+ * @property {object} experiment 对外实验分组摘要。
+ * @property {boolean} cached 是否命中问答缓存。
+ * @property {object} latency 各阶段耗时。
  */
 
 import { hybridSearch, hybridSearchAsync } from "./retrieval.mjs";
@@ -32,7 +83,10 @@ import {
   resolveRagExperiment
 } from "./ragExperiment.mjs";
 
-/** @type {string[]} 支持语言中可能表示省略主语追问的代词和方位词。 */
+/**
+ * @description 定义支持语言中用于识别省略主语追问的代词和方位词。
+ * @type {string[]} 支持语言中可能表示省略主语追问的代词和方位词。
+ */
 const FOLLOW_UP_PRONOUNS = [
   "它",
   "他",
@@ -70,7 +124,7 @@ const FOLLOW_UP_PRONOUNS = [
 ];
 
 /**
- * 获取当前 Unix 毫秒时间，用于阶段耗时统计。
+ * @description 获取当前 Unix 毫秒时间，用于阶段耗时统计。
  * @private
  * @returns {number} Unix 毫秒时间戳。
  */
@@ -79,7 +133,7 @@ function nowMs() {
 }
 
 /**
- * 返回回答模式对应的大模型最大生成 token 数。
+ * @description 返回回答模式对应的大模型最大生成 token 数。
  * @private
  * @param {*} mode 回答模式。
  * @returns {number} 最大生成 token 数。
@@ -91,7 +145,7 @@ function maxTokensForMode(mode) {
 }
 
 /**
- * 移除代码块、标题、链接、粗体和行内代码等 Markdown 语法，得到客户端可口播纯文本。
+ * @description 移除代码块、标题、链接、粗体和行内代码等 Markdown 语法，得到客户端可口播纯文本。
  * @param {*} value 大模型原始输出。
  * @returns {string} 规范化纯文本。
  * @example
@@ -111,7 +165,7 @@ export function normalizeAssistantText(value) {
 }
 
 /**
- * 将经过服务端核验的回答转换为游客可见正文，移除内部引用编号并整理标点空白。
+ * @description 将经过服务端核验的回答转换为游客可见正文，移除内部引用编号并整理标点空白。
  * 结构化 `citations` 与 `sources` 字段保持不变，供界面单独展示来源。
  * @param {*} value 已核验回答或旧缓存正文。
  * @returns {string} 不含内部技术标记的公开正文。
@@ -127,7 +181,15 @@ export function formatPublicAssistantText(value) {
     .trim();
 }
 
-/** @param {object[]} messages 会话消息。 @returns {object[]} 清理旧助手正文且保留用户消息的公开历史。 */
+/**
+ * @description 清理历史助手消息中的内部标记，并保留用户消息供后续问答使用。
+ * @param {object[]} messages 会话消息。
+ * @returns {object[]} 清理旧助手正文且保留用户消息的公开历史。
+ * @example
+ * const history = formatPublicConversationMessages([
+ *   { role: "assistant", content: "开放时间为 07:00。[C-hours]" }
+ * ]);
+ */
 export function formatPublicConversationMessages(messages = []) {
   return messages.map((message) => (
     message.role === "assistant"
@@ -137,8 +199,11 @@ export function formatPublicConversationMessages(messages = []) {
 }
 
 /**
- * 创建增量回答清理器，处理可能被拆到多个 SSE 数据块中的内部引用编号。
+ * @description 创建增量回答清理器，处理可能被拆到多个 SSE 数据块中的内部引用编号。
  * @returns {{push: (value: *) => string, flush: () => string}} 增量写入与末尾冲刷函数。
+ * @example
+ * const filter = createPublicAnswerStreamFilter();
+ * const visibleText = filter.push("灵山大佛通高 88 米。[C-") + filter.push("height]") + filter.flush();
  */
 export function createPublicAnswerStreamFilter() {
   let pending = "";
@@ -169,7 +234,7 @@ export function createPublicAnswerStreamFilter() {
 }
 
 /**
- * 判断回答中是否至少包含两个编号路线步骤。
+ * @description 判断回答中是否至少包含两个编号路线步骤。
  * @param {*} value 回答文本。
  * @returns {boolean} 具备基本路线结构时为 `true`。
  * @example
@@ -182,7 +247,7 @@ export function hasRouteStructure(value) {
 }
 
 /**
- * 判断回答是否非空，并可选要求完整路线结构。
+ * @description 判断回答是否非空，并可选要求完整路线结构。
  * @private
  * @param {*} value 回答文本。
  * @param {boolean} [requireRouteStructure=false] 是否要求至少两个编号步骤。
@@ -194,7 +259,7 @@ function isUsableAnswer(value, requireRouteStructure = false) {
 }
 
 /**
- * 在两次模型生成仍不可用时，构建对应语言的兜底回答。
+ * @description 在两次模型生成仍不可用时，构建对应语言的兜底回答。
  * 路线模式会优先采用首条检索资料正文。
  * @private
  * @param {{mode: AnswerMode, results: object[], locale: string}} input 回退上下文。
@@ -229,7 +294,7 @@ function fallbackAssistantText({ mode, results, locale }) {
 }
 
 /**
- * 从当前知识库读取全部景点名称和别名。
+ * @description 从当前知识库读取全部景点名称和别名。
  * @private
  * @returns {string[]} 景点名称与别名。
  * @throws {Error} 知识库加载失败时透传异常。
@@ -242,7 +307,7 @@ function knownSpotNames() {
 }
 
 /**
- * 优先采用合法显式模式，否则按多语言关键词推断路线、讲解或普通问答模式。
+ * @description 优先采用合法显式模式，否则按多语言关键词推断路线、讲解或普通问答模式。
  * @private
  * @param {string} question 用户问题。
  * @param {*} explicitMode 客户端指定模式。
@@ -270,7 +335,7 @@ function inferMode(question, explicitMode) {
 }
 
 /**
- * 将仅含代词或很短的追问重新锚定到会话最近讨论的景点。
+ * @description 将仅含代词或很短的追问重新锚定到会话最近讨论的景点。
  * @private
  * @param {string} question 当前问题。
  * @param {string} sessionId 会话 ID。
@@ -293,7 +358,7 @@ function resolveFollowUp(question, sessionId) {
 }
 
 /**
- * 根据场景、模式和用户情绪生成后台质量标签。
+ * @description 根据场景、模式和用户情绪生成后台质量标签。
  * @private
  * @param {{scenario: AnswerScenario, mode: AnswerMode, emotion: string|null}} input 分类信息。
  * @returns {"拒答"|"情感安抚"|"路线推荐"|"闲聊"|"事实问答"} 质量标签。
@@ -319,7 +384,7 @@ function qualityLabel({ scenario, mode, emotion }) {
 }
 
 /**
- * 将场景和质量标签转换为数字人情绪标签。
+ * @description 将场景和质量标签转换为数字人情绪标签。
  * @private
  * @param {{scenario: AnswerScenario, label: string, emotion: string|null}} input 分类信息。
  * @returns {"抱歉"|"安抚"|"微笑"|"平静"} 数字人情绪。
@@ -345,7 +410,7 @@ function emotionTag({ scenario, label, emotion }) {
 }
 
 /**
- * 不足以单独证明检索相关性的通用词集合，避免仅命中所有分块都有的景区名称。
+ * @description 不足以单独证明检索相关性的通用词集合，避免仅命中所有分块都有的景区名称。
  * @type {Set<string>}
  */
 const GENERIC_TERMS = new Set([
@@ -379,7 +444,7 @@ const GENERIC_TERMS = new Set([
 ]);
 
 /**
- * 判断检索是否命中景点、意图或问题中的显著词，而非仅命中通用景区词。
+ * @description 判断检索是否命中景点、意图或问题中的显著词，而非仅命中通用景区词。
  * @private
  * @param {RetrievalContext} retrieval 检索上下文。
  * @returns {boolean} 检索结果足以支撑回答时为 `true`。
@@ -408,7 +473,7 @@ function retrievalIsRelevant(retrieval) {
 }
 
 /**
- * 按敏感内容、服务范围、问候、检索数量、分数和相关性分类回答场景。
+ * @description 按敏感内容、服务范围、问候、检索数量、分数和相关性分类回答场景。
  * @private
  * @param {{question: string, retrieval: RetrievalContext, emotion: string|null}} input 分类输入。
  * @returns {{scenario: AnswerScenario, sensitiveCategory?: string|null, otherPlace?: string|null}} 场景及附加信息。
@@ -446,7 +511,7 @@ function classifyScenario({ question, retrieval, emotion }) {
 }
 
 /**
- * 构建模拟供应商和回答后处理使用的结构化元数据。
+ * @description 构建模拟供应商和回答后处理使用的结构化元数据。
  * @private
  * @param {{scenario: AnswerScenario, mode: AnswerMode, question: string, retrieval: RetrievalContext|null, extras?: object}} input 元数据来源。
  * @returns {object} 完整回答元数据。
@@ -465,7 +530,7 @@ function buildMeta({ scenario, mode, question, retrieval, extras }) {
 }
 
 /**
- * 执行完整 RAG 问答，返回正文、引用、标签、检索摘要、数字人状态和阶段耗时。
+ * @description 执行完整 RAG 问答，返回正文、引用、标签、检索摘要、数字人状态和阶段耗时。
  * 真实与模拟大模型供应商共用相同编排逻辑。
  * @param {{question?: *, sessionId?: string, mode?: AnswerMode, history?: object[], locale?: *, signal?: AbortSignal}} [input={}] 问答输入。
  * @returns {Promise<AnswerPayload>} 完整回答载荷。
@@ -818,10 +883,10 @@ export async function answerQuestion({
 }
 
 /**
- * 删除内部会话哈希和分桶，只向客户端返回可审计的实验标签。
+ * @description 删除内部会话哈希和分桶，只向客户端返回可审计的实验标签。
  * @private
  * @param {object} experiment 内部分流结果。
- * @returns {{id: string, enabled: boolean, variant: string, status: string}}
+ * @returns {{id: string, enabled: boolean, variant: string, status: string}} 可安全返回客户端的实验标签。
  */
 function publicExperiment(experiment) {
   return {
@@ -832,7 +897,11 @@ function publicExperiment(experiment) {
   };
 }
 
-/** @param {*} reason 内部决策原因。 @returns {string|null} 不泄露评分细节的公开提示码。 */
+/**
+ * @description 不泄露评分细节的公开提示码。
+ * @param {*} reason 内部决策原因。
+ * @returns {string|null} 不泄露评分细节的公开提示码。
+ */
 function publicDecisionCode(reason) {
   const map = {
     no_candidate: "knowledge_not_found",
@@ -845,15 +914,19 @@ function publicDecisionCode(reason) {
 }
 
 /**
- * 校验回答中出现的引用标记和可核验的数字/时间事实。
+ * @description 校验回答中出现的引用标记和可核验的数字/时间事实。
  *
  * 没有内联标记但所有可识别事实都能在返回引用中找到时标记为 `implicit`，
  * 这样兼容现有纯文本客户端，同时把缺少标记、伪造标记和无证据事实暴露给
  * 管理端质量统计。
- * @private
  * @param {*} answer 回答正文。
  * @param {object[]} citations 稳定引用列表。
+ * @param {object[]} [results=[]] 包含完整证据文本的检索结果。
  * @returns {{status: string, inlineCitationIds: string[], validCitationIds: string[], invalidCitationIds: string[], unsupportedFacts: string[], factCoverage: number}} 校验摘要。
+ * @example
+ * const validation = validateAnswerCitations("灵山大佛通高 88 米。[C-height]", [
+ *   { citationId: "C-height" }
+ * ]);
  */
 export function validateAnswerCitations(answer, citations, results = []) {
   const text = String(answer || "");
@@ -884,7 +957,7 @@ export function validateAnswerCitations(answer, citations, results = []) {
 }
 
 /**
- * 优先使用与回答语言一致的知识；该语种无法形成可靠答案时再受控回退到全语种资料。
+ * @description 优先使用与回答语言一致的知识；该语种无法形成可靠答案时再受控回退到全语种资料。
  * @param {string} query 检索问题。
  * @param {string} locale 回答语言。
  * @param {(options: object) => object|Promise<object>} search 检索函数。
@@ -908,11 +981,13 @@ async function retrieveWithLanguagePreference(query, locale, search) {
 }
 
 /**
- * 删除伪造引用和无证据数字事实，并为可核验的数字、时间、地点句附上稳定引用。
+ * @description 删除伪造引用和无证据数字事实，并为可核验的数字、时间、地点句附上稳定引用。
  * @param {*} answer 模型回答。
  * @param {object[]} citations 可公开引用。
  * @param {object[]} results 完整检索结果，仅用于服务端证据匹配。
  * @returns {{answer: string, removedUnsupportedSegments: string[]}} 强制对齐后的回答。
+ * @example
+ * const aligned = enforceAnswerCitations(answer, citations, retrievalResults);
  */
 export function enforceAnswerCitations(answer, citations = [], results = []) {
   const citationMap = new Map(citations.map((citation) => [citation.citationId, citation]));
@@ -960,7 +1035,7 @@ export function enforceAnswerCitations(answer, citations = [], results = []) {
 }
 
 /**
- * 按换行和中英文句末标点切分回答，同时保留 `1. 路线节点` 这类编号与正文。
+ * @description 按换行和中英文句末标点切分回答，同时保留 `1. 路线节点` 这类编号与正文。
  * @param {*} value 回答正文。
  * @returns {string[]} 可独立核验的回答片段。
  */
@@ -981,7 +1056,11 @@ function splitAnswerSegments(value) {
   return segments;
 }
 
-/** @param {string} text 回答句。 @returns {string[]} 数字、日期、时间、金额和度量事实。 */
+/**
+ * @description 数字、日期、时间、金额和度量事实。
+ * @param {string} text 回答句。
+ * @returns {string[]} 数字、日期、时间、金额和度量事实。
+ */
 function extractFactualTokens(text) {
   const withoutNumbering = String(text || "").replace(/^\s*\d+[.)、]\s*/u, "");
   return [...new Set(withoutNumbering.match(
@@ -989,13 +1068,17 @@ function extractFactualTokens(text) {
   ) || [])].filter((fact) => !/^\d+$/u.test(fact.trim()));
 }
 
-/** @param {string} text 回答句。 @returns {boolean} 是否包含地点、营业或演出事实。 */
+/**
+ * @description 是否包含地点、营业或演出事实。
+ * @param {string} text 回答句。
+ * @returns {boolean} 是否包含地点、营业或演出事实。
+ */
 function containsLocationOrScheduleClaim(text) {
   return /(位于|坐落|地址|入口|出口|开放|闭园|闭馆|营业|演出|表演|located|opening|closes|performance|위치|운영|공연|所在|営業時間|上演|ตั้งอยู่|เปิด|การแสดง)/iu.test(text);
 }
 
 /**
- * 选择覆盖数字事实最多、其次词项重合最高的引用。
+ * @description 选择覆盖数字事实最多、其次词项重合最高的引用。
  * @param {string} segment 回答句。
  * @param {string[]} facts 事实词。
  * @param {object[]} citations 引用。
@@ -1019,13 +1102,17 @@ function selectEvidenceCitation(segment, facts, citations, evidenceByCitation) {
   return bestScore > 0 ? best : citations[0] || null;
 }
 
-/** @param {*} value 文本。 @returns {string} 忽略空白和常见千分位的证据比较文本。 */
+/**
+ * @description 忽略空白和常见千分位的证据比较文本。
+ * @param {*} value 文本。
+ * @returns {string} 忽略空白和常见千分位的证据比较文本。
+ */
 function normalizeEvidence(value) {
   return String(value || "").normalize("NFKC").toLowerCase().replace(/[\s,，]/gu, "");
 }
 
 /**
- * 流式执行 RAG 问答并逐段产生模型文本；完成后将完整对话写入会话历史。
+ * @description 流式执行 RAG 问答并逐段产生模型文本；完成后将完整对话写入会话历史。
  * 安全拒答和无资料场景同样通过供应商流式输出。
  * @param {{question?: *, sessionId?: string, mode?: AnswerMode, locale?: *, signal?: AbortSignal}} [input={}] 问答输入。
  * @returns {AsyncGenerator<string, void, void>} 大模型文本增量。

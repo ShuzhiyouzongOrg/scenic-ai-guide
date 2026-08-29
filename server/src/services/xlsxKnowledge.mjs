@@ -1,13 +1,18 @@
 /**
  * @fileoverview XLSX 工作簿的结构化知识提取器。
  *
- * 解析只读取单元格缓存，不执行宏、外链或公式；每条记录保留工作表和行范围，
+ * @description 解析只读取单元格缓存，不执行宏、外链或公式；每条记录保留工作表和行范围，
  * 便于管理员追溯来源。用途隔离由上传服务决定，行为分析表不会自动进入游客 RAG。
  */
 import XLSX from "xlsx";
 import { createHash } from "node:crypto";
 
-/** @type {Readonly<Record<string, number>>} XLSX 解析资源上限。 */
+/**
+ * @description XLSX 解析资源与安全上限。
+ * @type {Readonly<Record<string, number>>}
+ * @example
+ * const maxRows = XLSX_LIMITS.maxRows;
+ */
 export const XLSX_LIMITS = Object.freeze({
   maxBytes: 32 * 1024 * 1024,
   maxUncompressedBytes: 128 * 1024 * 1024,
@@ -20,10 +25,12 @@ export const XLSX_LIMITS = Object.freeze({
 });
 
 /**
- * 解析工作簿并转换为带表头的结构化文本分块。
+ * @description 解析工作簿并转换为带表头的结构化文本分块。
  * @param {{buffer: Buffer, documentId: string, fileName: string, knowledgeScope?: string, scenicArea?: string, language?: string}} input 解析输入。
  * @returns {{chunks: object[], sheets: object[], skippedSheets: string[], workbookHash: string}} 结构化结果。
  * @throws {Error & {code: string, statusCode?: number}} 文件损坏、超限或工作表结构异常时抛出。
+ * @example
+ * const result = extractXlsxKnowledge({ buffer, documentId: "doc-1", fileName: "guide.xlsx" });
  */
 export function extractXlsxKnowledge({
   buffer,
@@ -158,9 +165,9 @@ export function extractXlsxKnowledge({
 }
 
 /**
- * 检查 ZIP 中央目录，限制解压体积、文件数、压缩比、宏和外部链接。
+ * @description 检查 ZIP 中央目录，限制解压体积、文件数、压缩比、宏和外部链接。
  * @param {Buffer} buffer XLSX ZIP 字节。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error & {code:string,statusCode:number}} 包结构或安全限制不满足时抛出。
  */
 function inspectXlsxPackage(buffer) {
@@ -212,7 +219,13 @@ function inspectXlsxPackage(buffer) {
   }
 }
 
-/** @param {Buffer} buffer 文件字节。 */
+/**
+ * @description 校验输入为非空且具有 ZIP 签名的 XLSX 字节。
+ * @private
+ * @param {Buffer} buffer 文件字节。
+ * @returns {void} 无返回值。
+ * @throws {Error & {code: "XLSX_EMPTY"|"XLSX_SIGNATURE_INVALID", statusCode: 422}} 输入为空或签名无效时抛出。
+ */
 function assertBuffer(buffer) {
   if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
     throw processingError("XLSX_EMPTY", "The workbook is empty.", 422);
@@ -222,7 +235,12 @@ function assertBuffer(buffer) {
   }
 }
 
-/** @param {string[][]} rows 工作表行。 @returns {number} 表头行下标。 */
+/**
+ * @description 在前十二行中选择非空唯一单元格最多的一行作为表头。
+ * @private
+ * @param {string[][]} rows 工作表行。
+ * @returns {number} 选中的表头行下标。
+ */
 function findHeaderRow(rows) {
   let bestIndex = 0;
   let bestScore = -1;
@@ -236,7 +254,13 @@ function findHeaderRow(rows) {
   return bestIndex;
 }
 
-/** @param {string[]} row 原始表头。 @param {number} width 列宽。 @returns {string[]} 唯一表头。 */
+/**
+ * @description 补齐空表头并为重复列名追加序号。
+ * @private
+ * @param {string[]} row 原始表头。
+ * @param {number} width 工作表列宽。
+ * @returns {string[]} 与列宽一致的唯一表头。
+ */
 function uniqueHeaders(row, width) {
   const seen = new Map();
   return Array.from({ length: width }, (_, index) => {
@@ -247,12 +271,25 @@ function uniqueHeaders(row, width) {
   });
 }
 
-/** @param {string} value 任意字符串。 @returns {string} 安全片段。 */
+/**
+ * @description 将任意文本转换为适合分块 ID 的短安全片段。
+ * @private
+ * @param {string} value 任意字符串。
+ * @returns {string} 仅含字母、数字和下划线的安全片段。
+ */
 function slug(value) {
   return String(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/gu, "").slice(0, 40) || "sheet";
 }
 
-/** @param {string} code 错误码。 @param {string} message 错误消息。 @param {number} statusCode HTTP 状态。 @param {Error} [cause] 原因。 @returns {Error & {code: string, statusCode: number}} 错误对象。 */
+/**
+ * @description 创建带业务错误码、HTTP 状态和可选原因的 XLSX 处理异常。
+ * @private
+ * @param {string} code 错误码。
+ * @param {string} message 错误消息。
+ * @param {number} [statusCode=422] HTTP 状态码。
+ * @param {Error} [cause] 原始异常。
+ * @returns {Error & {code: string, statusCode: number}} XLSX 处理异常。
+ */
 function processingError(code, message, statusCode = 422, cause) {
   const error = new Error(message, cause ? { cause } : undefined);
   error.code = code;

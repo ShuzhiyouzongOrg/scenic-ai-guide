@@ -1,5 +1,10 @@
 /**
- * useTableColumns - 表格列配置管理
+ * @fileoverview 提供表格列显示、增删、更新与重排能力。
+ * @description 统一处理普通列和特殊列标识，并维护响应式动态列配置。
+ */
+
+/**
+ * @description useTableColumns - 表格列配置管理
  *
  * 提供动态的表格列配置管理能力，支持运行时灵活控制列的显示、隐藏、排序等操作。
  * 通常与 useTable 配合使用，为表格提供完整的列管理功能。
@@ -29,7 +34,7 @@
  * ```
  *
  * @module useTableColumns
- * @author Scenic AI Guide Team
+ *
  */
 
 import { ref, computed, watch } from 'vue'
@@ -37,7 +42,7 @@ import { $t } from '@/locales'
 import type { ColumnOption } from '@/types/component'
 
 /**
- * 特殊列类型
+ * @description 特殊列类型
  */
 const SPECIAL_COLUMNS: Record<string, { prop: string; label: string }> = {
   selection: { prop: '__selection__', label: $t('table.column.selection') },
@@ -46,14 +51,20 @@ const SPECIAL_COLUMNS: Record<string, { prop: string; label: string }> = {
 }
 
 /**
- * 获取列的唯一标识
+ * @description 返回普通列的 `prop`，或将选择、展开和序号列映射为稳定的内部标识。
+ * @template T 表格行记录类型。
+ * @param {ColumnOption<T>} col 待解析的列配置。
+ * @returns {string} 可用于查找、更新和排序的列唯一标识。
  */
 export const getColumnKey = <T>(col: ColumnOption<T>) =>
   SPECIAL_COLUMNS[col.type as keyof typeof SPECIAL_COLUMNS]?.prop ?? (col.prop as string)
 
 /**
- * 获取列的显示状态
+ * @description 获取列的显示状态
  * 优先使用 visible 字段，如果不存在则使用 checked 字段
+ * @template T 表格行记录类型。
+ * @param {ColumnOption<T>} col 待判断的列配置。
+ * @returns {boolean} `visible`、`checked` 或默认值 true 对应的显示状态。
  */
 export const getColumnVisibility = <T>(col: ColumnOption<T>): boolean => {
   // visible 优先级高于 checked
@@ -65,7 +76,10 @@ export const getColumnVisibility = <T>(col: ColumnOption<T>): boolean => {
 }
 
 /**
- * 获取列的检查状态
+ * @description 将原始列配置转换为列设置面板使用的勾选状态，并固定特殊列为显示。
+ * @template T 表格行记录类型。
+ * @param {ColumnOption<T>[]} columns 原始列配置数组。
+ * @returns {Array<ColumnOption<T> & {checked: boolean, visible: boolean}>} 补齐 `checked`、`visible` 及特殊列标识后的新数组。
  */
 export const getColumnChecks = <T>(columns: ColumnOption<T>[]) =>
   columns.map((col) => {
@@ -79,65 +93,92 @@ export const getColumnChecks = <T>(columns: ColumnOption<T>[]) =>
   })
 
 /**
- * 动态列配置接口
+ * @description 定义动态表格列的增删、显隐、更新、排序和查询方法。
+ * @interface DynamicColumnConfig
+ * @template T 表格行记录类型。
+ * @property {(column: ColumnOption<T> | ColumnOption<T>[], index?: number) => void} addColumn 新增一个或多个列。
+ * @property {(prop: string | string[]) => void} removeColumn 删除一个或多个列。
+ * @property {(prop: string | string[], visible?: boolean) => void} toggleColumn 切换一个或多个列的显示状态。
+ * @property {(prop: string | Array<{prop: string, updates: Partial<ColumnOption<T>>}>, updates?: Partial<ColumnOption<T>>) => void} updateColumn 更新一个或多个列配置。
+ * @property {(updates: Array<{prop: string, updates: Partial<ColumnOption<T>>}>) => void} batchUpdateColumns 批量更新列配置。
+ * @property {(fromIndex: number, toIndex: number) => void} reorderColumns 调整列的显示顺序。
+ * @property {(prop: string) => ColumnOption<T> | undefined} getColumnConfig 获取指定列配置。
+ * @property {() => ColumnOption<T>[]} getAllColumns 获取全部列配置。
+ * @property {() => void} resetColumns 恢复初始列配置。
  */
 export interface DynamicColumnConfig<T = any> {
   /**
-   * 新增列（支持单个或批量）
-   * @param column 列配置或列配置数组
-   * @param index 可选的插入位置，默认末尾（批量时为第一个列的位置）
+   * @description 新增列（支持单个或批量）
+   * @param {ColumnOption<T> | ColumnOption<T>[]} column 列配置或列配置数组。
+   * @param {number} [index] 可选的插入位置，默认末尾；批量添加时表示首列位置。
+   * @returns {void} 无返回值。
    */
   addColumn: (column: ColumnOption<T> | ColumnOption<T>[], index?: number) => void
   /**
-   * 删除列（支持单个或批量）
-   * @param prop 列的唯一标识或标识数组
+   * @description 删除列（支持单个或批量）
+   * @param {string | string[]} prop 列的唯一标识或标识数组。
+   * @returns {void} 无返回值。
    */
   removeColumn: (prop: string | string[]) => void
   /**
-   * 切换列显示状态（支持单个或批量）
-   * @param prop 列的唯一标识或标识数组
-   * @param visible 可选的显示状态，默认取反
+   * @description 切换列显示状态（支持单个或批量）
+   * @param {string | string[]} prop 列的唯一标识或标识数组。
+   * @param {boolean} [visible] 指定显示状态；省略时切换当前状态。
+   * @returns {void} 无返回值。
    */
   toggleColumn: (prop: string | string[], visible?: boolean) => void
 
   /**
-   * 更新列（支持单个或批量）
-   * @param prop 列的唯一标识或更新配置数组
-   * @param updates 列配置更新（当 prop 为字符串时使用）
+   * @description 更新列（支持单个或批量）
+   * @param {string | Array<{prop: string, updates: Partial<ColumnOption<T>>}>} prop 列的唯一标识或批量更新配置。
+   * @param {Partial<ColumnOption<T>>} [updates] 单列更新内容，仅在 `prop` 为字符串时使用。
+   * @returns {void} 无返回值。
    */
   updateColumn: (
     prop: string | Array<{ prop: string; updates: Partial<ColumnOption<T>> }>,
     updates?: Partial<ColumnOption<T>>
   ) => void
   /**
-   * 批量更新列（兼容旧版本，推荐使用 updateColumn 的数组模式）
-   * @param updates 列更新配置
+   * @description 批量更新列（兼容旧版本，推荐使用 updateColumn 的数组模式）
+   * @param {Array<{prop: string, updates: Partial<ColumnOption<T>>}>} updates 列更新配置。
+   * @returns {void} 无返回值。
    * @deprecated 推荐使用 updateColumn 的数组模式
    */
   batchUpdateColumns: (updates: Array<{ prop: string; updates: Partial<ColumnOption<T>> }>) => void
   /**
-   * 重新排序列
-   * @param fromIndex 源索引
-   * @param toIndex 目标索引
+   * @description 重新排序列
+   * @param {number} fromIndex 源索引。
+   * @param {number} toIndex 目标索引。
+   * @returns {void} 无返回值。
    */
   reorderColumns: (fromIndex: number, toIndex: number) => void
   /**
-   * 获取列配置
-   * @param prop 列的唯一标识
-   * @returns 列配置
+   * @description 获取列配置
+   * @param {string} prop 列的唯一标识。
+   * @returns {ColumnOption<T> | undefined} 匹配的列配置；不存在时返回 `undefined`。
    */
   getColumnConfig: (prop: string) => ColumnOption<T> | undefined
   /**
-   * 获取所有列配置
-   * @returns 所有列配置
+   * @description 获取所有列配置
+   * @returns {ColumnOption<T>[]} 所有列配置。
    */
   getAllColumns: () => ColumnOption<T>[]
   /**
-   * 重置所有列
+   * @description 重置所有列
+   * @returns {void} 无返回值。
    */
   resetColumns: () => void
 }
 
+/**
+ * @description 根据列工厂创建响应式列列表，并提供增删、显隐、更新、重排和查询接口。
+ * @template T 表格行记录类型。
+ * @param {() => ColumnOption<T>[]} columnsFactory 返回初始列配置数组的工厂函数。
+ * @returns {{columns: import('vue').ComputedRef<ColumnOption<T>[]>, columnChecks: import('vue').Ref<ColumnOption<T>[]>} & DynamicColumnConfig<T>} 响应式列、列勾选状态及完整动态列控制方法。
+ * @example
+ * const columns = useTableColumns(() => [{ prop: 'name', label: '名称' }])
+ * columns.toggleColumn('name', false)
+ */
 export function useTableColumns<T = any>(
   columnsFactory: () => ColumnOption<T>[]
 ): {
@@ -189,7 +230,7 @@ export function useTableColumns<T = any>(
     columnChecks,
 
     /**
-     * 新增列（支持单个或批量）
+     * @description 新增列（支持单个或批量）
      */
     addColumn: (column: ColumnOption<T> | ColumnOption<T>[], index?: number) =>
       setDynamicColumns((cols) => {
@@ -204,7 +245,7 @@ export function useTableColumns<T = any>(
       }),
 
     /**
-     * 删除列（支持单个或批量）
+     * @description 删除列（支持单个或批量）
      */
     removeColumn: (prop: string | string[]) =>
       setDynamicColumns((cols) => {
@@ -213,7 +254,7 @@ export function useTableColumns<T = any>(
       }),
 
     /**
-     * 更新列（支持单个或批量）
+     * @description 更新列（支持单个或批量）
      */
     updateColumn: (
       prop: string | Array<{ prop: string; updates: Partial<ColumnOption<T>> }>,
@@ -239,7 +280,7 @@ export function useTableColumns<T = any>(
     },
 
     /**
-     * 切换列显示状态（支持单个或批量）
+     * @description 切换列显示状态（支持单个或批量）
      */
     toggleColumn: (prop: string | string[], visible?: boolean) => {
       const propsToToggle = Array.isArray(prop) ? prop : [prop]
@@ -259,14 +300,14 @@ export function useTableColumns<T = any>(
     },
 
     /**
-     * 重置所有列
+     * @description 重置所有列
      */
     resetColumns: () => {
       dynamicColumns.value = columnsFactory()
     },
 
     /**
-     * 批量更新列（兼容旧版本）
+     * @description 批量更新列（兼容旧版本）
      * @deprecated 推荐使用 updateColumn 的数组模式
      */
     batchUpdateColumns: (updates) =>
@@ -280,7 +321,7 @@ export function useTableColumns<T = any>(
       }),
 
     /**
-     * 重新排序列
+     * @description 重新排序列
      */
     reorderColumns: (fromIndex: number, toIndex: number) =>
       setDynamicColumns((cols) => {
@@ -300,12 +341,12 @@ export function useTableColumns<T = any>(
       }),
 
     /**
-     * 获取列配置
+     * @description 获取列配置
      */
     getColumnConfig: (prop: string) => dynamicColumns.value.find((c) => getColumnKey(c) === prop),
 
     /**
-     * 获取所有列配置
+     * @description 获取所有列配置
      */
     getAllColumns: () => [...dynamicColumns.value]
   }

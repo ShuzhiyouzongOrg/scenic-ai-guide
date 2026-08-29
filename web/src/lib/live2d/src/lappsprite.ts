@@ -1,26 +1,32 @@
 // @ts-nocheck -- 移植自 awesome-digital-human-live2d 的第三方 Live2D(Cubism SDK)代码，不纳入本项目严格类型检查
-/**
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
+/**
+ * @fileoverview Live2D WebGL 精灵绘制适配器。
+ * @description 管理精灵纹理、矩形边界、顶点缓冲、绘制和屏幕命中检测。
+ */
+
 import { LAppSubdelegate } from './lappsubdelegate';
 
 /**
- * スプライトを実装するクラス
- *
- * テクスチャＩＤ、Rectの管理
+ * @class
+ * @description 封装一个带矩形范围和 WebGL 纹理的二维精灵。
+ * @example
+ * const sprite = new LAppSprite(x, y, width, height, texture);
  */
 export class LAppSprite {
   /**
-   * コンストラクタ
-   * @param x            x座標
-   * @param y            y座標
-   * @param width        横幅
-   * @param height       高さ
-   * @param textureId    テクスチャ
+   * @description 根据中心坐标、尺寸和纹理创建精灵边界及初始缓冲状态。
+   * @param {number} x 精灵中心横坐标。
+   * @param {number} y 精灵中心纵坐标。
+   * @param {number} width 精灵宽度。
+   * @param {number} height 精灵高度。
+   * @param {WebGLTexture} textureId 精灵使用的 WebGL 纹理。
    */
   public constructor(
     x: number,
@@ -51,7 +57,8 @@ export class LAppSprite {
   }
 
   /**
-   * 解放する。
+   * @description 删除纹理和顶点、UV、索引缓冲，并清空矩形引用。
+   * @returns {void} 无返回值。
    */
   public release(): void {
     this._rect = null;
@@ -72,16 +79,17 @@ export class LAppSprite {
   }
 
   /**
-   * テクスチャを返す
+   * @description 获取精灵当前绑定的 WebGL 纹理。
+   * @returns {WebGLTexture} 精灵纹理对象。
    */
   public getTexture(): WebGLTexture {
     return this._texture;
   }
 
   /**
-   * 描画する。
-   * @param programId シェーダープログラム
-   * @param canvas 描画するキャンパス情報
+   * @description 初始化或复用精灵缓冲，并通过指定着色器程序绘制纹理矩形。
+   * @param {WebGLProgram} programId 已链接的 WebGL 着色器程序。
+   * @returns {void} 无返回值。
    */
   public render(programId: WebGLProgram): void {
     if (this._texture == null) {
@@ -178,9 +186,10 @@ export class LAppSprite {
   }
 
   /**
-   * 当たり判定
-   * @param pointX x座標
-   * @param pointY y座標
+   * @description 将页面纵坐标转换为 WebGL 方向后检测点是否位于精灵矩形内。
+   * @param {number} pointX 页面横坐标。
+   * @param {number} pointY 页面纵坐标。
+   * @returns {boolean} 坐标命中精灵时返回 `true`。
    */
   public isHit(pointX: number, pointY: number): boolean {
     // 画面サイズを取得する。
@@ -198,8 +207,9 @@ export class LAppSprite {
   }
 
   /**
-   * setter
-   * @param subdelegate
+   * @description 绑定提供画布和 WebGL 上下文的子委托。
+   * @param {LAppSubdelegate} subdelegate 精灵所属的画布子委托。
+   * @returns {void} 无返回值。
    */
   public setSubdelegate(subdelegate: LAppSubdelegate): void {
     this._subdelegate = subdelegate;
@@ -224,6 +234,15 @@ export class LAppSprite {
   private _subdelegate: LAppSubdelegate;
 }
 
+/**
+ * @class
+ * @typedef {object} Rect
+ * @description 表示精灵在画布坐标系中的矩形边界。
+ * @property {number} left 左边界坐标。
+ * @property {number} right 右边界坐标。
+ * @property {number} up 上边界坐标。
+ * @property {number} down 下边界坐标。
+ */
 export class Rect {
   public left: number; // 左辺
   public right: number; // 右辺

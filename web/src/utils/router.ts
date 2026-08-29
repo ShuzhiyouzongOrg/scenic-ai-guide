@@ -1,8 +1,6 @@
 /**
- * 路由工具函数
- *
- * 提供路由相关的工具函数
- *
+ * @fileoverview 页面标题与路由进度条工具。
+ * @description 统一配置 NProgress，并依据路由元信息和国际化资源生成浏览器标题。
  * @module utils/router
  */
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
@@ -11,12 +9,21 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import i18n, { $t } from '@/locales'
 
-/** 扩展的路由配置类型 */
+/**
+ * @typedef AppRouteRecordRaw
+ * @description 在 Vue Router 原始路由记录上增加菜单隐藏标记。
+ * @property {boolean} [hidden] 是否在菜单中隐藏该路由。
+ */
 export type AppRouteRecordRaw = RouteRecordRaw & {
   hidden?: boolean
 }
 
-/** 顶部进度条配置 */
+/**
+ * @description 使用项目统一的缓动、速度和挂载节点配置顶部进度条。
+ * @returns {void} 无返回值。
+ * @example
+ * configureNProgress()
+ */
 export const configureNProgress = () => {
   NProgress.configure({
     easing: 'ease',
@@ -27,8 +34,11 @@ export const configureNProgress = () => {
 }
 
 /**
- * 设置页面标题，根据路由元信息和系统信息拼接标题
- * @param to 当前路由对象
+ * @description 根据路由标题和系统名称延迟更新浏览器页面标题。
+ * @param {RouteLocationNormalized} to 当前标准化路由对象。
+ * @returns {void} 无返回值。
+ * @example
+ * setPageTitle(to)
  */
 export const setPageTitle = (to: RouteLocationNormalized): void => {
   const { title } = to.meta
@@ -40,9 +50,11 @@ export const setPageTitle = (to: RouteLocationNormalized): void => {
 }
 
 /**
- * 格式化菜单标题
- * @param title 菜单标题，可以是 i18n 的 key，也可以是字符串
- * @returns 格式化后的菜单标题
+ * @description 将菜单标题解析为国际化文本；未注册的点分隔键回退为最后一段。
+ * @param {string} title 菜单标题、国际化键或普通字符串。
+ * @returns {string} 可直接展示的菜单标题。
+ * @example
+ * formatMenuTitle('menus.guide.title')
  */
 export const formatMenuTitle = (title: string): string => {
   if (title) {

@@ -1,39 +1,6 @@
 /**
- * 路由全局前置守卫模块
- *
- * 提供完整的路由导航守卫功能
- *
- * ## 主要功能
- *
- * - 登录状态验证和重定向
- * - 动态路由注册和权限控制
- * - 菜单数据获取和处理（前端/后端模式）
- * - 用户信息获取和缓存
- * - 页面标题设置
- * - 工作标签页管理
- * - 进度条和加载动画控制
- * - 静态路由识别和处理
- * - 错误处理和异常跳转
- *
- * ## 使用场景
- *
- * - 路由跳转前的权限验证
- * - 动态菜单加载和路由注册
- * - 用户登录状态管理
- * - 页面访问控制
- * - 路由级别的加载状态管理
- *
- * ## 工作流程
- *
- * 1. 检查登录状态，未登录跳转到登录页
- * 2. 首次访问时获取用户信息和菜单数据
- * 3. 根据权限动态注册路由
- * 4. 设置页面标题和工作标签页
- * 5. 处理根路径重定向到首页
- * 6. 未匹配路由跳转到 404 页面
- *
- * @module router/guards/beforeEach
- * @author Scenic AI Guide Team
+ * @fileoverview 路由前置守卫模块。
+ * @description 编排登录校验、菜单加载、动态路由注册、权限判断、页面标题和异常跳转。
  */
 import type { Router, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import { nextTick } from 'vue'
@@ -70,28 +37,40 @@ let routeInitFailed = false
 let routeInitInProgress = false
 
 /**
- * 获取 pendingLoading 状态
+ * @description 读取当前导航是否仍有待关闭的加载状态。
+ * @returns {boolean} 当前导航仍在等待关闭全局加载遮罩时返回 `true`。
+ * @example
+ * const result = getPendingLoading()
  */
 export function getPendingLoading(): boolean {
   return pendingLoading
 }
 
 /**
- * 重置 pendingLoading 状态
+ * @description 清除待关闭的加载状态。
+ * @returns {void} 加载状态重置完成后不返回值。
+ * @example
+ * resetPendingLoading()
  */
 export function resetPendingLoading(): void {
   pendingLoading = false
 }
 
 /**
- * 获取路由初始化失败状态
+ * @description 读取动态路由初始化是否失败。
+ * @returns {boolean} 当前会话中的动态路由初始化曾失败时返回 `true`。
+ * @example
+ * const result = getRouteInitFailed()
  */
 export function getRouteInitFailed(): boolean {
   return routeInitFailed
 }
 
 /**
- * 重置路由初始化状态（用于重新登录场景）
+ * @description 重置动态路由初始化失败与进行中状态。
+ * @returns {void} 两个初始化状态复位完成后不返回值。
+ * @example
+ * resetRouteInitState()
  */
 export function resetRouteInitState(): void {
   routeInitFailed = false
@@ -99,7 +78,9 @@ export function resetRouteInitState(): void {
 }
 
 /**
- * 设置路由全局前置守卫
+ * @description 安装登录、动态路由和权限检查前置守卫。
+ * @param {Router} router 需要注册全局前置守卫的 Vue Router 实例。
+ * @returns {void} 前置守卫注册完成后不返回值。
  */
 export function setupBeforeEachGuard(router: Router): void {
   // 初始化路由注册器
@@ -123,7 +104,8 @@ export function setupBeforeEachGuard(router: Router): void {
 }
 
 /**
- * 关闭 loading 效果
+ * @description 在 Vue 下一次 DOM 更新后关闭当前待处理的全局加载遮罩。
+ * @returns {void} 加载遮罩关闭任务注册完成后不返回值。
  */
 function closeLoading(): void {
   if (pendingLoading) {
@@ -135,7 +117,12 @@ function closeLoading(): void {
 }
 
 /**
- * 处理路由守卫逻辑
+ * @description 按登录状态、动态路由初始化、根路径重定向和路由匹配顺序处理导航。
+ * @param {RouteLocationNormalized} to 即将进入的目标路由。
+ * @param {RouteLocationNormalized} from 当前离开的来源路由。
+ * @param {NavigationGuardNext} next 用于放行、重定向或取消导航的回调。
+ * @param {Router} router 当前 Vue Router 实例。
+ * @returns {Promise<void>} 路由守卫流程完成后不返回数据。
  */
 async function handleRouteGuard(
   to: RouteLocationNormalized,
@@ -198,8 +185,11 @@ async function handleRouteGuard(
 }
 
 /**
- * 处理登录状态
- * @returns true 表示可以继续，false 表示已处理跳转
+ * @description 放行已登录用户和匿名静态页面，并将其他匿名访问重定向至登录页。
+ * @param {RouteLocationNormalized} to 即将进入的目标路由。
+ * @param {ReturnType<typeof useUserStore>} userStore 当前用户状态仓库。
+ * @param {NavigationGuardNext} next 用于执行登录页重定向的导航回调。
+ * @returns {boolean} `true` 表示可以继续，`false` 表示已处理跳转。
  */
 function handleLoginStatus(
   to: RouteLocationNormalized,
@@ -221,7 +211,9 @@ function handleLoginStatus(
 }
 
 /**
- * 检查路由是否为静态路由
+ * @description 递归检查路径是否匹配允许匿名访问的静态路由，并排除兜底 404 路由。
+ * @param {string} path 待匹配的目标路径。
+ * @returns {boolean} 路径匹配静态路由时返回 `true`。
  */
 function isStaticRoute(path: string): boolean {
   const checkRoute = (routes: any[], targetPath: string): boolean => {
@@ -251,7 +243,11 @@ function isStaticRoute(path: string): boolean {
 }
 
 /**
- * 处理动态路由注册
+ * @description 获取用户与菜单信息、注册动态路由并恢复本次目标导航。
+ * @param {RouteLocationNormalized} to 即将进入的目标路由。
+ * @param {NavigationGuardNext} next 用于恢复、重定向或取消导航的回调。
+ * @param {Router} router 当前 Vue Router 实例。
+ * @returns {Promise<void>} 动态路由初始化和导航处理完成后不返回数据。
  */
 async function handleDynamicRoutes(
   to: RouteLocationNormalized,
@@ -365,7 +361,9 @@ async function handleDynamicRoutes(
 }
 
 /**
- * 获取用户信息
+ * @description 获取当前登录用户资料，写入用户仓库并清理其他账号遗留的工作标签页。
+ * @returns {Promise<void>} 用户资料同步完成后不返回数据。
+ * @throws {Error} 用户资料接口请求失败时由请求层向上传递。
  */
 async function fetchUserInfo(): Promise<void> {
   const userStore = useUserStore()
@@ -376,7 +374,9 @@ async function fetchUserInfo(): Promise<void> {
 }
 
 /**
- * 重置路由相关状态
+ * @description 延迟注销动态路由并清空相关菜单状态。
+ * @param {number} delay 执行路由与菜单状态清理前等待的毫秒数。
+ * @returns {void} 延迟清理任务注册完成后不返回值。
  */
 export function resetRouterState(delay: number): void {
   setTimeout(() => {
@@ -393,8 +393,10 @@ export function resetRouterState(delay: number): void {
 }
 
 /**
- * 处理根路径重定向到首页
- * @returns true 表示已处理跳转，false 表示无需跳转
+ * @description 在目标为根路径且配置了其他首页时执行替换式重定向。
+ * @param {RouteLocationNormalized} to 即将进入的目标路由。
+ * @param {NavigationGuardNext} next 用于执行首页重定向的导航回调。
+ * @returns {boolean} `true` 表示已处理跳转，`false` 表示无需跳转。
  */
 function handleRootPathRedirect(to: RouteLocationNormalized, next: NavigationGuardNext): boolean {
   if (to.path !== '/') {
@@ -411,7 +413,9 @@ function handleRootPathRedirect(to: RouteLocationNormalized, next: NavigationGua
 }
 
 /**
- * 判断是否为未授权错误（401）
+ * @description 判断未知异常是否为请求层标准化的 HTTP 401 未授权错误。
+ * @param {unknown} error 待识别的异常值。
+ * @returns {boolean} 异常为未授权 HTTP 错误时返回 `true`。
  */
 function isUnauthorizedError(error: unknown): boolean {
   return isHttpError(error) && error.code === ApiStatus.unauthorized

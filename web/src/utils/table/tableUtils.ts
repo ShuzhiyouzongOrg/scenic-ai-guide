@@ -1,5 +1,6 @@
 /**
- * 表格工具函数模块
+ * @fileoverview 表格响应适配、分页同步、防抖与错误转换工具。
+ * @description 将多种接口响应统一为表格结构，并为请求调度和错误处理提供通用能力。
  *
  * 提供表格数据处理和请求管理的核心工具函数
  *
@@ -36,25 +37,40 @@
  * - createErrorHandler: 生成错误处理器
  *
  * @module utils/table/tableUtils
- * @author Scenic AI Guide Team
  */
 
 import type { ApiResponse } from './tableCache'
 import { tableConfig } from './tableConfig'
 
-// 请求参数基础接口，扩展分页参数
+/**
+ * @typedef BaseRequestParams
+ * @description 在通用分页参数基础上允许扩展任意业务查询字段。
+ * @property {unknown} [key] 业务模块自定义的查询参数。
+ */
 export interface BaseRequestParams extends Api.Common.PaginationParams {
   [key: string]: unknown
 }
 
-// 错误处理接口
+/**
+ * @typedef TableError
+ * @description 表格工具对外返回的标准错误信息。
+ * @property {string} code 错误名称或业务代码。
+ * @property {string} message 可读错误消息。
+ * @property {unknown} [details] 原始错误值。
+ */
 export interface TableError {
   code: string
   message: string
   details?: unknown
 }
 
-// 辅助函数：从对象中提取记录数组
+/**
+ * @description 按候选字段顺序从对象中提取首个数组值。
+ * @template T
+ * @param {Record<string, unknown>} obj 待解析对象。
+ * @param {string[]} fields 候选记录字段。
+ * @returns {T[]} 匹配的记录数组；未找到时返回空数组。
+ */
 function extractRecords<T>(obj: Record<string, unknown>, fields: string[]): T[] {
   for (const field of fields) {
     if (field in obj && Array.isArray(obj[field])) {
@@ -64,7 +80,13 @@ function extractRecords<T>(obj: Record<string, unknown>, fields: string[]): T[] 
   return []
 }
 
-// 辅助函数：从对象中提取总数
+/**
+ * @description 按候选字段提取总记录数，缺失时回退为当前记录数量。
+ * @param {Record<string, unknown>} obj 待解析对象。
+ * @param {unknown[]} records 已提取的记录数组。
+ * @param {string[]} fields 候选总数字段。
+ * @returns {number} 总记录数。
+ */
 function extractTotal(obj: Record<string, unknown>, records: unknown[], fields: string[]): number {
   for (const field of fields) {
     if (field in obj && typeof obj[field] === 'number') {
@@ -74,7 +96,12 @@ function extractTotal(obj: Record<string, unknown>, records: unknown[], fields: 
   return records.length
 }
 
-// 辅助函数：提取分页参数
+/**
+ * @description 从顶层响应及可选嵌套数据中提取当前页码和每页大小。
+ * @param {Record<string, unknown>} obj 顶层响应对象。
+ * @param {Record<string, unknown>} [data] 可选的嵌套数据对象。
+ * @returns {Pick<ApiResponse<unknown>, 'current' | 'size'> | undefined} 分页参数；均缺失时返回 undefined。
+ */
 function extractPagination(
   obj: Record<string, unknown>,
   data?: Record<string, unknown>
@@ -109,7 +136,12 @@ function extractPagination(
 }
 
 /**
- * 默认响应适配器 - 支持多种常见的API响应格式
+ * @description 将数组、标准对象或嵌套 data 响应转换为统一表格响应。
+ * @template T
+ * @param {unknown} response 原始接口响应。
+ * @returns {ApiResponse<T>} 包含 records、total 和可选分页字段的标准响应。
+ * @example
+ * const result = defaultResponseAdapter<User>({ list: users, total: 10 })
  */
 export const defaultResponseAdapter = <T>(response: unknown): ApiResponse<T> => {
   // 定义支持的字段
@@ -170,7 +202,10 @@ export const defaultResponseAdapter = <T>(response: unknown): ApiResponse<T> => 
 }
 
 /**
- * 从标准化的API响应中提取表格数据
+ * @description 从标准化响应的 records 或 data 字段提取记录数组。
+ * @template T
+ * @param {ApiResponse<T>} response 标准化表格响应。
+ * @returns {T[]} 表格记录数组；字段无效时返回空数组。
  */
 export const extractTableData = <T>(response: ApiResponse<T>): T[] => {
   const data = response.records || response.data || []
@@ -178,7 +213,11 @@ export const extractTableData = <T>(response: ApiResponse<T>): T[] => {
 }
 
 /**
- * 根据API响应更新分页信息
+ * @description 使用响应中的总数和页码更新分页状态，并将越界页码回退到最后一页。
+ * @template T
+ * @param {Api.Common.PaginationParams} pagination 可变的分页状态对象。
+ * @param {ApiResponse<T>} response 标准化表格响应。
+ * @returns {void} 无返回值。
  */
 export const updatePaginationFromResponse = <T>(
   pagination: Api.Common.PaginationParams,
@@ -197,7 +236,15 @@ export const updatePaginationFromResponse = <T>(
 }
 
 /**
- * 创建智能防抖函数 - 支持取消和立即执行
+ * @description 创建可取消、可立即执行的异步防抖函数；后续调用会覆盖待执行参数。
+ * @template T
+ * @param {T} fn 需要防抖的异步函数。
+ * @param {number} delay 防抖等待毫秒数。
+ * @returns {T & {cancel: () => void, flush: () => Promise<any>}} 带取消和立即执行方法的包装函数。
+ * @throws {unknown} flush 执行底层函数失败时透传原始异常。
+ * @example
+ * const load = createSmartDebounce(fetchTable, 300)
+ * await load({ current: 1 })
  */
 export const createSmartDebounce = <T extends (...args: any[]) => Promise<any>>(
   fn: T,
@@ -264,7 +311,13 @@ export const createSmartDebounce = <T extends (...args: any[]) => Promise<any>>(
 }
 
 /**
- * 生成错误处理函数
+ * @description 创建将未知异常转换为 TableError 的处理函数，并按配置记录日志和回调。
+ * @param {(error: TableError) => void} [onError] 标准错误生成后的回调。
+ * @param {boolean} [enableLog=false] 是否输出控制台错误日志。
+ * @returns {(err: unknown, context: string) => TableError} 标准表格错误处理函数。
+ * @example
+ * const handleError = createErrorHandler(console.error, true)
+ * const tableError = handleError(error, '加载列表')
  */
 export const createErrorHandler = (
   onError?: (error: TableError) => void,

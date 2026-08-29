@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 地理坐标转换规则测试。
+ * @description 验证 WGS84 与 GCJ-02 坐标转换精度、往返稳定性及异常输入处理。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {

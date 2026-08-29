@@ -1,9 +1,6 @@
 /**
- * Utils 工具函数统一导出
- * 提供向后兼容性和便捷导入
- *
- * @module utils/index
- * @author Scenic AI Guide Team
+ * @fileoverview Web 工具模块统一导出入口。
+ * @description 聚合界面、路由、系统、存储、HTTP、日期、表单与 Socket 工具，保持稳定的导入路径。
  */
 
 // UI 相关

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 桌面端 Web 构建产物验证脚本。
+ * @description 确认入口与资源存在，并检查讯飞数字人构建配置已正确内联且未泄露占位符。
+ */
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
@@ -15,6 +19,12 @@ for (const [key, value] of Object.entries(requiredValues)) {
   assert.ok(String(value || "").trim(), `${key} is required to verify the web build.`);
 }
 
+/**
+ * @description 递归枚举 Web 构建目录中的全部普通文件。
+ * @param {string} directory 起始目录。
+ * @returns {string[]} 构建产物文件路径列表。
+ * @throws {Error} 目录不存在或无法读取时透传文件系统异常。
+ */
 function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);

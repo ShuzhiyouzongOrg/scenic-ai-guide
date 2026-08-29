@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 服务端环境预检脚本。
+ * @description 检查目录、端口与外部服务配置是否满足启动条件，并汇总可操作的检查结果。
+ */
 import { existsSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { createServer } from "node:net";
@@ -5,10 +9,23 @@ import { config } from "../src/config.mjs";
 
 const checks = [];
 
+/**
+ * @description 向环境检查结果列表追加一项检查。
+ * @param {string} name 检查项名称。
+ * @param {boolean} ok 检查是否通过。
+ * @param {string} [detail=""] 补充说明。
+ * @returns {void}
+ */
 function add(name, ok, detail = "") {
   checks.push({ name, ok, detail });
 }
 
+/**
+ * @description 尝试监听指定地址，判断端口当前是否可绑定。
+ * @param {string} host 监听主机。
+ * @param {number} port 监听端口。
+ * @returns {Promise<boolean>} 可成功监听并关闭时为 `true`。
+ */
 async function canBindPort(host, port) {
   return new Promise((resolveCheck) => {
     const server = createServer();
@@ -20,9 +37,20 @@ async function canBindPort(host, port) {
   });
 }
 
+/**
+ * @description 在项目根目录递归查找官方行为分析表和灵山 DOCX 资料。
+ * @returns {{excel: string|undefined, docx: string[]}} 首个行为分析表和全部灵山 DOCX 路径。
+ * @throws {Error} 目录读取失败时透传文件系统异常。
+ */
 function findOfficialFiles() {
   const root = resolve(process.cwd(), "..");
   const files = [];
+  /**
+   * @description 递归收集目录文件，并跳过依赖与 Git 元数据目录。
+   * @param {string} dir 待扫描目录。
+   * @returns {void}
+   * @throws {Error} 目录读取失败时透传文件系统异常。
+   */
   function walk(dir) {
     if (!existsSync(dir)) return;
     for (const name of readdirSync(dir, { withFileTypes: true })) {

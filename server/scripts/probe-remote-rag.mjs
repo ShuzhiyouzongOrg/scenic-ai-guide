@@ -1,5 +1,6 @@
 /**
- * 只读探测百炼 Embedding、Qdrant 活动版本和 Reranker。
+ * @fileoverview 远程 RAG 依赖只读探测脚本。
+ * @description 只读探测百炼向量化、Qdrant 活动索引和重排服务连通性。
  * 不创建集合、不写向量、不修改知识快照，也不输出密钥或原始远程响应。
  */
 import "../src/config.mjs";
@@ -84,7 +85,12 @@ if (!isRemoteDenseReady(remote) || !isRemoteRerankerReady(remote) || !knowledge?
   if (Object.values(report).some((item) => item?.status === "failed")) process.exitCode = 1;
 }
 
-/** @param {string} name 探测项。 @param {() => Promise<object>} action 探测函数。 @returns {Promise<object|null>} 探测详情。 */
+/**
+ * @description 执行一个只读远程探测，记录耗时并将异常转换为脱敏失败摘要。
+ * @param {string} name 百炼向量化、Qdrant 或重排探测项名称。
+ * @param {() => Promise<object>} action 不写入远端状态的探测函数。
+ * @returns {Promise<object|null>} 成功时返回探测摘要；失败时返回 `null`。
+ */
 async function probe(name, action) {
   const started = Date.now();
   try {
@@ -103,7 +109,12 @@ async function probe(name, action) {
   }
 }
 
-/** @param {string} code 错误码。 @param {number} statusCode HTTP 状态。 @returns {Error & {code:string,statusCode:number}} 探测错误。 */
+/**
+ * @description 构造带稳定错误码和 HTTP 状态的远程 RAG 探测异常。
+ * @param {string} code 供报告识别的错误码。
+ * @param {number} statusCode 远程响应状态码。
+ * @returns {Error & {code: string, statusCode: number}} 带扩展属性的探测异常。
+ */
 function remoteProbeError(code, statusCode) {
   const error = new Error(code);
   error.code = code;

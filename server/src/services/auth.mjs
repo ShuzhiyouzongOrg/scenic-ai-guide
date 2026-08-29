@@ -1,10 +1,17 @@
 /**
  * @fileoverview 数据库账号注册、角色感知登录、HMAC Token 与匿名游客会话服务。
  *
- * Token 是无状态的 `base64url(payload).signature`，但每次验证仍会查询账号和角色状态，
+ * @description Token 是无状态的 `base64url(payload).signature`，但每次验证仍会查询账号和角色状态，
  * 因此禁用账号、禁用角色或变更账号角色会立即使旧 Token 失效。
- *
- * @typedef {{sub: string, uid: string, role: "admin"|"operator"|"visitor", exp: number}} AuthTokenPayload
+ */
+
+/**
+ * @typedef {object} AuthTokenPayload
+ * @description 通过签名、有效期和账号状态验证的身份载荷。
+ * @property {string} sub Token 主体名称。
+ * @property {string} uid 用户 ID。
+ * @property {"admin"|"operator"|"visitor"} role 用户角色。
+ * @property {number} exp 过期 Unix 秒时间戳。
  */
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { config } from "../config.mjs";
@@ -12,20 +19,38 @@ import { getDb } from "../db/database.mjs";
 import { verifyPassword } from "../db/password.mjs";
 import { createAdminUser } from "./userAdmin.mjs";
 
-/** @type {number} 注册用户名最短字符数。 */
+/**
+ * @description 定义注册用户名允许的最短字符数。
+ * @type {number} 注册用户名最短字符数。
+ */
 const REGISTER_USERNAME_MIN_LENGTH = 3;
-/** @type {number} 注册用户名最长字符数。 */
+/**
+ * @description 定义注册用户名允许的最长字符数。
+ * @type {number} 注册用户名最长字符数。
+ */
 const REGISTER_USERNAME_MAX_LENGTH = 20;
-/** @type {number} 注册密码最短字符数。 */
+/**
+ * @description 定义注册密码允许的最短字符数。
+ * @type {number} 注册密码最短字符数。
+ */
 const REGISTER_PASSWORD_MIN_LENGTH = 6;
-/** @type {number} 注册密码最长字符数。 */
+/**
+ * @description 定义注册密码允许的最长字符数。
+ * @type {number} 注册密码最长字符数。
+ */
 const REGISTER_PASSWORD_MAX_LENGTH = 128;
-/** @type {Set<string>} 登录页面允许提交的角色代码。 */
+/**
+ * @description 定义登录页面允许提交的角色代码集合。
+ * @type {Set<string>} 登录页面允许提交的角色代码。
+ */
 const LOGIN_ROLES = new Set(["admin", "operator", "visitor"]);
 
 /**
- * 注册一个游客角色账号，并限制头像为内置安全资源。
- * @param {{username?: string, password?: string, avatar?: string}} [input={}] 注册输入。
+ * @description 注册一个游客角色账号，并限制头像为内置安全资源。
+ * @param {object} [input={}] 注册输入。
+ * @param {string} [input.username=""] 登录名。
+ * @param {string} [input.password=""] 登录密码。
+ * @param {string} [input.avatar=""] 内置头像资源路径。
  * @returns {{userId: string, userName: string, avatar: string, role: string}} 新账号摘要。
  * @throws {Error & {statusCode: number, code: string}} 用户名或密码长度无效时抛出
  * `USERNAME_INVALID`/`PASSWORD_INVALID`；重复账号等错误由用户服务透传。
@@ -68,7 +93,7 @@ export function register(input = {}) {
 }
 
 /**
- * 校验账号密码、用户选择角色及角色启用状态，并签发 8 小时 Token。
+ * @description 校验账号密码、用户选择角色及角色启用状态，并签发 8 小时 Token。
  * @param {string} username 登录名。
  * @param {string} password 明文密码。
  * @param {"admin"|"operator"|"visitor"} expectedRole 登录页选择的角色。
@@ -131,7 +156,7 @@ export function login(username, password, expectedRole) {
 }
 
 /**
- * 验证 Token 的签名、有效期及数据库中的实时账号/角色状态。
+ * @description 验证 Token 的签名、有效期及数据库中的实时账号/角色状态。
  * @param {string} token Bearer Token 文本。
  * @returns {AuthTokenPayload|null} 可信载荷；任一校验失败时返回 `null`。
  * @example
@@ -174,7 +199,7 @@ export function verifyToken(token) {
 }
 
 /**
- * 创建并持久化匿名 Web 游客会话。
+ * @description 创建并持久化匿名 Web 游客会话。
  * @returns {{id: string, createdAt: string, messageCount: number}} 新会话。
  * @example
  * const session = createVisitorSession();
@@ -191,7 +216,7 @@ export function createVisitorSession() {
 }
 
 /**
- * 查询游客会话摘要。
+ * @description 查询游客会话摘要。
  * @param {string} id 会话 ID。
  * @returns {{id: string, createdAt: string, messageCount: number}|null} 会话摘要或 `null`。
  * @example
@@ -205,7 +230,7 @@ export function getVisitorSession(id) {
 }
 
 /**
- * 序列化载荷并附加 HMAC 签名。
+ * @description 序列化载荷并附加 HMAC 签名。
  * @param {AuthTokenPayload} payload Token 载荷。
  * @returns {string} 完整 Token。
  * @private
@@ -216,7 +241,7 @@ function signToken(payload) {
 }
 
 /**
- * 为已编码载荷生成 SHA-256 HMAC。
+ * @description 为已编码载荷生成 SHA-256 HMAC。
  * @param {string} payloadEncoded base64url 载荷。
  * @returns {string} base64url 签名。
  * @private
@@ -226,7 +251,7 @@ function sign(payloadEncoded) {
 }
 
 /**
- * 恒定时间比较两个签名，长度不同时安全返回 `false`。
+ * @description 恒定时间比较两个签名，长度不同时安全返回 `false`。
  * @param {string} left 实际签名。
  * @param {string} right 期望签名。
  * @returns {boolean} 两者完全相同时为 `true`。

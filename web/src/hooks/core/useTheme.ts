@@ -1,5 +1,10 @@
 /**
- * useTheme - 系统主题管理
+ * @fileoverview 管理亮色、暗色及跟随系统的主题模式。
+ * @description 同步主题类名、主题色阶、圆角和系统偏好监听状态。
+ */
+
+/**
+ * @description useTheme - 系统主题管理
  *
  * 提供完整的主题切换和管理功能，支持亮色、暗色和自动模式。
  * 自动处理主题切换时的过渡效果，确保切换流畅无闪烁。
@@ -28,7 +33,7 @@
  * ```
  *
  * @module useTheme
- * @author Scenic AI Guide Team
+ *
  */
 
 import { useSettingStore } from '@/store/modules/setting'
@@ -39,6 +44,13 @@ import { getDarkColor, getLightColor, setElementThemeColor } from '@/utils/ui'
 import { usePreferredDark } from '@vueuse/core'
 import { watch } from 'vue'
 
+/**
+ * @description 创建亮色、暗色和自动主题的切换接口，并同步主题色阶与过渡状态。
+ * @returns {ReturnType<typeof useTheme>} 包含主题设置、自动主题、模式切换方法和系统暗色偏好的对象。
+ * @example
+ * const { switchThemeStyles } = useTheme()
+ * switchThemeStyles(SystemThemeEnum.DARK)
+ */
 export function useTheme() {
   const settingStore = useSettingStore()
 
@@ -124,7 +136,10 @@ export function useTheme() {
 }
 
 /**
- * 初始化主题系统
+ * @description 根据持久化设置应用主题类名、主色和圆角，并在自动模式下监听系统偏好。
+ * @returns {void} 无返回值。
+ * @example
+ * initializeTheme()
  */
 export function initializeTheme() {
   const settingStore = useSettingStore()

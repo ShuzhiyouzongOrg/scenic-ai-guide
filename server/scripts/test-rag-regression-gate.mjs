@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG 回归门禁单元测试脚本。
+ * @description 验证基线一致、数据集漂移、质量下降和门禁例外条件。
+ */
 import assert from "node:assert/strict";
 import { evaluateRegression } from "./check-rag-regression.mjs";
 
@@ -46,6 +50,12 @@ assert.equal(datasetResult.violations[0].name, "dataset.caseCount");
 
 console.log("RAG regression gate tests passed");
 
+/**
+ * @description 构造可按需覆盖指标和数据集字段的回归报告夹具。
+ * @param {object} [metricOverrides={}] 指标覆盖值。
+ * @param {object} [datasetOverrides={}] 数据集元数据覆盖值。
+ * @returns {object} 回归评测报告夹具。
+ */
 function buildReport(metricOverrides = {}, datasetOverrides = {}) {
   return {
     suite: "smoke",

@@ -1,8 +1,15 @@
+/**
+ * @fileoverview 项目开发模板清理脚本。
+ * @description 通过交互式步骤移除可选示例模块，并同步生成路由、配置与升级日志模板。
+ */
 // scripts/clean-dev.ts
 import fs from 'fs/promises'
 import path from 'path'
 
-// 现代化颜色主题
+/**
+ * @description 终端输出使用的 ANSI 颜色与文本样式序列。
+ * @type {Record<string, string>}
+ */
 const theme = {
   // 基础颜色
   reset: '\x1b[0m',
@@ -27,7 +34,10 @@ const theme = {
   bgRed: '\x1b[48;5;52m' // 红色背景
 }
 
-// 现代化图标集
+/**
+ * @description 清理流程各类状态和资源使用的终端图标。
+ * @type {Record<string, string>}
+ */
 const icons = {
   rocket: '🚀',
   fire: '🔥',
@@ -59,7 +69,10 @@ const icons = {
   loading: '⏳'
 }
 
-// 格式化工具
+/**
+ * @description 为终端提示文本应用颜色、背景、强调和模拟渐变效果。
+ * @type {Record<string, Function>}
+ */
 const fmt = {
   title: (text: string) => `${theme.bold}${theme.primary}${text}${theme.reset}`,
   subtitle: (text: string) => `${theme.purple}${text}${theme.reset}`,
@@ -83,7 +96,10 @@ const fmt = {
   }
 }
 
-// 创建现代化标题横幅
+/**
+ * @description 在终端输出清理工具标题和用途说明横幅。
+ * @returns {void} 横幅写入标准输出后不返回值。
+ */
 function createModernBanner() {
   console.log()
   console.log(
@@ -107,12 +123,22 @@ function createModernBanner() {
   console.log()
 }
 
-// 创建分割线
+/**
+ * @description 在终端输出指定字符和颜色组成的分隔线。
+ * @param {string} [char] 重复绘制的分隔字符。
+ * @param {string} [color] 分隔线使用的 ANSI 颜色序列。
+ * @returns {void} 分隔线写入标准输出后不返回值。
+ */
 function createDivider(char = '─', color = theme.primary) {
   console.log(`${color}${'  ' + char.repeat(66)}${theme.reset}`)
 }
 
-// 创建卡片样式容器
+/**
+ * @description 在终端输出带标题和多行正文的卡片式信息区块。
+ * @param {string} title 卡片标题。
+ * @param {string[]} content 按显示顺序排列的正文行。
+ * @returns {void} 卡片写入标准输出后不返回值。
+ */
 function createCard(title: string, content: string[]) {
   console.log(`  ${fmt.badge('', theme.bgBlue)} ${fmt.title(title)}`)
   console.log()
@@ -122,7 +148,14 @@ function createCard(title: string, content: string[]) {
   console.log()
 }
 
-// 进度条动画
+/**
+ * @description 按当前进度在同一终端行绘制清理进度条。
+ * @param {number} current 当前已处理数量。
+ * @param {number} total 待处理总数量。
+ * @param {string} text 当前处理项说明；保留用于调用语义和后续扩展。
+ * @param {number} [width] 进度条字符宽度。
+ * @returns {void} 进度条写入标准输出后不返回值。
+ */
 function createProgressBar(current: number, total: number, text: string, width = 40) {
   const percentage = Math.round((current / total) * 100)
   const filled = Math.round((current / total) * width)
@@ -140,7 +173,10 @@ function createProgressBar(current: number, total: number, text: string, width =
   }
 }
 
-// 统计信息
+/**
+ * @description 记录本次清理的文件、路径、失败数量、开始时间和目标总数。
+ * @type {{deletedFiles: number, deletedPaths: number, failedPaths: number, startTime: number, totalFiles: number}}
+ */
 const stats = {
   deletedFiles: 0,
   deletedPaths: 0,
@@ -149,7 +185,10 @@ const stats = {
   totalFiles: 0
 }
 
-// 清理目标
+/**
+ * @description 允许清理脚本删除的演示文件和目录相对路径白名单。
+ * @type {string[]}
+ */
 const targets = [
   'README.md',
   'README.zh-CN.md',
@@ -175,7 +214,11 @@ const targets = [
   'src/components/business/comment-widget'
 ]
 
-// 递归统计文件数量
+/**
+ * @description 递归统计目标文件或目录包含的文件数量。
+ * @param {string} targetPath 相对于当前工作目录的目标路径。
+ * @returns {Promise<number>} 文件数量；路径不存在或读取失败时返回 `0`。
+ */
 async function countFiles(targetPath: string): Promise<number> {
   const fullPath = path.resolve(process.cwd(), targetPath)
 
@@ -202,7 +245,10 @@ async function countFiles(targetPath: string): Promise<number> {
   return 0
 }
 
-// 统计所有目标的文件数量
+/**
+ * @description 汇总清理目标白名单中全部路径包含的文件数量。
+ * @returns {Promise<number>} 所有目标路径的文件总数。
+ */
 async function countAllFiles(): Promise<number> {
   let totalCount = 0
 
@@ -214,7 +260,12 @@ async function countAllFiles(): Promise<number> {
   return totalCount
 }
 
-// 删除文件和目录
+/**
+ * @description 删除单个白名单目标并更新清理进度和统计信息。
+ * @param {string} targetPath 相对于当前工作目录的目标路径。
+ * @param {number} index 目标在清理白名单中的从零开始索引。
+ * @returns {Promise<void>} 删除或错误记录完成后不返回数据。
+ */
 async function remove(targetPath: string, index: number) {
   const fullPath = path.resolve(process.cwd(), targetPath)
 
@@ -234,7 +285,10 @@ async function remove(targetPath: string, index: number) {
   }
 }
 
-// 清理路由模块
+/**
+ * @description 删除演示路由模块，并重写仅包含核心模块的路由文件。
+ * @returns {Promise<void>} 路由模块清理或错误记录完成后不返回数据。
+ */
 async function cleanRouteModules() {
   const modulesPath = path.resolve(process.cwd(), 'src/router/modules')
 
@@ -376,7 +430,10 @@ export const routeModules: AppRouteRecord[] = [
   }
 }
 
-// 清理路由别名
+/**
+ * @description 将路由别名文件重写为布局容器和登录页两项核心别名。
+ * @returns {Promise<void>} 路由别名重写或错误记录完成后不返回数据。
+ */
 async function cleanRoutesAlias() {
   const routesAliasPath = path.resolve(process.cwd(), 'src/router/routesAlias.ts')
 
@@ -399,7 +456,10 @@ export enum RoutesAlias {
   }
 }
 
-// 清理变更日志
+/**
+ * @description 将升级日志模块重写为空日志列表模板。
+ * @returns {Promise<void>} 升级日志重写或错误记录完成后不返回数据。
+ */
 async function cleanChangeLog() {
   const changeLogPath = path.resolve(process.cwd(), 'src/mock/upgrade/changeLog.ts')
 
@@ -426,7 +486,10 @@ export const upgradeLogList = ref<UpgradeLog[]>([])
   }
 }
 
-// 清理语言文件
+/**
+ * @description 从中英文语言包中删除演示菜单及其嵌套条目。
+ * @returns {Promise<void>} 所有语言文件处理完成后不返回数据。
+ */
 async function cleanLanguageFiles() {
   const languageFiles = [
     { path: 'src/locales/langs/zh.json', name: '中文语言文件' },
@@ -493,7 +556,10 @@ async function cleanLanguageFiles() {
   }
 }
 
-// 清理快速入口组件
+/**
+ * @description 将快速入口配置重写为仅保留核心入口和链接的模板。
+ * @returns {Promise<void>} 快速入口配置重写或错误记录完成后不返回数据。
+ */
 async function cleanFastEnterComponent() {
   const fastEnterPath = path.resolve(process.cwd(), 'src/config/fastEnter.ts')
 
@@ -589,7 +655,10 @@ export default Object.freeze(fastEnterConfig)
   }
 }
 
-// 更新菜单接口
+/**
+ * @description 将菜单 API 地址替换为精简菜单接口地址。
+ * @returns {Promise<void>} 菜单接口文件更新或错误记录完成后不返回数据。
+ */
 async function updateMenuApi() {
   const apiPath = path.resolve(process.cwd(), 'src/api/system-manage.ts')
 
@@ -608,7 +677,11 @@ async function updateMenuApi() {
   }
 }
 
-// 用户确认函数
+/**
+ * @description 等待用户输入 `yes`，确认执行不可逆的模板清理操作。
+ * @returns {Promise<boolean>} 输入经规范化后等于 `yes` 时返回 `true`。
+ * @throws {Error} Readline 模块加载失败时抛出。
+ */
 async function getUserConfirmation(): Promise<boolean> {
   const { createInterface } = await import('readline')
 
@@ -631,7 +704,10 @@ async function getUserConfirmation(): Promise<boolean> {
   })
 }
 
-// 显示清理警告
+/**
+ * @description 展示将删除的演示内容、保留模块和不可恢复风险。
+ * @returns {Promise<void>} 警告信息写入标准输出后不返回数据。
+ */
 async function showCleanupWarning() {
   createCard('安全警告', [
     `${fmt.warning('此操作将永久删除以下演示内容，且无法恢复！')}`,
@@ -715,7 +791,10 @@ async function showCleanupWarning() {
   console.log()
 }
 
-// 显示统计信息
+/**
+ * @description 汇总并显示删除文件、处理路径、失败数量和执行耗时。
+ * @returns {Promise<void>} 统计信息写入标准输出后不返回数据。
+ */
 async function showStats() {
   const duration = Date.now() - stats.startTime
   const seconds = (duration / 1000).toFixed(2)
@@ -733,7 +812,10 @@ async function showStats() {
   ])
 }
 
-// 创建成功横幅
+/**
+ * @description 在终端输出模板清理成功横幅。
+ * @returns {void} 横幅写入标准输出后不返回值。
+ */
 function createSuccessBanner() {
   console.log()
   console.log(
@@ -757,7 +839,11 @@ function createSuccessBanner() {
   console.log()
 }
 
-// 主函数
+/**
+ * @description 编排风险提示、用户确认、目标删除和各配置清理步骤。
+ * @returns {Promise<void>} 清理流程结束或用户取消后不返回数据。
+ * @throws {Error} 用户确认组件初始化等未被子步骤捕获的错误发生时抛出。
+ */
 async function main() {
   // 清屏并显示横幅
   console.clear()

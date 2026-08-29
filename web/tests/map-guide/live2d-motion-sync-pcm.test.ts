@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Live2D MotionSync PCM 时序测试。
+ * @description 验证 MotionSync PCM 游标、声道混合与音频片段拼接的时序行为。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {

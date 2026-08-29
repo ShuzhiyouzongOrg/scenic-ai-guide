@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 讯飞语音识别联调测试脚本。
+ * @description 先生成测试语音再调用讯飞识别，验证云端 TTS 与 ASR 的端到端可用性。
+ */
 import assert from "node:assert";
 import { config } from "../src/config.mjs";
 import { getAudioClip, synthesizeSpeech, transcribeAudio } from "../src/services/voice.mjs";

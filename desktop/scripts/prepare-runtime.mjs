@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 桌面端打包运行环境准备脚本。
+ * @description 从服务端环境文件提取允许随评审包分发的配置，并生成受控的桌面运行时环境文件。
+ */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

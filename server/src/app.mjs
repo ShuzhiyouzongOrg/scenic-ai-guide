@@ -1,5 +1,6 @@
 /**
  * @fileoverview 数智游踪 Node.js HTTP 服务入口和路由编排器。
+ * @description 初始化数据库，分派 REST 与 SSE 接口，执行认证授权，并托管 Web、数字人和 Live2D 静态资源。
  *
  * 本模块负责初始化 SQLite、分派 REST/SSE 接口、执行 Bearer Token 与角色权限校验、
  * 托管 Web SPA、讯飞数字人页面和 Live2D 资源，并提供可由测试及 Electron 调用的
@@ -125,29 +126,59 @@ if (!process.env.SQLITE_PATH) {
 }
 getDb();
 
-/** @type {string} 仓库根目录绝对路径。 */
+/**
+ * @description 仓库根目录绝对路径。
+ * @type {string}
+ */
 const rootDir = resolve(fileURLToPath(new URL("../..", import.meta.url)));
-/** @type {string} Vue 生产构建的静态根目录。 */
+/**
+ * @description Vue 生产构建的静态根目录。
+ * @type {string}
+ */
 const publicDir = resolve(process.env.WEB_DIST_DIR || join(rootDir, "web", "dist"));
-/** @type {string} 受控讯飞数字人宿主页目录。 */
+/**
+ * @description 受控讯飞数字人宿主页目录。
+ * @type {string}
+ */
 const digitalHumanPageDir = resolve(join(rootDir, "server", "src", "web", "digital-human"));
 // The Live2D host is intentionally kept under server/src/web so visitor-app
 // can load a real Cubism canvas without changing the existing root web build.
 // Unlike /digital-human, its model and texture tree is served by a bounded
 // path resolver below; no credentials or API session data are exposed here.
-/** @type {string} 本地 Live2D 页面及模型资源目录。 */
+/**
+ * @description 本地 Live2D 页面及模型资源目录。
+ * @type {string}
+ */
 const live2dPageDir = resolve(join(rootDir, "server", "src", "web", "live2d"));
-/** @type {string} Vue public 目录构建后的 Live2D 共享资源根目录。 */
+/**
+ * @description Vue public 目录构建后的 Live2D 共享资源根目录。
+ * @type {string}
+ */
 const live2dPublicDir = resolve(join(publicDir, "live2d"));
-/** @type {Map<string, number>} 管理员知识重建最短间隔记录。 */
+/**
+ * @description 管理员知识重建最短间隔记录。
+ * @type {Map<string, number>}
+ */
 const knowledgeRebuildRateLimits = new Map();
-/** @type {number} 同一管理员两次知识重建的最短间隔。 */
+/**
+ * @description 同一管理员两次知识重建的最短间隔。
+ * @type {number}
+ */
 const KNOWLEDGE_REBUILD_INTERVAL_MS = 60_000;
-/** @type {string} 允许公开读取的讯飞 Web SDK 目录。 */
+/**
+ * @description 允许公开读取的讯飞 Web SDK 目录。
+ * @type {string}
+ */
 const digitalHumanSdkDir = resolve(join(rootDir, "web", "src", "vm-sdk", "avatar-sdk-web_3.1.1.1011"));
-/** @type {Set<string>} 数字人页面允许公开的文件白名单。 */
+/**
+ * @description 数字人页面允许公开的文件白名单。
+ * @type {Set<string>}
+ */
 const digitalHumanPageFiles = new Set(["index.html", "app.js", "styles.css"]);
-/** @type {Set<string>} 数字人运行所需 SDK 文件白名单。 */
+/**
+ * @description 数字人运行所需 SDK 文件白名单。
+ * @type {Set<string>}
+ */
 const digitalHumanSdkFiles = new Set([
   "index.js",
   "index-_37811BO.js",
@@ -155,7 +186,10 @@ const digitalHumanSdkFiles = new Set([
   "xrtc-player-BDn4MFE-.js"
 ]);
 
-/** @type {Readonly<Record<string, string>>} 文件扩展名到 HTTP Content-Type 的映射。 */
+/**
+ * @description 文件扩展名到 HTTP Content-Type 的映射。
+ * @type {Readonly<Record<string, string>>}
+ */
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -176,7 +210,10 @@ const mimeTypes = {
   ".wav": "audio/wav"
 };
 
-/** @type {Set<string>} 允许跨域调用本地 API 的明确来源集合。 */
+/**
+ * @description 允许跨域调用本地 API 的明确来源集合。
+ * @type {Set<string>}
+ */
 const localCorsOrigins = new Set([
   "http://127.0.0.1:5173",
   "http://localhost:5173",
@@ -187,7 +224,7 @@ const localCorsOrigins = new Set([
 ]);
 
 /**
- * 当请求来源命中白名单时写入最小 CORS 响应头。
+ * @description 当请求来源命中白名单时写入最小 CORS 响应头。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
@@ -205,7 +242,7 @@ function applyCorsHeaders(req, res) {
 }
 
 /**
- * 项目共享 HTTP Server 实例。
+ * @description 项目共享 HTTP Server 实例。
  *
  * 请求级异常会转成统一错误信封并写入结构化日志；实例本身需通过 `startServer` 启动。
  *
@@ -249,7 +286,7 @@ export const server = createServer(async (req, res) => {
 });
 
 /**
- * 按方法和 pathname 分派全部 API 与静态资源请求。
+ * @description 按方法和 pathname 分派全部 API 与静态资源请求。
  *
  * 权限受控接口在进入服务层前调用 `requirePermission` 或 `requireAuthPayload`；未匹配的
  * 路径最终交给 SPA 静态托管。
@@ -1139,7 +1176,7 @@ async function route(req, res, url) {
 }
 
 /**
- * 将 AI 回答增量编码为 Server-Sent Events 流。
+ * @description 将 AI 回答增量编码为 Server-Sent Events 流。
  *
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @param {{question?: string, sessionId?: string, mode?: string, locale?: string}} body 对话请求体。
@@ -1156,7 +1193,7 @@ async function streamChat(res, body) {
   });
 
   /**
-   * 写入一个 SSE 事件帧。
+   * @description 写入一个 SSE 事件帧。
    * @param {string} event 事件名称。
    * @param {unknown} data 可 JSON 序列化的事件负载。
    * @returns {void}
@@ -1185,7 +1222,7 @@ async function streamChat(res, body) {
 }
 
 /**
- * 校验 Bearer Token 及其当前角色是否拥有指定路径权限。
+ * @description 校验 Bearer Token 及其当前角色是否拥有指定路径权限。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
@@ -1207,7 +1244,7 @@ function requirePermission(req, res, permission) {
 }
 
 /**
- * 仅允许系统管理员调用高风险知识变更或读取完整正文的接口。
+ * @description 仅允许系统管理员调用高风险知识变更或读取完整正文的接口。
  * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @returns {Record<string, unknown>|null} 管理员 Token 载荷。
@@ -1227,7 +1264,7 @@ function requireAdminPayload(req, res) {
 }
 
 /**
- * 验证请求 Token 并返回可信身份载荷。
+ * @description 验证请求 Token 并返回可信身份载荷。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
@@ -1244,7 +1281,7 @@ function requireAuthPayload(req, res) {
 }
 
 /**
- * 将数据库账号与 Token 载荷归一化为前端用户信息结构。
+ * @description 将数据库账号与 Token 载荷归一化为前端用户信息结构。
  *
  * @param {Record<string, any>|null|undefined} user 数据库账号。
  * @param {Record<string, any>} [fallback={}] Token 中的备用身份字段。
@@ -1276,7 +1313,7 @@ function toAuthUser(user, fallback = {}) {
 }
 
 /**
- * 从 Web 构建目录提供静态文件，并对无扩展名路由执行 SPA 回退。
+ * @description 从 Web 构建目录提供静态文件，并对无扩展名路由执行 SPA 回退。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
@@ -1351,7 +1388,7 @@ function serveStatic(req, res, pathname) {
 }
 
 /**
- * 判断主站构建资源名是否包含 Vite 内容哈希。
+ * @description 判断主站构建资源名是否包含 Vite 内容哈希。
  *
  * @param {string} relativePath 相对 Web 构建目录的正斜杠路径。
  * @returns {boolean} 仅 `/assets/` 下带至少 8 位哈希的文件返回 `true`。
@@ -1362,7 +1399,7 @@ function isHashedAsset(relativePath) {
 }
 
 /**
- * 按 RFC 9110 质量值选择可用的预压缩表示；质量相同时优先 Brotli。
+ * @description 按 RFC 9110 质量值选择可用的预压缩表示；质量相同时优先 Brotli。
  *
  * @param {string|string[]|undefined} header Accept-Encoding 请求头。
  * @param {string[]} availableEncodings 已存在的预压缩编码，按服务端偏好排序。
@@ -1402,7 +1439,7 @@ function selectStaticEncoding(header, availableEncodings) {
 }
 
 /**
- * 根据具体传输表示生成弱 ETag，确保 br、gzip 与 identity 不共享验证器。
+ * @description 根据具体传输表示生成弱 ETag，确保 br、gzip 与 identity 不共享验证器。
  *
  * @param {import("node:fs").Stats} fileStat 实际传输文件的状态。
  * @param {"br"|"gzip"|"identity"} encoding 表示使用的内容编码。
@@ -1414,7 +1451,7 @@ function createStaticEtag(fileStat, encoding) {
 }
 
 /**
- * 按 If-None-Match 优先、If-Modified-Since 次之的顺序判断主站静态资源是否仍新鲜。
+ * @description 按 If-None-Match 优先、If-Modified-Since 次之的顺序判断主站静态资源是否仍新鲜。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求。
  * @param {string} etag 当前传输表示的 ETag。
@@ -1445,7 +1482,7 @@ function isStaticRequestFresh(req, etag, modifiedTimeMs) {
 }
 
 /**
- * 按严格文件白名单提供讯飞数字人页面和 SDK 资源。
+ * @description 按严格文件白名单提供讯飞数字人页面和 SDK 资源。
  *
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @param {string} pathname `/digital-human` 命名空间内的路径。
@@ -1506,7 +1543,7 @@ function serveDigitalHumanStatic(res, pathname, headOnly = false) {
 }
 
 /**
- * 提供受控 Live2D 页面及模型资源树。
+ * @description 提供受控 Live2D 页面及模型资源树。
  *
  * `resolveStaticFilePath` 会拒绝编码穿越、NUL 和 Windows 盘符路径；本函数进一步要求
  * 目标是普通文件，防止目录读取异常泄露文件系统信息。
@@ -1552,7 +1589,7 @@ function serveLive2dStatic(res, pathname, headOnly = false) {
 }
 
 /**
- * 为数字人相关响应设置禁止缓存和基础安全头。
+ * @description 为数字人相关响应设置禁止缓存和基础安全头。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @returns {void}
  * @private
@@ -1567,13 +1604,16 @@ function applyDigitalHumanApiHeaders(res) {
 // The controlled avatar pages are embedded by production H5 and by the local
 // HBuilderX preview. Keep the development origins explicit so the public page
 // cannot be framed by arbitrary HTTP sites.
-/** @type {string} CSP `frame-ancestors` 允许的产品域名与本地预览来源。 */
+/**
+ * @description CSP `frame-ancestors` 允许的产品域名与本地预览来源。
+ * @type {string}
+ */
 const controlledAvatarFrameAncestors =
   "'self' https://shuzhiyouzong.cn https://*.shuzhiyouzong.cn "
   + "http://127.0.0.1:5173 http://localhost:5173";
 
 /**
- * 写入讯飞 XRTC 页面所需的最小 CSP、Permissions Policy 和防嗅探响应头。
+ * @description 写入讯飞 XRTC 页面所需的最小 CSP、Permissions Policy 和防嗅探响应头。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @returns {void}
  * @private
@@ -1595,7 +1635,7 @@ function applyDigitalHumanSecurityHeaders(res) {
 }
 
 /**
- * 写入自包含 Live2D 页面使用的同源 CSP 和浏览器能力限制。
+ * @description 写入自包含 Live2D 页面使用的同源 CSP 和浏览器能力限制。
  * @param {import("node:http").ServerResponse} res HTTP 响应。
  * @returns {void}
  * @private
@@ -1615,11 +1655,14 @@ function applyLive2dSecurityHeaders(res) {
   res.setHeader("x-permitted-cross-domain-policies", "none");
 }
 
-/** @type {Promise<import("node:http").Server>|null} 并发启动调用共享的监听 Promise。 */
+/**
+ * @description 并发启动调用共享的监听 Promise。
+ * @type {Promise<import("node:http").Server>|null}
+ */
 let listenPromise = null;
 
 /**
- * 启动共享 HTTP Server；并发调用会复用同一个启动 Promise。
+ * @description 启动共享 HTTP Server；并发调用会复用同一个启动 Promise。
  *
  * @param {{host?: string, port?: number}} [options={}] 监听地址；端口为 `0` 时由系统分配。
  * @param {string} [options.host=config.host] 监听主机。
@@ -1640,7 +1683,7 @@ export function startServer({ host = config.host, port = config.port } = {}) {
 
   listenPromise = new Promise((resolveStart, rejectStart) => {
     /**
-     * 清理共享启动 Promise 并向调用方转发监听错误。
+     * @description 清理共享启动 Promise 并向调用方转发监听错误。
      * @param {Error} error Node.js Server 监听错误。
      * @returns {void}
      */
@@ -1667,10 +1710,10 @@ export function startServer({ host = config.host, port = config.port } = {}) {
 }
 
 /**
- * 停止 HTTP Server 并关闭 SQLite 连接；未启动时可安全重复调用。
+ * @description 停止 HTTP Server 并关闭 SQLite 连接；未启动时可安全重复调用。
  *
  * @returns {Promise<void>}
- * @throws {Error} Node.js Server 关闭失败时拒绝 Promise。
+ * @throws {Error} Node.js Server 或 SQLite 连接关闭失败时抛出或拒绝 Promise。
  * @example
  * await stopServer();
  */
@@ -1695,7 +1738,7 @@ export function stopServer() {
 }
 
 /**
- * 判断当前模块是否由 Node.js 直接执行，而不是被测试或 Electron 导入。
+ * @description 判断当前模块是否由 Node.js 直接执行，而不是被测试或 Electron 导入。
  * @returns {boolean} 当前文件等于进程入口时为 `true`。
  * @private
  */

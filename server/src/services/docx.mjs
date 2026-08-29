@@ -1,11 +1,12 @@
 /**
  * @fileoverview 无外部依赖的 DOCX 正文提取与 WordprocessingML 纯文本转换工具。
+ * @description 无外部依赖的 DOCX 正文提取与 WordprocessingML 纯文本转换工具。
  */
 import { readFileSync } from "node:fs";
 import { inflateRawSync } from "node:zlib";
 
 /**
- * 从 DOCX ZIP 容器的 `word/document.xml` 中提取纯文本。
+ * @description 从 DOCX ZIP 容器的 `word/document.xml` 中提取纯文本。
  * 直接读取 ZIP 中央目录并使用 Node.js zlib 解压，兼容中文路径且无需外部命令。
  * @param {string|Buffer|URL|number} filePath 可传给 `readFileSync` 的 DOCX 文件路径或文件描述符。
  * @returns {string} 清理后的文档正文。
@@ -27,7 +28,7 @@ export function extractDocxText(filePath) {
 }
 
 /**
- * 在 ZIP 中央目录中查找条目，并依据中央目录记录的大小读取本地数据。
+ * @description 在 ZIP 中央目录中查找条目，并依据中央目录记录的大小读取本地数据。
  * 这可兼容本地头大小为零、实际大小写在流式数据描述符中的条目。
  * @private
  * @param {Buffer} buffer 完整 ZIP 文件内容。
@@ -79,7 +80,7 @@ function readZipEntry(buffer, entryName) {
 }
 
 /**
- * 从 ZIP 本地文件头定位并解压一个条目。
+ * @description 从 ZIP 本地文件头定位并解压一个条目。
  * @private
  * @param {Buffer} buffer 完整 ZIP 文件内容。
  * @param {number} localOffset 本地文件头的字节偏移。
@@ -103,7 +104,7 @@ function readLocalEntry(buffer, localOffset, method, compressedSize) {
 }
 
 /**
- * 将 WordprocessingML XML 转换为适合检索的纯文本。
+ * @description 将 WordprocessingML XML 转换为适合检索的纯文本。
  * @param {string} xml `word/document.xml` 的 UTF-8 文本。
  * @returns {string} 保留段落、表格单元格和制表符边界的纯文本。
  * @example

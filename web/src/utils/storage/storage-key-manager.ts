@@ -1,5 +1,6 @@
 /**
- * 存储键名管理器模块
+ * @fileoverview 版本化存储键选择与数据迁移管理器。
+ * @description 优先选择当前版本键，并在必要时将同一 Store 的旧版本数据迁移到新键。
  *
  * 提供智能的版本化存储键管理和数据迁移功能
  *
@@ -27,31 +28,39 @@
  * 4. 返回当前版本的存储键供使用
  *
  * @module utils/storage/storage-key-manager
- * @author Scenic AI Guide Team
  */
 import { StorageConfig } from '@/utils/storage'
 
 /**
- * 存储键名管理器
- * 负责处理版本化的存储键名生成和数据迁移
+ * @class
+ * @description 负责生成当前版本存储键，并透明迁移可复用的旧版本数据。
+ * @example
+ * const manager = new StorageKeyManager()
+ * const key = manager.getStorageKey('user')
  */
 export class StorageKeyManager {
   /**
-   * 获取当前版本的存储键名
+   * @description 获取指定 Store 在当前版本下的存储键。
+   * @param {string} storeId Store 标识。
+   * @returns {string} 当前版本存储键。
    */
   private getCurrentVersionKey(storeId: string): string {
     return StorageConfig.generateStorageKey(storeId)
   }
 
   /**
-   * 检查当前版本的数据是否存在
+   * @description 检查指定存储键是否已有数据。
+   * @param {string} key 待检查的存储键。
+   * @returns {boolean} 本地存储中存在该键时返回 true。
    */
   private hasCurrentVersionData(key: string): boolean {
     return localStorage.getItem(key) !== null
   }
 
   /**
-   * 查找其他版本的同名存储键
+   * @description 查找其他版本中属于同一 Store 且包含数据的存储键。
+   * @param {string} storeId Store 标识。
+   * @returns {string | null} 首个匹配键；未找到时返回 null。
    */
   private findExistingKey(storeId: string): string | null {
     const storageKeys = Object.keys(localStorage)
@@ -61,7 +70,10 @@ export class StorageKeyManager {
   }
 
   /**
-   * 将数据从旧版本迁移到当前版本
+   * @description 将旧键中的字符串数据复制到当前版本键；浏览器存储异常会被记录而不向外抛出。
+   * @param {string} fromKey 旧版本存储键。
+   * @param {string} toKey 当前版本存储键。
+   * @returns {void} 无返回值。
    */
   private migrateData(fromKey: string, toKey: string): void {
     try {
@@ -76,7 +88,11 @@ export class StorageKeyManager {
   }
 
   /**
-   * 获取持久化存储的键名（支持自动数据迁移）
+   * @description 获取指定 Store 的当前版本键，并在当前键无数据时尝试迁移旧版本数据。
+   * @param {string} storeId Store 标识。
+   * @returns {string} 可供持久化插件使用的当前版本存储键。
+   * @example
+   * manager.getStorageKey('setting')
    */
   getStorageKey(storeId: string): string {
     const currentKey = this.getCurrentVersionKey(storeId)

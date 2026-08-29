@@ -1,18 +1,24 @@
 /**
- * @fileoverview 托管 Embedding、Qdrant 与 Reranker 的轻量 HTTP 适配层。
- *
+ * @fileoverview 远程 RAG 服务适配模块。
+ * @description
+ * 提供托管 Embedding、Qdrant 与 Reranker 的轻量 HTTP 适配层。
  * 模块不缓存或输出密钥，也不会在导入时访问网络。所有请求都支持注入 `fetch`，
  * 便于在未配置真实凭据时执行确定性测试。
  */
 import { createHash } from "node:crypto";
 
-/** @type {ReadonlySet<number>} 适合短暂重试的 HTTP 状态码。 */
+/**
+ * @description 远程请求可进行短暂重试的 HTTP 状态码集合。
+ * @type {ReadonlySet<number>}
+ */
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 /**
- * 从环境变量构建远程 RAG 配置。
+ * @description 从环境变量构建冻结的远程 RAG 配置及脱敏问题列表。
  * @param {NodeJS.ProcessEnv|Record<string, string|undefined>} [env=process.env] 环境变量。
  * @returns {object} 不包含派生外部状态的只读配置快照。
+ * @example
+ * const config = buildRemoteRagConfig(process.env);
  */
 export function buildRemoteRagConfig(env = process.env) {
   const workspaceId = String(env.RAG_DASHSCOPE_WORKSPACE_ID || "").trim();
@@ -76,7 +82,7 @@ export function buildRemoteRagConfig(env = process.env) {
 }
 
 /**
- * 返回远程 Dense 检索是否具备最小配置。
+ * @description 判断远程 Dense 检索是否显式启用且具备完整、有效的最小配置。
  * @param {object} config 远程 RAG 配置。
  * @returns {boolean} 配置完整且显式启用时为 `true`。
  */
@@ -90,7 +96,7 @@ export function isRemoteDenseReady(config) {
 }
 
 /**
- * 返回远程重排是否具备最小配置。
+ * @description 判断远程重排是否显式启用且具备完整、有效的最小配置。
  * @param {object} config 远程 RAG 配置。
  * @returns {boolean} 配置完整且显式启用时为 `true`。
  */
@@ -102,7 +108,7 @@ export function isRemoteRerankerReady(config) {
 }
 
 /**
- * 返回不含任何凭证值的远程 RAG 配置问题码。
+ * @description 返回不包含任何凭证值的远程 RAG 配置问题码。
  * @param {object} config 远程 RAG 配置。
  * @param {string[]} [components] 需要筛选的组件。
  * @returns {string[]} 可安全写入日志和管理端状态的稳定问题码。
@@ -115,11 +121,14 @@ export function getRemoteRagConfigIssues(config, components = []) {
 }
 
 /**
- * 调用百炼 OpenAI 兼容 Embeddings API。
+ * @description 调用百炼 OpenAI 兼容 Embeddings API，并验证和单位化返回向量。
  * @param {string[]} texts 待向量化文本。
  * @param {object} config 远程 RAG 配置。
  * @param {{fetchImpl?: typeof fetch}} [dependencies={}] 可注入依赖。
  * @returns {Promise<{vectors: number[][], usage: object, model: string}>} 单位化向量和用量。
+ * @throws {Error & {code:string,statusCode:number}} 输入为空、配置缺失、响应异常或远程请求失败时抛出。
+ * @example
+ * const result = await embedTexts(["灵山大佛高度"], config);
  */
 export async function embedTexts(texts, config, { fetchImpl = globalThis.fetch } = {}) {
   const input = Array.isArray(texts) ? texts.map((text) => String(text || "").trim()) : [];
@@ -160,12 +169,24 @@ export async function embedTexts(texts, config, { fetchImpl = globalThis.fetch }
 }
 
 /**
- * 查询 Qdrant Dense 候选。
+ * @description 使用单位化查询向量和权限过滤条件查询 Qdrant Dense 候选。
  * @param {number[]} vector 查询向量。
  * @param {object} config 远程 RAG 配置。
- * @param {{limit?: number, indexVersion: string, knowledgeScope?: string, accessScopes?: string[], tenantId?: string, scenicArea?: string|null, documentType?: string|null, language?: string|null}} options 查询参数。
- * @param {{fetchImpl?: typeof fetch}} [dependencies={}] 可注入依赖。
+ * @param {object} options 查询参数。
+ * @param {number} [options.limit] 最大候选数。
+ * @param {string} options.indexVersion 活动知识索引版本。
+ * @param {string} [options.knowledgeScope="visitor_qa"] 知识用途范围。
+ * @param {string[]} [options.accessScopes] 允许访问的权限范围。
+ * @param {string} [options.tenantId="default"] 租户标识。
+ * @param {string|null} [options.scenicArea] 景区过滤条件。
+ * @param {string|null} [options.documentType] 文档类型过滤条件。
+ * @param {string|null} [options.language] 文档语言过滤条件。
+ * @param {object} [dependencies={}] 可注入依赖。
+ * @param {typeof fetch} [dependencies.fetchImpl] 可替换的 Fetch 实现。
  * @returns {Promise<Array<{chunkId: string, score: number, payload: object}>>} 向量候选。
+ * @throws {Error & {code:string,statusCode:number}} 配置缺失、向量无效或远程查询失败时抛出。
+ * @example
+ * const candidates = await queryQdrant(vector, config, { indexVersion: "v1" });
  */
 export async function queryQdrant(vector, config, options, { fetchImpl = globalThis.fetch } = {}) {
   if (!isRemoteDenseReady(config)) {
@@ -206,10 +227,13 @@ export async function queryQdrant(vector, config, options, { fetchImpl = globalT
 }
 
 /**
- * 确保 Qdrant 集合存在且维度正确。
+ * @description 确保 Qdrant 集合存在、向量维度一致，并补齐查询所需载荷索引。
  * @param {object} config 远程 RAG 配置。
  * @param {{fetchImpl?: typeof fetch}} [dependencies={}] 可注入依赖。
- * @returns {Promise<{created: boolean}>} 集合创建状态。
+ * @returns {Promise<{created: boolean, indexes: string[]}>} 集合创建状态和已确认的索引字段。
+ * @throws {Error & {code:string,statusCode:number}} 配置缺失、维度冲突或远程操作失败时抛出。
+ * @example
+ * const state = await ensureQdrantCollection(config);
  */
 export async function ensureQdrantCollection(config, { fetchImpl = globalThis.fetch } = {}) {
   if (!isRemoteDenseReady(config)) {
@@ -260,11 +284,13 @@ export async function ensureQdrantCollection(config, { fetchImpl = globalThis.fe
 }
 
 /**
+ * @description
  * 为所有查询过滤字段建立 Qdrant payload index。
  * Qdrant Cloud 会拒绝未建索引的过滤查询，因此集合已存在时也必须幂等执行。
  * @param {object} config 远程 RAG 配置。
  * @param {{fetchImpl?: typeof fetch}} [dependencies={}] 可注入依赖。
  * @returns {Promise<string[]>} 已确认的索引字段。
+ * @throws {Error & {code:string,statusCode:number}} 配置缺失或远程索引创建失败时抛出。
  */
 export async function ensureQdrantPayloadIndexes(config, { fetchImpl = globalThis.fetch } = {}) {
   if (!isRemoteDenseReady(config)) {
@@ -297,11 +323,18 @@ export async function ensureQdrantPayloadIndexes(config, { fetchImpl = globalThi
 }
 
 /**
- * 批量写入 Qdrant 向量点。
+ * @description 校验并单位化每个向量后，批量写入 Qdrant 向量点。
  * @param {Array<{id: string, vector: number[], payload: object}>} points 向量点。
+ * @param {string} points[].id 稳定向量点 ID。
+ * @param {number[]} points[].vector 待单位化的向量。
+ * @param {object} points[].payload 可供过滤和还原分块的载荷。
  * @param {object} config 远程 RAG 配置。
- * @param {{fetchImpl?: typeof fetch}} [dependencies={}] 可注入依赖。
+ * @param {object} [dependencies={}] 可注入依赖。
+ * @param {typeof fetch} [dependencies.fetchImpl] 可替换的 Fetch 实现。
  * @returns {Promise<{count: number}>} 写入数量。
+ * @throws {Error & {code:string,statusCode:number}} 配置缺失、向量无效或远程写入失败时抛出。
+ * @example
+ * await upsertQdrantPoints([{ id, vector, payload }], config);
  */
 export async function upsertQdrantPoints(points, config, { fetchImpl = globalThis.fetch } = {}) {
   if (!isRemoteDenseReady(config)) {
@@ -329,11 +362,12 @@ export async function upsertQdrantPoints(points, config, { fetchImpl = globalThi
 }
 
 /**
- * 删除 Qdrant 中指定知识版本的向量，避免长期保留已退出活动索引的点。
+ * @description 删除 Qdrant 中指定知识版本的向量，避免长期保留已退出活动索引的点。
  * @param {string[]} indexVersions 待清理的知识版本。
  * @param {object} config 远程 RAG 配置。
  * @param {{fetchImpl?: typeof fetch}} [dependencies={}] 可注入依赖。
  * @returns {Promise<{versions: number}>} 已提交删除请求的版本数。
+ * @throws {Error & {code:string,statusCode:number}} 配置缺失或远程删除失败时抛出。
  */
 export async function deleteQdrantPointsByIndexVersions(indexVersions, config, { fetchImpl = globalThis.fetch } = {}) {
   const versions = [...new Set((indexVersions || []).map((value) => String(value || "").trim()).filter(Boolean))];
@@ -364,12 +398,15 @@ export async function deleteQdrantPointsByIndexVersions(indexVersions, config, {
 }
 
 /**
- * 调用百炼兼容 Rerank API。
+ * @description 调用百炼兼容 Rerank API，并过滤无效或越界的重排结果。
  * @param {string} query 用户查询。
  * @param {string[]} documents 候选正文。
  * @param {object} config 远程 RAG 配置。
  * @param {{topN?: number, fetchImpl?: typeof fetch}} [options={}] 调用选项。
  * @returns {Promise<Array<{index: number, score: number, document?: string}>>} 重排结果。
+ * @throws {Error & {code:string,statusCode:number}} 输入为空、配置缺失或远程请求失败时抛出。
+ * @example
+ * const reranked = await rerankDocuments("开放时间", documents, config);
  */
 export async function rerankDocuments(query, documents, config, { topN = documents?.length || 0, fetchImpl = globalThis.fetch } = {}) {
   const candidates = Array.isArray(documents) ? documents.map((document) => String(document || "")) : [];
@@ -410,9 +447,11 @@ export async function rerankDocuments(query, documents, config, { topN = documen
 }
 
 /**
- * 将分块 ID 转换为 Qdrant 支持的稳定 UUID。
+ * @description 将分块 ID 的 SHA-256 摘要转换为 Qdrant 支持的稳定 UUID。
  * @param {string} chunkId 分块 ID。
  * @returns {string} 稳定 UUID。
+ * @example
+ * const pointId = stablePointId("knowledge-v1:chunk-1");
  */
 export function stablePointId(chunkId) {
   const bytes = Buffer.from(createHash("sha256").update(String(chunkId)).digest().subarray(0, 16));
@@ -422,12 +461,20 @@ export function stablePointId(chunkId) {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-/** @param {object} config 配置。 @returns {Record<string,string>} Qdrant 请求头。 */
+/**
+ * @description 构建包含 API Key 和 JSON 内容类型的 Qdrant 请求头。
+ * @param {object} config 远程 RAG 配置。
+ * @returns {Record<string,string>} Qdrant 请求头。
+ */
 function qdrantHeaders(config) {
   return { "api-key": config.vector.apiKey, "content-type": "application/json" };
 }
 
-/** @param {object} options 过滤选项。 @returns {object} Qdrant过滤器。 */
+/**
+ * @description 根据知识版本、权限范围和可选元数据构建 Qdrant 过滤器。
+ * @param {object} options 查询过滤选项。
+ * @returns {object} Qdrant 过滤器。
+ */
 function buildQdrantFilter(options = {}) {
   const must = [
     { key: "indexVersion", match: { value: String(options.indexVersion || "") } },
@@ -442,18 +489,23 @@ function buildQdrantFilter(options = {}) {
   return { must };
 }
 
-/** @param {*} values 访问范围。 @returns {string[]} 非空范围列表。 */
+/**
+ * @description 将访问范围归一化为去重的非空字符串列表。
+ * @param {*} values 原始访问范围。
+ * @returns {string[]} 非空访问范围；缺省时返回公开范围。
+ */
 function normalizeAccessScopes(values) {
   const scopes = Array.isArray(values) ? values.map(String).filter(Boolean) : [];
   return scopes.length > 0 ? [...new Set(scopes)] : ["public"];
 }
 
 /**
- * 执行带超时、有限重试和稳定错误码的 JSON 请求。
+ * @description 执行带超时、有限重试、状态白名单和稳定错误码的 JSON 请求。
  * @param {string} url 请求地址。
- * @param {RequestInit} init fetch参数。
+ * @param {RequestInit} init Fetch 请求参数。
  * @param {{fetchImpl: typeof fetch, timeoutMs: number, maxRetries: number, errorCode: string, acceptedStatuses?: Set<number>}} options 请求策略。
  * @returns {Promise<object>} JSON 响应，附加不可枚举语义之外的 `__status` 字段。
+ * @throws {Error & {code:string,statusCode:number}} Fetch 不可用、请求超时或远程服务返回失败状态时抛出。
  */
 async function requestJson(url, init, options) {
   if (typeof options.fetchImpl !== "function") {
@@ -498,7 +550,13 @@ async function requestJson(url, init, options) {
   throw lastError || providerError(options.errorCode, "Remote service request failed.");
 }
 
-/** @param {*} vector 原始向量。 @param {number} dimensions 预期维度。 @returns {number[]} 单位向量。 */
+/**
+ * @description 校验向量维度和数值后，将其归一化为欧几里得范数为 1 的向量。
+ * @param {*} vector 原始向量。
+ * @param {number} dimensions 预期维度。
+ * @returns {number[]} 单位向量。
+ * @throws {Error & {code:string,statusCode:number}} 维度不匹配、存在非数值元素或向量范数为零时抛出。
+ */
 function normalizeVector(vector, dimensions) {
   if (!Array.isArray(vector) || vector.length !== dimensions || vector.some((value) => !Number.isFinite(Number(value)))) {
     throw providerError("VECTOR_DIMENSION_MISMATCH", `Expected a ${dimensions}-dimension numeric vector.`);
@@ -511,13 +569,22 @@ function normalizeVector(vector, dimensions) {
   return values.map((value) => value / norm);
 }
 
-/** @param {*} value 值。 @param {boolean} fallback 默认值。 @returns {boolean} 布尔值。 */
+/**
+ * @description 将常见环境变量布尔文本转换为布尔值。
+ * @param {*} value 原始配置值。
+ * @param {boolean} fallback 空值时使用的默认值。
+ * @returns {boolean} 归一化后的布尔值。
+ */
 function toBoolean(value, fallback) {
   if (value === undefined || value === null || value === "") return fallback;
   return ["1", "true", "yes", "on"].includes(String(value).toLowerCase());
 }
 
-/** @param {*} value API Host。 @returns {string} 仅保留 HTTPS origin；非法值返回空串。 */
+/**
+ * @description 规范化 API Host，并拒绝非 HTTPS 协议或非法地址。
+ * @param {*} value 原始 API Host。
+ * @returns {string} HTTPS origin；非法值返回空字符串。
+ */
 function normalizeApiHost(value) {
   const raw = String(value || "").trim().replace(/\/+$/u, "");
   if (!raw) return "";
@@ -529,13 +596,19 @@ function normalizeApiHost(value) {
   }
 }
 
-/** @param {*} value 凭证。 @returns {string} 去除首尾空白后的原始凭证，不静默修复内容。 */
+/**
+ * @description 去除凭证首尾空白，不对凭证内容执行静默修复。
+ * @param {*} value 原始凭证。
+ * @returns {string} 归一化后的凭证字符串。
+ */
 function normalizeCredential(value) {
   return String(value || "").trim();
 }
 
 /**
- * 构建脱敏配置诊断。反斜杠通常来自 Markdown 中对下划线的转义，不能作为真实 Key 发送。
+ * @description
+ * 构建脱敏配置诊断。反斜杠通常来自 Markdown 中对下划线的转义，
+ * 不能作为真实 Key 发送。
  * @param {object} input 原始配置摘要。
  * @returns {Array<{component:string,code:string}>} 配置问题。
  */
@@ -560,7 +633,14 @@ function buildConfigurationIssues(input) {
   return issues;
 }
 
-/** @param {Array<object>} issues 问题集合。 @param {string} component 组件。 @param {string} name 名称。 @param {string} value 凭证。 @returns {void} */
+/**
+ * @description 检查凭证是否缺失、包含 Markdown 转义或空白字符，并追加稳定问题码。
+ * @param {Array<object>} issues 配置问题集合。
+ * @param {string} component 所属组件。
+ * @param {string} name 环境变量名称。
+ * @param {string} value 待检查凭证。
+ * @returns {void} 无返回值。
+ */
 function appendCredentialIssues(issues, component, name, value) {
   if (!value) {
     issues.push({ component, code: `${name}_MISSING` });
@@ -570,7 +650,12 @@ function appendCredentialIssues(issues, component, name, value) {
   if (/\s/u.test(value)) issues.push({ component, code: `${name}_WHITESPACE` });
 }
 
-/** @param {string} endpoint 完整接口。 @param {string} apiHost 专属 Host。 @returns {boolean} origin 一致时为 `true`。 */
+/**
+ * @description 判断完整接口地址是否使用指定专属 API Host。
+ * @param {string} endpoint 完整接口地址。
+ * @param {string} apiHost 专属 API Host。
+ * @returns {boolean} 两个地址的 origin 一致时为 `true`。
+ */
 function endpointUsesApiHost(endpoint, apiHost) {
   try {
     return new URL(endpoint).origin === new URL(apiHost).origin;
@@ -579,7 +664,12 @@ function endpointUsesApiHost(endpoint, apiHost) {
   }
 }
 
-/** @param {number} status HTTP 状态。 @param {string} fallback 默认错误码。 @returns {string} 稳定错误码。 */
+/**
+ * @description 将常见远程 HTTP 失败状态映射为稳定业务错误码。
+ * @param {number} status HTTP 状态码。
+ * @param {string} fallback 未命中特定映射时使用的错误码。
+ * @returns {string} 稳定业务错误码。
+ */
 function classifyRemoteHttpError(status, fallback) {
   if (status === 401) return "REMOTE_AUTHENTICATION_FAILED";
   if (status === 403) return "REMOTE_ACCESS_DENIED";
@@ -587,26 +677,50 @@ function classifyRemoteHttpError(status, fallback) {
   return fallback;
 }
 
-/** @param {*} value 值。 @param {number} fallback 默认值。 @param {number} min 下限。 @param {number} max 上限。 @returns {number} 整数。 */
+/**
+ * @description 将配置值转换为指定闭区间内的整数。
+ * @param {*} value 原始配置值。
+ * @param {number} fallback 非有限数值时使用的默认值。
+ * @param {number} min 最小值。
+ * @param {number} max 最大值。
+ * @returns {number} 截断并限制范围后的整数。
+ */
 function boundedNumber(value, fallback, min, max) {
   const parsed = Number(value ?? fallback);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.max(min, Math.min(max, Math.trunc(parsed)));
 }
 
-/** @param {*} value 值。 @param {number} fallback 默认值。 @param {number} min 下限。 @param {number} max 上限。 @returns {number} 小数。 */
+/**
+ * @description 将配置值转换为指定闭区间内的数值。
+ * @param {*} value 原始配置值。
+ * @param {number} fallback 非有限数值时使用的默认值。
+ * @param {number} min 最小值。
+ * @param {number} max 最大值。
+ * @returns {number} 限制范围后的数值。
+ */
 function boundedDecimal(value, fallback, min, max) {
   const parsed = Number(value ?? fallback);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.max(min, Math.min(max, parsed));
 }
 
-/** @param {number} milliseconds 毫秒。 @returns {Promise<void>} 延迟Promise。 */
+/**
+ * @description 创建指定时长后完成的延迟 Promise。
+ * @param {number} milliseconds 延迟毫秒数。
+ * @returns {Promise<void>} 延迟完成信号。
+ */
 function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-/** @param {string} code 错误码。 @param {string} message 消息。 @param {number} [statusCode=502] HTTP状态。 @returns {Error & {code:string,statusCode:number}} 错误。 */
+/**
+ * @description 创建带稳定业务错误码和 HTTP 状态码的远程服务异常。
+ * @param {string} code 业务错误码。
+ * @param {string} message 错误消息。
+ * @param {number} [statusCode=502] HTTP 状态码。
+ * @returns {Error & {code:string,statusCode:number}} 远程服务异常对象。
+ */
 function providerError(code, message, statusCode = 502) {
   const error = new Error(message);
   error.code = code;

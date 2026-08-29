@@ -1,5 +1,6 @@
 /**
- * 表格缓存管理模块
+ * @fileoverview 表格查询结果的内存缓存与失效策略工具。
+ * @description 基于参数哈希存储分页结果，并提供过期清理、标签失效和 LRU 淘汰能力。
  *
  * 提供高性能的表格数据缓存机制
  *
@@ -30,23 +31,42 @@
  * - KEEP_ALL: 不清除缓存（适用于只读操作）
  *
  * @module utils/table/tableCache
- * @author Scenic AI Guide Team
  */
 import { hash } from 'ohash'
 
-// 缓存失效策略枚举
+/**
+ * @description 表格数据变更后可采用的缓存失效策略。
+ * @enum {string}
+ */
 export enum CacheInvalidationStrategy {
-  /** 清空所有缓存 */
+  /**
+   * @description 清空所有缓存。
+   */
   CLEAR_ALL = 'clear_all',
-  /** 仅清空当前查询条件的缓存 */
+  /**
+   * @description 仅清空当前查询条件的缓存。
+   */
   CLEAR_CURRENT = 'clear_current',
-  /** 清空所有分页缓存（保留不同搜索条件的缓存） */
+  /**
+   * @description 清空所有分页缓存，同时保留不同搜索条件的分组语义。
+   */
   CLEAR_PAGINATION = 'clear_pagination',
-  /** 不清除缓存 */
+  /**
+   * @description 保留全部缓存。
+   */
   KEEP_ALL = 'keep_all'
 }
 
-// 通用 API 响应接口（兼容不同的后端响应格式）
+/**
+ * @typedef ApiResponse
+ * @description 兼容多种后端分页格式的表格响应结构。
+ * @property {T[]} [records] 标准记录列表。
+ * @property {T[]} [data] 兼容格式的记录列表。
+ * @property {number} [total] 总记录数。
+ * @property {number} [current] 当前页码。
+ * @property {number} [size] 每页记录数。
+ * @template T
+ */
 export interface ApiResponse<T = unknown> {
   records?: T[]
   data?: T[]
@@ -56,7 +76,18 @@ export interface ApiResponse<T = unknown> {
   [key: string]: unknown
 }
 
-// 缓存存储接口
+/**
+ * @typedef CacheItem
+ * @description 单次表格查询在缓存中的数据、响应元信息和访问统计。
+ * @property {T[]} data 表格记录列表。
+ * @property {ApiResponse<T>} response 原始标准化响应。
+ * @property {number} timestamp 缓存写入时间戳。
+ * @property {string} params 查询参数哈希。
+ * @property {Set<string>} tags 用于分组失效的缓存标签。
+ * @property {number} accessCount 缓存命中次数。
+ * @property {number} lastAccessTime 最后访问时间戳。
+ * @template T
+ */
 export interface CacheItem<T> {
   data: T[]
   response: ApiResponse<T>
@@ -70,13 +101,26 @@ export interface CacheItem<T> {
   lastAccessTime: number
 }
 
-// 增强的缓存管理类
+/**
+ * @class
+ * @description 管理表格查询缓存、过期时间、标签清理和 LRU 容量控制。
+ * @template T
+ * @example
+ * const cache = new TableCache<User>(60_000, 20)
+ * cache.set({ current: 1 }, users, { records: users, total: users.length })
+ */
 export class TableCache<T> {
   private cache = new Map<string, CacheItem<T>>()
   private cacheTime: number
   private maxSize: number
   private enableLog: boolean
 
+  /**
+   * @description 创建表格内存缓存。
+   * @param {number} [cacheTime=300000] 单条缓存有效时长毫秒数。
+   * @param {number} [maxSize=50] 允许保留的最大缓存项数量。
+   * @param {boolean} [enableLog=false] 是否输出调试日志。
+   */
   constructor(cacheTime = 5 * 60 * 1000, maxSize = 50, enableLog = false) {
     // 默认5分钟，最多50条缓存
     this.cacheTime = cacheTime
@@ -150,7 +194,13 @@ export class TableCache<T> {
     }
   }
 
-  // 设置缓存
+  /**
+   * @description 按查询参数写入表格数据和响应元信息，并在必要时触发 LRU 淘汰。
+   * @param {unknown} params 生成缓存键与标签的查询参数。
+   * @param {T[]} data 表格记录列表。
+   * @param {ApiResponse<T>} response 标准化响应元信息。
+   * @returns {void} 无返回值。
+   */
   set(params: unknown, data: T[], response: ApiResponse<T>): void {
     const key = this.generateKey(params)
     const tags = this.generateTags(params as Record<string, unknown>)
@@ -170,7 +220,11 @@ export class TableCache<T> {
     })
   }
 
-  // 获取缓存
+  /**
+   * @description 按查询参数读取有效缓存，并更新命中次数和最后访问时间。
+   * @param {unknown} params 查询参数。
+   * @returns {CacheItem<T> | null} 有效缓存项；不存在或已过期时返回 null。
+   */
   get(params: unknown): CacheItem<T> | null {
     const key = this.generateKey(params)
     const item = this.cache.get(key)
@@ -190,7 +244,11 @@ export class TableCache<T> {
     return item
   }
 
-  // 根据标签清除缓存
+  /**
+   * @description 删除标签包含任一目标片段的缓存项。
+   * @param {string[]} tags 待匹配的标签片段列表。
+   * @returns {number} 实际删除的缓存项数量。
+   */
   clearByTags(tags: string[]): number {
     let clearedCount = 0
 
@@ -209,24 +267,38 @@ export class TableCache<T> {
     return clearedCount
   }
 
-  // 清除当前搜索条件的缓存
+  /**
+   * @description 删除与指定查询参数完全对应的缓存项。
+   * @param {unknown} params 查询参数。
+   * @returns {number} 删除成功时返回 1，否则返回 0。
+   */
   clearCurrentSearch(params: unknown): number {
     const key = this.generateKey(params)
     const deleted = this.cache.delete(key)
     return deleted ? 1 : 0
   }
 
-  // 清除分页缓存
+  /**
+   * @description 删除全部带分页标签的缓存项。
+   * @returns {number} 实际删除的缓存项数量。
+   */
   clearPagination(): number {
     return this.clearByTags(['pagination'])
   }
 
-  // 清空所有缓存
+  /**
+   * @description 清空当前实例中的全部缓存项。
+   * @returns {void} 无返回值。
+   */
   clear(): void {
     this.cache.clear()
   }
 
-  // 获取缓存统计信息
+  /**
+   * @description 统计缓存项数量、估算数据体积并计算平均命中次数。
+   * @returns {{total: number, size: string, hitRate: string}} 可读的缓存统计信息。
+   * @throws {TypeError} 缓存数据无法被 JSON.stringify 序列化时抛出。
+   */
   getStats(): { total: number; size: string; hitRate: string } {
     const total = this.cache.size
     let totalSize = 0
@@ -249,7 +321,10 @@ export class TableCache<T> {
     }
   }
 
-  // 清理过期缓存
+  /**
+   * @description 遍历并删除超过有效期的缓存项。
+   * @returns {number} 实际清理的过期缓存项数量。
+   */
   cleanupExpired(): number {
     let cleanedCount = 0
     const now = Date.now()

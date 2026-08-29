@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 智能问答并发稳定性测试脚本。
+ * @description 并行提交多类景区问题并确认回答结果完整且互不干扰。
+ */
 import assert from "node:assert/strict";
 import { answerQuestion } from "../src/services/chat.mjs";
 

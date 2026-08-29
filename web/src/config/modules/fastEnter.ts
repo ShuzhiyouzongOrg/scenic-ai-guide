@@ -1,6 +1,6 @@
 /**
- * 快速入口配置
- * 包含：应用列表、快速链接等配置
+ * @fileoverview 快速入口配置模块。
+ * @description 定义管理端快速应用和外部链接入口的名称、图标、顺序与行为。
  */
 import type { FastEnterConfig } from '@/types/config'
 import { WEB_LINKS } from '@/utils/constants'
@@ -77,4 +77,8 @@ const fastEnterConfig: FastEnterConfig = {
   ]
 }
 
+/**
+ * @description 导出只读应用配置，防止运行期误改。
+ * @type {Readonly<import('@/types/config').AppConfig>}
+ */
 export default Object.freeze(fastEnterConfig)

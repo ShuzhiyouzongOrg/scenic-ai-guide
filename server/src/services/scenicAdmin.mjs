@@ -1,9 +1,12 @@
 /**
  * @fileoverview 基于 SQLite 的景点目录管理服务，支持创建、编辑、停用和别名维护。
  *
- * 目录初始数据来自生成的知识库，导入后可由管理员独立维护。
- *
+ * @description 目录初始数据来自生成的知识库，导入后可由管理员独立维护。
+ */
+
+/**
  * @typedef {object} ManagedScenicSpot
+ * @description 管理端维护并持久化的完整景点资料。
  * @property {string} id 景点 ID。
  * @property {string} scenicArea 所属景区。
  * @property {string} name 景点名称。
@@ -25,7 +28,7 @@ import { randomBytes } from "node:crypto";
 import { getDb } from "../db/database.mjs";
 
 /**
- * 将景点数据库行转换为管理端对象。
+ * @description 将景点数据库行转换为管理端对象。
  * @private
  * @param {Record<string, *>} row 景点数据库行。
  * @returns {ManagedScenicSpot} 规范化景点对象。
@@ -51,7 +54,7 @@ function toSpot(row) {
 }
 
 /**
- * 安全解析数据库中的 JSON 字段。
+ * @description 安全解析数据库中的 JSON 字段。
  * @private
  * @template T
  * @param {*} value JSON 文本。
@@ -68,7 +71,7 @@ function parseJson(value, fallback) {
 }
 
 /**
- * 列出全部启用景点。
+ * @description 列出全部启用景点。
  * @returns {ManagedScenicSpot[]} 按 ID 升序排列的景点列表。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example
@@ -82,7 +85,7 @@ export function listManagedScenicSpots() {
 }
 
 /**
- * 列出全部景点，包括已停用记录。
+ * @description 列出全部景点，包括已停用记录。
  * @returns {ManagedScenicSpot[]} 按 ID 升序排列的完整景点列表。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example
@@ -93,7 +96,7 @@ export function listAllManagedScenicSpots() {
 }
 
 /**
- * 创建一个管理员维护的景点。
+ * @description 创建一个管理员维护的景点。
  * @param {Partial<ManagedScenicSpot>} [input={}] 景点输入；未提供 ID 时自动生成。
  * @returns {ManagedScenicSpot} 已持久化的新景点。
  * @throws {Error & {statusCode: 400, code: "SCENIC_NAME_REQUIRED"}} 景点名称为空时抛出。
@@ -123,7 +126,7 @@ export function createScenicSpot(input = {}) {
 }
 
 /**
- * 合并并更新已有景点。
+ * @description 合并并更新已有景点。
  * @param {string} id 景点 ID。
  * @param {Partial<ManagedScenicSpot>} [input={}] 待更新字段。
  * @returns {ManagedScenicSpot} 更新后的景点。
@@ -147,7 +150,7 @@ export function updateScenicSpot(id, input = {}) {
 }
 
 /**
- * 将景点标记为停用。
+ * @description 将景点标记为停用。
  * @param {string} id 景点 ID。
  * @returns {ManagedScenicSpot} 停用后的景点。
  * @throws {Error & {statusCode: 404, code: "SCENIC_NOT_FOUND"}} 景点不存在时抛出。
@@ -160,10 +163,10 @@ export function disableScenicSpot(id) {
 }
 
 /**
- * 以 upsert 方式写入景点数据库。
+ * @description 以 upsert 方式写入景点数据库。
  * @private
  * @param {ManagedScenicSpot} spot 已规范化的景点。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error} 数据库写入或约束校验失败时透传异常。
  */
 function writeSpot(spot) {
@@ -201,7 +204,7 @@ function writeSpot(spot) {
 }
 
 /**
- * 清理景点字段并补充更新时间。
+ * @description 清理景点字段并补充更新时间。
  * @private
  * @param {Partial<ManagedScenicSpot>} input 原始景点输入。
  * @returns {ManagedScenicSpot} 可直接持久化的景点对象。

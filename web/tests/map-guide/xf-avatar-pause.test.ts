@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 讯飞数字人暂停恢复测试。
+ * @description 验证讯飞数字人根据字幕推进暂停位置，并从剩余文本继续播报。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {

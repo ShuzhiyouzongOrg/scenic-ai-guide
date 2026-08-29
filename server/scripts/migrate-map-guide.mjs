@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 灵山胜境地图导览数据迁移脚本。
+ * @description 整合官方点位、路线、手绘图和媒体资源，完成坐标转换、审计与导览数据生成。
+ */
 import { createHash } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -136,6 +140,11 @@ const panoramaScenes = [
   { sceneId: "34952020", title: "五印坛城内景", spotId: "LS-014" },
 ];
 
+/**
+ * @description 对景点名称执行 NFKC、转小写和标点空白清理。
+ * @param {*} [value=""] 原始名称。
+ * @returns {string} 可用于稳定匹配的名称。
+ */
 function normalizeName(value = "") {
   return String(value)
     .normalize("NFKC")
@@ -143,10 +152,21 @@ function normalizeName(value = "") {
     .replace(/[\s·•—－_()（）\[\]【】、，。,:：;；'“”\"!?！？]/g, "");
 }
 
+/**
+ * @description 异步读取并解析 JSON 文件。
+ * @param {string} path 文件路径。
+ * @returns {Promise<*>} 解析后的 JSON 值。
+ * @throws {Error|SyntaxError} 文件读取或 JSON 解析失败时抛出。
+ */
 function readJson(path) {
   return readFile(path, "utf8").then(JSON.parse);
 }
 
+/**
+ * @description 从官方路线节点或普通点位中提取有限经纬度。
+ * @param {object|null|undefined} entry 路线节点。
+ * @returns {{latitude: number, longitude: number}|undefined} 经纬度；坐标非法时为 `undefined`。
+ */
 function routeCoordinate(entry) {
   const point = entry?.routePoint || entry || {};
   const latitude = Number(point.pointLatitude ?? point.latitude);
@@ -156,6 +176,13 @@ function routeCoordinate(entry) {
   return { latitude, longitude };
 }
 
+/**
+ * @description 将官方接口路线或快照路线归一化为迁移中间结构。
+ * @param {object} route 官方路线记录。
+ * @param {number} index 路线序号。
+ * @param {Map<string, object>} fallbackById 备用路线索引。
+ * @returns {object} 含节点、路径和来源信息的标准路线中间结构。
+ */
 function normalizeOfficialRoute(route, index, fallbackById) {
   const routeId = String(route.routeId || route.id || `route-${index + 1}`);
   const fallback = fallbackById.get(routeId);
@@ -243,6 +270,11 @@ function normalizeOfficialRoute(route, index, fallbackById) {
   };
 }
 
+/**
+ * @description 从灵山官方接口拉取路线并保存带采集时间的本地快照。
+ * @returns {Promise<object[]>} 官方路线原始列表。
+ * @throws {Error|TypeError|SyntaxError} 网络失败、HTTP 异常、响应结构无效、JSON 解析或快照写入失败时抛出。
+ */
 async function fetchOfficialRouteSnapshot() {
   const endpoint =
     "https://oc-api.lingshan.com.cn/navigation/api/v1/skip/poi/getRouteListForMini";
@@ -282,6 +314,12 @@ async function fetchOfficialRouteSnapshot() {
   return body.data;
 }
 
+/**
+ * @description 优先加载刷新或既有官方路线快照，失败时回退到内置路线。
+ * @param {object[]} fallbackRoutes 内置备用路线。
+ * @returns {Promise<object[]>} 规范化且至少含两个节点的官方路线，或备用路线。
+ * @throws {Error|SyntaxError} 已存在的快照读取或解析失败时抛出。
+ */
 async function loadOfficialRoutes(fallbackRoutes) {
   let sourceRoutes;
   if (refreshOfficialRoutes || !existsSync(officialRouteSnapshotPath)) {
@@ -312,6 +350,11 @@ async function loadOfficialRoutes(fallbackRoutes) {
   return normalized.length ? normalized : fallbackRoutes;
 }
 
+/**
+ * @description 在隔离 VM 中加载参考项目点位、路线和地图配置。
+ * @returns {Promise<object>} 参考分类、点位、路线、配置和原始快照。
+ * @throws {Error|SyntaxError} 必需文件缺失、读取、解析或 VM 执行失败时抛出。
+ */
 async function loadSourceData() {
   const snapshotPath = join(
     sourceRoot,
@@ -362,12 +405,23 @@ async function loadSourceData() {
   };
 }
 
+/**
+ * @description 生成目标景点标准名称及别名的规范化候选。
+ * @param {object} spot 目标景点。
+ * @returns {Array<{raw: string, normalized: string}>} 原始名称与规范名称候选。
+ */
 function targetNameCandidates(spot) {
   return [spot.name, ...(Array.isArray(spot.aliases) ? spot.aliases : [])]
     .filter(Boolean)
     .map((name) => ({ raw: name, normalized: normalizeName(name) }));
 }
 
+/**
+ * @description 按稳定 ID、标准名称和别名匹配参考景点与知识库景点。
+ * @param {object[]} sourceSpots 参考项目景点。
+ * @param {object[]} targetSpots 目标知识库景点。
+ * @returns {object[]} 带匹配方法、置信度和人工复核标记的映射。
+ */
 function matchSpots(sourceSpots, targetSpots) {
   const mappings = [];
   const targetById = new Map(
@@ -417,6 +471,11 @@ function matchSpots(sourceSpots, targetSpots) {
   return mappings;
 }
 
+/**
+ * @description 将参考景点官方音频转换为只读讲解元数据。
+ * @param {object} source 参考景点。
+ * @returns {object|undefined} 讲解元数据；无音频时为 `undefined`。
+ */
 function narrationForSpot(source) {
   if (source.audio) {
     return {
@@ -431,6 +490,13 @@ function narrationForSpot(source) {
   return undefined;
 }
 
+/**
+ * @description 合并参考点位、知识库景点和匹配结果，生成标准导览点位。
+ * @param {object[]} sourceSpots 参考项目点位。
+ * @param {object[]} targetSpots 目标知识库景点。
+ * @param {object[]} mappings 景点匹配结果。
+ * @returns {object[]} 标准化景点与设施列表。
+ */
 function migrateSpots(sourceSpots, targetSpots, mappings) {
   const targetById = new Map(
     targetSpots.map((spot) => [String(spot.id), spot]),
@@ -479,6 +545,14 @@ function migrateSpots(sourceSpots, targetSpots, mappings) {
   });
 }
 
+/**
+ * @description 将参考路线点位转换为标准官方路线节点。
+ * @param {string} routeId 来源路线 ID。
+ * @param {object} source 参考点位。
+ * @param {number} order 节点顺序。
+ * @param {Map<string, object>} mappingBySource 点位映射索引。
+ * @returns {object} 标准路线节点。
+ */
 function routeNodeFromSpot(routeId, source, order, mappingBySource) {
   const mapping = mappingBySource.get(String(source.pointBaseId));
   return {
@@ -504,6 +578,12 @@ function routeNodeFromSpot(routeId, source, order, mappingBySource) {
   };
 }
 
+/**
+ * @description 将官方路线中间结构转换为标准只读路线。
+ * @param {object[]} routes 官方路线中间结构。
+ * @param {object[]} mappings 景点匹配结果。
+ * @returns {object[]} 标准化官方路线。
+ */
 function migrateOfficialRoutes(routes, mappings) {
   const mappingBySource = new Map(
     mappings.map((mapping) => [mapping.sourcePointId, mapping]),
@@ -545,6 +625,12 @@ function migrateOfficialRoutes(routes, mappings) {
   });
 }
 
+/**
+ * @description 汇总项目既有策划路线，并标注与官方路线的名称重复关系。
+ * @param {object} routeGraph 项目路线图。
+ * @param {object[]} officialRoutes 已迁移官方路线。
+ * @returns {object[]} 既有路线盘点记录。
+ */
 function buildExistingRouteInventory(routeGraph, officialRoutes) {
   return routeGraph.templates.map((route) => {
     const duplicate = officialRoutes.find(
@@ -566,6 +652,13 @@ function buildExistingRouteInventory(routeGraph, officialRoutes) {
   });
 }
 
+/**
+ * @description 将项目策划路线补充参考点位坐标并转换为标准路线。
+ * @param {object} routeGraph 项目路线图。
+ * @param {object[]} sourceSpots 参考项目点位。
+ * @param {object[]} mappings 景点匹配结果。
+ * @returns {object[]} 标准化项目策划路线。
+ */
 function migrateCuratedRoutes(routeGraph, sourceSpots, mappings) {
   const sourceScenic = sourceSpots.filter(
     (spot) => String(spot.categoryCode) === "36",
@@ -626,6 +719,12 @@ function migrateCuratedRoutes(routeGraph, sourceSpots, mappings) {
   });
 }
 
+/**
+ * @description 计算给定位置的 GCJ-02 纬度和经度偏移量。
+ * @param {number} latitude 纬度。
+ * @param {number} longitude 经度。
+ * @returns {{latitude: number, longitude: number}} 坐标偏移量。
+ */
 function coordinateOffset(latitude, longitude) {
   const pi = Math.PI;
   const axis = 6378245;
@@ -670,6 +769,12 @@ function coordinateOffset(latitude, longitude) {
   };
 }
 
+/**
+ * @description 通过八次迭代将 GCJ-02 坐标近似反算为 WGS84。
+ * @param {number} latitude GCJ-02 纬度。
+ * @param {number} longitude GCJ-02 经度。
+ * @returns {{latitude: number, longitude: number}} WGS84 坐标。
+ */
 function gcjToWgs(latitude, longitude) {
   let candidate = { latitude, longitude };
   for (let index = 0; index < 8; index += 1) {
@@ -685,6 +790,12 @@ function gcjToWgs(latitude, longitude) {
   return candidate;
 }
 
+/**
+ * @description 使用 Haversine 公式计算两个经纬度点的球面距离。
+ * @param {{latitude: number, longitude: number}} first 第一个坐标。
+ * @param {{latitude: number, longitude: number}} second 第二个坐标。
+ * @returns {number} 距离，单位为米。
+ */
 function distanceMeters(first, second) {
   const radius = 6371008.8;
   const toRadians = (value) => (value * Math.PI) / 180;
@@ -698,6 +809,12 @@ function distanceMeters(first, second) {
   return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * @description 对关键锚点执行 GCJ-02 到 WGS84 转换误差核验。
+ * @param {object[]} sourceSpots 参考点位。
+ * @param {object} config 参考地图配置。
+ * @returns {object} 坐标系证据、转换策略和锚点误差报告。
+ */
 function buildCoordinateAudit(sourceSpots, config) {
   const anchors = [...verifiedReferences.entries()].map(([name, reference]) => {
     const source = sourceSpots.find((spot) => spot.name === name);
@@ -754,6 +871,15 @@ function buildCoordinateAudit(sourceSpots, config) {
   };
 }
 
+/**
+ * @description 以固定并发数映射数组，并保持结果顺序与输入一致。
+ * @template T,U
+ * @param {T[]} items 输入项。
+ * @param {number} limit 最大并发 worker 数。
+ * @param {(item: T, index: number) => Promise<U>} mapper 异步映射函数。
+ * @returns {Promise<U[]>} 按输入顺序排列的映射结果。
+ * @throws {*} 映射函数失败时透传异常。
+ */
 async function mapWithConcurrency(items, limit, mapper) {
   const results = new Array(items.length);
   let cursor = 0;
@@ -770,6 +896,12 @@ async function mapWithConcurrency(items, limit, mapper) {
   return results;
 }
 
+/**
+ * @description 将远程媒体安全下载到本地目录并补充大小和摘要。
+ * @param {{originalUrl: string}} asset 媒体清单项。
+ * @returns {Promise<object>} 带本地相对路径、大小和 SHA-256 的清单项。
+ * @throws {Error|TypeError} URL 非法、目标越界、下载失败或文件读写失败时抛出。
+ */
 async function mirrorMediaAsset(asset) {
   const source = new URL(asset.originalUrl);
   const relativePath = source.pathname.replace(/^\/+/, "");
@@ -797,6 +929,12 @@ async function mirrorMediaAsset(asset) {
   };
 }
 
+/**
+ * @description 根据参考配置和本地完整手绘图构建灵山标准地图配置。
+ * @param {object} config 参考项目地图配置。
+ * @returns {Promise<object>} 单张手绘图、GCJ-02 边界及缩放参数。
+ * @throws {Error} 手绘图缺失或读取失败时抛出。
+ */
 async function buildMapConfig(config) {
   const overlay = config.map.handDrawnOverlay;
   if (!existsSync(artworkPath)) {
@@ -841,6 +979,11 @@ async function buildMapConfig(config) {
   };
 }
 
+/**
+ * @description 汇总完整手绘图在不同视口和缩放级别下的显示策略。
+ * @param {object} mapConfig 标准地图配置。
+ * @returns {object} 手绘图尺寸、边界、原生比例和升级建议。
+ */
 function buildTileAnalysis(mapConfig) {
   const artwork = mapConfig.tileLayer.tiles[0];
   return {
@@ -879,6 +1022,12 @@ function buildTileAnalysis(mapConfig) {
   };
 }
 
+/**
+ * @description 根据固定场景清单和参考全景地址构建全景入口。
+ * @param {object} config 参考项目地图配置。
+ * @returns {object[]} 标准化全景场景。
+ * @throws {TypeError} 全景基础地址不是有效 URL 时抛出。
+ */
 function buildPanoramas(config) {
   const sourceUrl = new URL(config.vrUrl);
   return panoramaScenes.map((scene, index) => {
@@ -901,6 +1050,11 @@ function buildPanoramas(config) {
   });
 }
 
+/**
+ * @description 统计存在重复名称的点位分组。
+ * @param {object[]} spots 点位列表。
+ * @returns {Array<[string, number]>} 名称及其重复数量。
+ */
 function duplicateStats(spots) {
   const nameCounts = new Map();
   for (const spot of spots)
@@ -908,6 +1062,11 @@ function duplicateStats(spots) {
   return [...nameCounts.entries()].filter(([, count]) => count > 1);
 }
 
+/**
+ * @description 汇总点位、路线、匹配和媒体迁移统计。
+ * @param {{sourceSpots: object[], routes: object[], mappings: object[], mediaManifest: object[]}} input 迁移产物。
+ * @returns {object} 迁移统计报告。
+ */
 function migrationReport({ sourceSpots, routes, mappings, mediaManifest }) {
   const duplicates = duplicateStats(sourceSpots);
   return {
@@ -967,6 +1126,14 @@ function migrationReport({ sourceSpots, routes, mappings, mediaManifest }) {
   };
 }
 
+/**
+ * @description 将数据以两空格缩进和结尾换行写入指定目录。
+ * @param {string} name 文件名。
+ * @param {*} value 可序列化数据。
+ * @param {string} [directory=outputDir] 输出目录。
+ * @returns {Promise<void>} 文件写入完成后兑现。
+ * @throws {Error} 序列化或文件写入失败时抛出。
+ */
 async function writeJson(name, value, directory = outputDir) {
   await writeFile(
     join(directory, name),
@@ -975,6 +1142,11 @@ async function writeJson(name, value, directory = outputDir) {
   );
 }
 
+/**
+ * @description 执行灵山导览数据加载、匹配、迁移、报告生成和公开数据写入。
+ * @returns {Promise<void>} 全部产物生成并输出摘要后兑现。
+ * @throws {Error|SyntaxError} 源数据加载、网络媒体、JSON 解析或产物写入失败时抛出。
+ */
 async function main() {
   await Promise.all([
     mkdir(outputDir, { recursive: true }),

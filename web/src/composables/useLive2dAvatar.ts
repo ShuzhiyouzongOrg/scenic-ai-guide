@@ -1,5 +1,10 @@
 /**
- * Live2D 数字人封装（讯飞云端数字人的本地兜底方案）。
+ * @fileoverview 封装本地 Live2D 数字人的加载、渲染与语音播放流程。
+ * @description 管理共享 Cubism 运行时、模型切换、TTS 音频队列、口型驱动和生命周期清理。
+ */
+
+/**
+ * @description Live2D 数字人封装（讯飞云端数字人的本地兜底方案）。
  *
  * 与 useXfAvatar 暴露一致的接口（start/speak/enableAudio/interrupt/destroy +
  * 响应式状态），因此 DigitalHumanAvatar 可以按后台配置的 engine 无缝切换两种引擎。
@@ -18,18 +23,41 @@ import { isBundledLive2dModel, LIVE2D_PORTRAIT_PROFILES } from '@/lib/live2d/res
 import { prepareOfficialMotionSync } from '@/lib/live2d/motionSyncRuntime'
 import { synthesizeSpeech } from '@/api/digital-human'
 
+/**
+ * @description 表示 Live2D 数字人的连接与播报状态。
+ * @typedef {'idle' | 'connecting' | 'ready' | 'speaking' | 'error'} AvatarStatus
+ */
 export type AvatarStatus = 'idle' | 'connecting' | 'ready' | 'speaking' | 'error'
 
+/**
+ * @description 定义启动本地 Live2D 数字人所需的模型、音色和渲染参数。
+ * @interface Live2dStartOptions
+ * @property {string} [modelId] Live2D 角色目录名；未提供时使用 Haru。
+ * @property {string} [vcn] 后端 TTS 使用的讯飞音色标识。
+ * @property {number} [speechRate] 后端 TTS 使用的语速倍率。
+ * @property {HTMLCanvasElement} canvas 当前组件持有的真实渲染画布。
+ * @property {Live2dPresentation} [presentation] 舞台全身或地图头像取景模式。
+ */
 export interface Live2dStartOptions {
-  /** Live2D 模型（角色目录名，如 Haru），来自后台数字人配置 */
+  /**
+   * @description Live2D 模型（角色目录名，如 Haru），来自后台数字人配置
+   */
   modelId?: string
-  /** 口型驱动用的 TTS 音色（vcn），来自后台数字人配置 */
+  /**
+   * @description 口型驱动用的 TTS 音色（vcn），来自后台数字人配置
+   */
   vcn?: string
-  /** TTS 语速 */
+  /**
+   * @description TTS 语速
+   */
   speechRate?: number
-  /** 当前组件的真实渲染画布，避免全局 id 在切换时取错实例 */
+  /**
+   * @description 当前组件的真实渲染画布，避免全局 id 在切换时取错实例
+   */
   canvas: HTMLCanvasElement
-  /** 舞台全身或地图头像取景。 */
+  /**
+   * @description 舞台全身或地图头像取景。
+   */
   presentation?: Live2dPresentation
 }
 
@@ -38,12 +66,21 @@ const CORE_SCRIPT = `${BASE}live2d/core/live2dcubismcore.min.js`.replace(/\/{2,}
 const MOTION_SYNC_CORE_SCRIPT =
   `${BASE}live2d/motionsync/core/live2dcubismmotionsynccore.min.js`.replace(/\/{2,}/g, '/')
 
-/** 只加载一次 Cubism 核心运行时（挂到 window.Live2DCubismCore 全局） */
+/**
+ * @description 只加载一次 Cubism 核心运行时（挂到 window.Live2DCubismCore 全局）
+ */
 let corePromise: Promise<void> | null = null
 let motionSyncCorePromise: Promise<void> | null = null
 let runtimeOperationQueue: Promise<void> = Promise.resolve()
 let activeRuntimeOwner: object | null = null
 
+/**
+ * @description 将共享 Live2D 运行时操作串行加入队列，避免模型切换时初始化与释放交叉执行。
+ * @template T
+ * @param {() => Promise<T>} operation 待串行执行的异步运行时操作。
+ * @returns {Promise<T>} 当前操作完成后的结果 Promise。
+ * @throws {unknown} 当前运行时操作拒绝时透传原始异常。
+ */
 function enqueueRuntimeOperation<T>(operation: () => Promise<T>): Promise<T> {
   const queued = runtimeOperationQueue.then(operation, operation)
   runtimeOperationQueue = queued.then(
@@ -53,6 +90,10 @@ function enqueueRuntimeOperation<T>(operation: () => Promise<T>): Promise<T> {
   return queued
 }
 
+/**
+ * @description 释放 Cubism 委托与 Live2D 音频管理器持有的共享运行时资源。
+ * @returns {void} 无返回值。
+ */
 function releaseSharedRuntime(): void {
   try {
     LAppDelegate.releaseInstance()
@@ -62,6 +103,11 @@ function releaseSharedRuntime(): void {
   Live2dManager.releaseInstance()
 }
 
+/**
+ * @description 复用既有加载任务或向页面注入 Cubism 核心脚本，确保运行时仅加载一次。
+ * @returns {Promise<void>} Cubism 核心脚本可用后的 Promise。
+ * @throws {Error} 核心脚本资源加载失败时拒绝 Promise。
+ */
 function loadCubismCore(): Promise<void> {
   if ((window as Window & { Live2DCubismCore?: unknown }).Live2DCubismCore) return Promise.resolve()
   if (corePromise) return corePromise
@@ -79,7 +125,11 @@ function loadCubismCore(): Promise<void> {
   return corePromise
 }
 
-/** Loads the licensed CRI phoneme runtime once; model playback can fall back if it fails. */
+/**
+ * @description 单次加载已授权的 CRI 音素运行时；加载失败时允许模型回退至音频特征驱动。
+ * @returns {Promise<void>} 核心脚本可用后完成的 Promise。
+ * @throws {Error} 核心脚本资源加载失败时抛出异常。
+ */
 function loadMotionSyncCore(): Promise<void> {
   if ((window as Window & { Live2DCubismMotionSyncCore?: unknown }).Live2DCubismMotionSyncCore) {
     return Promise.resolve()
@@ -99,6 +149,14 @@ function loadMotionSyncCore(): Promise<void> {
   return motionSyncCorePromise
 }
 
+/**
+ * @description 创建本地 Live2D 数字人的响应式状态及完整生命周期控制接口。
+ * @returns {ReturnType<typeof useLive2dAvatar>} 包含状态、错误信息、音频就绪状态，以及启动、播报、暂停、恢复、打断、销毁和缩放处理方法的对象。
+ * @example
+ * const avatar = useLive2dAvatar()
+ * await avatar.start({ canvas, modelId: 'Haru', presentation: 'stage' })
+ * await avatar.speak('欢迎来到灵山胜境')
+ */
 export function useLive2dAvatar() {
   const status = ref<AvatarStatus>('idle')
   const errorMessage = ref('')
@@ -114,9 +172,16 @@ export function useLive2dAvatar() {
   let cancelReadyWait: (() => void) | null = null
   const runtimeOwner = Object.freeze({})
 
-  /** Live2D 属于本地资源，无需云端凭证 */
+  /**
+   * @description Live2D 属于本地资源，无需云端凭证
+   */
   const hasCredentials = true
 
+  /**
+   * @description 串行释放旧运行时、加载核心脚本与指定模型，并绑定当前画布。
+   * @param {Live2dStartOptions} options Live2D 启动参数。
+   * @returns {Promise<boolean>} 初始化完成且模型就绪时返回 true；被取消或初始化失败时返回 false。
+   */
   async function start(options: Live2dStartOptions): Promise<boolean> {
     const generation = ++runtimeGeneration
     cancelReadyWait?.()
@@ -201,6 +266,12 @@ export function useLive2dAvatar() {
     })
   }
 
+  /**
+   * @description 轮询当前运行时的模型就绪或失败状态，并在批次失效或超时后停止等待。
+   * @param {number} generation 当前模型加载批次编号。
+   * @param {number} [timeoutMs=15000] 最长等待毫秒数。
+   * @returns {Promise<boolean>} 模型就绪时返回 true；取消、失败或超时时返回 false。
+   */
   function waitReady(generation: number, timeoutMs = 15000): Promise<boolean> {
     cancelReadyWait?.()
     return new Promise((resolve) => {
@@ -228,12 +299,24 @@ export function useLive2dAvatar() {
     })
   }
 
+  /**
+   * @description 在模型加载重试前等待指定时长，并验证当前加载批次仍然有效。
+   * @param {number} generation 当前模型加载批次编号。
+   * @param {number} delayMs 重试前等待的毫秒数。
+   * @returns {Promise<void>} 等待结束且批次仍有效时完成的 Promise。
+   * @throws {Error} 等待期间模型加载批次被取消时抛出异常。
+   */
   async function waitForRetry(generation: number, delayMs: number): Promise<void> {
     await new Promise<void>((resolve) => window.setTimeout(resolve, delayMs))
     if (generation !== runtimeGeneration) throw new Error('Live2D 模型加载已取消')
   }
 
-  /** 驱动数字人说话：后端 TTS 取音频 -> 入队 -> AnalyserNode 驱动口型 */
+  /**
+   * @description 调用后端 TTS 获取文本音频，将有效音频批量入队并驱动 Live2D 口型。
+   * @param {string} text 待播报文本；空白文本不会下发。
+   * @param {{ emotion?: string }} [opts={}] 播报扩展参数；当前仅为与云端数字人保持调用接口一致。
+   * @returns {Promise<boolean>} 音频成功入队时返回 true；状态不可用、请求失败或无有效音频时返回 false。
+   */
   async function speak(text: string, opts: { emotion?: string } = {}): Promise<boolean> {
     void opts
     const content = String(text || '').trim()
@@ -273,6 +356,12 @@ export function useLive2dAvatar() {
     }
   }
 
+  /**
+   * @description 获取指定音频资源并直接加入本地播放队列，用于驱动 Live2D 口型。
+   * @param {string} url 可访问的音频资源地址。
+   * @returns {Promise<boolean>} 音频成功入队时返回 true；地址无效、状态不可用或下载失败时返回 false。
+   * @throws {Error} 音频管理器入队失败时透传异常。
+   */
   async function speakAudio(url: string): Promise<boolean> {
     if (!url || !hasRuntimeOwnership() || ['error', 'idle', 'connecting'].includes(status.value))
       return false
@@ -289,6 +378,11 @@ export function useLive2dAvatar() {
     return true
   }
 
+  /**
+   * @description 下载音频资源并读取为可加入 Live2D 播放队列的二进制缓冲区。
+   * @param {string} url 待下载的音频资源地址。
+   * @returns {Promise<ArrayBuffer | null>} 下载成功时返回音频缓冲区；请求失败时返回 null。
+   */
   async function fetchAudio(url: string): Promise<ArrayBuffer | null> {
     try {
       const res = await fetch(url)
@@ -299,7 +393,10 @@ export function useLive2dAvatar() {
     }
   }
 
-  // 队列播完且没有正在播放的音频时，回到 ready 状态
+  /**
+   * @description 轮询音频播放队列，并在全部音频结束后恢复数字人就绪状态。
+   * @returns {void} 无返回值。
+   */
   function watchSpeakingEnd() {
     if (doneTimer) window.clearInterval(doneTimer)
     doneTimer = window.setInterval(() => {
@@ -317,29 +414,48 @@ export function useLive2dAvatar() {
     }, 250)
   }
 
-  /** 用户手势中恢复音频上下文 */
+  /**
+   * @description 在用户手势回调中恢复当前 Live2D 音频上下文。
+   * @returns {Promise<void>} 音频恢复流程完成后的 Promise。
+   */
   async function enableAudio(): Promise<void> {
     if (!hasRuntimeOwnership()) return
     await resumeAudioContext()
   }
 
+  /**
+   * @description 暂停当前 Live2D 音频，并保留播放位置与队列状态。
+   * @returns {Promise<void>} 暂停操作完成后的 Promise；当前实例不持有运行时时直接完成。
+   * @throws {Error} 音频管理器暂停失败时透传异常。
+   */
   async function pause(): Promise<void> {
     if (!hasRuntimeOwnership()) return
     await Live2dManager.getInstance().pauseAudio()
   }
 
+  /**
+   * @description 恢复已暂停的 Live2D 音频上下文并继续播放。
+   * @returns {Promise<void>} 恢复尝试完成后的 Promise。
+   */
   async function resume(): Promise<void> {
     if (!hasRuntimeOwnership()) return
     await resumeAudioContext()
   }
 
-  /** 打断当前播报 */
+  /**
+   * @description 清空当前 Live2D 音频及待播放队列，并将播报状态恢复为就绪。
+   * @returns {Promise<void>} 打断操作完成后的 Promise。
+   */
   async function interrupt(): Promise<void> {
     speechGeneration += 1
     stopPlayback()
     if (status.value === 'speaking') status.value = 'ready'
   }
 
+  /**
+   * @description 停止当前 Live2D 音频和待播放队列，并清理播报完成轮询器。
+   * @returns {void} 无返回值。
+   */
   function stopPlayback(): void {
     if (hasRuntimeOwnership()) Live2dManager.getInstance().stopAudio()
     if (doneTimer) {
@@ -349,6 +465,10 @@ export function useLive2dAvatar() {
     if (status.value === 'speaking') status.value = 'ready'
   }
 
+  /**
+   * @description 尝试恢复当前运行时的音频上下文，并同步更新音频可用状态。
+   * @returns {Promise<void>} 音频上下文恢复尝试结束后的 Promise。
+   */
   async function resumeAudioContext(): Promise<void> {
     if (!hasRuntimeOwnership()) return
     try {
@@ -360,6 +480,10 @@ export function useLive2dAvatar() {
     }
   }
 
+  /**
+   * @description 取消模型加载与播报任务，异步释放当前实例持有的共享运行时。
+   * @returns {void} 无返回值。
+   */
   function destroy(): void {
     runtimeGeneration += 1
     speechGeneration += 1
@@ -376,10 +500,18 @@ export function useLive2dAvatar() {
     audioReady.value = false
   }
 
+  /**
+   * @description 判断当前组合式函数实例是否持有全局 Live2D 运行时。
+   * @returns {boolean} 当前实例拥有运行时所有权时返回 true。
+   */
   function hasRuntimeOwnership(): boolean {
     return activeRuntimeOwner === runtimeOwner
   }
 
+  /**
+   * @description 仅在当前实例持有运行时时释放共享资源并清除所有权。
+   * @returns {void} 无返回值。
+   */
   function releaseOwnedRuntime(): void {
     if (!hasRuntimeOwnership()) {
       initialized = false
@@ -390,7 +522,10 @@ export function useLive2dAvatar() {
     initialized = false
   }
 
-  // 供组件在 window resize 时调用（画布自适应）
+  /**
+   * @description 在窗口尺寸变化时通知自动画布模式重新计算渲染尺寸。
+   * @returns {void} 无返回值。
+   */
   function onResize(): void {
     if (initialized && hasRuntimeOwnership() && LAppDefine.CanvasSize === 'auto') {
       LAppDelegate.getInstance().onResize()
@@ -414,6 +549,14 @@ export function useLive2dAvatar() {
   }
 }
 
+/**
+ * @description 根据模型和展示场景解析地图头像所需的取景变换。
+ * @param {string} modelId Live2D 模型目录名。
+ * @param {Live2dPresentation} presentation 展示场景；舞台模式不应用额外变换。
+ * @returns {Live2dViewTransform | undefined} 内置或默认头像变换；舞台模式返回 undefined。
+ * @example
+ * const transform = resolveViewTransform('Haru', 'portrait')
+ */
 export function resolveViewTransform(
   modelId: string,
   presentation: Live2dPresentation
@@ -425,6 +568,11 @@ export function resolveViewTransform(
     : { scale: 2.2, offsetX: 0, offsetY: -0.32 }
 }
 
+/**
+ * @description 将未知 Live2D 异常规范化为可直接展示的中文错误文本。
+ * @param {unknown} err 原始异常值。
+ * @returns {string} 解析后的异常消息或默认提示。
+ */
 function normalizeError(err: unknown): string {
   if (!err) return 'Live2D 数字人异常'
   if (typeof err === 'string') return err

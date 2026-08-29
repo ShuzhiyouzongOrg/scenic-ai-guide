@@ -1,6 +1,15 @@
+/**
+ * @fileoverview RAG 消融门禁单元测试脚本。
+ * @description 构造健康与退化指标，验证质量及重排时延门禁的判定结果。
+ */
 import assert from "node:assert/strict";
 import { evaluateAblation } from "./check-rag-ablation.mjs";
 
+/**
+ * @description 将指标对象包装为评测报告夹具。
+ * @param {object} metrics 指标对象。
+ * @returns {{metrics: object}} 评测报告夹具。
+ */
 const report = (metrics) => ({ metrics });
 const healthy = evaluateAblation({
   rule: report({ recallAt5: 0.94, mrr: 0.9 }),

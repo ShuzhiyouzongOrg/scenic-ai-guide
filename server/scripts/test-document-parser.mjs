@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 云文档解析适配测试脚本。
+ * @description 通过注入客户端验证任务提交、状态轮询、结果分页、错误处理和降级逻辑。
+ */
 import assert from "node:assert";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -28,13 +32,33 @@ try {
   const config = buildDocumentParserConfig();
   assert.equal(isDocumentParserReady(config), true);
   assert.equal(isDocumentParserReady(buildDocumentParserConfig({ DOCUMENT_PARSER_ENABLED: "false" })), false);
+  /**
+   * @description 记录 SDK 客户端初始化选项的测试替身。
+   * @property {object} options 客户端构造选项。
+   */
   class SdkClientFixture {
+    /**
+     * @description 保存传入的 SDK 客户端配置，供断言校验。
+     * @param {object} options SDK 客户端配置。
+     */
     constructor(options) {
       this.options = options;
     }
   }
+  /**
+   * @description 代替文档解析 SDK 请求类型的空测试构造器。
+   */
   class RequestFixture {}
+
+  /**
+   * @description 记录 SDK 运行时选项的测试替身。
+   * @property {object} options 运行时构造选项。
+   */
   class RuntimeOptionsFixture {
+    /**
+     * @description 保存传入的 SDK 运行时配置，供断言校验。
+     * @param {object} options SDK 运行时配置。
+     */
     constructor(options) {
       this.options = options;
     }

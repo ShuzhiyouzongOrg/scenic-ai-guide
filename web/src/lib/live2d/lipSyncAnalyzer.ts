@@ -1,5 +1,25 @@
+/**
+ * @fileoverview Live2D 音频特征口型分析器。
+ * @description 在官方 MotionSync Core 不可用时，根据时域与频域数据生成启发式口型参数。
+ */
+
+/**
+ * @typedef {'playing'|'paused'|'stopped'} LipSyncPlaybackState
+ * @description 表示当前音频播放状态，用于控制口型推进、衰减或复位。
+ * @example
+ * const state: LipSyncPlaybackState = 'playing'
+ */
 export type LipSyncPlaybackState = 'playing' | 'paused' | 'stopped'
 
+/**
+ * @typedef {object} VowelWeights
+ * @description 表示五个元音口型的归一化权重。
+ * @property {number} a 元音 A 的权重。
+ * @property {number} i 元音 I 的权重。
+ * @property {number} u 元音 U 的权重。
+ * @property {number} e 元音 E 的权重。
+ * @property {number} o 元音 O 的权重。
+ */
 export interface VowelWeights {
   a: number
   i: number
@@ -8,6 +28,15 @@ export interface VowelWeights {
   o: number
 }
 
+/**
+ * @typedef {object} LipSyncFrame
+ * @description 表示单个渲染帧的 Live2D 口型分析结果。
+ * @property {number} mouthOpen 嘴部张开程度，范围为 0 至 1。
+ * @property {number} mouthForm 嘴型横向形态，范围为 -1 至 1。
+ * @property {VowelWeights} vowels 五元音的当前权重。
+ * @property {number} rms 当前音频帧的均方根能量。
+ * @property {boolean} voiced 当前音频帧是否通过有声门限。
+ */
 export interface LipSyncFrame {
   mouthOpen: number
   mouthForm: number
@@ -16,6 +45,16 @@ export interface LipSyncFrame {
   voiced: boolean
 }
 
+/**
+ * @typedef {object} LipSyncAnalysisInput
+ * @description 表示执行一次口型分析所需的音频与播放状态数据。
+ * @property {Float32Array} timeDomain 时域采样数据。
+ * @property {Float32Array} spectrumDb 以分贝表示的频谱数据。
+ * @property {number} sampleRate 音频采样率，单位为赫兹。
+ * @property {number} fftSize 频谱分析使用的 FFT 窗口大小。
+ * @property {number} deltaTimeMs 与上一渲染帧的时间间隔，单位为毫秒。
+ * @property {LipSyncPlaybackState} playbackState 当前音频播放状态。
+ */
 export interface LipSyncAnalysisInput {
   timeDomain: Float32Array
   spectrumDb: Float32Array
@@ -36,8 +75,11 @@ interface FrequencyBands {
 const ZERO_VOWELS: VowelWeights = Object.freeze({ a: 0, i: 0, u: 0, e: 0, o: 0 })
 
 /**
- * Audio-feature lip sync used when the licensed Cubism MotionSync Core is not available.
- * It produces heuristic audio-feature animation, not phoneme recognition or Cubism MotionSync.
+ * @class
+ * @description 基于音频特征生成 Live2D 口型帧，不执行音素识别，也不替代官方 Cubism MotionSync。
+ * @example
+ * const analyzer = new Live2dLipSyncAnalyzer()
+ * const frame = analyzer.analyze(input)
  */
 export class Live2dLipSyncAnalyzer {
   private envelope = 0
@@ -49,6 +91,13 @@ export class Live2dLipSyncAnalyzer {
   private previousBands: FrequencyBands = { low: 0, open: 0, mid: 0, bright: 0, sibilant: 0 }
   private vowelState: VowelWeights = { ...ZERO_VOWELS }
 
+  /**
+   * @description 分析当前音频帧，并根据播放状态计算平滑后的嘴部与元音参数。
+   * @param {LipSyncAnalysisInput} input 时域、频域、采样率和播放状态等输入数据。
+   * @returns {LipSyncFrame} 可直接应用于 Live2D 模型的口型帧。
+   * @example
+   * const frame = analyzer.analyze(input)
+   */
   analyze(input: LipSyncAnalysisInput): LipSyncFrame {
     if (input.playbackState === 'stopped') {
       this.resetArticulation()
@@ -125,6 +174,12 @@ export class Live2dLipSyncAnalyzer {
     return this.frame(rms, this.gateOpen)
   }
 
+  /**
+   * @description 清空能量包络、噪声门限和元音平滑状态。
+   * @returns {void} 无返回值。
+   * @example
+   * analyzer.reset()
+   */
   reset(): void {
     this.envelope = 0
     this.mouthForm = 0

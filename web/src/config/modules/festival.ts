@@ -1,26 +1,6 @@
 /**
- * 节日庆祝配置
- *
- * 配置系统的节日烟花效果和祝福文本。
- * 支持单日节日和跨日期节日，可自定义烟花播放次数。
- *
- * ## 配置说明
- *
- * - name: 节日名称
- * - date: 节日开始日期（格式：YYYY-MM-DD）
- * - endDate: 节日结束日期（可选，用于跨日期节日）
- * - image: 烟花图片（需要预先导入）
- * - scrollText: 滚动显示的祝福文本
- * - count: 烟花播放次数（可选，默认为 3 次）
- *
- * ## 注意事项
- *
- * - 图片需要预先导入并在配置中引用
- * - 跨日期节日会在整个日期范围内生效
- * - 每个用户每天只会播放一次烟花效果
- *
- * @module config/modules/festival
- * @author Scenic AI Guide Team
+ * @fileoverview 节日效果配置模块。
+ * @description 定义节日日期范围、提示文本、烟花资源和播放次数。
  */
 
 import { FestivalConfig } from '@/types/config'
@@ -29,6 +9,10 @@ import { FestivalConfig } from '@/types/config'
 // import sd from '@imgs/ceremony/sd.png'
 // import yd from '@imgs/ceremony/yd.png'
 
+/**
+ * @description 按日期生效的节日展示配置列表。
+ * @type {FestivalConfig[]}
+ */
 export const festivalConfigList: FestivalConfig[] = [
   // 跨日期示例
   // {

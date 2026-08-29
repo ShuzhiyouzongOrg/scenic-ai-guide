@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Web 资源体积预算检查脚本。
+ * @description 对生产资源、入口包和压缩体积执行预算校验，并支持维护可追踪的基线文件。
+ */
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
@@ -20,11 +24,23 @@ const writeBaseline = process.argv.includes('--write-baseline')
 const enforce = process.argv.includes('--enforce')
 const config = JSON.parse(readFileSync(configPath, 'utf8'))
 
+/**
+ * @description 读取命令行选项后的值，缺失时使用默认值。
+ * @param {string} name 命令行选项名称。
+ * @param {string} fallback 未提供选项值时使用的默认值。
+ * @returns {string} 命令行传入值或默认值。
+ */
 function option(name, fallback) {
   const index = process.argv.indexOf(name)
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback
 }
 
+/**
+ * @description 递归列出目录下的全部文件。
+ * @param {string} directory 待遍历的目录绝对路径。
+ * @returns {string[]} 目录树中的文件绝对路径列表。
+ * @throws {Error} 目录不存在或读取失败时由文件系统接口抛出。
+ */
 function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)
@@ -32,12 +48,23 @@ function walk(directory) {
   })
 }
 
+/**
+ * @description 将本地静态资源 URL 转换为构建目录中的文件路径。
+ * @param {string} url HTML 中引用的资源 URL。
+ * @returns {string | null} 对应的本地文件路径；外部地址或 Data URL 返回 `null`。
+ */
 function publicPathToFile(url) {
   const clean = url.split(/[?#]/, 1)[0]
   if (/^(?:[a-z]+:)?\/\//i.test(clean) || clean.startsWith('data:')) return null
   return join(distRoot, ...clean.replace(/^\/+/, '').split('/'))
 }
 
+/**
+ * @description 获取资源的预压缩 Gzip 体积，缺少预压缩文件时即时计算。
+ * @param {string} path 原始资源文件路径。
+ * @returns {{bytes: number, source: 'precompressed' | 'calculated'}} 传输字节数及其来源。
+ * @throws {Error} 原始资源无法读取或压缩失败时抛出。
+ */
 function transportSize(path) {
   try {
     return { bytes: statSync(`${path}.gz`).size, source: 'precompressed' }
@@ -46,6 +73,12 @@ function transportSize(path) {
   }
 }
 
+/**
+ * @description 计算当前资源指标相对基线的字节数和百分比变化。
+ * @param {number} current 当前指标值。
+ * @param {number} baseline 基线指标值。
+ * @returns {{bytes: number, percent: number | null} | null} 差值；基线无效时返回 `null`。
+ */
 function metricDelta(current, baseline) {
   if (!Number.isFinite(baseline)) return null
   const bytes = current - baseline
@@ -55,6 +88,12 @@ function metricDelta(current, baseline) {
   }
 }
 
+/**
+ * @description 执行 Git 只读命令并在失败或空输出时返回回退值。
+ * @param {string[]} args 传给 Git 的参数列表。
+ * @param {string} [fallback] 命令失败或输出为空时使用的回退值。
+ * @returns {string} 去除首尾空白后的命令输出或回退值。
+ */
 function gitValue(args, fallback = 'unknown') {
   try {
     return (

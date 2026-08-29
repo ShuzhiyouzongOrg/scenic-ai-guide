@@ -1,9 +1,33 @@
 /**
  * @fileoverview 讯飞 Web 数字人页面控制器，负责短期会话启动、问答、播报队列、自动重连和宿主通信。
- *
- * @typedef {{id: number, text: string}} QueuedSpeech
- * @typedef {{session: {visitorSessionId: string}, digitalHuman: {name?: string, welcomeText?: string}, apiInfo: object, globalParams: object, endpoints: {ask: string}} AvatarBootstrap
- * @typedef {{source: string, version: number, type: string, state: string, timestamp: number} & Record<string, *>} HostPacket
+ * @description 负责短期会话启动、智能问答、播报队列、错误恢复、自动重连和宿主通信。
+ */
+
+/**
+ * @typedef {object} QueuedSpeech
+ * @description 等待发送给讯飞 SDK 的单条播报任务。
+ * @property {number} id 递增播报序号。
+ * @property {string} text 待播报文本。
+ */
+
+/**
+ * @typedef {object} AvatarBootstrap
+ * @description 后端签发的数字人启动配置和问答端点。
+ * @property {{visitorSessionId: string}} session 游客会话信息。
+ * @property {{name?: string, welcomeText?: string}} digitalHuman 数字人展示信息。
+ * @property {object} apiInfo 讯飞 SDK 鉴权与服务参数。
+ * @property {object} globalParams 讯飞 SDK 全局启动参数。
+ * @property {{ask: string}} endpoints 受控问答接口地址。
+ */
+
+/**
+ * @typedef {Record<string, *>} HostPacket
+ * @description 页面向宿主 WebView 发送的状态消息。
+ * @property {string} source 固定消息来源标识。
+ * @property {number} version 消息协议版本。
+ * @property {string} type 事件类型。
+ * @property {string} state 当前运行状态。
+ * @property {number} timestamp 事件 Unix 毫秒时间戳。
  */
 import AvatarPlatform, {
   PlayerEvents,
@@ -12,35 +36,62 @@ import AvatarPlatform, {
 import { XRTCPlayer } from "./sdk/xrtc-player-BDn4MFE-.js";
 
 /**
- * 预加载播放器模块。供应商 SDK 在会话启动后也会动态加载它；显式引用可让 WebView 模块错误在首屏暴露。
+ * @description 预加载播放器模块。供应商 SDK 在会话启动后也会动态加载它；显式引用可让 WebView 模块错误在首屏暴露。
  * @type {typeof XRTCPlayer}
  */
 void XRTCPlayer;
 
-/** @type {URLSearchParams} 当前页面查询参数。 */
+/**
+ * @description 当前页面查询参数。
+ * @type {URLSearchParams}
+ */
 const runtimeQuery = new URLSearchParams(window.location.search);
-/** @type {boolean} 页面是否运行在应用 WebView 中。 */
+/**
+ * @description 页面是否运行在应用 WebView 中。
+ * @type {boolean}
+ */
 const embedMode = runtimeQuery.get("embed") === "1";
-/** @type {boolean} 嵌入页面是否应自动启动数字人。 */
+/**
+ * @description 嵌入页面是否应自动启动数字人。
+ * @type {boolean}
+ */
 const autoStart = embedMode && runtimeQuery.get("autostart") === "1";
 /**
- * 嵌入宿主替换 WebView 时可关闭自动欢迎语，避免新会话在旧会话销毁期间同时播报。
+ * @description 嵌入宿主替换 WebView 时可关闭自动欢迎语，避免新会话在旧会话销毁期间同时播报。
  * @type {boolean}
  */
 const playWelcome = runtimeQuery.get("welcome") !== "0";
-/** @type {string} 后端签发的短期 Web 数字人会话令牌。 */
+/**
+ * @description 后端签发的短期 Web 数字人会话令牌。
+ * @type {string}
+ */
 const sessionToken = runtimeQuery.get("session") || "";
-/** @type {number} 自动重连最大次数。 */
+/**
+ * @description 自动重连最大次数。
+ * @type {number}
+ */
 const MAX_AUTO_RETRIES = 3;
-/** @type {number} 指数退避的基础延迟毫秒数。 */
+/**
+ * @description 指数退避的基础延迟毫秒数。
+ * @type {number}
+ */
 const RETRY_BASE_DELAY_MS = 900;
-/** @type {number} 连接保持稳定后重置重试计数的毫秒数。 */
+/**
+ * @description 连接保持稳定后重置重试计数的毫秒数。
+ * @type {number}
+ */
 const STABLE_CONNECTION_MS = 30_000;
-/** @type {string} 官方 uni-app WebView 消息桥脚本地址。 */
+/**
+ * @description 官方 uni-app WebView 消息桥脚本地址。
+ * @type {string}
+ */
 const UNI_WEBVIEW_BRIDGE_URL = "https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.6.js";
 if (embedMode) document.body.classList.add("embed-mode");
 
-/** @type {Record<string, HTMLElement>} 页面交互和状态展示元素。 */
+/**
+ * @description 页面交互和状态展示元素。
+ * @type {Record<string, HTMLElement>}
+ */
 const elements = {
   stage: document.querySelector("#avatar-stage"),
   placeholder: document.querySelector("#stage-placeholder"),
@@ -56,43 +107,100 @@ const elements = {
   answer: document.querySelector("#answer-text")
 };
 
-/** @type {AvatarBootstrap|null} 当前后端启动配置。 */
+/**
+ * @description 当前后端启动配置。
+ * @type {AvatarBootstrap|null}
+ */
 let bootstrap = null;
-/** @type {AvatarPlatform|null} 当前讯飞 SDK 实例。 */
+/**
+ * @description 当前讯飞 SDK 实例。
+ * @type {AvatarPlatform|null}
+ */
 let platform = null;
-/** @type {boolean} SDK 是否可接受播报。 */
+/**
+ * @description SDK 是否可接受播报。
+ * @type {boolean}
+ */
 let ready = false;
-/** @type {boolean} SDK 是否正在启动。 */
+/**
+ * @description SDK 是否正在启动。
+ * @type {boolean}
+ */
 let starting = false;
-/** @type {boolean} 启动配置是否正在加载。 */
+/**
+ * @description 启动配置是否正在加载。
+ * @type {boolean}
+ */
 let bootstrapLoading = false;
-/** @type {boolean} 页面资源是否已销毁。 */
+/**
+ * @description 页面资源是否已销毁。
+ * @type {boolean}
+ */
 let disposed = false;
-/** @type {number} 当前恢复周期已执行的重连次数。 */
+/**
+ * @description 当前恢复周期已执行的重连次数。
+ * @type {number}
+ */
 let retryCount = 0;
-/** @type {number|null} 自动重连定时器 ID。 */
+/**
+ * @description 自动重连定时器 ID。
+ * @type {number|null}
+ */
 let retryTimer = null;
-/** @type {number|null} 稳定连接判定定时器 ID。 */
+/**
+ * @description 稳定连接判定定时器 ID。
+ * @type {number|null}
+ */
 let stableConnectionTimer = null;
-/** @type {number|null} 播报完成兜底定时器 ID。 */
+/**
+ * @description 播报完成兜底定时器 ID。
+ * @type {number|null}
+ */
 let speechCompletionTimer = null;
-/** @type {boolean} 当前恢复周期是否已耗尽自动重连。 */
+/**
+ * @description 当前恢复周期是否已耗尽自动重连。
+ * @type {boolean}
+ */
 let recoveryExhausted = false;
-/** @type {number} 播报项递增序号。 */
+/**
+ * @description 播报项递增序号。
+ * @type {number}
+ */
 let speechSequence = 0;
-/** @type {boolean} 是否正在向 SDK 写入播报文本。 */
+/**
+ * @description 是否正在向 SDK 写入播报文本。
+ * @type {boolean}
+ */
 let speechWriteInFlight = false;
-/** @type {QueuedSpeech[]} 等待发送给 SDK 的播报队列。 */
+/**
+ * @description 等待发送给 SDK 的播报队列。
+ * @type {QueuedSpeech[]}
+ */
 let pendingExternalSpeech = [];
-/** @type {QueuedSpeech|null} 已发给 SDK 且尚未完成的播报。 */
+/**
+ * @description 已发给 SDK 且尚未完成的播报。
+ * @type {QueuedSpeech|null}
+ */
 let activeSpeech = null;
-/** @type {boolean} 欢迎语是否已入队，防止重连重复播报。 */
+/**
+ * @description 欢迎语是否已入队，防止重连重复播报。
+ * @type {boolean}
+ */
 let welcomeQueued = false;
-/** @type {string} 向宿主报告的运行时状态。 */
+/**
+ * @description 向宿主报告的运行时状态。
+ * @type {string}
+ */
 let runtimeState = "loading";
-/** @type {boolean} uni-app WebView 桥脚本是否正在加载。 */
+/**
+ * @description uni-app WebView 桥脚本是否正在加载。
+ * @type {boolean}
+ */
 let hostBridgeLoading = false;
-/** @type {HostPacket[]} 等待 uni-app 桥就绪后发送的宿主消息。 */
+/**
+ * @description 等待 uni-app 桥就绪后发送的宿主消息。
+ * @type {HostPacket[]}
+ */
 const pendingHostMessages = [];
 
 // The controlled page is served by our API rather than bundled in the app, so
@@ -105,7 +213,7 @@ if (embedMode) {
 }
 
 /**
- * 接收 uni-app x `WebViewContext.evalJS` 传入的有限长度文本，并可靠加入播报队列。
+ * @description 接收 uni-app x `WebViewContext.evalJS` 传入的有限长度文本，并可靠加入播报队列。
  * 不暴露平台实例或凭据；返回 `true` 仅表示已接收，不表示已经播报。
  * @param {*} value 宿主传入的播报文本。
  * @returns {boolean} 文本合法并已接收时为 `true`。
@@ -129,7 +237,7 @@ window.scenicAvatarSpeak = (value) => {
 };
 
 /**
- * 清空待播报内容并尽力中断当前播放器和讯飞会话播报。
+ * @description 清空待播报内容并尽力中断当前播放器和讯飞会话播报。
  * @returns {boolean} 存在活动平台且已发起中断时为 `true`。
  * @example
  * window.scenicAvatarInterrupt();
@@ -161,7 +269,7 @@ window.scenicAvatarInterrupt = () => {
 };
 
 /**
- * 在宿主移除页面前同步停用状态并尽力释放播放器、会话和定时器。
+ * @description 在宿主移除页面前同步停用状态并尽力释放播放器、会话和定时器。
  * 同时调用异步中断、播放器停止与销毁，避免新旧云端会话同时播报。
  * @returns {boolean} 首次销毁为 `true`，重复调用为 `false`。
  * @example
@@ -204,7 +312,7 @@ window.scenicAvatarDispose = () => {
 };
 
 /**
- * 向宿主报告当前运行状态、启动状态和排队数量。
+ * @description 向宿主报告当前运行状态、启动状态和排队数量。
  * @returns {string} 当前运行时状态。
  * @example
  * const state = window.scenicAvatarPing();
@@ -254,7 +362,7 @@ elements.form.addEventListener("submit", (event) => {
 });
 
 /**
- * 使用页面会话令牌加载启动数据、清理地址栏并按配置自动启动。
+ * @description 使用页面会话令牌加载启动数据、清理地址栏并按配置自动启动。
  * 错误会在页面内展示或进入自动恢复流程。
  * @returns {Promise<void>}
  */
@@ -281,7 +389,7 @@ async function loadBootstrap() {
 }
 
 /**
- * 从同源后端读取当前短期会话的数字人启动数据。
+ * @description 从同源后端读取当前短期会话的数字人启动数据。
  * @returns {Promise<AvatarBootstrap>} 启动配置。
  * @throws {Error} HTTP 或业务响应失败时抛出带后端说明的异常。
  */
@@ -298,7 +406,7 @@ async function fetchBootstrap() {
 }
 
 /**
- * 将启动配置中的导游名称和欢迎语写入页面。
+ * @description 将启动配置中的导游名称和欢迎语写入页面。
  * @param {AvatarBootstrap} options 启动配置。
  * @returns {void}
  */
@@ -309,7 +417,7 @@ function applyBootstrap(options) {
 }
 
 /**
- * 获取新的短期讯飞签名并重新启动数字人。
+ * @description 获取新的短期讯飞签名并重新启动数字人。
  * 失败时进入统一恢复流程。
  * @returns {Promise<void>}
  */
@@ -331,7 +439,7 @@ async function restartAvatar() {
 }
 
 /**
- * 创建讯飞 SDK 实例、绑定生命周期事件、连接动态形象并处理自动欢迎语。
+ * @description 创建讯飞 SDK 实例、绑定生命周期事件、连接动态形象并处理自动欢迎语。
  * @param {AvatarBootstrap} options 启动配置。
  * @returns {Promise<void>}
  */
@@ -434,7 +542,7 @@ async function startAvatar(options) {
 }
 
 /**
- * 调用后端问答端点，并将成功回答加入数字人播报队列。
+ * @description 调用后端问答端点，并将成功回答加入数字人播报队列。
  * 失败时在页面内显示错误，不向调用方抛出。
  * @param {string} question 用户问题。
  * @returns {Promise<void>}
@@ -473,7 +581,7 @@ async function askGuide(question) {
 }
 
 /**
- * 规范化并排队播报文本；数字人未就绪时触发恢复。
+ * @description 规范化并排队播报文本；数字人未就绪时触发恢复。
  * @param {*} text 回答文本。
  * @returns {boolean} 已就绪并开始冲刷队列时为 `true`；仅排队或文本无效时为 `false`。
  */
@@ -490,7 +598,7 @@ function speakAvatarText(text) {
 }
 
 /**
- * 将播报插入队首或队尾，并对当前及等待中的相同文本去重。
+ * @description 将播报插入队首或队尾，并对当前及等待中的相同文本去重。
  * @param {string} text 已规范化播报文本。
  * @param {{front?: boolean}} [options={}] 入队选项。
  * @returns {QueuedSpeech} 新建或已存在的播报项。
@@ -514,7 +622,7 @@ function queueSpeech(text, { front = false } = {}) {
 }
 
 /**
- * 将队首文本写入讯飞 SDK；同一时间仅允许一个写入和一个活动播报。
+ * @description 将队首文本写入讯飞 SDK；同一时间仅允许一个写入和一个活动播报。
  * @returns {Promise<boolean>} 成功派发时为 `true`，条件不满足或调用失败时为 `false`。
  */
 async function flushPendingSpeech() {
@@ -551,7 +659,7 @@ async function flushPendingSpeech() {
 }
 
 /**
- * 只接受字符串，移除控制字符并限制为 1200 字符。
+ * @description 只接受字符串，移除控制字符并限制为 1200 字符。
  * @param {*} value 外部播报输入。
  * @returns {string} 安全播报文本；类型不符时为空字符串。
  */
@@ -561,7 +669,7 @@ function normalizeExternalSpeech(value) {
 }
 
 /**
- * 统一启用或禁用问题输入、提问和中断控件。
+ * @description 统一启用或禁用问题输入、提问和中断控件。
  * @param {boolean} enabled 是否启用。
  * @returns {void}
  */
@@ -572,7 +680,7 @@ function setControls(enabled) {
 }
 
 /**
- * 更新页面状态文本。
+ * @description 更新页面状态文本。
  * @param {string} message 状态说明。
  * @returns {void}
  */
@@ -581,7 +689,7 @@ function setStatus(message) {
 }
 
 /**
- * 切换到不可自动恢复的致命状态并通知宿主。
+ * @description 切换到不可自动恢复的致命状态并通知宿主。
  * @param {string} message 错误说明。
  * @returns {void}
  */
@@ -595,7 +703,7 @@ function showFatal(message) {
 }
 
 /**
- * 处理 SDK 启动或运行故障，回收失效实例、保留未完成播报并安排重连。
+ * @description 处理 SDK 启动或运行故障，回收失效实例、保留未完成播报并安排重连。
  * @param {*} error 原始错误。
  * @param {AvatarPlatform|null} [failedInstance=null] 触发故障的实例；过期实例错误会被忽略。
  * @returns {void}
@@ -630,7 +738,7 @@ function handleRuntimeFailure(error, failedInstance = null) {
 }
 
 /**
- * 以指数退避安排最多三次自动重连，耗尽后开放人工重启按钮。
+ * @description 以指数退避安排最多三次自动重连，耗尽后开放人工重启按钮。
  * @param {string} message 故障说明。
  * @returns {void}
  */
@@ -663,7 +771,7 @@ function scheduleAutoRetry(message) {
 }
 
 /**
- * 当存在待播报内容且运行时空闲时启动或重启数字人。
+ * @description 当存在待播报内容且运行时空闲时启动或重启数字人。
  * @returns {void}
  */
 function ensureRecoveryForQueuedSpeech() {
@@ -673,7 +781,7 @@ function ensureRecoveryForQueuedSpeech() {
 }
 
 /**
- * 重置重试计数和恢复耗尽状态，开始新的人工或自动恢复周期。
+ * @description 重置重试计数和恢复耗尽状态，开始新的人工或自动恢复周期。
  * @returns {void}
  */
 function beginRecoveryCycle() {
@@ -684,7 +792,7 @@ function beginRecoveryCycle() {
 }
 
 /**
- * 连接稳定 30 秒后清零恢复计数；实例被替换时不执行。
+ * @description 连接稳定 30 秒后清零恢复计数；实例被替换时不执行。
  * @param {AvatarPlatform} instance 当前 SDK 实例。
  * @returns {void}
  */
@@ -700,7 +808,7 @@ function scheduleStableConnectionReset(instance) {
 }
 
 /**
- * 为未收到 SDK `frame_stop` 的播报设置按文本长度计算的完成兜底。
+ * @description 为未收到 SDK `frame_stop` 的播报设置按文本长度计算的完成兜底。
  * @param {AvatarPlatform} instance 派发播报的 SDK 实例。
  * @param {QueuedSpeech} speech 活动播报。
  * @returns {void}
@@ -719,26 +827,35 @@ function scheduleSpeechCompletionFallback(instance, speech) {
   }, delay);
 }
 
-/** 清除自动重连定时器。 @returns {void} */
+/**
+ * @description 清除自动重连定时器。
+ * @returns {void}
+ */
 function cancelRetryTimer() {
   if (retryTimer !== null) window.clearTimeout(retryTimer);
   retryTimer = null;
 }
 
-/** 清除稳定连接判定定时器。 @returns {void} */
+/**
+ * @description 清除稳定连接判定定时器。
+ * @returns {void}
+ */
 function clearStableConnectionTimer() {
   if (stableConnectionTimer !== null) window.clearTimeout(stableConnectionTimer);
   stableConnectionTimer = null;
 }
 
-/** 清除播报完成兜底定时器。 @returns {void} */
+/**
+ * @description 清除播报完成兜底定时器。
+ * @returns {void}
+ */
 function clearSpeechCompletionTimer() {
   if (speechCompletionTimer !== null) window.clearTimeout(speechCompletionTimer);
   speechCompletionTimer = null;
 }
 
 /**
- * 将字符串、Error 或 SDK 错误对象转换为中文展示文本。
+ * @description 将字符串、Error 或 SDK 错误对象转换为中文展示文本。
  * @param {*} error 原始错误。
  * @returns {string} 用户可读错误说明。
  */
@@ -748,7 +865,7 @@ function normalizeError(error) {
 }
 
 /**
- * 更新向宿主报告的运行时状态。
+ * @description 更新向宿主报告的运行时状态。
  * @param {string} value 新状态。
  * @returns {void}
  */
@@ -757,7 +874,7 @@ function setRuntimeState(value) {
 }
 
 /**
- * 通过 uni-app 桥和浏览器 `postMessage` 向嵌入宿主报告无敏感信息的状态事件。
+ * @description 通过 uni-app 桥和浏览器 `postMessage` 向嵌入宿主报告无敏感信息的状态事件。
  * @param {string} type 事件类型。
  * @param {Record<string, *>} [details={}] 附加状态字段。
  * @returns {void}
@@ -788,7 +905,7 @@ function notifyHost(type, details = {}) {
 }
 
 /**
- * 尝试通过已就绪的 uni-app WebView 桥发送消息。
+ * @description 尝试通过已就绪的 uni-app WebView 桥发送消息。
  * @param {HostPacket} packet 宿主消息。
  * @returns {boolean} 已成功调用桥时为 `true`。
  */
@@ -805,7 +922,7 @@ function postViaUniBridge(packet) {
 }
 
 /**
- * 按顺序发送桥就绪前积压的宿主消息；首次失败后停止并保留队首。
+ * @description 按顺序发送桥就绪前积压的宿主消息；首次失败后停止并保留队首。
  * @returns {void}
  */
 function flushHostMessages() {
@@ -820,7 +937,7 @@ function flushHostMessages() {
 }
 
 /**
- * 在嵌入模式按需加载官方 uni-app WebView 桥并在就绪后冲刷消息。
+ * @description 在嵌入模式按需加载官方 uni-app WebView 桥并在就绪后冲刷消息。
  * @returns {void}
  */
 function ensureHostBridge() {

@@ -1,13 +1,48 @@
 /**
  * @fileoverview 文本型 PDF 的页级文本提取与 OCR 分流。
+ * @description
+ * 提取文本型 PDF 的页级内容，并将扫描件或低文本密度文档分流至 OCR。
  *
  * 该实现只处理 PDF 文本操作符，不把 PDF 二进制直接按 UTF-8 索引；扫描页或密度过低的
  * 文档返回 `needsOcr`，等待后续 OCR 任务，不伪装为已处理。
  */
+
+/**
+ * @typedef {object} PdfKnowledgeInput
+ * @description 待解析 PDF 及其知识元数据。
+ * @property {Buffer} buffer PDF 文件内容。
+ * @property {string} documentId 文档 ID。
+ * @property {string} fileName 文件名。
+ * @property {string} [knowledgeScope] 知识用途范围。
+ * @property {string} [scenicArea] 所属景区。
+ * @property {string} [language] 文档语言。
+ */
+
+/**
+ * @typedef {object} PdfKnowledgePage
+ * @description 从 PDF 提取的一页文本。
+ * @property {number} page 页码。
+ * @property {string} content 清理后的页面文本。
+ */
+
+/**
+ * @typedef {object} PdfKnowledgeResult
+ * @description PDF 文本提取与 OCR 分流结果。
+ * @property {Array<Record<string, *>>} chunks 可索引的页级知识分块；需要 OCR 时为空数组。
+ * @property {PdfKnowledgePage[]} pages 已提取且非空的页面文本。
+ * @property {number} pageCount PDF 页面总数。
+ * @property {boolean} needsOcr 是否应转入 OCR 处理。
+ * @property {string} parser 解析器标识。
+ * @property {string} documentHash PDF 内容的 SHA-256 摘要。
+ */
 import { inflateSync } from "node:zlib";
 import { createHash } from "node:crypto";
 
-/** @type {Readonly<Record<string, number>>} PDF 解析资源上限。 */
+/**
+ * @description
+ * PDF 解析资源上限。
+ * @type {Readonly<Record<string, number>>} PDF 解析资源上限。
+ */
 export const PDF_LIMITS = Object.freeze({
   maxBytes: 32 * 1024 * 1024,
   maxPages: 500,
@@ -16,10 +51,17 @@ export const PDF_LIMITS = Object.freeze({
 });
 
 /**
+ * @description
  * 提取 PDF 页面文本并判断是否需要 OCR。
- * @param {{buffer: Buffer, documentId: string, fileName: string, knowledgeScope?: string, scenicArea?: string, language?: string}} input 解析输入。
- * @returns {{chunks: object[], pages: object[], pageCount: number, needsOcr: boolean, parser: string, documentHash: string}} 解析结果。
+ * @param {PdfKnowledgeInput} input 解析输入。
+ * @returns {PdfKnowledgeResult} 解析结果。
  * @throws {Error & {code: string, statusCode?: number}} 文件签名、加密、页数或解析失败时抛出。
+ * @example
+ * const result = extractPdfKnowledge({
+ *   buffer: pdfBuffer,
+ *   documentId: "upload_pdf_1",
+ *   fileName: "景区资料.pdf"
+ * });
  */
 export function extractPdfKnowledge({
   buffer,
@@ -93,6 +135,7 @@ export function extractPdfKnowledge({
 }
 
 /**
+ * @description
  * 按页面对象的 Contents 引用提取文本；无法建立页面引用时回退到全部流。
  * @param {string} source Latin-1 PDF 源。
  * @returns {Array<{page: number, text: string}>} 页面文本。
@@ -117,7 +160,12 @@ function extractPageTexts(source) {
   return streams.length > 0 ? [{ page: 1, text: streams.join(" ") }] : [];
 }
 
-/** @param {string} object PDF 对象内容。 @returns {string} 对象文本。 */
+/**
+ * @description
+ * 从单个 PDF 对象中提取可显示文本。
+ * @param {string} object PDF 对象内容。
+ * @returns {string} 对象文本。
+ */
 function extractObjectText(object) {
   const stream = object.match(/stream\r?\n([\s\S]*?)\r?\nendstream/u);
   if (!stream) return extractTextOperators(object);
@@ -132,7 +180,12 @@ function extractObjectText(object) {
   return extractTextOperators(payload.toString("latin1"));
 }
 
-/** @param {string} source PDF 文本或解压后的内容。 @returns {string} 操作符中的文字。 */
+/**
+ * @description
+ * 从 PDF 内容流的文本操作符中提取文字。
+ * @param {string} source PDF 文本或解压后的内容。
+ * @returns {string} 操作符中的文字。
+ */
 function extractTextOperators(source) {
   const values = [];
   for (const match of source.matchAll(/(\((?:\\.|[^\\)])*\)|<[\da-fA-F\s]+>)\s*Tj/gu)) {
@@ -146,7 +199,12 @@ function extractTextOperators(source) {
   return values.join(" ");
 }
 
-/** @param {string} token PDF literal或十六进制字符串。 @returns {string} Unicode文本。 */
+/**
+ * @description
+ * 解码 PDF literal 或十六进制字符串。
+ * @param {string} token PDF literal或十六进制字符串。
+ * @returns {string} Unicode文本。
+ */
 function decodePdfString(token) {
   if (token.startsWith("<")) {
     const hex = token.slice(1, -1).replace(/\s/gu, "");
@@ -157,7 +215,12 @@ function decodePdfString(token) {
   return decodeBytes(Buffer.from(body, "latin1"));
 }
 
-/** @param {Buffer} bytes PDF 字符串字节。 @returns {string} 解码文本。 */
+/**
+ * @description
+ * 按 PDF 常见编码顺序将字节转换为 Unicode 文本。
+ * @param {Buffer} bytes PDF 字符串字节。
+ * @returns {string} 解码文本。
+ */
 function decodeBytes(bytes) {
   if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
     const swapped = Buffer.alloc(bytes.length - 2);
@@ -170,17 +233,34 @@ function decodeBytes(bytes) {
   return bytes.toString("utf8");
 }
 
-/** @param {string} value 页面原文。 @returns {string} 清理后的文本。 */
+/**
+ * @description
+ * 清理页面文本中的空白和不可见字符。
+ * @param {string} value 页面原文。
+ * @returns {string} 清理后的文本。
+ */
 function cleanPageText(value) {
   return String(value || "").replace(/\s+/gu, " ").trim();
 }
 
-/** @param {string} text 页面正文。 @returns {string[]} 轻量关键词。 */
+/**
+ * @description
+ * 从页面正文提取去重后的轻量关键词。
+ * @param {string} text 页面正文。
+ * @returns {string[]} 轻量关键词。
+ */
 function extractKeywords(text) {
   return [...new Set((String(text).match(/[\p{L}\p{N}][\p{L}\p{N}-]{1,}/gu) || []).slice(0, 40))];
 }
 
-/** @param {string} code 错误码。 @param {string} message 错误消息。 @param {number} [statusCode=422] HTTP状态码。 @returns {Error & {code: string, statusCode: number}} 错误对象。 */
+/**
+ * @description
+ * 创建携带业务错误码和 HTTP 状态码的 PDF 解析异常。
+ * @param {string} code 错误码。
+ * @param {string} message 错误消息。
+ * @param {number} [statusCode=422] HTTP状态码。
+ * @returns {Error & {code: string, statusCode: number}} 错误对象。
+ */
 function pdfError(code, message, statusCode = 422) {
   const error = new Error(message);
   error.code = code;

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 地图导览集成契约测试。
+ * @description 验证地图导览路由、播放状态、资源释放与数字人体验之间的集成契约。
+ */
+
 import assert from 'node:assert/strict'
 import { readFileSync, statSync } from 'node:fs'
 import test from 'node:test'

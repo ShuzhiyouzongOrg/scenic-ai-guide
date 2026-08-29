@@ -1,9 +1,12 @@
 /**
  * @fileoverview 知识文档上传、内容去重、文本索引、预览、下载与批量重建服务。
  *
- * 文件字节写入上传目录，元数据和处理状态保存在 `knowledge_documents` 表。
- *
+ * @description 文件字节写入上传目录，元数据和处理状态保存在 `knowledge_documents` 表。
+ */
+
+/**
  * @typedef {object} KnowledgeUpload
+ * @description 管理端展示和处理的知识文档上传记录。
  * @property {string} id 上传 ID。
  * @property {string} fileName 原始文件名。
  * @property {string} storedName 服务端文件名。
@@ -40,19 +43,40 @@ import {
 import { buildDocumentParserConfig, isDocumentParserReady } from "./documentParser.mjs";
 import { enqueueDocumentParserTask } from "./documentParserTasks.mjs";
 
-/** @type {Set<string>} 接受上传的文件扩展名。 */
+/**
+ * @description 接受上传的文件扩展名。
+ * @type {Set<string>}
+ */
 const allowedExtensions = new Set([".docx", ".xlsx", ".txt", ".md", ".pdf"]);
-/** @type {Set<string>} 当前能够提取文本并写入知识索引的扩展名。 */
+/**
+ * @description 当前能够提取文本并写入知识索引的扩展名。
+ * @type {Set<string>}
+ */
 const indexableExtensions = new Set([".docx", ".txt", ".md", ".xlsx", ".pdf"]);
-/** @type {Set<string>} 当前能够生成文本预览的扩展名。 */
+/**
+ * @description 当前能够生成文本预览的扩展名。
+ * @type {Set<string>}
+ */
 const previewableExtensions = new Set([".docx", ".txt", ".md"]);
-/** @type {number} 文本预览允许返回的最大字符数。 */
+/**
+ * @description 文本预览允许返回的最大字符数。
+ * @type {number}
+ */
 const previewCharacterLimit = 100_000;
-/** @type {number} 上传文件允许写入磁盘的最大字节数。 */
+/**
+ * @description 上传文件允许写入磁盘的最大字节数。
+ * @type {number}
+ */
 const maxUploadBytes = 32 * 1024 * 1024;
-/** @type {number} 单个文档本地提取、分块与索引的默认处理时限。 */
+/**
+ * @description 单个文档本地提取、分块与索引的默认处理时限。
+ * @type {number}
+ */
 const defaultProcessingTimeoutMs = 30_000;
-/** @type {ReadonlyMap<string, ReadonlySet<string>>} 扩展名允许的规范 MIME。 */
+/**
+ * @description 各文件扩展名允许使用的规范 MIME 类型。
+ * @type {ReadonlyMap<string, ReadonlySet<string>>}
+ */
 const allowedMimeTypes = new Map([
   [".docx", new Set(["application/vnd.openxmlformats-officedocument.wordprocessingml.document"])],
   [".xlsx", new Set(["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])],
@@ -60,7 +84,10 @@ const allowedMimeTypes = new Map([
   [".md", new Set(["text/markdown", "text/x-markdown"])],
   [".pdf", new Set(["application/pdf"])]
 ]);
-/** @type {Readonly<Record<string, number>>} Office ZIP 容器安全上限。 */
+/**
+ * @description Office ZIP 容器的条目数、解压体积和压缩比安全上限。
+ * @type {Readonly<Record<string, number>>}
+ */
 const officeArchiveLimits = Object.freeze({
   maxEntries: 4_096,
   maxUncompressedBytes: 128 * 1024 * 1024,
@@ -68,7 +95,7 @@ const officeArchiveLimits = Object.freeze({
 });
 
 /**
- * 计算上传内容的 SHA-256 十六进制摘要。
+ * @description 计算上传内容的 SHA-256 十六进制摘要。
  * @private
  * @param {Buffer} buffer 文件内容。
  * @returns {string} 64 位十六进制摘要。
@@ -78,7 +105,7 @@ function sha256(buffer) {
 }
 
 /**
- * 将数据库中的存储文件名解析为上传目录内的安全绝对路径。
+ * @description 将数据库中的存储文件名解析为上传目录内的安全绝对路径。
  * @private
  * @param {{stored_name?: *}} row 上传数据库行。
  * @returns {string} 上传目录内的绝对路径。
@@ -97,10 +124,10 @@ function storedPathFor(row) {
 }
 
 /**
- * 为旧版无内容摘要的记录尽力回填 SHA-256；单条损坏记录不会阻止其余列表加载。
+ * @description 为旧版无内容摘要的记录尽力回填 SHA-256；单条损坏记录不会阻止其余列表加载。
  * @private
  * @param {import("better-sqlite3").Database} db 数据库连接。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error} 初始查询或更新语句准备失败时透传数据库异常。
  */
 function backfillContentHashes(db) {
@@ -123,7 +150,7 @@ function backfillContentHashes(db) {
 }
 
 /**
- * 安全判断上传记录对应的文件是否仍存在。
+ * @description 安全判断上传记录对应的文件是否仍存在。
  * @private
  * @param {Record<string, *>} row 上传数据库行。
  * @returns {boolean} 路径合法且文件存在时为 `true`。
@@ -137,7 +164,7 @@ function hasStoredFile(row) {
 }
 
 /**
- * 将处理状态映射为去重选择优先级。
+ * @description 将处理状态映射为去重选择优先级。
  * @private
  * @param {*} status 处理状态。
  * @returns {number} 数值优先级，未知状态为 `0`。
@@ -147,11 +174,13 @@ function statusRank(status) {
 }
 
 /**
- * 校验扩展名对应的最小文件签名，防止伪造扩展名进入解析器。
+ * @description 校验扩展名对应的最小文件签名，防止伪造扩展名进入解析器。
  * @private
  * @param {string} extension 小写扩展名。
  * @param {Buffer} buffer 文件字节。
+ * @returns {void} 无返回值。
  * @throws {Error & {statusCode: 422, code: "UPLOAD_SIGNATURE_INVALID"}} 签名不匹配时抛出。
+ * @throws {Error & {statusCode: number, code: string}} Office 包或 PDF 违反安全限制时透传检查异常。
  */
 function validateUploadSignature(extension, buffer) {
   const isZip = buffer.length >= 2 && buffer[0] === 0x50 && buffer[1] === 0x4b;
@@ -177,7 +206,7 @@ function validateUploadSignature(extension, buffer) {
 }
 
 /**
- * 校验声明 MIME 是否与文件扩展名严格一致。
+ * @description 校验声明 MIME 是否与文件扩展名严格一致。
  * @private
  * @param {string} extension 小写扩展名。
  * @param {*} mimeType 客户端声明的 MIME。
@@ -196,11 +225,11 @@ function validateUploadMimeType(extension, mimeType) {
 }
 
 /**
- * 在解析器运行前检查 Office ZIP 中央目录、资源上限和包类型。
+ * @description 在解析器运行前检查 Office ZIP 中央目录、资源上限和包类型。
  * @private
  * @param {".docx"|".xlsx"} extension Office 扩展名。
  * @param {Buffer} buffer Office ZIP 字节。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error & {statusCode: number, code: string}} ZIP 损坏、加密、越界、宏、外链或类型伪造时抛出。
  */
 function inspectOfficeArchive(extension, buffer) {
@@ -270,10 +299,11 @@ function inspectOfficeArchive(extension, buffer) {
 }
 
 /**
- * 在 PDF 文本提取前拒绝过大、加密或页数超限文件。
+ * @description 在 PDF 文本提取前拒绝过大、加密或页数超限文件。
  * @private
  * @param {Buffer} buffer PDF 字节。
- * @returns {void}
+ * @returns {void} 无返回值。
+ * @throws {Error & {statusCode: number, code: "PDF_TOO_LARGE"|"PDF_ENCRYPTED"|"PDF_TOO_MANY_PAGES"}} PDF 超出体积或页数限制，或者包含加密标记时抛出。
  */
 function inspectPdfSafety(buffer) {
   if (buffer.length > PDF_LIMITS.maxBytes) {
@@ -289,7 +319,14 @@ function inspectPdfSafety(buffer) {
   }
 }
 
-/** @param {string} code 错误码。 @param {string} message 错误消息。 @param {number} [statusCode=422] HTTP 状态码。 @returns {Error & {code:string,statusCode:number}} */
+/**
+ * @description 创建带业务错误码和 HTTP 状态码的上传安全异常。
+ * @private
+ * @param {string} code 错误码。
+ * @param {string} message 错误消息。
+ * @param {number} [statusCode=422] HTTP 状态码。
+ * @returns {Error & {code: string, statusCode: number}} 上传安全异常。
+ */
 function uploadSecurityError(code, message, statusCode = 422) {
   const error = new Error(message);
   error.code = code;
@@ -297,7 +334,11 @@ function uploadSecurityError(code, message, statusCode = 422) {
   return error;
 }
 
-/** @returns {{expiresAt:number,timeoutMs:number}} 当前文档处理截止时间。 */
+/**
+ * @description 根据环境配置创建当前文档的处理截止时间。
+ * @private
+ * @returns {{expiresAt: number, timeoutMs: number}} 绝对截止时间和生效的超时毫秒数。
+ */
 function createProcessingDeadline() {
   const configured = Number(process.env.DOCUMENT_PROCESSING_TIMEOUT_MS ?? defaultProcessingTimeoutMs);
   const timeoutMs = Number.isFinite(configured)
@@ -306,7 +347,14 @@ function createProcessingDeadline() {
   return { expiresAt: Date.now() + timeoutMs, timeoutMs };
 }
 
-/** @param {{expiresAt:number,timeoutMs:number}} deadline 截止时间。 @param {string} stage 当前处理阶段。 @returns {void} */
+/**
+ * @description 校验文档处理阶段是否超过截止时间。
+ * @private
+ * @param {{expiresAt: number, timeoutMs: number}} deadline 截止时间。
+ * @param {string} stage 当前处理阶段。
+ * @returns {void} 无返回值。
+ * @throws {Error & {code: "DOCUMENT_PROCESSING_TIMEOUT", statusCode: 504}} 已超过截止时间时抛出。
+ */
 function assertProcessingDeadline(deadline, stage) {
   if (Date.now() < deadline.expiresAt) return;
   throw uploadSecurityError(
@@ -316,7 +364,12 @@ function assertProcessingDeadline(deadline, stage) {
   );
 }
 
-/** @param {Record<string, *>} row 上传记录。 @returns {boolean} 是否进入游客RAG。 */
+/**
+ * @description 判断上传记录是否属于已启用且可索引的游客问答知识。
+ * @private
+ * @param {Record<string, *>} row 上传记录。
+ * @returns {boolean} 应进入游客 RAG 时为 `true`。
+ */
 function shouldIndexUpload(row) {
   const extension = `.${String(row.file_type || "").toLowerCase()}`;
   return indexableExtensions.has(extension)
@@ -325,7 +378,7 @@ function shouldIndexUpload(row) {
 }
 
 /**
- * 按内容摘要去重，优先保留处理状态更高或时间更新的记录。
+ * @description 按内容摘要去重，优先保留处理状态更高或时间更新的记录。
  * @private
  * @param {Array<Record<string, *>>} rows 上传数据库行。
  * @returns {{rows: Array<Record<string, *>>, duplicateIds: string[]}} 保留记录和重复记录 ID。
@@ -357,7 +410,7 @@ function deduplicateRows(rows) {
 }
 
 /**
- * 将上传数据库行转换为 API 对象，并合并附加字段。
+ * @description 将上传数据库行转换为 API 对象，并合并附加字段。
  * @private
  * @param {Record<string, *>} row 上传数据库行。
  * @param {Record<string, *>} [extra={}] 附加响应字段。
@@ -396,13 +449,13 @@ function toUpload(row, extra = {}) {
 }
 
 /**
- * 提取可索引文件的文本或结构化分块、写入知识索引并更新处理状态。
+ * @description 提取可索引文件的文本或结构化分块、写入知识索引并更新处理状态。
  * @private
  * @param {import("better-sqlite3").Database} db 数据库连接。
  * @param {Record<string, *>} row 可变的上传数据库行。
  * @param {string} storedPath 文件绝对路径。
  * @param {Buffer} buffer 文件内容。
- * @returns {void}
+ * @returns {object} 已索引文档；需要云解析时返回排队任务信息。
  * @throws {Error} 文本提取、知识索引或数据库更新失败时透传异常。
  */
 function processIndexableUpload(db, row, storedPath, buffer) {
@@ -527,13 +580,14 @@ function processIndexableUpload(db, row, storedPath, buffer) {
 }
 
 /**
- * 更新文档处理状态和可审计字段。
+ * @description 更新文档处理状态和可审计字段。
  * @private
  * @param {import("better-sqlite3").Database} db 数据库连接。
  * @param {string} id 文档 ID。
  * @param {string} stage 新状态。
  * @param {Record<string, *>} [extra={}] 额外字段。
- * @returns {void}
+ * @returns {void} 无返回值。
+ * @throws {Error} 文档状态更新失败时透传数据库异常。
  */
 function updateProcessingState(db, id, stage, extra = {}) {
   const startedAt = stage === "extracting" ? new Date().toISOString() : undefined;
@@ -562,7 +616,7 @@ function updateProcessingState(db, id, stage, extra = {}) {
 }
 
 /**
- * 保存上传文件，按内容摘要复用重复记录，并立即索引支持的文本格式。
+ * @description 保存上传文件，按内容摘要复用重复记录，并立即索引支持的文本格式。
  * @param {{fileName: string, mimeType?: string, contentBase64?: string}} input 上传输入。
  * @returns {KnowledgeUpload & {duplicate?: boolean, duplicateOf?: string}} 上传结果；命中重复内容时带去重字段。
  * @throws {Error & {statusCode: 400, code: "UPLOAD_FILE_NAME_REQUIRED"|"UNSUPPORTED_UPLOAD_TYPE"|"INVALID_UPLOAD_PATH"}} 文件名、类型或存储路径无效时抛出。
@@ -747,9 +801,13 @@ export function createUpload({
 }
 
 /**
- * 将普通解析、分块和索引工作加入幂等队列。
+ * @description 将普通解析、分块和索引工作加入幂等队列。
  * @param {{documentId:string,contentHash:string,fileName:string,mimeType?:string}} input 任务元数据。
  * @returns {object} 队列任务。
+ * @throws {Error & {code: "KNOWLEDGE_INDEX_TASK_INVALID", statusCode: 422}} 任务元数据不完整时抛出。
+ * @throws {Error} 数据库写入或查询失败时透传异常。
+ * @example
+ * const task = enqueueKnowledgeIndexTask({ documentId: "doc-1", contentHash, fileName: "guide.pdf" });
  */
 export function enqueueKnowledgeIndexTask({ documentId, contentHash, fileName, mimeType = "" }) {
   if (!documentId || !contentHash || !fileName) {
@@ -772,9 +830,16 @@ export function enqueueKnowledgeIndexTask({ documentId, contentHash, fileName, m
 }
 
 /**
- * 执行一轮普通知识索引任务；默认每轮一个任务，适合低配置服务器定时 worker。
- * @param {{limit?:number,now?:number,maxAttempts?:number,leaseMs?:number}} [options={}] worker 配置。
- * @returns {Promise<{status:string,processed:number,succeeded:number,failed:number,waiting:number,skipped:number}>}
+ * @description 执行一轮普通知识索引任务；默认每轮一个任务，适合低配置服务器定时 worker。
+ * @param {object} [options={}] worker 配置。
+ * @param {number} [options.limit=1] 本轮最多处理任务数。
+ * @param {number} [options.now=Date.now()] 用于测试和租约计算的当前毫秒时间戳。
+ * @param {number} [options.maxAttempts=3] 单个任务最大尝试次数。
+ * @param {number} [options.leaseMs=60000] 任务领取租约时长，单位为毫秒。
+ * @returns {Promise<{status:string,processed:number,succeeded:number,failed:number,waiting:number,skipped:number}>} 本轮任务处理汇总。
+ * @throws {Error} 数据库查询、任务领取或状态更新失败时透传异常。
+ * @example
+ * const result = await runKnowledgeIndexTasks({ limit: 1 });
  */
 export async function runKnowledgeIndexTasks(options = {}) {
   const db = getDb();
@@ -809,7 +874,15 @@ export async function runKnowledgeIndexTasks(options = {}) {
   return result;
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {object} task 任务。 @param {object} options 选项。 @returns {"succeeded"|"failed"|"waiting"} */
+/**
+ * @description 处理单个知识索引队列任务，并更新成功、失败或等待重试状态。
+ * @private
+ * @param {import("better-sqlite3").Database} db 数据库连接。
+ * @param {object} task 已领取的队列任务。
+ * @param {{nowMs: number, maxAttempts: number}} options 任务时间和最大尝试次数。
+ * @returns {"succeeded"|"failed"|"waiting"} 成功建索引时返回 `succeeded`，不可重试或耗尽次数时返回 `failed`，已安排重试时返回 `waiting`。
+ * @throws {Error} 活动版本读取或任务状态写入失败时透传异常。
+ */
 function processKnowledgeIndexTask(db, task, { nowMs, maxAttempts }) {
   const previousVersion = getActiveKnowledgeVersion();
   try {
@@ -858,7 +931,19 @@ function processKnowledgeIndexTask(db, task, { nowMs, maxAttempts }) {
   }
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id ID。 @param {string} status 状态。 @param {object|null} metadata 元数据。 @param {string|null} code 错误码。 @param {string|null} message 消息。 @param {string|null} nextAt 下次时间。 @returns {void} */
+/**
+ * @description 更新知识索引任务状态、重试时间、错误信息和结果元数据。
+ * @private
+ * @param {import("better-sqlite3").Database} db 数据库连接。
+ * @param {string} id 任务 ID。
+ * @param {string} status 新任务状态。
+ * @param {object|null} [metadata=null] 成功结果元数据。
+ * @param {string|null} [code=null] 错误码。
+ * @param {string|null} [message=null] 错误消息。
+ * @param {string|null} [nextAt=null] 下次可执行时间。
+ * @returns {void} 无返回值。
+ * @throws {Error} 数据库更新失败时透传异常。
+ */
 function markKnowledgeIndexTask(db, id, status, metadata = null, code = null, message = null, nextAt = null) {
   const now = new Date().toISOString();
   db.prepare(
@@ -868,7 +953,12 @@ function markKnowledgeIndexTask(db, id, status, metadata = null, code = null, me
   ).run(status, nextAt || now, code, message, metadata ? JSON.stringify(metadata) : null, now, id);
 }
 
-/** @param {object} row 数据库任务。 @returns {object} API 任务。 */
+/**
+ * @description 将知识索引任务数据库行转换为 API 对象。
+ * @private
+ * @param {object} row 数据库任务行。
+ * @returns {object} 管理端可读取的队列任务。
+ */
 function toKnowledgeIndexTask(row) {
   return {
     id: row.id,
@@ -888,13 +978,17 @@ function toKnowledgeIndexTask(row) {
   };
 }
 
-/** @returns {boolean} 是否启用上传快速返回的普通索引队列。 */
+/**
+ * @description 判断是否启用上传快速返回的异步知识索引队列。
+ * @private
+ * @returns {boolean} 环境变量显式为 `true` 时返回 `true`。
+ */
 function asyncKnowledgeIndexingEnabled() {
   return String(process.env.KNOWLEDGE_ASYNC_INDEXING_ENABLED || "false").toLowerCase() === "true";
 }
 
 /**
- * 列出按内容去重后的上传记录。
+ * @description 列出按内容去重后的上传记录。
  * @returns {KnowledgeUpload[]} 按创建时间降序排列的上传列表。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example
@@ -912,13 +1006,15 @@ export function listUploads() {
 }
 
 /**
- * 重新处理单个游客问答文档。
+ * @description 重新处理单个游客问答文档。
  *
  * 已完成文档在新解析成功前仍保留于当前快照；失败时只更新该文档的错误状态，
  * 不切换活动知识版本。适合管理端对 `failed` 或 `needs_ocr` 文档执行重试。
  * @param {string} id 上传文档 ID。
  * @returns {KnowledgeUpload} 最新文档状态。
  * @throws {Error & {statusCode: number, code: string}} 文档不存在、范围不允许、任务正在运行或解析失败时抛出。
+ * @example
+ * const upload = reprocessUpload("upload-1");
  */
 export function reprocessUpload(id) {
   const db = getDb();
@@ -1008,7 +1104,7 @@ export function reprocessUpload(id) {
 }
 
 /**
- * 切换上传文档是否参与游客问答知识索引。
+ * @description 切换上传文档是否参与游客问答知识索引。
  *
  * 禁用只移除当前活动快照中的该文档，源文件、元数据和失败记录继续保留，便于之后重新启用。
  * 重新启用时仅重建当前文档，不触发全量知识库重建。
@@ -1016,6 +1112,8 @@ export function reprocessUpload(id) {
  * @param {boolean} enabled 是否启用。
  * @returns {KnowledgeUpload} 最新文档状态。
  * @throws {Error & {statusCode: number, code: string}} 文档不存在、参数非法、源文件缺失或重建失败时抛出。
+ * @example
+ * const upload = setUploadEnabled("upload-1", false);
  */
 export function setUploadEnabled(id, enabled) {
   if (typeof enabled !== "boolean") {
@@ -1070,12 +1168,15 @@ export function setUploadEnabled(id, enabled) {
 }
 
 /**
- * 获取文档当前活动索引中的引用入口。
+ * @description 获取文档当前活动索引中的引用入口。
  *
  * 返回页码、工作表、单元格范围和稳定 citation ID，供管理端核对文档是否真正进入 RAG。
  * @param {string} id 上传文档 ID。
  * @returns {{document: KnowledgeUpload, indexVersion: string|null, citations: Array<Record<string, *>>}} 引用摘要。
  * @throws {Error & {statusCode: 404, code: "UPLOAD_NOT_FOUND"}} 文档不存在时抛出。
+ * @throws {Error} 数据库查询失败时透传异常。
+ * @example
+ * const result = listUploadCitations("upload-1");
  */
 export function listUploadCitations(id) {
   const db = getDb();
@@ -1124,7 +1225,7 @@ export function listUploadCitations(id) {
 }
 
 /**
- * 获取上传元数据和原始文件字节。
+ * @description 获取上传元数据和原始文件字节。
  * @param {string} id 上传 ID。
  * @returns {KnowledgeUpload & {buffer: Buffer}} 上传信息和文件内容。
  * @throws {Error & {statusCode: 404, code: "UPLOAD_NOT_FOUND"|"UPLOAD_SOURCE_FILE_NOT_FOUND"}} 记录或文件不存在时抛出。
@@ -1156,7 +1257,7 @@ export function getUploadContent(id) {
 }
 
 /**
- * 获取支持格式的文本预览，最多返回十万字符。
+ * @description 获取支持格式的文本预览，最多返回十万字符。
  * @param {string} id 上传 ID。
  * @returns {{id: string, fileName: string, fileType: string, mimeType: string, size: number, previewable: boolean, truncated: boolean, content: string}} 预览信息。
  * @throws {Error & {statusCode: 404, code: "UPLOAD_NOT_FOUND"|"UPLOAD_SOURCE_FILE_NOT_FOUND"}} 记录或源文件不存在时抛出。
@@ -1204,7 +1305,7 @@ export function getUploadPreview(id) {
 }
 
 /**
- * 在知识库重建或恢复后重新处理全部文档上传。
+ * @description 在知识库重建或恢复后重新处理全部文档上传。
  * 暂不支持解析的二进制格式继续保留，并计入 `skipped`。
  * 单个文件失败会标记为 `failed`，但不会中断其余文件处理。
  * @returns {{processed: number, failed: number, skipped: number, duplicates: number}} 重建统计。

@@ -1,27 +1,67 @@
 /**
  * @fileoverview 语音识别、语音合成、语音问答编排和短期音频片段存储服务。
  *
- * 支持讯飞 WebSocket ASR/TTS 及离线模拟实现；讯飞不可用时是否降级由演示模式和供应商配置决定。
- *
- * @typedef {{text: string, provider: string, confidence: number, mimeType?: string, latencyMs: number}} TranscriptionResult
- * @typedef {{id: string, text: string, audioUrl: string, mimeType: string, durationMs: number}} SpeechSegment
- * @typedef {{buffer: Buffer, mimeType: string, text: string, expiresAt: number}} AudioClip
+ * @description 支持讯飞 WebSocket ASR/TTS 及离线模拟实现；讯飞不可用时是否降级由演示模式和供应商配置决定。
+ */
+
+/**
+ * @typedef {object} TranscriptionResult
+ * @description 一次语音识别的文本与性能结果。
+ * @property {string} text 识别文本。
+ * @property {string} provider 实际识别供应商。
+ * @property {number} confidence 识别置信度。
+ * @property {string} [mimeType] 输入音频媒体类型。
+ * @property {number} latencyMs 识别耗时，单位为毫秒。
+ */
+
+/**
+ * @typedef {object} SpeechSegment
+ * @description 可单独播放的语音合成片段。
+ * @property {string} id 音频片段 ID。
+ * @property {string} text 对应文本。
+ * @property {string} audioUrl 临时音频访问地址。
+ * @property {string} mimeType 输出音频媒体类型。
+ * @property {number} durationMs 估算播放时长，单位为毫秒。
+ */
+
+/**
+ * @typedef {object} AudioClip
+ * @description 保存在进程内存中的临时合成音频。
+ * @property {Buffer} buffer 音频字节。
+ * @property {string} mimeType 音频媒体类型。
+ * @property {string} text 对应文本。
+ * @property {number} expiresAt 过期的 Unix 毫秒时间戳。
+ */
+
+/**
  * @typedef {Error & {statusCode: number, code: string}} VoiceServiceError
+ * @description 带 HTTP 状态和业务错误码的语音服务异常。
+ * @property {number} statusCode HTTP 状态码。
+ * @property {string} code 业务错误码。
  */
 import { createHmac, randomBytes } from "node:crypto";
 import { config } from "../config.mjs";
 import { answerQuestion, formatPublicAssistantText } from "./chat.mjs";
 import { getCachedAnswer, setCachedAnswer } from "./faqCache.mjs";
 
-/** @type {Map<string, AudioClip>} 可通过临时 API URL 获取的合成音频片段。 */
+/**
+ * @description 可通过临时 API URL 获取的合成音频片段。
+ * @type {Map<string, AudioClip>}
+ */
 const audioStore = new Map();
-/** @type {number} 合成音频在内存中的有效期，单位为毫秒。 */
+/**
+ * @description 合成音频在内存中的有效期，单位为毫秒。
+ * @type {number}
+ */
 const AUDIO_TTL_MS = 1000 * 60 * 30;
-/** @type {number} 单个 TTS 请求片段的最大字符数。 */
+/**
+ * @description 单个 TTS 请求片段的最大字符数。
+ * @type {number}
+ */
 const MAX_TTS_CHARS = 90;
 
 /**
- * 获取 Unix 毫秒时间，用于延迟统计。
+ * @description 获取 Unix 毫秒时间，用于延迟统计。
  * @private
  * @returns {number} 当前毫秒时间戳。
  */
@@ -30,7 +70,7 @@ function nowMs() {
 }
 
 /**
- * 将音频转换为文字；显式 transcript 优先，其次使用讯飞，最后按配置使用模拟识别。
+ * @description 将音频转换为文字；显式 transcript 优先，其次使用讯飞，最后按配置使用模拟识别。
  * @param {{audioBase64?: string, mimeType?: string, transcript?: string, signal?: AbortSignal}} [input={}] 识别输入。
  * @returns {Promise<TranscriptionResult>} 识别文本、供应商、置信度和耗时。
  * @throws {VoiceServiceError} 音频缺失/格式无效、密钥缺失、供应商未实现、请求中止或讯飞调用失败时抛出。
@@ -75,7 +115,7 @@ export async function transcribeAudio({ audioBase64 = "", mimeType = "", transcr
 }
 
 /**
- * 判断讯飞 ASR 所需的应用 ID、API Key 和 API Secret 是否齐全。
+ * @description 判断讯飞 ASR 所需的应用 ID、API Key 和 API Secret 是否齐全。
  * @private
  * @returns {boolean} 配置完整时为 `true`。
  */
@@ -84,7 +124,7 @@ function hasXfyunAsrConfig() {
 }
 
 /**
- * 按讯飞鉴权规范构建 ASR WebSocket 签名 URL。
+ * @description 按讯飞鉴权规范构建 ASR WebSocket 签名 URL。
  * @private
  * @returns {string} 带 HMAC 鉴权参数的 `wss:` URL。
  */
@@ -102,7 +142,7 @@ function xfyunAsrSignedUrl() {
 }
 
 /**
- * 解码并校验讯飞 ASR 支持的 MP3、单声道 PCM WAV 或原始 PCM 音频。
+ * @description 解码并校验讯飞 ASR 支持的 MP3、单声道 PCM WAV 或原始 PCM 音频。
  * @private
  * @param {*} audioBase64 Base64 编码音频。
  * @param {*} mimeType 音频媒体类型。
@@ -138,7 +178,7 @@ function prepareXfyunAsrAudio(audioBase64, mimeType) {
 }
 
 /**
- * 解析 RIFF/WAVE 分块并提取 8 kHz 或 16 kHz 单声道 16 位 PCM 数据。
+ * @description 解析 RIFF/WAVE 分块并提取 8 kHz 或 16 kHz 单声道 16 位 PCM 数据。
  * @private
  * @param {Buffer} buffer WAV 文件内容。
  * @returns {{buffer: Buffer, encoding: "raw", format: string}} 原始 PCM 及讯飞格式描述。
@@ -184,7 +224,7 @@ function parsePcmWav(buffer) {
 }
 
 /**
- * 通过讯飞 WebSocket 分片发送音频并按序组合识别片段。
+ * @description 通过讯飞 WebSocket 分片发送音频并按序组合识别片段。
  * @private
  * @param {{audioBase64: string, mimeType: string, signal?: AbortSignal, started: number}} input 识别参数。
  * @returns {Promise<TranscriptionResult>} 讯飞识别结果。
@@ -198,16 +238,19 @@ function transcribeXfyunAudio({ audioBase64, mimeType, signal, started }) {
     let settled = false;
     let sendTimer = null;
     const timeout = setTimeout(() => finish(asrServiceError("XFYUN ASR timed out.", "XFYUN_ASR_TIMEOUT")), config.xfyun.asrTimeoutMs);
-    /** 将外部取消信号转换为统一 ASR 中止异常。 @returns {void} */
+    /**
+     * @description 将外部取消信号转换为统一 ASR 中止异常。
+     * @returns {void}
+     */
     const onAbort = () => finish(abortedError("ASR"));
 
     if (signal) signal.addEventListener("abort", onAbort, { once: true });
 
-    /**
-     * 只结算一次识别 Promise，并释放定时器、监听器和 WebSocket。
+/**
+     * @description 只结算一次识别 Promise，并释放定时器、监听器和 WebSocket。
      * @param {Error|null} error 失败异常。
      * @param {TranscriptionResult} [result] 成功结果。
-     * @returns {void}
+     * @returns {void} 无返回值。
      */
     function finish(error, result) {
       if (settled) return;
@@ -225,7 +268,10 @@ function transcribeXfyunAudio({ audioBase64, mimeType, signal, started }) {
       let offset = 0;
       let status = 0;
 
-      /** 分片发送下一段音频，并在结束时发送状态 2。 @returns {void} */
+      /**
+       * @description 分片发送下一段音频，并在结束时发送状态 2。
+       * @returns {void}
+       */
       const sendNext = () => {
         if (settled) return;
         if (offset >= prepared.buffer.length) {
@@ -293,7 +339,7 @@ function transcribeXfyunAudio({ audioBase64, mimeType, signal, started }) {
 }
 
 /**
- * 创建统一的讯飞 ASR 上游错误。
+ * @description 创建统一的讯飞 ASR 上游错误。
  * @private
  * @param {string} message 错误说明。
  * @param {string} code 业务错误码。
@@ -307,7 +353,7 @@ function asrServiceError(message, code) {
 }
 
 /**
- * 将文本分段并合成为可通过临时 URL 播放的音频。
+ * @description 将文本分段并合成为可通过临时 URL 播放的音频。
  * 优先尝试讯飞发音人和配置回退发音人；演示模式下讯飞失败可降级为模拟 WAV。
  * @param {{text?: string, voice?: string, speed?: number, signal?: AbortSignal}} [input={}] 合成参数。
  * @returns {Promise<{provider: string, voice: string, requestedVoice?: string, fallbackUsed?: boolean, speed: number, segments: SpeechSegment[], audioUrl: string|null, latencyMs: number}>} 合成结果。
@@ -422,7 +468,7 @@ export async function synthesizeSpeech({ text = "", voice = "guide_female", spee
 }
 
 /**
- * 判断讯飞 TTS 所需的应用 ID、API Key 和 API Secret 是否齐全。
+ * @description 判断讯飞 TTS 所需的应用 ID、API Key 和 API Secret 是否齐全。
  * @private
  * @returns {boolean} 配置完整时为 `true`。
  */
@@ -431,7 +477,7 @@ function hasXfyunTtsConfig() {
 }
 
 /**
- * 将前端通用音色别名解析为讯飞发音人代码。
+ * @description 将前端通用音色别名解析为讯飞发音人代码。
  * @private
  * @param {*} voice 请求音色。
  * @returns {string} 讯飞发音人代码。
@@ -445,7 +491,7 @@ function resolveXfyunVoice(voice) {
 }
 
 /**
- * 按讯飞鉴权规范构建 TTS WebSocket 签名 URL。
+ * @description 按讯飞鉴权规范构建 TTS WebSocket 签名 URL。
  * @private
  * @returns {string} 带 HMAC 鉴权参数的 `wss:` URL。
  */
@@ -463,7 +509,7 @@ function xfyunSignedUrl() {
 }
 
 /**
- * 通过讯飞 WebSocket 合成单个文本片段并拼接 MP3 音频块。
+ * @description 通过讯飞 WebSocket 合成单个文本片段并拼接 MP3 音频块。
  * @private
  * @param {{text: string, voice: string, speed: number, signal?: AbortSignal}} input 合成参数。
  * @returns {Promise<Buffer>} MP3 音频。
@@ -475,18 +521,21 @@ function synthesizeXfyunSegment({ text, voice, speed, signal }) {
     const chunks = [];
     let settled = false;
     const timer = setTimeout(() => finish(new Error(`XFYUN TTS timed out after ${config.xfyun.ttsTimeoutMs}ms.`)), config.xfyun.ttsTimeoutMs);
-    /** 将外部取消信号转换为统一 TTS 中止异常。 @returns {void} */
+    /**
+     * @description 将外部取消信号转换为统一 TTS 中止异常。
+     * @returns {void}
+     */
     const onAbort = () => finish(abortedError("TTS"));
 
     if (signal) {
       signal.addEventListener("abort", onAbort, { once: true });
     }
 
-    /**
-     * 只结算一次合成 Promise，并释放定时器、监听器和 WebSocket。
+/**
+     * @description 只结算一次合成 Promise，并释放定时器、监听器和 WebSocket。
      * @param {Error|null} error 失败异常。
      * @param {Buffer} [buffer] 合成音频。
-     * @returns {void}
+     * @returns {void} 无返回值。
      */
     function finish(error, buffer) {
       if (settled) return;
@@ -560,7 +609,7 @@ function synthesizeXfyunSegment({ text, voice, speed, signal }) {
 }
 
 /**
- * 串联语音识别、RAG 问答缓存、文本回答和语音合成，并返回端到端耗时。
+ * @description 串联语音识别、RAG 问答缓存、文本回答和语音合成，并返回端到端耗时。
  * @param {{audioBase64?: string, mimeType?: string, transcript?: string, question?: string, sessionId?: string, mode?: string, locale?: string, signal?: AbortSignal}} [input={}] 语音问答输入。
  * @returns {Promise<{transcript: string, asr: TranscriptionResult, answer: object, tts: object, latency: object}>} 识别、回答、语音及阶段耗时。
  * @throws {Error} ASR、问答或 TTS 任一阶段失败时透传异常。
@@ -612,7 +661,7 @@ export async function voiceAsk({ audioBase64 = "", mimeType = "", transcript = "
 }
 
 /**
- * 获取尚未过期的临时合成音频。
+ * @description 获取尚未过期的临时合成音频。
  * @param {string} id 音频片段 ID。
  * @returns {AudioClip|null} 音频片段；不存在或已过期时返回 `null`。
  * @example
@@ -628,7 +677,7 @@ export function getAudioClip(id) {
 }
 
 /**
- * 优先按句末标点拆分文本，再将超长句硬切为不超过 90 字符的片段。
+ * @description 优先按句末标点拆分文本，再将超长句硬切为不超过 90 字符的片段。
  * @param {*} text 待合成文本。
  * @returns {string[]} 有序 TTS 片段；空文本返回空数组。
  * @example
@@ -663,7 +712,7 @@ export function splitForTts(text) {
 }
 
 /**
- * 为离线演示生成确定性的模拟识别文本。
+ * @description 为离线演示生成确定性的模拟识别文本。
  * @private
  * @param {*} audioBase64 是否提供音频内容。
  * @param {*} mimeType 是否提供媒体类型。
@@ -680,7 +729,7 @@ function inferMockTranscript(audioBase64, mimeType) {
 }
 
 /**
- * 创建带短促正弦音和淡入淡出的单声道 8 kHz 16 位 PCM WAV。
+ * @description 创建带短促正弦音和淡入淡出的单声道 8 kHz 16 位 PCM WAV。
  * @private
  * @param {{durationMs: number, frequency: number}} input 时长和频率。
  * @returns {Buffer} 完整 WAV 文件内容。
@@ -714,9 +763,9 @@ function createMockWav({ durationMs, frequency }) {
 }
 
 /**
- * 从进程内音频存储中移除已过期片段。
+ * @description 从进程内音频存储中移除已过期片段。
  * @private
- * @returns {void}
+ * @returns {void} 无返回值。
  */
 function cleanupAudioStore() {
   const now = Date.now();
@@ -728,11 +777,11 @@ function cleanupAudioStore() {
 }
 
 /**
- * 校验非讯飞云供应商对应的环境变量密钥。
+ * @description 校验非讯飞云供应商对应的环境变量密钥。
  * @private
  * @param {"ASR_API_KEY"|"TTS_API_KEY"} envName 环境变量名。
  * @param {string} provider 供应商标识。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {VoiceServiceError} 密钥缺失时抛出对应的 `*_MISSING` 错误。
  */
 function assertProviderKey(envName, provider) {
@@ -746,7 +795,7 @@ function assertProviderKey(envName, provider) {
 }
 
 /**
- * 创建尚未实现供应商的 HTTP 501 异常。
+ * @description 创建尚未实现供应商的 HTTP 501 异常。
  * @private
  * @param {"ASR"|"TTS"|string} kind 服务类型。
  * @param {string} provider 供应商标识。
@@ -760,7 +809,7 @@ function providerNotImplemented(kind, provider) {
 }
 
 /**
- * 创建客户端中止请求对应的 HTTP 499 异常。
+ * @description 创建客户端中止请求对应的 HTTP 499 异常。
  * @private
  * @param {"ASR"|"TTS"|string} kind 服务类型。
  * @returns {VoiceServiceError} 中止异常。

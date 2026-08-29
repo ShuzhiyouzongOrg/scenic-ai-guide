@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 生成系统设置面板使用的选项与表单配置。
+ * @description 根据国际化文案、应用配置和顶栏能力开关构造响应式设置项。
+ */
+
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ContainerWidthEnum } from '@/enums/appEnum'
@@ -5,7 +10,10 @@ import AppConfig from '@/config'
 import { headerBarConfig } from '@/config/modules/headerBar'
 
 /**
- * 设置项配置选项管理
+ * @description 设置项配置选项管理
+ * @returns {object} 设置面板使用的响应式选项、应用配置和基础设置项列表。
+ * @example
+ * const { themeList, basicSettingsConfig } = useSettingsConfig()
  */
 export function useSettingsConfig() {
   const { t } = useI18n()

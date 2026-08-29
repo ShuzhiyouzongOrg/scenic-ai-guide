@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 全景目标解析优先级测试。
+ * @description 验证全景目标按显式场景、景点映射和景区总览的优先级进行解析。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import type { PanoramaRecord } from '../../src/types/map-guide'

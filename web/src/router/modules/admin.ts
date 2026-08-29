@@ -1,8 +1,12 @@
+/**
+ * @fileoverview 管理端路由配置。
+ * @description 声明知识库、数字人、运营分析、系统管理和运营闭环页面路由树。
+ */
 import { AppRouteRecord } from '@/types/router'
 
 /**
- * 管理后台模块（运营与管理端）
- * 知识库管理、数字人配置、运营分析、会话与反馈。
+ * @description 知识库管理模块路由树。
+ * @type {AppRouteRecord}
  */
 export const knowledgeRoutes: AppRouteRecord = {
   name: 'Knowledge',
@@ -41,6 +45,10 @@ export const knowledgeRoutes: AppRouteRecord = {
   ]
 }
 
+/**
+ * @description 数字人配置模块路由树。
+ * @type {AppRouteRecord}
+ */
 export const digitalHumanRoutes: AppRouteRecord = {
   name: 'DigitalHumanAdmin',
   path: '/admin/digital-human',
@@ -56,6 +64,10 @@ export const digitalHumanRoutes: AppRouteRecord = {
   ]
 }
 
+/**
+ * @description 运营分析模块路由树。
+ * @type {AppRouteRecord}
+ */
 export const analyticsRoutes: AppRouteRecord = {
   name: 'Analytics',
   path: '/admin/analytics',
@@ -71,6 +83,10 @@ export const analyticsRoutes: AppRouteRecord = {
   ]
 }
 
+/**
+ * @description 系统用户与角色管理模块路由树。
+ * @type {AppRouteRecord}
+ */
 export const systemRoutes: AppRouteRecord = {
   name: 'System',
   path: '/system',
@@ -114,6 +130,10 @@ export const systemRoutes: AppRouteRecord = {
   ]
 }
 
+/**
+ * @description 会话反馈与服务质量模块路由树。
+ * @type {AppRouteRecord}
+ */
 export const operationRoutes: AppRouteRecord = {
   name: 'Operation',
   path: '/admin/operation',

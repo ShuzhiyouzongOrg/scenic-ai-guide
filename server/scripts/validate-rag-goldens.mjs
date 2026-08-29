@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG 黄金数据集校验脚本。
+ * @description 检查检索与回答案例的结构、覆盖率、文档引用、知识实体和多语言完整性。
+ */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -10,6 +14,17 @@ const defaultAnswerPath = join(serverRoot, "data", "tests", "answer-cases.json")
 const defaultKnowledgePath = join(serverRoot, "data", "generated", "knowledge.json");
 const requiredLocales = ["zh", "zh-TW", "en", "ja", "ko", "th"];
 
+/**
+ * @description 校验检索案例、回答案例与当前知识快照之间的结构、引用和多语言覆盖一致性。
+ * @param {{retrievalPath?: string, answerPath?: string, knowledgePath?: string}} [options={}] 黄金数据文件路径。
+ * @param {string} [options.retrievalPath] 检索案例 JSON 文件路径。
+ * @param {string} [options.answerPath] 回答案例 JSON 文件路径。
+ * @param {string} [options.knowledgePath] 生成知识快照 JSON 文件路径。
+ * @returns {{retrievalCases: number, answerCases: number, positiveCount: number, noAnswerCount: number, languageCounts: Record<string, number>, splitCounts: Record<string, number>, sourceFileCount: number, knowledgeDocumentCount: number, errorCount: number, errors: string[]}} 案例数量、语言分布、知识引用覆盖和错误明细。
+ * @example
+ * const summary = validateRagGoldens();
+ * if (summary.errorCount > 0) console.error(summary.errors);
+ */
 export function validateRagGoldens({
   retrievalPath = defaultRetrievalPath,
   answerPath = defaultAnswerPath,
@@ -61,6 +76,11 @@ export function validateRagGoldens({
   return summary;
 }
 
+/**
+ * @description 校验检索案例字段、唯一性、来源可追溯性及语言和拒答覆盖。
+ * @param {{cases: object[], errors: string[], documentIds: Set<string>, spotIds: Set<string>, chunksByDocument: Map<string, object[]>, allKnowledgeText: string}} input 检索案例及知识索引。
+ * @returns {void}
+ */
 function validateRetrievalCases({
   cases,
   errors,
@@ -156,6 +176,13 @@ function validateRetrievalCases({
   if (noAnswerCount < 30) errors.push(`INSUFFICIENT_NO_ANSWER_CASES:${noAnswerCount}`);
 }
 
+/**
+ * @description 校验回答案例与同 ID 检索案例的字段一一对应。
+ * @param {object[]} retrievalCases 检索黄金案例。
+ * @param {object[]} answerCases 回答黄金案例。
+ * @param {string[]} errors 错误收集数组。
+ * @returns {void}
+ */
 function validateAnswerCases(retrievalCases, answerCases, errors) {
   if (answerCases.length !== retrievalCases.length) {
     errors.push(`ANSWER_CASE_COUNT_MISMATCH:${answerCases.length}:${retrievalCases.length}`);
@@ -189,6 +216,13 @@ function validateAnswerCases(retrievalCases, answerCases, errors) {
   }
 }
 
+/**
+ * @description 读取 JSON 并要求顶层值为数组，失败时记录错误并回退为空数组。
+ * @param {string} path 文件路径。
+ * @param {string} label 数据标签。
+ * @param {string[]} errors 错误收集数组。
+ * @returns {Array<*>} JSON 数组或空数组。
+ */
 function readJsonArray(path, label, errors) {
   const value = readJson(path, label, errors);
   if (!Array.isArray(value)) {
@@ -198,6 +232,13 @@ function readJsonArray(path, label, errors) {
   return value;
 }
 
+/**
+ * @description 读取 JSON 并要求顶层值为非数组对象，失败时记录错误并回退为空对象。
+ * @param {string} path 文件路径。
+ * @param {string} label 数据标签。
+ * @param {string[]} errors 错误收集数组。
+ * @returns {object} JSON 对象或空对象。
+ */
 function readJsonObject(path, label, errors) {
   const value = readJson(path, label, errors);
   if (!value || Array.isArray(value) || typeof value !== "object") {
@@ -207,6 +248,13 @@ function readJsonObject(path, label, errors) {
   return value;
 }
 
+/**
+ * @description 读取并解析 JSON；异常转为校验错误而不向外抛出。
+ * @param {string} path 文件路径。
+ * @param {string} label 数据标签。
+ * @param {string[]} errors 错误收集数组。
+ * @returns {*|null} 解析值；失败时为 `null`。
+ */
 function readJson(path, label, errors) {
   try {
     return JSON.parse(readFileSync(path, "utf8"));
@@ -216,22 +264,55 @@ function readJson(path, label, errors) {
   }
 }
 
+/**
+ * @description 要求案例指定字段为非空字符串，否则记录错误。
+ * @param {object} item 案例对象。
+ * @param {string} field 字段名。
+ * @param {string} label 案例标签。
+ * @param {string[]} errors 错误收集数组。
+ * @returns {void}
+ */
 function requireString(item, field, label, errors) {
   if (typeof item?.[field] !== "string" || !item[field].trim()) errors.push(`MISSING_STRING:${label}:${field}`);
 }
 
+/**
+ * @description 要求案例指定字段为数组，否则记录错误。
+ * @param {object} item 案例对象。
+ * @param {string} field 字段名。
+ * @param {string} label 案例标签。
+ * @param {string[]} errors 错误收集数组。
+ * @returns {void}
+ */
 function requireArray(item, field, label, errors) {
   if (!Array.isArray(item?.[field])) errors.push(`MISSING_ARRAY:${label}:${field}`);
 }
 
+/**
+ * @description 对校验文本执行 NFKC、转小写和空白规范化。
+ * @param {*} value 原始文本。
+ * @returns {string} 规范化文本。
+ */
 function normalizeText(value) {
   return String(value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+/**
+ * @description 拼接知识分块中可用于事实追溯的文本字段。
+ * @param {object} chunk 知识分块。
+ * @returns {string} 标题、正文、上下文和来源组成的文本。
+ */
 function chunkSearchText(chunk) {
   return [chunk.title, chunk.content, chunk.context, chunk.source].filter(Boolean).join("\n");
 }
 
+/**
+ * @description 按回调生成的键将值分组到 Map。
+ * @template T,K
+ * @param {T[]} values 输入值。
+ * @param {(value: T) => K} keyFor 分组键生成函数。
+ * @returns {Map<K, T[]>} 分组映射。
+ */
 function groupBy(values, keyFor) {
   const groups = new Map();
   for (const value of values) {
@@ -243,6 +324,13 @@ function groupBy(values, keyFor) {
   return groups;
 }
 
+/**
+ * @description 按回调生成的键统计出现次数。
+ * @template T
+ * @param {T[]} values 输入值。
+ * @param {(value: T) => string} keyFor 统计键生成函数。
+ * @returns {Record<string, number>} 各键计数。
+ */
 function countBy(values, keyFor) {
   const result = {};
   for (const value of values) {

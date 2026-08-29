@@ -1,18 +1,77 @@
 /**
  * @fileoverview 知识缺口聚合、人工状态流转和安全导出服务。
+ * @description
+ * 负责聚合低相关或低满意度问题、维护人工处理状态，并安全导出知识缺口。
  *
  * 本模块只维护待分析队列，不调用上传、FAQ 或索引写入接口。确认缺口仅表示人工已受理，
  * 后续补充资料仍必须走知识文档审核与上传流程。
  */
+
+/**
+ * @typedef {object} KnowledgeGapLabelCount
+ * @description 知识缺口原因或来源的聚合计数。
+ * @property {string} label 规范化标签。
+ * @property {number} count 出现次数。
+ */
+
+/**
+ * @typedef {object} KnowledgeGap
+ * @description 管理端使用的知识缺口记录。
+ * @property {string} id 缺口 ID。
+ * @property {string} questionHash 规范化问题的 SHA-256 摘要。
+ * @property {string} questionPreview 已脱敏的问题预览。
+ * @property {string} scenicArea 景区范围。
+ * @property {string} intent 问题意图。
+ * @property {KnowledgeGapLabelCount[]} reasons 触发原因及次数。
+ * @property {KnowledgeGapLabelCount[]} sources 记录来源及次数。
+ * @property {number} occurrenceCount 累计出现次数。
+ * @property {"pending"|"confirmed"|"dismissed"} status 人工处理状态。
+ * @property {string} firstSeenAt 首次出现时间。
+ * @property {string} lastSeenAt 最近出现时间。
+ * @property {string|null} confirmedAt 确认时间。
+ * @property {string|null} dismissedAt 忽略时间。
+ * @property {"manual_document_review_required"|null} nextAction 下一步人工动作。
+ */
+
+/**
+ * @typedef {object} KnowledgeGapInput
+ * @description 待聚合问题的来源信息。
+ * @property {*} [question] 用户问题。
+ * @property {*} [scenicArea] 显式景区标识。
+ * @property {*} [intent] 显式问题意图。
+ * @property {*} [reason] 触发缺口记录的原因。
+ * @property {*} [source] 缺口来源。
+ */
+
+/**
+ * @typedef {object} KnowledgeGapFeedback
+ * @description 用于回溯用户问题的负向反馈。
+ * @property {*} [sessionId] 会话 ID。
+ * @property {*} [messageId] 被反馈的回答消息 ID。
+ * @property {*} [rating] 数值评分。
+ * @property {*} [vote] 点赞或点踩标识。
+ */
 import { createHash, randomBytes } from "node:crypto";
 import { getDb } from "../db/database.mjs";
 
+/**
+ * @description 定义知识缺口允许使用的审核状态。
+ * @type {ReadonlySet<"pending"|"confirmed"|"dismissed">} 合法知识缺口状态集合。
+ */
 const ALLOWED_STATUSES = new Set(["pending", "confirmed", "dismissed"]);
 
 /**
+ * @description
  * 聚合一条低相关、无答案或低满意度问题。
- * @param {{question?: *, scenicArea?: *, intent?: *, reason?: *, source?: *}} [input={}] 缺口来源。
- * @returns {Record<string, *>|null} 聚合后的缺口；空问题不记录。
+ * @param {KnowledgeGapInput} [input={}] 缺口来源。
+ * @returns {KnowledgeGap|null} 聚合后的缺口；空问题不记录。
+ * @throws {Error} SQLite 查询或写入失败时透传数据库异常。
+ * @example
+ * const gap = recordKnowledgeGap({
+ *   question: "拈花湾夜场几点开放？",
+ *   scenicArea: "nianhuawan",
+ *   reason: "low_relevance"
+ * });
  */
 export function recordKnowledgeGap(input = {}) {
   const normalized = normalizeQuestion(input.question);
@@ -65,9 +124,13 @@ export function recordKnowledgeGap(input = {}) {
 }
 
 /**
+ * @description
  * 根据低分或点踩反馈，将对应会话最近的用户问题加入缺口队列。
- * @param {{sessionId?: *, messageId?: *, rating?: *, vote?: *}} feedback 已保存反馈。
- * @returns {Record<string, *>|null} 缺口；正向反馈或无法定位问题时返回 null。
+ * @param {KnowledgeGapFeedback} [feedback={}] 已保存反馈。
+ * @returns {KnowledgeGap|null} 缺口；正向反馈或无法定位问题时返回 `null`。
+ * @throws {Error} SQLite 消息查询或缺口写入失败时透传数据库异常。
+ * @example
+ * const gap = recordKnowledgeGapFromFeedback({ sessionId: "session-1", vote: "down" });
  */
 export function recordKnowledgeGapFromFeedback(feedback = {}) {
   if (feedback.vote !== "down" && !(Number(feedback.rating) <= 2)) return null;
@@ -97,7 +160,15 @@ export function recordKnowledgeGapFromFeedback(feedback = {}) {
   });
 }
 
-/** @param {{status?: string, limit?: number}} [options={}] 查询条件。 @returns {Record<string, *>[]} 缺口列表。 */
+/**
+ * @description
+ * 按处理状态和数量上限查询知识缺口。
+ * @param {{status?: string, limit?: number}} [options={}] 查询条件。
+ * @returns {KnowledgeGap[]} 缺口列表。
+ * @throws {Error} SQLite 查询失败时透传数据库异常。
+ * @example
+ * const pending = listKnowledgeGaps({ status: "pending", limit: 20 });
+ */
 export function listKnowledgeGaps({ status = "", limit = 100 } = {}) {
   const db = getDb();
   const safeLimit = Math.max(1, Math.min(1000, Number(limit) || 100));
@@ -112,10 +183,16 @@ export function listKnowledgeGaps({ status = "", limit = 100 } = {}) {
 }
 
 /**
+ * @description
  * 更新人工受理状态；该操作不会创建知识内容。
  * @param {string} id 缺口 ID。
  * @param {string} status pending、confirmed 或 dismissed。
- * @returns {Record<string, *>} 更新后的缺口。
+ * @returns {KnowledgeGap} 更新后的缺口。
+ * @throws {Error & {statusCode: 400, code: "KNOWLEDGE_GAP_STATUS_INVALID"}} 状态不受支持时抛出。
+ * @throws {Error & {statusCode: 404, code: "KNOWLEDGE_GAP_NOT_FOUND"}} 缺口不存在时抛出。
+ * @throws {Error} SQLite 更新或查询失败时透传数据库异常。
+ * @example
+ * const confirmed = updateKnowledgeGapStatus("gap_1", "confirmed");
  */
 export function updateKnowledgeGapStatus(id, status) {
   if (!ALLOWED_STATUSES.has(status)) {
@@ -141,7 +218,17 @@ export function updateKnowledgeGapStatus(id, status) {
   return getKnowledgeGap(id);
 }
 
-/** @param {{status?: string, limit?: number}} [options={}] 导出范围。 @returns {string} UTF-8 CSV。 */
+/**
+ * @description
+ * 按筛选条件将知识缺口导出为防公式注入的 UTF-8 CSV。
+ * @param {object} [options={}] 导出范围。
+ * @param {string} [options.status=""] 知识缺口状态筛选值。
+ * @param {number} [options.limit=1000] 最多导出记录数。
+ * @returns {string} UTF-8 CSV。
+ * @throws {Error} SQLite 查询失败时透传数据库异常。
+ * @example
+ * const csv = exportKnowledgeGapsCsv({ status: "confirmed" });
+ */
 export function exportKnowledgeGapsCsv(options = {}) {
   const header = ["id", "question", "scenicArea", "intent", "reasons", "sources", "frequency", "status", "firstSeenAt", "lastSeenAt"];
   const rows = listKnowledgeGaps({ ...options, limit: options.limit || 1000 }).map((gap) => [
@@ -159,13 +246,23 @@ export function exportKnowledgeGapsCsv(options = {}) {
   return `\ufeff${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
 
-/** @param {string} id 缺口ID。 @returns {Record<string, *>|null} 缺口。 */
+/**
+ * @description
+ * 按唯一标识读取一条知识缺口。
+ * @param {string} id 缺口ID。
+ * @returns {KnowledgeGap|null} 缺口。
+ */
 function getKnowledgeGap(id) {
   const row = getDb().prepare("SELECT * FROM knowledge_gaps WHERE id = ?").get(id);
   return row ? toKnowledgeGap(row) : null;
 }
 
-/** @param {Record<string, *>} row SQLite行。 @returns {Record<string, *>} API对象。 */
+/**
+ * @description
+ * 将 SQLite 知识缺口记录转换为对外对象。
+ * @param {Record<string, *>} row SQLite行。
+ * @returns {KnowledgeGap} API对象。
+ */
 function toKnowledgeGap(row) {
   return {
     id: row.id,
@@ -185,7 +282,12 @@ function toKnowledgeGap(row) {
   };
 }
 
-/** @param {*} value 问题。 @returns {string} 聚类规范文本。 */
+/**
+ * @description
+ * 归一化问题文本，以便执行哈希和相似度聚类。
+ * @param {*} value 问题。
+ * @returns {string} 聚类规范文本。
+ */
 function normalizeQuestion(value) {
   const normalized = String(value || "")
     .normalize("NFKC")
@@ -199,7 +301,12 @@ function normalizeQuestion(value) {
     : normalized;
 }
 
-/** @param {*} value 问题。 @returns {string} 脱敏样本。 */
+/**
+ * @description
+ * 清理问题中的敏感片段并生成可存储预览。
+ * @param {*} value 问题。
+ * @returns {string} 脱敏样本。
+ */
 function sanitizeQuestion(value) {
   return String(value || "")
     .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/gu, "[email]")
@@ -212,12 +319,13 @@ function sanitizeQuestion(value) {
 }
 
 /**
+ * @description
  * 在同景区、同意图缺口中执行轻量语义聚类，避免同义问法各占一条。
  * @param {import("better-sqlite3").Database} db 数据库。
  * @param {string} normalized 已规范化问题。
  * @param {string} scenicArea 景区。
  * @param {string} intent 意图。
- * @returns {Record<string, *>|null} 相似度达到阈值的最佳缺口。
+ * @returns {Record<string, *>|null} 相似度达到阈值的最佳 SQLite 缺口记录。
  */
 function findSimilarGap(db, normalized, scenicArea, intent) {
   const rows = db.prepare(
@@ -237,7 +345,13 @@ function findSimilarGap(db, normalized, scenicArea, intent) {
   return bestScore >= 0.58 ? best : null;
 }
 
-/** @param {string} left 左问题。 @param {string} right 右问题。 @returns {number} 0 至 1 相似度。 */
+/**
+ * @description
+ * 计算两个问题的语义词集合相似度。
+ * @param {string} left 左问题。
+ * @param {string} right 右问题。
+ * @returns {number} 0 至 1 相似度。
+ */
 function questionSimilarity(left, right) {
   const a = semanticTerms(left);
   const b = semanticTerms(right);
@@ -247,7 +361,12 @@ function questionSimilarity(left, right) {
   return intersection / union;
 }
 
-/** @param {string} question 问题。 @returns {Set<string>} 同义归一后的词与中文二元组。 */
+/**
+ * @description
+ * 提取问题的同义归一词和中文二元组。
+ * @param {string} question 问题。
+ * @returns {Set<string>} 同义归一后的词与中文二元组。
+ */
 function semanticTerms(question) {
   const canonical = String(question || "")
     .replace(/\[[^\]]+\]/gu, "")
@@ -262,7 +381,13 @@ function semanticTerms(question) {
   return terms;
 }
 
-/** @param {*} explicit 显式景区。 @param {string} question 问题。 @returns {string} 景区。 */
+/**
+ * @description
+ * 结合显式值和问题文本确定知识缺口所属景区。
+ * @param {*} explicit 显式景区。
+ * @param {string} question 问题。
+ * @returns {string} 景区。
+ */
 function normalizeScenicArea(explicit, question) {
   const value = String(explicit || "").toLowerCase();
   if (["lingshan", "nianhuawan", "general"].includes(value)) return value;
@@ -271,7 +396,13 @@ function normalizeScenicArea(explicit, question) {
   return "general";
 }
 
-/** @param {*} explicit 显式意图。 @param {string} question 问题。 @returns {string} 意图。 */
+/**
+ * @description
+ * 结合显式值和问题文本确定知识缺口意图。
+ * @param {*} explicit 显式意图。
+ * @param {string} question 问题。
+ * @returns {string} 意图。
+ */
 function normalizeIntent(explicit, question) {
   const value = normalizeLabel(explicit, "");
   if (value) return value;
@@ -283,13 +414,24 @@ function normalizeIntent(explicit, question) {
   return "unknown";
 }
 
-/** @param {*} value 标签。 @param {string} fallback 默认值。 @returns {string} 安全标签。 */
+/**
+ * @description
+ * 清理统计标签，并在空值时使用默认标签。
+ * @param {*} value 标签。
+ * @param {string} fallback 默认值。
+ * @returns {string} 安全标签。
+ */
 function normalizeLabel(value, fallback) {
   const label = String(value || "").trim().toLowerCase().replace(/[^a-z0-9_-]/gu, "_").slice(0, 64);
   return label || fallback;
 }
 
-/** @param {*} value JSON。 @returns {Array<{label: string, count: number}>} 标签计数。 */
+/**
+ * @description
+ * 解析按标签聚合的 JSON 计数数组。
+ * @param {*} value JSON。
+ * @returns {KnowledgeGapLabelCount[]} 标签计数。
+ */
 function parseLabelCounts(value) {
   try {
     const parsed = JSON.parse(value || "[]");
@@ -299,7 +441,13 @@ function parseLabelCounts(value) {
   }
 }
 
-/** @param {*} current 原计数。 @param {string} label 新标签。 @returns {Array<{label: string, count: number}>} 新计数。 */
+/**
+ * @description
+ * 递增指定标签的计数并返回新的排序结果。
+ * @param {*} current 原计数。
+ * @param {string} label 新标签。
+ * @returns {KnowledgeGapLabelCount[]} 新计数。
+ */
 function incrementLabelCounts(current, label) {
   const counts = parseLabelCounts(current);
   const existing = counts.find((item) => item.label === label);
@@ -308,7 +456,12 @@ function incrementLabelCounts(current, label) {
   return counts.sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
 }
 
-/** @param {*} value CSV值。 @returns {string} 防公式注入的CSV单元格。 */
+/**
+ * @description
+ * 转义 CSV 单元格并阻止电子表格公式注入。
+ * @param {*} value CSV值。
+ * @returns {string} 防公式注入的CSV单元格。
+ */
 function csvCell(value) {
   let text = String(value ?? "");
   if (/^[=+\-@]/u.test(text)) text = `'${text}`;

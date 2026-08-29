@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Windows 桌面安装产物验证脚本。
+ * @description 解包 NSIS 安装器后检查应用目录、ASAR 内容与必需运行资源。
+ */
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -19,6 +23,12 @@ assert.ok(installers.length > 0, `No Windows installers were found in ${outputDi
 const sevenZip = resolve("node_modules", "electron-winstaller", "vendor", "7z.exe");
 assert.ok(existsSync(sevenZip), `Bundled 7-Zip is missing: ${sevenZip}`);
 
+/**
+ * @description 使用打包依赖携带的 7-Zip 执行一次解包命令并断言成功。
+ * @param {string[]} args 传给 7-Zip 的命令参数。
+ * @returns {void}
+ * @throws {assert.AssertionError} 7-Zip 无法启动或退出码非零时抛出。
+ */
 function run(args) {
   const result = spawnSync(sevenZip, args, { encoding: "utf8" });
   assert.equal(result.error, undefined, result.error?.message);

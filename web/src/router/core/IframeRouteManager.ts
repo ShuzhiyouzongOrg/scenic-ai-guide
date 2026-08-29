@@ -1,20 +1,26 @@
 /**
- * Iframe 路由管理器
- *
- * 负责管理 iframe 类型的路由
- *
- * @module router/core/IframeRouteManager
- * @author Scenic AI Guide Team
+ * @fileoverview iframe 路由管理器。
+ * @description 以单例方式维护 iframe 路由集合，并支持会话级持久化与恢复。
  */
 
 import type { AppRouteRecord } from '@/types/router'
 
+/**
+ * @description 以单例维护 iframe 路由及其会话存储。
+ * @class
+ * @example
+ * const instance = new IframeRouteManager()
+ */
 export class IframeRouteManager {
   private static instance: IframeRouteManager
   private iframeRoutes: AppRouteRecord[] = []
 
   private constructor() {}
 
+  /**
+   * @description 获取 iframe 路由管理器单例。
+   * @returns {IframeRouteManager} 全局唯一的 iframe 路由管理器实例。
+   */
   static getInstance(): IframeRouteManager {
     if (!IframeRouteManager.instance) {
       IframeRouteManager.instance = new IframeRouteManager()
@@ -23,7 +29,9 @@ export class IframeRouteManager {
   }
 
   /**
-   * 添加 iframe 路由
+   * @description 添加尚未登记的 iframe 路由。
+   * @param {AppRouteRecord} route 待登记的 iframe 路由记录。
+   * @returns {void} 无返回值。
    */
   add(route: AppRouteRecord): void {
     if (!this.iframeRoutes.find((r) => r.path === route.path)) {
@@ -32,28 +40,33 @@ export class IframeRouteManager {
   }
 
   /**
-   * 获取所有 iframe 路由
+   * @description 获取当前维护的全部 iframe 路由。
+   * @returns {AppRouteRecord[]} 当前维护的 iframe 路由列表。
    */
   getAll(): AppRouteRecord[] {
     return this.iframeRoutes
   }
 
   /**
-   * 根据路径查找 iframe 路由
+   * @description 按路径查找 iframe 路由。
+   * @param {string} path 路由或资源路径。
+   * @returns {AppRouteRecord | undefined} 匹配的 iframe 路由；不存在时返回 `undefined`。
    */
   findByPath(path: string): AppRouteRecord | undefined {
     return this.iframeRoutes.find((route) => route.path === path)
   }
 
   /**
-   * 清空所有 iframe 路由
+   * @description 清空全部 iframe 路由。
+   * @returns {void} 无返回值。
    */
   clear(): void {
     this.iframeRoutes = []
   }
 
   /**
-   * 保存到 sessionStorage
+   * @description 将非空 iframe 路由列表写入会话存储。
+   * @returns {void} 无返回值。
    */
   save(): void {
     if (this.iframeRoutes.length > 0) {
@@ -62,7 +75,8 @@ export class IframeRouteManager {
   }
 
   /**
-   * 从 sessionStorage 加载
+   * @description 从会话存储恢复 iframe 路由；解析失败时重置为空列表。
+   * @returns {void} 无返回值。
    */
   load(): void {
     try {

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 桌面打包验证工具单元测试。
+ * @description 构造临时 ASAR 与资源目录，覆盖缺失文件、原生模块和运行配置等校验分支。
+ */
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

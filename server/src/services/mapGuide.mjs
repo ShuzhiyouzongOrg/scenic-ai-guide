@@ -1,31 +1,61 @@
 /**
  * @fileoverview 地图导览静态数据加载与按文件修改时间失效的内存缓存服务。
- *
+ * @description
+ * 读取双景区地图导览数据，并依据文件修改时间维护进程内缓存。
+ */
+
+/**
  * @typedef {"lingshan"|"nianhuawan"} MapGuideAreaId
+ * @description 地图导览支持的景区标识。
+ */
+
+/**
+ * @typedef {object} MapGuideAreaMetadata
+ * @description 地图导览景区元数据。
+ * @property {MapGuideAreaId} id 景区标识。
+ * @property {string} name 景区名称。
+ * @property {string} shortName 景区短名称。
+ * @property {string} sourceProject 数据来源项目标识。
+ */
+
+/**
  * @typedef {object} MapGuideBootstrap
+ * @description 地图导览页面一次启动所需的完整数据。
  * @property {string} version 数据协议版本。
  * @property {string} generatedAt 本次加载时间的 ISO 8601 字符串。
- * @property {{id: MapGuideAreaId, name: string, shortName: string, sourceProject: string}} area 景区元数据。
- * @property {*} config 地图配置数据。
- * @property {Array<*>} categories 景点分类数据。
- * @property {Array<*>} spots 景点数据。
- * @property {Array<*>} routes 路线数据。
- * @property {Array<*>} panoramas 全景点位数据。
+ * @property {MapGuideAreaMetadata} area 景区元数据。
+ * @property {Record<string, *>} config 地图配置数据。
+ * @property {Array<Record<string, *>>} categories 景点分类数据。
+ * @property {Array<Record<string, *>>} spots 景点数据。
+ * @property {Array<Record<string, *>>} routes 路线数据。
+ * @property {Array<Record<string, *>>} panoramas 全景点位数据。
  */
 import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** @type {string} 灵山地图导览生成数据的根目录。 */
+/**
+ * @description
+ * 灵山地图导览生成数据的根目录。
+ * @type {string} 灵山地图导览生成数据的根目录。
+ */
 const rootDataDir = resolve(
   fileURLToPath(new URL("../../data/generated/map-guide", import.meta.url)),
 );
-/** @type {Record<MapGuideAreaId, string>} 景区 ID 到数据目录的映射。 */
+/**
+ * @description
+ * 景区 ID 到数据目录的映射。
+ * @type {Record<MapGuideAreaId, string>} 景区 ID 到数据目录的映射。
+ */
 const areaDirectories = {
   lingshan: rootDataDir,
   nianhuawan: resolve(rootDataDir, "nianhuawan"),
 };
-/** @type {{config: string, categories: string, spots: string, routes: string, panoramas: string}} 地图数据文件名清单。 */
+/**
+ * @description
+ * 地图数据文件名清单。
+ * @type {{config: string, categories: string, spots: string, routes: string, panoramas: string}} 地图数据文件名清单。
+ */
 const files = {
   config: "map-config.json",
   categories: "categories.json",
@@ -34,10 +64,15 @@ const files = {
   panoramas: "panoramas.json",
 };
 
-/** @type {Map<MapGuideAreaId, {signature: string, value: MapGuideBootstrap}>} 按景区保存的数据缓存。 */
+/**
+ * @description
+ * 按景区保存的数据缓存。
+ * @type {Map<MapGuideAreaId, {signature: string, value: MapGuideBootstrap}>} 按景区保存的数据缓存。
+ */
 const cache = new Map();
 
 /**
+ * @description
  * 将任意景区 ID 归一化为地图服务支持的景区。
  * @param {*} areaId 候选景区 ID。
  * @returns {MapGuideAreaId} 受支持的景区 ID；未知值回退为 `lingshan`。
@@ -49,6 +84,7 @@ export function normalizeMapGuideArea(areaId) {
 }
 
 /**
+ * @description
  * 获取景区对应的数据目录。
  * @private
  * @param {*} areaId 景区 ID。
@@ -59,6 +95,7 @@ function dataDir(areaId) {
 }
 
 /**
+ * @description
  * 组合景区全部地图文件的修改时间，供缓存失效判断使用。
  * @private
  * @param {*} areaId 景区 ID。
@@ -72,6 +109,7 @@ function signature(areaId) {
 }
 
 /**
+ * @description
  * 同步读取并解析指定景区的 JSON 数据文件。
  * @private
  * @param {*} areaId 景区 ID。
@@ -84,6 +122,7 @@ function readJson(areaId, file) {
 }
 
 /**
+ * @description
  * 获取地图导览启动所需的完整数据，并在源文件变化时自动刷新缓存。
  * @param {*} [areaId="lingshan"] 景区 ID。
  * @returns {MapGuideBootstrap} 地图配置、分类、景点、路线和全景点位数据。
@@ -121,6 +160,7 @@ export function getMapGuideBootstrap(areaId = "lingshan") {
 }
 
 /**
+ * @description
  * 获取景区景点列表。
  * @param {*} areaId 景区 ID。
  * @returns {Array<*>} 景点数据。
@@ -133,6 +173,7 @@ export function getMapGuideSpots(areaId) {
 }
 
 /**
+ * @description
  * 获取景区推荐路线列表。
  * @param {*} areaId 景区 ID。
  * @returns {Array<*>} 路线数据。
@@ -145,6 +186,7 @@ export function getMapGuideRoutes(areaId) {
 }
 
 /**
+ * @description
  * 获取景区全景点位列表。
  * @param {*} areaId 景区 ID。
  * @returns {Array<*>} 全景点位数据。

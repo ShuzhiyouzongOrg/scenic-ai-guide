@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 知识索引异步任务测试脚本。
+ * @description 覆盖任务入队、租约领取、重试、完成状态和活动索引版本更新。
+ */
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

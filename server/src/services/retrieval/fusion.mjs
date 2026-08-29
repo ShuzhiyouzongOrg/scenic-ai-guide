@@ -1,12 +1,21 @@
 /**
- * @fileoverview 多通道候选融合、去重与 MMR 多样性排序。
+ * @fileoverview 检索候选融合与多样性排序模块。
+ * @description
+ * 提供 Reciprocal Rank Fusion、多层确定性去重和 MMR 排序能力，
+ * 用于统一不同检索通道的量纲并抑制重复证据占满上下文。
  */
 
 /**
- * 使用 Reciprocal Rank Fusion 合并不同量纲的候选分数。
+ * @description 使用 Reciprocal Rank Fusion 合并不同量纲的候选分数和命中原因。
  * @param {Array<Array<{chunk: object, score: number, reasons?: string[], channel?: string}>>} rankedLists 通道排序列表。
- * @param {{k?: number, limit?: number, weights?: number[]}} [options={}] 融合参数；权重按通道顺序应用。
+ * @param {object} [options={}] 融合参数；权重按通道顺序应用。
+ * @param {number} [options.k=60] RRF 排名平滑常数。
+ * @param {number} [options.limit=50] 最多保留候选数。
+ * @param {number[]} [options.weights=[]] 与通道顺序对应的非负权重。
  * @returns {Array<{chunk: object, score: number, reasons: string[], channels: object[]}>} 融合候选。
+ * @throws {TypeError} 排序列表或候选结构不符合预期时抛出。
+ * @example
+ * const fused = reciprocalRankFusion([bm25Candidates, denseCandidates], { weights: [1, 1.2] });
  */
 export function reciprocalRankFusion(rankedLists, { k = 60, limit = 50, weights = [] } = {}) {
   const merged = new Map();
@@ -28,10 +37,13 @@ export function reciprocalRankFusion(rankedLists, { k = 60, limit = 50, weights 
 }
 
 /**
+ * @description
  * 在 MMR 前剔除同内容、同父片段和同章节内的确定性重复候选。
  * 不同 child 只在正文相同时合并，避免破坏 Parent-Child 的多事实召回。
  * @param {Array<{chunk: object, score: number}>} candidates 候选列表。
  * @returns {Array<object>} 保留最高分代表项的候选。
+ * @example
+ * const unique = deduplicateCandidates(candidates);
  */
 export function deduplicateCandidates(candidates = []) {
   const selected = [];
@@ -57,10 +69,15 @@ export function deduplicateCandidates(candidates = []) {
 }
 
 /**
- * 用轻量 Jaccard 相似度执行 MMR，抑制同一章节和重复上传占满上下文。
+ * @description 用轻量 Jaccard 相似度执行 MMR，抑制同一章节和重复上传占满上下文。
  * @param {Array<{chunk: object, score: number, reasons?: string[], channels?: object[]}>} candidates 候选列表。
- * @param {{limit?: number, lambda?: number, maxPerParent?: number}} [options={}] MMR参数。
+ * @param {object} [options={}] MMR 参数。
+ * @param {number} [options.limit=5] 最多选择候选数。
+ * @param {number} [options.lambda=0.82] 相关性相对多样性的权重。
+ * @param {number} [options.maxPerParent=2] 同一父分块最多保留数量。
  * @returns {Array<object>} 多样性排序结果。
+ * @example
+ * const diversified = maximalMarginalRelevance(fused, { limit: 5 });
  */
 export function maximalMarginalRelevance(candidates, { limit = 5, lambda = 0.82, maxPerParent = 2 } = {}) {
   const selected = [];
@@ -99,12 +116,21 @@ export function maximalMarginalRelevance(candidates, { limit = 5, lambda = 0.82,
   return selected;
 }
 
-/** @param {*} value 正文。 @returns {string} 用于确定性去重的规范化文本。 */
+/**
+ * @description 将正文统一为适合确定性比较的小写单空格文本。
+ * @param {*} value 原始正文。
+ * @returns {string} 用于确定性去重的规范化文本。
+ */
 function normalizeContent(value) {
   return String(value || "").normalize("NFKC").toLowerCase().replace(/\s+/gu, " ").trim();
 }
 
-/** @param {object} left 左分块。 @param {object} right 右分块。 @returns {number} Jaccard相似度。 */
+/**
+ * @description 计算两个知识分块标题与正文词项集合的 Jaccard 相似度。
+ * @param {object} left 左侧知识分块。
+ * @param {object} right 右侧知识分块。
+ * @returns {number} 取值范围为 0 至 1 的 Jaccard 相似度。
+ */
 function textSimilarity(left, right) {
   const a = new Set(tokenize(String(left.title || "") + " " + String(left.content || "")));
   const b = new Set(tokenize(String(right.title || "") + " " + String(right.content || "")));
@@ -113,7 +139,11 @@ function textSimilarity(left, right) {
   return union ? intersection / union : 0;
 }
 
-/** @param {string} text 文本。 @returns {string[]} 轻量词项。 */
+/**
+ * @description 提取字母、数字、完整词组和中文双字词组成的轻量词项集合。
+ * @param {string} text 待切分文本。
+ * @returns {string[]} 去重后的轻量词项。
+ */
 function tokenize(text) {
   const normalized = text.normalize("NFKC").toLowerCase();
   const terms = new Set(normalized.match(/[\p{L}\p{N}]+/gu) || []);

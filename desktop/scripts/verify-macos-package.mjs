@@ -1,3 +1,7 @@
+/**
+ * @fileoverview macOS 桌面安装产物验证脚本。
+ * @description 挂载 DMG 后检查应用包、ASAR 内容和解包资源，并在结束时卸载临时卷。
+ */
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -15,6 +19,13 @@ const diskImages = readdirSync(outputDirectory).filter((name) => name.endsWith("
 assert.equal(diskImages.length, 1, `Expected one macOS disk image, found: ${diskImages.join(", ")}`);
 const expectedArchitecture = process.env.EXPECTED_ARCH || process.arch;
 
+/**
+ * @description 同步执行 macOS 系统命令并断言进程成功退出。
+ * @param {string} command 系统命令名称。
+ * @param {string[]} args 命令参数。
+ * @returns {void}
+ * @throws {assert.AssertionError} 命令无法启动或退出码非零时抛出。
+ */
 function run(command, args) {
   const result = spawnSync(command, args, { encoding: "utf8" });
   assert.equal(result.error, undefined, result.error?.message);

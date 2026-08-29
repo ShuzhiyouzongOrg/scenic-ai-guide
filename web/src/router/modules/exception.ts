@@ -1,5 +1,13 @@
+/**
+ * @fileoverview 异常页面路由配置。
+ * @description 声明 403、404 和 500 异常页面及其菜单元数据。
+ */
 import { AppRouteRecord } from '@/types/router'
 
+/**
+ * @description 异常状态页面路由树。
+ * @type {AppRouteRecord}
+ */
 export const exceptionRoutes: AppRouteRecord = {
   path: '/exception',
   name: 'Exception',

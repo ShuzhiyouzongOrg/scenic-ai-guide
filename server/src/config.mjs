@@ -1,5 +1,6 @@
 /**
  * @fileoverview 服务端运行配置加载器。
+ * @description 读取 dotenv 与进程环境变量，建立数据目录，并导出统一的服务、供应商和安全配置。
  *
  * 模块先读取 `CONFIG_ENV_FILE` 指定的 dotenv 文件，再将环境变量整理为只读使用约定的
  * `config` 对象，同时创建数据与上传目录。父进程显式传入的变量优先级高于 dotenv。
@@ -12,7 +13,104 @@ import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 /**
- * 将 dotenv 文件中尚未存在于 `process.env` 的键加载到当前进程。
+ * @typedef {object} RagExperimentConfig
+ * @description RAG 对照实验、样本门槛、质量护栏和成本估算配置。
+ * @property {boolean} enabled 是否启用对照实验。
+ * @property {string} id 实验唯一标识。
+ * @property {number} treatmentPercent 实验组流量百分比。
+ * @property {string} salt 稳定分流使用的盐值。
+ * @property {number} minSamples 评估所需最小总样本数。
+ * @property {number} minFeedbackSamples 评估所需最小反馈样本数。
+ * @property {number} maxP95Ratio 实验组相对基线的最大 P95 时延倍率。
+ * @property {number} maxRefusalRateIncrease 允许的最大拒答率增幅。
+ * @property {number} maxAcceptanceRateDrop 允许的最大采纳率降幅。
+ * @property {number} maxCostRatio 允许的最大成本倍率。
+ * @property {number} inputCostPerMillion 每百万输入 Token 单价。
+ * @property {number} outputCostPerMillion 每百万输出 Token 单价。
+ * @property {number} embeddingCostPerMillion 每百万向量化 Token 单价。
+ */
+
+/**
+ * @typedef {object} RagConfig
+ * @description RAG 检索阈值、追踪采样、分档策略和实验配置。
+ * @property {number} minRuleScore 规则检索最低得分。
+ * @property {number} minBm25Score BM25 检索最低得分。
+ * @property {number} minQueryCoverage 查询词最低覆盖率。
+ * @property {number} traceSampleRate 普通检索追踪采样率。
+ * @property {Record<string, unknown>} thresholdProfiles 按场景覆盖阈值的配置映射。
+ * @property {RagExperimentConfig} experiment 对照实验配置。
+ */
+
+/**
+ * @typedef {object} ProviderConfig
+ * @description 智能问答、语音识别和语音合成供应商选择。
+ * @property {string} llm 大语言模型供应商。
+ * @property {string} asr 语音识别供应商。
+ * @property {string} tts 语音合成供应商。
+ */
+
+/**
+ * @typedef {object} LlmConfig
+ * @description OpenAI 兼容大语言模型调用配置。
+ * @property {string} provider 供应商代码。
+ * @property {string} apiKey API 密钥。
+ * @property {string} baseUrl 兼容接口根地址。
+ * @property {string} model 模型名称。
+ * @property {number} timeoutMs 单次请求超时毫秒数。
+ * @property {number} maxRetries 最大重试次数。
+ * @property {number} temperature 生成温度。
+ */
+
+/**
+ * @typedef {object} XfyunConfig
+ * @description 讯飞 ASR 与 TTS WebSocket 鉴权和运行参数。
+ * @property {string} appId 应用 ID。
+ * @property {string} apiKey API Key。
+ * @property {string} apiSecret API Secret。
+ * @property {string} asrHost 语音识别主机。
+ * @property {string} asrPath 语音识别路径。
+ * @property {number} asrTimeoutMs 语音识别超时毫秒数。
+ * @property {string} ttsVoice 默认发音人代码。
+ * @property {string} ttsHost 语音合成主机。
+ * @property {string} ttsPath 语音合成路径。
+ * @property {number} ttsTimeoutMs 语音合成超时毫秒数。
+ */
+
+/**
+ * @typedef {object} DigitalHumanWebConfig
+ * @description 讯飞 Web 数字人会话、场景和短期令牌配置。
+ * @property {string} appId 应用 ID。
+ * @property {string} apiKey API Key。
+ * @property {string} apiSecret API Secret。
+ * @property {string} serverUrl WebSocket 服务地址。
+ * @property {string} sceneId 场景 ID。
+ * @property {string} sceneVersion 场景版本。
+ * @property {string} sessionSecret 短期会话令牌签名密钥。
+ * @property {number} sessionTtlSeconds 短期会话有效秒数。
+ */
+
+/**
+ * @typedef {object} ServerConfig
+ * @description 服务端启动、存储、供应商和 RAG 的完整运行配置。
+ * @property {string} appName 应用名称。
+ * @property {string} nodeEnv Node.js 运行环境。
+ * @property {string} host HTTP 监听主机。
+ * @property {number} port HTTP 监听端口。
+ * @property {string} adminUsername 初始管理员用户名。
+ * @property {string} adminPassword 初始管理员密码。
+ * @property {string} jwtSecret JWT 签名密钥。
+ * @property {string} dataDir 数据目录绝对路径。
+ * @property {string} uploadDir 上传目录绝对路径。
+ * @property {boolean} demoMode 是否启用演示降级模式。
+ * @property {RagConfig} rag RAG 运行配置。
+ * @property {ProviderConfig} providers 能力供应商选择。
+ * @property {LlmConfig} llm 大语言模型配置。
+ * @property {XfyunConfig} xfyun 讯飞语音配置。
+ * @property {DigitalHumanWebConfig} digitalHumanWeb 讯飞 Web 数字人配置。
+ */
+
+/**
+ * @description 将 dotenv 文件中尚未存在于 `process.env` 的键加载到当前进程。
  *
  * 空行、注释行和不含等号的行会被忽略；值保留第一个等号后的完整文本。
  *
@@ -48,7 +146,11 @@ function loadDotEnv(filePath) {
   }
 }
 
-/** @param {*} value JSON 环境变量。 @returns {object} 解析失败时为空对象。 */
+/**
+ * @description 将 JSON 环境变量解析为普通对象，解析失败时使用空对象。
+ * @param {*} value JSON 环境变量。
+ * @returns {object} 解析后的普通对象；解析失败时返回空对象。
+ */
 function parseJsonObject(value) {
   try {
     const parsed = JSON.parse(String(value || "{}"));
@@ -61,25 +163,9 @@ function parseJsonObject(value) {
 loadDotEnv(resolve(process.env.CONFIG_ENV_FILE || resolve(process.cwd(), ".env")));
 
 /**
- * 服务端统一运行配置。
+ * @description 服务端统一运行配置。
  *
- * @type {{
- *   appName: string,
- *   nodeEnv: string,
- *   host: string,
- *   port: number,
- *   adminUsername: string,
- *   adminPassword: string,
- *   jwtSecret: string,
- *   rag: {minRuleScore: number, minBm25Score: number, minQueryCoverage: number, experiment: object},
- *   dataDir: string,
- *   uploadDir: string,
- *   demoMode: boolean,
- *   providers: {llm: string, asr: string, tts: string},
- *   llm: {provider: string, apiKey: string, baseUrl: string, model: string, timeoutMs: number, maxRetries: number, temperature: number},
- *   xfyun: {appId: string, apiKey: string, apiSecret: string, asrHost: string, asrPath: string, asrTimeoutMs: number, ttsVoice: string, ttsHost: string, ttsPath: string, ttsTimeoutMs: number},
- *   digitalHumanWeb: {appId: string, apiKey: string, apiSecret: string, serverUrl: string, sceneId: string, sceneVersion: string, sessionSecret: string, sessionTtlSeconds: number}
- * }}
+ * @type {ServerConfig}
  *
  * @example
  * import { config } from "./config.mjs";

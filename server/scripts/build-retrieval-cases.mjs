@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 扩展检索评测集生成脚本。
+ * @description 根据基础问题、知识实体和答案约束生成检索与回答黄金案例文件。
+ */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -190,6 +194,14 @@ writeFileSync(answerOutputPath, `${JSON.stringify(answerCases, null, 2)}\n`, "ut
 console.log(`Wrote ${expanded.length} retrieval cases to ${outputPath}`);
 console.log(`Wrote ${answerCases.length} answer cases to ${answerOutputPath}`);
 
+/**
+ * @description 将一组多语言案例定义转换为统一的检索黄金案例。
+ * @param {string} locale 案例语言代码。
+ * @param {string} documentId 预期命中的文档 ID。
+ * @param {string} sourceFile 事实来源文件。
+ * @param {Array<[string, string, string, string[], string[], string[]]>} definitions 案例定义元组。
+ * @returns {object[]} 标准化检索案例。
+ */
 function localizedCases(locale, documentId, sourceFile, definitions) {
   return definitions.map((definition, index) => {
     const [suffix, question, title, spotIds, expectedTerms, forbiddenFacts] = definition;

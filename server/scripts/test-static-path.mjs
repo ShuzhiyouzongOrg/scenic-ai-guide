@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 静态路径安全解析测试脚本。
+ * @description 跨 POSIX 与 Windows 路径规则验证合法资源、编码路径和目录穿越拦截。
+ */
 import assert from "node:assert/strict";
 import { posix, resolve, win32 } from "node:path";
 import { resolveStaticFilePath } from "../src/http/staticPath.mjs";

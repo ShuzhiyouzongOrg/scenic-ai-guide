@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Web 样式代码检查配置。
+ * @description 统一 Vue、HTML、CSS 与 SCSS 文件的解析方式和 Stylelint 规则。
+ */
+
+/**
+ * @description 导出项目的 Stylelint 配置对象。
+ * @type {import('stylelint').Config}
+ * @example
+ * npx stylelint "src/**\/*.vue"
+ */
 module.exports = {
   // 继承推荐规范配置
   extends: [

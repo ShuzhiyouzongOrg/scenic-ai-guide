@@ -1,7 +1,12 @@
 /**
  * @fileoverview 灵山与拈花湾资料的 DOCX/Markdown 解析、知识分块、运行时索引和快照恢复服务。
- *
+ * @description
+ * 负责解析景区资料、生成结构化知识分块、发布版本化索引，并恢复可用知识快照。
+ */
+
+/**
  * @typedef {object} ScenicSpotKnowledge
+ * @description 结构化景点知识记录。
  * @property {string} id 景点 ID。
  * @property {string} scenicArea 所属景区。
  * @property {string} name 景点名称。
@@ -14,9 +19,87 @@
  * @property {string} highlights 游玩亮点。
  * @property {string} openInfo 演艺或开放信息。
  * @property {string} notes 备注。
- * @typedef {{id: string, documentId: string, scenicSpotId: string|null, parentId?: string, title: string, content: string, context?: string, sectionPath?: string, keywords: string[], source: string, language: string, fileType?: string, documentType?: string, knowledgeScope?: string, scenicArea?: string, validFrom?: string|null, validTo?: string|null, enabled?: boolean, page?: number, sheetName?: string, range?: string, rowStart?: number, rowEnd?: number, indexVersion?: string, contentHash?: string}} KnowledgeChunk
- * @typedef {{id: string, fileName: string, fileType: string, language: string, status: string, processingStage?: string, chunkCount: number, createdAt: string, contentHash?: string, knowledgeScope?: string, scenicArea?: string, documentType?: string, validFrom?: string|null, validTo?: string|null, enabled?: boolean, indexVersion?: string}} KnowledgeDocument
- * @typedef {{generatedAt: string, indexVersion?: string, chunkerVersion?: string, sourceDir?: string, scope?: string, documents: KnowledgeDocument[], spots: ScenicSpotKnowledge[], guideSections?: object[], chunks: KnowledgeChunk[]}} KnowledgeBase
+ */
+
+/**
+ * @typedef {object} KnowledgeChunk
+ * @description 可写入知识快照并参与检索的结构化分块。
+ * @property {string} id 分块 ID。
+ * @property {string} documentId 来源文档 ID。
+ * @property {string|null} scenicSpotId 关联景点 ID。
+ * @property {string} [parentId] 父级分块 ID。
+ * @property {string} title 分块标题。
+ * @property {string} content 分块正文。
+ * @property {string} [context] 补充上下文。
+ * @property {string} [sectionPath] 文档章节路径。
+ * @property {string[]} keywords 检索关键词。
+ * @property {string} source 来源文件名。
+ * @property {string} language 内容语言。
+ * @property {string} [fileType] 来源文件扩展名。
+ * @property {string} [documentType] 文档类型。
+ * @property {string} [knowledgeScope] 知识用途范围。
+ * @property {string} [accessScope] 知识访问范围。
+ * @property {string} [tenantId] 租户标识。
+ * @property {string} [scenicArea] 所属景区。
+ * @property {string|null} [validFrom] 生效时间。
+ * @property {string|null} [validTo] 失效时间。
+ * @property {boolean} [enabled] 是否参与检索。
+ * @property {number} [page] PDF 页码。
+ * @property {string} [sheetName] 工作表名称。
+ * @property {string} [range] 单元格范围。
+ * @property {number} [rowStart] 起始行号。
+ * @property {number} [rowEnd] 结束行号。
+ * @property {string} [indexVersion] 索引版本。
+ * @property {string} [contentHash] 内容摘要。
+ * @property {string} [embeddingRef] 远程向量引用。
+ * @property {string} [createdAt] 分块创建时间。
+ */
+
+/**
+ * @typedef {object} KnowledgeDocument
+ * @description 知识快照中的来源文档元数据。
+ * @property {string} id 文档 ID。
+ * @property {string} fileName 文件名。
+ * @property {string} fileType 文件类型。
+ * @property {string} language 文档语言。
+ * @property {string} status 处理状态。
+ * @property {string} [processingStage] 当前处理阶段。
+ * @property {number} chunkCount 生成的分块数量。
+ * @property {string} createdAt 创建时间。
+ * @property {string} [contentHash] 内容摘要。
+ * @property {string} [knowledgeScope] 知识用途范围。
+ * @property {string} [accessScope] 知识访问范围。
+ * @property {string} [tenantId] 租户标识。
+ * @property {string} [scenicArea] 所属景区。
+ * @property {string} [documentType] 文档类型。
+ * @property {string|null} [validFrom] 生效时间。
+ * @property {string|null} [validTo] 失效时间。
+ * @property {boolean} [enabled] 是否参与检索。
+ * @property {string} [indexVersion] 索引版本。
+ * @property {boolean} [skipped] 是否因内容未变化而跳过重建。
+ */
+
+/**
+ * @typedef {object} GuideSection
+ * @description 综合导览文档切分后的章节。
+ * @property {string} id 章节 ID。
+ * @property {string} title 章节标题。
+ * @property {string} content 章节正文。
+ * @property {string[]} keywords 检索关键词。
+ */
+
+/**
+ * @typedef {object} KnowledgeBase
+ * @description 某一索引版本的完整知识快照。
+ * @property {string} generatedAt 快照生成时间。
+ * @property {string} [indexVersion] 索引版本。
+ * @property {string} [chunkerVersion] 分块器版本。
+ * @property {string} [sourceDir] 原始资料目录。
+ * @property {string} [scope] 快照适用范围。
+ * @property {KnowledgeDocument[]} documents 来源文档列表。
+ * @property {ScenicSpotKnowledge[]} spots 景点知识列表。
+ * @property {GuideSection[]} [guideSections] 综合导览章节。
+ * @property {KnowledgeChunk[]} chunks 检索分块列表。
  */
 import { closeSync, copyFileSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { createHash, randomBytes } from "node:crypto";
@@ -32,16 +115,36 @@ import {
 } from "./knowledgeMetadata.mjs";
 import { withKnowledgeWriteLock } from "./knowledgeWriteLock.mjs";
 
-/** @type {string} 结构化景点资料的标准文件名。 */
+/**
+ * @description
+ * 结构化景点资料的标准文件名。
+ * @type {string} 结构化景点资料的标准文件名。
+ */
 const STRUCTURED_DOC = "灵山胜境 景点结构化数据集.docx";
-/** @type {string} 综合导览资料的标准文件名。 */
+/**
+ * @description
+ * 综合导览资料的标准文件名。
+ * @type {string} 综合导览资料的标准文件名。
+ */
 const GUIDE_DOC = "灵山胜境：历史、文化、景点特色与个性化游览指南.docx";
-/** @type {string[]} 构成可恢复发布快照的生成文件。 */
+/**
+ * @description
+ * 构成可恢复发布快照的生成文件。
+ * @type {string[]} 构成可恢复发布快照的生成文件。
+ */
 const GENERATED_KNOWLEDGE_FILES = ["knowledge.json", "knowledge-chunks.json", "scenic-spots.json"];
-/** @type {string} 当前结构感知分块器版本。 */
+/**
+ * @description
+ * 当前结构感知分块器版本。
+ * @type {string} 当前结构感知分块器版本。
+ */
 export const CHUNKER_VERSION = "structure-v2";
 
-/** @type {string[]} 结构化 DOCX 记录的字段顺序。 */
+/**
+ * @description
+ * 结构化 DOCX 记录的字段顺序。
+ * @type {string[]} 结构化 DOCX 记录的字段顺序。
+ */
 const structuredFields = [
   "景区名称",
   "景点ID",
@@ -57,6 +160,7 @@ const structuredFields = [
 ];
 
 /**
+ * @description
  * 结构化数据覆盖的景区及其 ID 格式。每条记录以独占一行的景区名和下一行景点 ID 开始。
  * @type {Array<{area: string, idPattern: RegExp}>}
  */
@@ -66,6 +170,7 @@ const SCENIC_AREAS = [
 ];
 
 /**
+ * @description
  * 根据景点 ID 判断所属景区。
  * @private
  * @param {*} id 景点 ID。
@@ -76,6 +181,7 @@ function areaForId(id) {
 }
 
 /**
+ * @description
  * 判断一行是否为表格或章节边界，防止标题混入上一条景点备注。
  * @private
  * @param {string} line 清理后的文本行。
@@ -85,7 +191,11 @@ function isTableBoundary(line) {
   return /景点数据集/.test(line) || /^(子表|表\d|景区名称|数据集说明|字段规范|核心构成)/.test(line);
 }
 
-/** @type {string[]} 综合导览文档中用于切分章节的已知标题。 */
+/**
+ * @description
+ * 综合导览文档中用于切分章节的已知标题。
+ * @type {string[]} 综合导览文档中用于切分章节的已知标题。
+ */
 const guideHeadings = [
   "景区概况与千年历史渊源",
   "小灵山的佛教缘起",
@@ -111,6 +221,7 @@ const guideHeadings = [
 ];
 
 /**
+ * @description
  * 从标准 DOCX 和补充 Markdown 全量构建知识库，同时保留已有上传文档分块。
  * @param {{sourceDir?: string}} [options={}] 原始资料目录。
  * @returns {KnowledgeBase} 已写入运行时生成目录的知识库。
@@ -235,6 +346,7 @@ export function buildKnowledge({ sourceDir = resolve(process.cwd(), "..", "docs"
 }
 
 /**
+ * @description
  * 优先从可写运行时目录加载知识库，缺失时回退到发布包快照。
  * @returns {KnowledgeBase|null} 知识库；两个位置均不存在时返回 `null`。
  * @throws {SyntaxError|Error} 文件存在但 JSON 无效或读取失败时抛出。
@@ -257,16 +369,24 @@ export function loadKnowledge() {
 }
 
 /**
+ * @description
  * 返回当前活动知识快照版本，供答案缓存键和观测信息使用。
  * @returns {string} 活动版本；尚未构建时返回 `unbuilt`。
+ * @throws {Error|SyntaxError} 活动指针或知识快照读取、解析失败时透传异常。
+ * @example
+ * const version = getActiveKnowledgeVersion();
  */
 export function getActiveKnowledgeVersion() {
   return loadKnowledge()?.indexVersion || "unbuilt";
 }
 
 /**
+ * @description
  * 列出运行时目录中已经校验的知识快照，供管理端查看和回滚。
- * @returns {Array<{indexVersion:string,chunkerVersion:string,generatedAt:string,documentCount:number,chunkCount:number,active:boolean}>}
+ * @returns {Array<{indexVersion:string,chunkerVersion:string,generatedAt:string,documentCount:number,chunkCount:number,active:boolean}>} 按活动状态和生成时间排序的知识版本摘要。
+ * @throws {Error} 快照目录读取或 JSON 解析失败时透传异常。
+ * @example
+ * const versions = listKnowledgeVersions();
  */
 export function listKnowledgeVersions() {
   const generatedDir = runtimeGeneratedDir();
@@ -293,6 +413,7 @@ export function listKnowledgeVersions() {
 }
 
 /**
+ * @description
  * 将活动指针恢复到已经校验过的历史知识版本。
  *
  * 该函数用于数据库同步或上传后处理失败时回滚刚切换的 JSON 快照；它不会删除
@@ -301,6 +422,9 @@ export function listKnowledgeVersions() {
  * @param {string} indexVersion 目标历史版本。
  * @returns {KnowledgeBase} 恢复后的活动知识快照。
  * @throws {Error & {code:string,statusCode:number}} 目标快照不存在或校验失败时抛出。
+ * @throws {Error} 锁文件、活动指针或快照文件读写失败时透传异常。
+ * @example
+ * const knowledge = activateKnowledgeVersion("structure-v2-example");
  */
 export function activateKnowledgeVersion(indexVersion) {
   if (!isSafeIndexVersion(indexVersion)) {
@@ -331,12 +455,23 @@ export function activateKnowledgeVersion(indexVersion) {
   });
 }
 
-/** @param {string} value 版本值。 @returns {boolean} 是否可安全作为目录名。 */
+/**
+ * @description
+ * 判断索引版本是否只包含可安全用于目录名的字符。
+ * @param {string} value 版本值。
+ * @returns {boolean} 是否可安全作为目录名。
+ */
 function isSafeIndexVersion(value) {
   return /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(String(value || ""));
 }
 
-/** @param {KnowledgeBase} knowledge 快照。 @param {string} activeVersion 活动版本。 @returns {object} */
+/**
+ * @description
+ * 汇总知识快照的版本状态、生成时间、文档数和分块数。
+ * @param {KnowledgeBase} knowledge 快照。
+ * @param {string} activeVersion 活动版本。
+ * @returns {object} 可供版本列表展示的快照摘要。
+ */
 function summarizeKnowledgeVersion(knowledge, activeVersion) {
   return {
     indexVersion: knowledge.indexVersion,
@@ -349,6 +484,7 @@ function summarizeKnowledgeVersion(knowledge, activeVersion) {
 }
 
 /**
+ * @description
  * 将发布包内已验证知识快照恢复到可写运行时目录。
  * 生产环境的 `DATA_DIR` 通常位于版本目录外，新建数据卷可用此方法初始化索引。
  * @param {{force?: boolean}} [options={}] 恢复选项。
@@ -398,8 +534,9 @@ export function restoreBundledKnowledge({ force = false } = {}) {
 }
 
 /**
- * 将纯文本或 Markdown 按章节与最大 700 字符切分为可检索知识块。
- * @param {{documentId: string, fileName: string, text: string, fileType?: string, spots?: ScenicSpotKnowledge[]}} input 文档信息。
+ * @description
+ * 将纯文本或 Markdown 按章节与默认 600 个估算 token 切分为可检索知识块。
+ * @param {{documentId: string, fileName: string, text: string, fileType?: string, spots?: ScenicSpotKnowledge[], metadata?: object}} input 文档信息。
  * @returns {KnowledgeChunk[]} 有序知识分块。
  * @example
  * const chunks = buildTextDocumentChunks({ documentId: "upload_1", fileName: "faq.md", text: "# 门票\n成人票说明" });
@@ -450,6 +587,7 @@ export function buildTextDocumentChunks({
 }
 
 /**
+ * @description
  * 将上传文本加入运行时知识库，并原子式替换同 ID 文档的旧元数据和分块。
  * @param {{documentId: string, fileName: string, text: string, fileType: string, metadata?: object}} input 文档信息。
  * @returns {KnowledgeDocument} 已索引文档元数据。
@@ -480,10 +618,20 @@ export function indexTextKnowledgeDocument({ documentId, fileName, text, fileTyp
 }
 
 /**
+ * @description
  * 将已完成解析的结构化分块写入新知识版本，并在校验后原子切换活动快照。
  * @param {{documentId: string, fileName: string, fileType: string, chunks: KnowledgeChunk[], metadata?: object}} input 文档和分块。
  * @returns {KnowledgeDocument} 已索引文档元数据。
+ * @throws {Error & {statusCode: 409, code: "KNOWLEDGE_NOT_BUILT"}} 无基础知识库且快照无法恢复时抛出。
  * @throws {Error & {statusCode: 422, code: "KNOWLEDGE_DOCUMENT_EMPTY"}} 没有可索引分块时抛出。
+ * @throws {Error} 快照恢复、JSON 读取或文件写入失败时透传异常。
+ * @example
+ * const document = indexKnowledgeChunksDocument({
+ *   documentId: "upload_1",
+ *   fileName: "faq.pdf",
+ *   fileType: "pdf",
+ *   chunks
+ * });
  */
 export function indexKnowledgeChunksDocument({ documentId, fileName, fileType, chunks, metadata = {} }) {
   const knowledge = loadKnowledge() || restoreBundledKnowledge();
@@ -596,6 +744,7 @@ export function indexKnowledgeChunksDocument({ documentId, fileName, fileType, c
 }
 
 /**
+ * @description
  * 从运行时知识库删除指定文档及其全部分块。
  * @param {string[]} [documentIds=[]] 待删除文档 ID。
  * @returns {number} 删除的文档元数据数量。
@@ -632,6 +781,7 @@ export function removeIndexedKnowledgeDocuments(documentIds = []) {
 }
 
 /**
+ * @description
  * 获取当前部署的可写知识生成目录。
  * @private
  * @returns {string} 绝对目录。
@@ -641,6 +791,7 @@ function runtimeGeneratedDir() {
 }
 
 /**
+ * @description
  * 获取源码发布包内置知识快照目录。
  * @private
  * @returns {string} 绝对目录。
@@ -650,6 +801,7 @@ function bundledGeneratedDir() {
 }
 
 /**
+ * @description
  * 从指定 JSON 文件读取知识库。
  * @private
  * @param {string} filePath JSON 文件路径。
@@ -664,6 +816,7 @@ function loadKnowledgeFrom(filePath) {
 }
 
 /**
+ * @description
  * 解析结构化景点 DOCX 纯文本；优先按行记录解析，失败时回退到字段标记解析。
  * @param {string} text DOCX 提取的纯文本。
  * @returns {ScenicSpotKnowledge[]} 灵山和拈花湾景点。
@@ -695,6 +848,7 @@ export function parseStructuredSpots(text) {
 }
 
 /**
+ * @description
  * 按“景区名行 + 匹配的景点 ID 行”识别结构化景点记录。
  * @private
  * @param {string} text 结构化资料纯文本。
@@ -768,6 +922,7 @@ function parseStructuredSpotsByLines(text) {
 }
 
 /**
+ * @description
  * 按已知标题位置切分综合导览文档，未命中标题时生成单一兜底章节。
  * @param {string} text 导览资料纯文本。
  * @returns {Array<{id: string, title: string, content: string, keywords: string[]}>} 导览章节。
@@ -818,6 +973,7 @@ export function parseGuideSections(text) {
 }
 
 /**
+ * @description
  * 将结构化景点和导览章节转换为基础知识分块。
  * @param {ScenicSpotKnowledge[]} spots 景点列表。
  * @param {Array<object>} guideSections 导览章节。
@@ -892,6 +1048,7 @@ export function buildChunks(spots, guideSections) {
 }
 
 /**
+ * @description
  * 使用字段标记从压平文本中解析单条景点记录。
  * @private
  * @param {string} id 景点 ID。
@@ -944,6 +1101,7 @@ function parseSpotRecord(id, recordText) {
 }
 
 /**
+ * @description
  * 从名称与位置混合文本开头提取已知景点名，未知景点采用首个短语。
  * @private
  * @param {string} text 名称与位置文本。
@@ -984,6 +1142,7 @@ function extractSpotName(text) {
 }
 
 /**
+ * @description
  * 为景点构建中文短称、业务称呼和中英日韩繁体别名。
  * @private
  * @param {string} name 景点名称。
@@ -1046,6 +1205,7 @@ function buildAliases(name, scenicArea) {
 }
 
 /**
+ * @description
  * 读取资料目录内全部 Markdown 文件并构建补充知识文档。
  * @private
  * @param {string} sourceDir 资料目录。
@@ -1078,6 +1238,7 @@ function loadSupplementalMarkdown(sourceDir, spots) {
 }
 
 /**
+ * @description
  * 按 Markdown 标题切分文本；普通文本或无正文标题时回退为单一章节。
  * @private
  * @param {*} text 文档文本。
@@ -1092,7 +1253,11 @@ function parseTextSections(text, fileName) {
   let currentTitle = fallbackTitle;
   let content = [];
 
-  /** 将当前缓冲正文写入章节列表。 @returns {void} */
+  /**
+   * @description
+   * 将已累积的章节正文写入章节列表并清空缓冲区。
+   * @returns {void}
+   */
   const flush = () => {
     const value = content.join("\n").trim();
     if (value) {
@@ -1126,6 +1291,7 @@ function parseTextSections(text, fileName) {
 }
 
 /**
+ * @description
  * 根据标题中的多语言景点别名匹配景点 ID。
  * @private
  * @param {string} title 章节标题。
@@ -1141,6 +1307,7 @@ function matchLocalizedSpotId(title, spots) {
 }
 
 /**
+ * @description
  * 从文档文本提取命中的景点别名和 Unicode 字母数字词。
  * @private
  * @param {*} text 标题与正文。
@@ -1159,6 +1326,7 @@ function extractDocumentKeywords(text, spots) {
 }
 
 /**
+ * @description
  * 根据文件名 ASCII 部分生成稳定的补充文档 ID。
  * @private
  * @param {string} fileName 文件名。
@@ -1173,6 +1341,7 @@ function documentIdForFile(fileName) {
 }
 
 /**
+ * @description
  * 优先按文件名语言标记、其次按字符分布推断文档语言。
  * @private
  * @param {*} fileName 文件名。
@@ -1200,6 +1369,7 @@ function inferDocumentLanguage(fileName, text = "") {
 }
 
 /**
+ * @description
  * 对实体匹配文本执行 NFKC、转小写和空白规范化。
  * @private
  * @param {*} value 原始文本。
@@ -1210,6 +1380,7 @@ function normalizeSearchText(value) {
 }
 
 /**
+ * @description
  * 将非路线/贴士类导览章节关联到正文中提及的首个景点。
  * @private
  * @param {string} title 章节标题。
@@ -1228,6 +1399,7 @@ function matchSpotId(title, content, spots) {
 }
 
 /**
+ * @description
  * 按轻量 token 估算文本长度。
  *
  * 该估算器不依赖模型 SDK，适合低配置服务器的离线建索引：中日韩字符和
@@ -1245,15 +1417,18 @@ export function estimateTextTokens(value) {
 }
 
 /**
+ * @description
  * 将长文本按结构边界和 token 预算切分，并为相邻块保留有限重叠。
  *
  * 默认上限为 600 个估算 token、重叠 64 个估算 token，处于任务要求的
  * 300--600 / 50--80 区间。短文档不强行补齐到 300，避免把互不相关的章节
  * 合并；长句或长表格行才会退化为 Unicode 安全的窗口切分。
  * @param {string} text 文本。
- * @param {{maxTokens?: number, overlapTokens?: number}|number} [options={}] 预算选项；数字参数按最大 token 处理。
+ * @param {object|number} [options={}] 预算选项；数字参数按最大 token 处理。
+ * @param {number} [options.maxTokens=600] 单个分块的最大估算 token 数。
+ * @param {number} [options.overlapTokens=64] 相邻分块的重叠估算 token 数。
  * @returns {string[]} 有序文本分块。
- * @throws {TypeError} 文本不是字符串或预算参数无效时抛出。
+ * @throws {TypeError} 文本不是字符串时抛出。
  * @example
  * const chunks = splitLongText(text, { maxTokens: 500, overlapTokens: 64 });
  */
@@ -1323,6 +1498,7 @@ export function splitLongText(text, options = {}) {
 }
 
 /**
+ * @description
  * 规范化分块预算，避免环境变量或测试参数导致无穷循环。
  * @private
  * @param {*} value 原始值。
@@ -1338,6 +1514,7 @@ function normalizeChunkBudget(value, fallback, minimum, maximum = Number.MAX_SAF
 }
 
 /**
+ * @description
  * 按空行、列表行和中英文句末标点生成结构单元。
  * @private
  * @param {string} text 文本。
@@ -1354,6 +1531,7 @@ function splitTextUnits(text) {
 }
 
 /**
+ * @description
  * 将单个超长结构单元按估算 token 窗口切分。
  * @private
  * @param {string} text 单元文本。
@@ -1394,6 +1572,7 @@ function splitByTokenWindow(text, maxTokens, overlapTokens) {
 }
 
 /**
+ * @description
  * 取文本末尾不超过预算的完整 token 原子。
  * @private
  * @param {string} text 文本。
@@ -1413,6 +1592,7 @@ function takeTailByTokenBudget(text, budget) {
 }
 
 /**
+ * @description
  * 将文本转为可安全拼接的预算原子。
  * @private
  * @param {string} text 文本。
@@ -1460,6 +1640,7 @@ function tokenAtoms(text) {
 }
 
 /**
+ * @description
  * 判断字符是否属于以单字符预算更合适的东亚或西里尔文字。
  * @private
  * @param {string} char 单个 Unicode 码点。
@@ -1470,6 +1651,7 @@ function isCjkOrCyrillic(char) {
 }
 
 /**
+ * @description
  * 从中文基础资料中选择预定义业务关键词。
  * @private
  * @param {string} text 文本。
@@ -1513,6 +1695,7 @@ function extractKeywords(text) {
 }
 
 /**
+ * @description
  * 规范化 DOCX 提取文本中的换行、制表符和连续空格。
  * @private
  * @param {string} text 原始文本。
@@ -1523,10 +1706,11 @@ function normalizeText(text) {
 }
 
 /**
+ * @description
  * 断言源资料文件存在。
  * @private
  * @param {string} filePath 文件路径。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error & {statusCode: 404, code: "SOURCE_FILE_NOT_FOUND"}} 文件不存在时抛出。
  */
 function assertFile(filePath) {
@@ -1539,6 +1723,7 @@ function assertFile(filePath) {
 }
 
 /**
+ * @description
  * 为资料目录中的 XLSX/PDF 建立可见的处理记录，但默认不把运营分析表写入游客索引。
  * 上传流程会对显式标记为 `visitor_qa` 的同类文件执行实际解析。
  * @private
@@ -1575,6 +1760,7 @@ function loadSupplementalBinaryMetadata(sourceDir) {
 }
 
 /**
+ * @description
  * 校验知识快照的最小结构，阻止损坏 JSON 被设为活动版本。
  * @param {*} value 候选快照。
  * @returns {boolean} 结构完整时为 `true`。
@@ -1592,6 +1778,7 @@ function isValidKnowledgeSnapshot(value) {
 }
 
 /**
+ * @description
  * 生成由文档与分块内容决定的知识版本号；相同内容可稳定复用版本。
  * @param {{documents?: object[], chunks?: object[]}} knowledge 知识数据。
  * @returns {string} 版本号。
@@ -1618,6 +1805,7 @@ function createIndexVersion(knowledge) {
 }
 
 /**
+ * @description
  * 根据文档所有 child 的有序内容生成稳定指纹，用于跳过无变化的重建。
  * @private
  * @param {object[]} chunks 文档分块。
@@ -1634,10 +1822,11 @@ function createDocumentContentHash(chunks) {
 }
 
 /**
+ * @description
  * 将完整快照写入独立版本目录，完成校验后再原子切换活动指针。
  * @param {string} generatedDir 可写生成目录。
  * @param {KnowledgeBase} knowledge 知识快照。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error} 临时快照写入、校验或活动指针切换失败时抛出。
  * @private
  */
@@ -1671,11 +1860,12 @@ function writeKnowledgeSnapshot(generatedDir, knowledge) {
 }
 
 /**
+ * @description
  * 以两空格缩进和结尾换行写入 UTF-8 JSON。
  * @private
  * @param {string} filePath 输出路径。
  * @param {*} data 可序列化数据。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {TypeError|Error} 数据不可序列化或文件无法写入时抛出。
  */
 function writeJson(filePath, data) {

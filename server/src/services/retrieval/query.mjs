@@ -1,11 +1,37 @@
 /**
- * @fileoverview 检索查询规范化和受控改写。
+ * @fileoverview 检索查询规划模块。
+ * @description
+ * 对原始问题执行不依赖外部模型的规范化、受控同义改写、特征提取和复合问题拆分，
+ * 避免数字、否定词及景区专名在查询规划阶段发生语义漂移。
  */
 
 /**
- * 保留原问题语义的轻量规范化，不调用外部模型，避免数字、否定词和专名漂移。
+ * @typedef {object} QueryFeatures
+ * @description 从规范化查询中提取的检索约束特征。
+ * @property {string[]} negations 去重后的否定词。
+ * @property {string[]} numbers 去重后的数字及其单位。
+ * @property {string[]} entities 去重后的景区或景点实体。
+ * @property {string[]} intents 去重后的用户意图词。
+ */
+
+/**
+ * @typedef {object} QueryPlan
+ * @description 保留原始语义并可直接供多通道检索使用的查询计划。
+ * @property {string} original 去除首尾空白后的原始问题。
+ * @property {string} normalized 统一标点、空白和大小写后的问题。
+ * @property {string[]} variants 去重后的原问题、规范化问题和受控改写变体。
+ * @property {QueryFeatures} features 查询约束特征。
+ * @property {string[]} subQueries 最多三个局部子问题；简单问题为空数组。
+ */
+
+/**
+ * @description
+ * 构建保留原问题语义的轻量查询计划，不调用外部模型，
+ * 并提取否定、数字、实体、意图和可选子问题。
  * @param {*} query 原始问题。
- * @returns {{original: string, normalized: string, variants: string[], features: {negations: string[], numbers: string[], entities: string[], intents: string[]}}} 查询计划。
+ * @returns {QueryPlan} 可供检索通道消费的查询计划。
+ * @example
+ * const plan = buildQueryPlan("请问灵山大佛多高，并且几点开放？");
  */
 export function buildQueryPlan(query) {
   const original = String(query || "").trim();
@@ -36,7 +62,11 @@ export function buildQueryPlan(query) {
   };
 }
 
-/** @param {string} value 已规范化问题。 @returns {string} 受控改写结果。 */
+/**
+ * @description 对有限的高频表达执行确定性同义改写，不扩展原问题事实范围。
+ * @param {string} value 已规范化的问题。
+ * @returns {string} 受控改写后的查询文本。
+ */
 function applyControlledRewrites(value) {
   return value
     .replace(/多高/gu, "高度")
@@ -48,10 +78,11 @@ function applyControlledRewrites(value) {
 }
 
 /**
+ * @description
  * 将包含多个独立意图的复合问题拆成最多三个局部问题。
  * 只有检测到连接词且意图数至少为两个时才拆分，避免普通问句被过度切碎。
  * @param {string} value 已去除礼貌前缀的问题。
- * @param {{entities: string[], intents: string[]}} features 查询特征。
+ * @param {Pick<QueryFeatures, "entities"|"intents">} features 查询特征。
  * @returns {string[]} 子问题列表；简单问题返回空数组。
  */
 function splitComplexQuery(value, features) {

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 官方路线数据完整性测试。
+ * @description 验证官方路线数据保留人工路径、道路锚点并能解析到完整景点清单。
+ */
+
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'

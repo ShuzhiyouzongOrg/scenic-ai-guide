@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 服务端 SQLite 初始化脚本。
+ * @description 创建数据库结构、填充参考数据，并导入可用的官方游客行为分析数据。
+ */
 // Initialize the SQLite database for the API server: create tables, seed
 // reference data (admin user, digital-human config, scenic spots) and import the
 // official behaviour analytics Excel into the tourist_behavior table.

@@ -1,17 +1,41 @@
 /**
  * @fileoverview 为管理看板生成可重复替换的完整演示数据批次。
  *
- * 每次生成只清理 `demo_` 前缀的旧数据，不影响真实游客或导入数据，并在单个事务中写入会话、
+ * @description 每次生成只清理 `demo_` 前缀的旧数据，不影响真实游客或导入数据，并在单个事务中写入会话、
  * 消息、反馈、行为、路线选择和人工标注。
- *
- * @typedef {{id: string, name: string, type: string, minutes: number, nodes: string[], tags: string[]}} DemoRoute
- * @typedef {{question: string, answer: string, intent: string, emotion: string, rating: number, vote: string, comment: string, annotation: string}} ConversationScenario
+ */
+
+/**
+ * @typedef {object} DemoRoute
+ * @description 用于生成路线选择记录的演示路线模板。
+ * @property {string} id 路线模板 ID。
+ * @property {string} name 路线名称。
+ * @property {string} type 路线类型。
+ * @property {number} minutes 预计游览分钟数。
+ * @property {string[]} nodes 路线节点 ID。
+ * @property {string[]} tags 路线标签。
+ */
+
+/**
+ * @typedef {object} ConversationScenario
+ * @description 用于生成问答、反馈和人工标注的演示场景。
+ * @property {string} question 演示问题。
+ * @property {string} answer 演示答案。
+ * @property {string} intent 意图标签。
+ * @property {string} emotion 情绪标签。
+ * @property {number} rating 反馈评分。
+ * @property {string} vote 点赞或点踩标记。
+ * @property {string} comment 反馈意见。
+ * @property {string} annotation 人工标注类别。
  */
 import { randomBytes, randomInt } from "node:crypto";
 import { getDb } from "../db/database.mjs";
 import { invalidateBehaviorDatasetCache } from "./behaviorAnalytics.mjs";
 
-/** @type {string[]} 演示行为数据轮换使用的灵山景点名称。 */
+/**
+ * @description 定义演示行为数据轮换使用的灵山景点名称。
+ * @type {string[]} 演示行为数据轮换使用的灵山景点名称。
+ */
 const ATTRACTIONS = [
   "灵山胜境",
   "灵山大佛",
@@ -23,7 +47,10 @@ const ATTRACTIONS = [
   "佛教文化博览馆"
 ];
 
-/** @type {DemoRoute[]} 演示路线选择使用的路线模板。 */
+/**
+ * @description 定义演示路线选择使用的路线模板。
+ * @type {DemoRoute[]} 演示路线选择使用的路线模板。
+ */
 const ROUTES = [
   {
     id: "quick_30",
@@ -83,7 +110,10 @@ const ROUTES = [
   }
 ];
 
-/** @type {ConversationScenario[]} 演示对话、反馈和人工标注场景。 */
+/**
+ * @description 演示对话、反馈和人工标注场景。
+ * @type {ConversationScenario[]} 演示对话、反馈和人工标注场景。
+ */
 const CONVERSATION_SCENARIOS = [
   {
     question: "灵山大佛一共有多高？",
@@ -208,7 +238,7 @@ const CONVERSATION_SCENARIOS = [
 ];
 
 /**
- * 原子替换旧演示数据并生成新的多表数据批次。
+ * @description 原子替换旧演示数据并生成新的多表数据批次。
  * @returns {{batchId: string, generatedAt: string, counts: {visitorSessions: number, messages: number, feedback: number, touristBehavior: number, routeSelections: number, messageAnnotations: number, total: number}}} 批次标识、生成时间及各表写入数。
  * @throws {Error} 数据库语句准备或事务写入失败时透传异常，事务会整体回滚。
  * @example
@@ -301,7 +331,7 @@ export function generateDemoData() {
 }
 
 /**
- * 在内存中构造一次演示批次的全部数据库行。
+ * @description 在内存中构造一次演示批次的全部数据库行。
  * @private
  * @param {{batchId: string, generatedAt: string}} input 批次 ID 和 ISO 生成时间。
  * @returns {{sessions: object[], messages: object[], feedback: object[], behavior: object[], routes: object[], annotations: object[]}} 多表写入载荷。
@@ -432,7 +462,7 @@ function buildBatch({ batchId, generatedAt }) {
 }
 
 /**
- * 生成一条带随机消费、停留时长和满意度的游客行为数据库行。
+ * @description 生成一条带随机消费、停留时长和满意度的游客行为数据库行。
  * @private
  * @param {{batchId: string, index: number, now: number}} input 批次 ID、序号和基准毫秒时间。
  * @returns {object} `tourist_behavior` 表写入记录。
@@ -468,7 +498,7 @@ function buildBehaviorRow({ batchId, index, now }) {
 }
 
 /**
- * 根据人工标注类别和意图生成复核说明。
+ * @description 根据人工标注类别和意图生成复核说明。
  * @private
  * @param {string} label 标注类别。
  * @param {string} intent 对话意图。
@@ -481,7 +511,7 @@ function annotationNote(label, intent) {
 }
 
 /**
- * 在日期上增加分钟并输出 ISO 8601 时间。
+ * @description 在日期上增加分钟并输出 ISO 8601 时间。
  * @private
  * @param {Date} date 基准日期。
  * @param {number} minutes 增加的分钟数。
@@ -492,7 +522,7 @@ function addMinutes(date, minutes) {
 }
 
 /**
- * 使用 Fisher-Yates 算法返回输入数组的随机副本。
+ * @description 使用 Fisher-Yates 算法返回输入数组的随机副本。
  * @private
  * @template T
  * @param {T[]} items 输入数组。

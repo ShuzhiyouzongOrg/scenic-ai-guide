@@ -1,5 +1,10 @@
 /**
- * useHeaderBar - 顶部栏功能管理
+ * @fileoverview 统一管理顶部栏功能开关与显示状态。
+ * @description 合并静态顶栏配置和设置仓库状态，提供功能查询及状态计算结果。
+ */
+
+/**
+ * @description useHeaderBar - 顶部栏功能管理
  *
  * 统一管理顶部栏各个功能模块的显示状态和配置信息。
  * 提供灵活的功能开关控制，支持动态显示/隐藏顶部栏的各个功能按钮。
@@ -12,7 +17,7 @@
  * 4. 响应式状态 - 所有状态自动响应配置和 store 变化
  *
  * @module useHeaderBar
- * @author Scenic AI Guide Team
+ *
  */
 
 import { computed } from 'vue'
@@ -22,8 +27,11 @@ import { headerBarConfig } from '@/config/modules/headerBar'
 import { HeaderBarFeatureConfig } from '@/types'
 
 /**
- * 顶部栏功能管理
- * @returns 顶部栏功能相关的状态和方法
+ * @description 创建顶部栏功能配置、显示状态及功能清单查询接口。
+ * @returns {ReturnType<typeof useHeaderBar>} 顶部栏配置、各功能显示计算属性，以及功能配置和启停状态查询方法。
+ * @example
+ * const { shouldShowLanguage, isFeatureEnabled } = useHeaderBar()
+ * const canSearch = isFeatureEnabled('globalSearch')
  */
 export function useHeaderBar() {
   const settingStore = useSettingStore()
@@ -36,18 +44,18 @@ export function useHeaderBar() {
     storeToRefs(settingStore)
 
   /**
-   * 检查特定功能是否启用
-   * @param feature 功能名称
-   * @returns 是否启用
+   * @description 检查特定功能是否启用。
+   * @param {keyof HeaderBarFeatureConfig} feature 功能名称。
+   * @returns {boolean} 是否启用。
    */
   const isFeatureEnabled = (feature: keyof HeaderBarFeatureConfig): boolean => {
     return headerBarConfigRef.value[feature]?.enabled ?? false
   }
 
   /**
-   * 获取功能配置信息
-   * @param feature 功能名称
-   * @returns 功能配置信息
+   * @description 获取功能配置信息。
+   * @param {keyof HeaderBarFeatureConfig} feature 功能名称。
+   * @returns {HeaderBarFeatureConfig[keyof HeaderBarFeatureConfig]} 功能配置信息。
    */
   const getFeatureConfig = (feature: keyof HeaderBarFeatureConfig) => {
     return headerBarConfigRef.value[feature]
@@ -105,26 +113,26 @@ export function useHeaderBar() {
   })
 
   /**
-   * 检查功能是否启用（别名）
-   * @param feature 功能名称
-   * @returns 是否启用
+   * @description 检查功能是否启用（别名）。
+   * @param {keyof HeaderBarFeatureConfig} feature 功能名称。
+   * @returns {boolean} 是否启用。
    */
   const isFeatureActive = (feature: keyof HeaderBarFeatureConfig): boolean => {
     return isFeatureEnabled(feature)
   }
 
   /**
-   * 获取功能配置（别名）
-   * @param feature 功能名称
-   * @returns 功能配置
+   * @description 获取功能配置（别名）。
+   * @param {keyof HeaderBarFeatureConfig} feature 功能名称。
+   * @returns {HeaderBarFeatureConfig[keyof HeaderBarFeatureConfig]} 功能配置。
    */
   const getFeatureInfo = (feature: keyof HeaderBarFeatureConfig) => {
     return getFeatureConfig(feature)
   }
 
   /**
-   * 获取所有启用的功能列表
-   * @returns 启用的功能名称数组
+   * @description 获取所有启用的功能列表。
+   * @returns {(keyof HeaderBarFeatureConfig)[]} 启用的功能名称数组。
    */
   const getEnabledFeatures = (): (keyof HeaderBarFeatureConfig)[] => {
     return Object.keys(headerBarConfigRef.value).filter(
@@ -133,8 +141,8 @@ export function useHeaderBar() {
   }
 
   /**
-   * 获取所有禁用的功能列表
-   * @returns 禁用的功能名称数组
+   * @description 获取所有禁用的功能列表。
+   * @returns {(keyof HeaderBarFeatureConfig)[]} 禁用的功能名称数组。
    */
   const getDisabledFeatures = (): (keyof HeaderBarFeatureConfig)[] => {
     return Object.keys(headerBarConfigRef.value).filter(
@@ -143,16 +151,16 @@ export function useHeaderBar() {
   }
 
   /**
-   * 获取所有启用的功能（别名）
-   * @returns 启用的功能列表
+   * @description 获取所有启用的功能（别名）。
+   * @returns {(keyof HeaderBarFeatureConfig)[]} 启用的功能列表。
    */
   const getActiveFeatures = () => {
     return getEnabledFeatures()
   }
 
   /**
-   * 获取所有禁用的功能（别名）
-   * @returns 禁用的功能列表
+   * @description 获取所有禁用的功能（别名）。
+   * @returns {(keyof HeaderBarFeatureConfig)[]} 禁用的功能列表。
    */
   const getInactiveFeatures = () => {
     return getDisabledFeatures()

@@ -1,5 +1,10 @@
 /**
- * v-roles 角色权限指令
+ * @fileoverview 提供基于用户角色的 Vue 指令。
+ * @description 检查用户是否具备任一指定角色，并移除不满足条件的元素。
+ */
+
+/**
+ * @description 提供 `v-roles` 角色权限指令。
  *
  * 基于用户角色控制 DOM 元素的显示和隐藏。
  * 只要用户拥有指定角色中的任意一个，元素就会显示，否则从 DOM 中移除。
@@ -41,12 +46,16 @@
  * - 如需基于具体操作的细粒度权限控制，请使用 v-auth 指令
  *
  * @module directives/roles
- * @author Scenic AI Guide Team
+ *
  */
 
 import { useUserStore } from '@/store/modules/user'
 import { App, Directive, DirectiveBinding } from 'vue'
 
+/**
+ * @description 表示接收单个或多个角色代码并作用于 HTML 元素的 Vue 指令类型。
+ * @typedef {Directive<HTMLElement, string | string[]>} RolesDirective
+ */
 export type RolesDirective = Directive<HTMLElement, string | string[]>
 
 function checkRolePermission(el: HTMLElement, binding: DirectiveBinding<string | string[]>): void {
@@ -82,6 +91,13 @@ const rolesDirective: RolesDirective = {
   updated: checkRolePermission
 }
 
+/**
+ * @description 将角色权限指令以 `v-roles` 名称注册到 Vue 应用实例。
+ * @param {App} app 待注册全局指令的 Vue 应用实例。
+ * @returns {void} 无返回值。
+ * @example
+ * setupRolesDirective(app)
+ */
 export function setupRolesDirective(app: App): void {
   app.directive('roles', rolesDirective)
 }

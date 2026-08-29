@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 服务端基础完整性检查脚本。
+ * @description 确认启动所需源码、契约和生成数据文件存在。
+ */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 

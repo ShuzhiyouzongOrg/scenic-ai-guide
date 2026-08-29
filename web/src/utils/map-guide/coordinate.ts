@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 地图坐标系转换与距离计算工具。
+ * @description 在 WGS84、GCJ02、BD09 之间转换景区坐标，并使用球面公式计算两点距离。
+ */
+
 import type { CoordinateSystem, GuideCoordinate } from '@/types/map-guide'
 
 const PI = Math.PI
@@ -27,6 +32,13 @@ function longitudeDelta(latitude: number, longitude: number): number {
   return result
 }
 
+/**
+ * @description 将 WGS84 坐标转换为腾讯地图使用的 GCJ02 坐标；中国境外仅更新坐标系标识。
+ * @param {GuideCoordinate} coordinate WGS84 地理坐标。
+ * @returns {GuideCoordinate} 对应的 GCJ02 坐标。
+ * @example
+ * wgs84ToGcj02({ latitude: 31.35, longitude: 120.45, coordinateSystem: 'WGS84' })
+ */
 export function wgs84ToGcj02(coordinate: GuideCoordinate): GuideCoordinate {
   if (isOutsideChina(coordinate.latitude, coordinate.longitude)) {
     return { ...coordinate, coordinateSystem: 'GCJ02' }
@@ -46,6 +58,13 @@ export function wgs84ToGcj02(coordinate: GuideCoordinate): GuideCoordinate {
   }
 }
 
+/**
+ * @description 通过迭代误差修正将 GCJ02 坐标近似还原为 WGS84 坐标。
+ * @param {GuideCoordinate} coordinate GCJ02 地理坐标。
+ * @returns {GuideCoordinate} 迭代八次后的 WGS84 坐标。
+ * @example
+ * gcj02ToWgs84({ latitude: 31.35, longitude: 120.45, coordinateSystem: 'GCJ02' })
+ */
 export function gcj02ToWgs84(coordinate: GuideCoordinate): GuideCoordinate {
   if (isOutsideChina(coordinate.latitude, coordinate.longitude)) {
     return { ...coordinate, coordinateSystem: 'WGS84' }
@@ -62,6 +81,13 @@ export function gcj02ToWgs84(coordinate: GuideCoordinate): GuideCoordinate {
   return candidate
 }
 
+/**
+ * @description 将 GCJ02 坐标转换为百度地图使用的 BD09 坐标。
+ * @param {GuideCoordinate} coordinate GCJ02 地理坐标。
+ * @returns {GuideCoordinate} 对应的 BD09 坐标。
+ * @example
+ * gcj02ToBd09({ latitude: 31.35, longitude: 120.45, coordinateSystem: 'GCJ02' })
+ */
 export function gcj02ToBd09(coordinate: GuideCoordinate): GuideCoordinate {
   const x = coordinate.longitude
   const y = coordinate.latitude
@@ -74,6 +100,13 @@ export function gcj02ToBd09(coordinate: GuideCoordinate): GuideCoordinate {
   }
 }
 
+/**
+ * @description 将 BD09 坐标转换为 GCJ02 坐标。
+ * @param {GuideCoordinate} coordinate BD09 地理坐标。
+ * @returns {GuideCoordinate} 对应的 GCJ02 坐标。
+ * @example
+ * bd09ToGcj02({ latitude: 31.35, longitude: 120.45, coordinateSystem: 'BD09' })
+ */
 export function bd09ToGcj02(coordinate: GuideCoordinate): GuideCoordinate {
   const x = coordinate.longitude - 0.0065
   const y = coordinate.latitude - 0.006
@@ -86,6 +119,15 @@ export function bd09ToGcj02(coordinate: GuideCoordinate): GuideCoordinate {
   }
 }
 
+/**
+ * @description 将已标注坐标系的景区坐标转换为目标坐标系，并自动串联必要的中间转换。
+ * @param {GuideCoordinate} coordinate 待转换坐标及其来源坐标系。
+ * @param {CoordinateSystem} targetSystem 目标坐标系。
+ * @returns {GuideCoordinate} 目标坐标系下的新坐标对象。
+ * @throws {Error} 当来源坐标系或目标坐标系为 `UNKNOWN` 时抛出。
+ * @example
+ * transformCoordinate(point, 'GCJ02')
+ */
 export function transformCoordinate(
   coordinate: GuideCoordinate,
   targetSystem: CoordinateSystem
@@ -112,6 +154,15 @@ export function transformCoordinate(
   return gcj02ToWgs84(bd09ToGcj02(coordinate))
 }
 
+/**
+ * @description 将第二个坐标转换到第一个坐标的坐标系后，按 Haversine 公式计算球面距离。
+ * @param {GuideCoordinate} first 起点坐标及其坐标系。
+ * @param {GuideCoordinate} second 终点坐标及其坐标系。
+ * @returns {number} 两点之间的近似球面距离，单位为米。
+ * @throws {Error} 当任一坐标使用 `UNKNOWN` 坐标系且需要转换时抛出。
+ * @example
+ * distanceMeters(startCoordinate, endCoordinate)
+ */
 export function distanceMeters(first: GuideCoordinate, second: GuideCoordinate): number {
   const comparableSecond = transformCoordinate(second, first.coordinateSystem)
   const earthRadius = 6371008.8

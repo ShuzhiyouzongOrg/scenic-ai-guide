@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 检索追踪记录测试脚本。
+ * @description 验证检索链路指标落库、敏感字段清理、查询与保留策略。
+ */
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

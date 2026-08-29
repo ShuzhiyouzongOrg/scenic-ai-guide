@@ -1,28 +1,36 @@
 // @ts-nocheck -- 移植自 awesome-digital-human-live2d 的第三方 Live2D(Cubism SDK)代码，不纳入本项目严格类型检查
-/**
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
+/**
+ * @fileoverview Live2D WebGL 纹理管理器。
+ * @description 负责图片异步加载、纹理缓存、预乘透明度配置和纹理资源释放。
+ */
+
 import { csmVector, iterator } from '@framework/type/csmvector';
 import { LAppGlManager } from './lappglmanager';
 
 /**
- * テクスチャ管理クラス
- * 画像読み込み、管理を行うクラス。
+ * @class
+ * @description 管理当前 WebGL 上下文中的 Live2D 图片和纹理缓存。
+ * @example
+ * const textureManager = new LAppTextureManager();
  */
 export class LAppTextureManager {
   /**
-   * コンストラクタ
+   * @description 创建空的纹理信息向量。
    */
   public constructor() {
     this._textures = new csmVector<TextureInfo>();
   }
 
   /**
-   * 解放する。
+   * @description 删除全部 WebGL 纹理并释放纹理信息向量。
+   * @returns {void} 无返回值。
    */
   public release(): void {
     for (
@@ -36,11 +44,14 @@ export class LAppTextureManager {
   }
 
   /**
-   * 画像読み込み
-   *
-   * @param fileName 読み込む画像ファイルパス名
-   * @param usePremultiply Premult処理を有効にするか
-   * @return 画像情報、読み込み失敗時はnullを返す
+   * @description 异步加载 PNG 等浏览器图片，复用同路径缓存并创建 WebGL 纹理与 mipmap。
+   * @param {string} fileName 待加载图片的可访问地址。
+   * @param {boolean} usePremultiply 是否启用预乘透明度处理。
+   * @param {(textureInfo: TextureInfo) => void} callback 加载成功后的纹理回调。
+   * @param {(error: Error) => void} [onError] 图片加载失败回调。
+   * @returns {void} 无返回值。
+   * @example
+   * textureManager.createTextureFromPngFile(url, true, handleTexture, handleError);
    */
   public createTextureFromPngFile(
     fileName: string,
@@ -166,9 +177,8 @@ export class LAppTextureManager {
   }
 
   /**
-   * 画像の解放
-   *
-   * 配列に存在する画像全てを解放する。
+   * @description 删除并清空纹理向量中的全部 WebGL 纹理。
+   * @returns {void} 无返回值。
    */
   public releaseTextures(): void {
     for (let i = 0; i < this._textures.getSize(); i++) {
@@ -180,10 +190,9 @@ export class LAppTextureManager {
   }
 
   /**
-   * 画像の解放
-   *
-   * 指定したテクスチャの画像を解放する。
-   * @param texture 解放するテクスチャ
+   * @description 按 WebGL 纹理对象删除对应纹理和缓存记录。
+   * @param {WebGLTexture} texture 待释放的 WebGL 纹理。
+   * @returns {void} 无返回值。
    */
   public releaseTextureByTexture(texture: WebGLTexture): void {
     for (let i = 0; i < this._textures.getSize(); i++) {
@@ -199,10 +208,9 @@ export class LAppTextureManager {
   }
 
   /**
-   * 画像の解放
-   *
-   * 指定した名前の画像を解放する。
-   * @param fileName 解放する画像ファイルパス名
+   * @description 按原始文件地址删除对应纹理和缓存记录。
+   * @param {string} fileName 待释放纹理的图片地址。
+   * @returns {void} 无返回值。
    */
   public releaseTextureByFilePath(fileName: string): void {
     for (let i = 0; i < this._textures.getSize(); i++) {
@@ -216,8 +224,9 @@ export class LAppTextureManager {
   }
 
   /**
-   * setter
-   * @param glManager
+   * @description 绑定创建和销毁纹理所需的 WebGL 管理器。
+   * @param {LAppGlManager} glManager 当前画布的 WebGL 管理器。
+   * @returns {void} 无返回值。
    */
   public setGlManager(glManager: LAppGlManager): void {
     this._glManager = glManager;
@@ -228,7 +237,15 @@ export class LAppTextureManager {
 }
 
 /**
- * 画像情報構造体
+ * @class
+ * @typedef {object} TextureInfo
+ * @description 保存已加载图片及其 WebGL 纹理元数据。
+ * @property {HTMLImageElement} img 浏览器图片元素。
+ * @property {WebGLTexture|null} id WebGL 纹理对象。
+ * @property {number} width 图片宽度，单位为像素。
+ * @property {number} height 图片高度，单位为像素。
+ * @property {boolean} usePremultply 是否使用预乘透明度。
+ * @property {string} fileName 原始图片地址。
  */
 export class TextureInfo {
   img: HTMLImageElement; // 画像

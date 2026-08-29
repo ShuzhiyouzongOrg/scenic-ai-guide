@@ -1,5 +1,18 @@
+/**
+ * @fileoverview 项目更新日志数据模块。
+ * @description 按日期维护中文版本更新记录，并导出供更新日志页面使用的响应式数据。
+ */
 import { ref } from 'vue'
 
+/**
+ * @description 描述单日版本的日期、标题、更新条目和重新登录要求。
+ * @typedef {object} ProjectChangeLog
+ * @property {string} version 版本号或数据版本。
+ * @property {string} date 发布日期。
+ * @property {string} title 标题。
+ * @property {string[]} detail 详细说明或更新条目。
+ * @property {boolean} [requireReLogin] 更新后是否要求重新登录。
+ */
 export interface ProjectChangeLog {
   version: string
   date: string
@@ -9,6 +22,10 @@ export interface ProjectChangeLog {
 }
 
 // 从本项目 Git 提交记录按日期整理；标题与条目仅保留中文，便于后续继续追加正式版本说明。
+/**
+ * @description 按日期倒序维护的项目更新日志。
+ * @type {ProjectChangeLog[]}
+ */
 export const projectChangeLog: ProjectChangeLog[] = [
   {
     version: '2026-08-28',
@@ -267,4 +284,8 @@ export const projectChangeLog: ProjectChangeLog[] = [
   }
 ]
 
+/**
+ * @description 供更新日志页面消费的响应式日志列表。
+ * @type {import('vue').Ref<ProjectChangeLog[]>}
+ */
 export const upgradeLogList = ref(projectChangeLog)

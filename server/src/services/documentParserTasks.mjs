@@ -1,8 +1,59 @@
 /**
  * @fileoverview 文档解析任务的 SQLite 持久化与单步 worker。
  *
- * worker 每次只提交或查询一个短步骤，不在上传 HTTP 请求中长时间轮询；进程重启后，
+ * @description worker 每次只提交或查询一个短步骤，不在上传 HTTP 请求中长时间轮询；进程重启后，
  * `pending/waiting/running` 任务可继续执行。外部解析结果成功后才切换知识快照。
+ */
+
+/**
+ * @typedef {object} DocumentParserTaskInput
+ * @description 文档解析任务的幂等入队元数据。
+ * @property {string} documentId 知识文档 ID。
+ * @property {string} contentHash 文档内容哈希。
+ * @property {string} fileName 原始文件名。
+ * @property {string} [mimeType] MIME 类型。
+ */
+
+/**
+ * @typedef {object} DocumentParserTask
+ * @description 文档解析任务的管理端结构。
+ * @property {string} id 解析任务 ID。
+ * @property {string} documentId 知识文档 ID。
+ * @property {string} taskType 任务类型。
+ * @property {string} contentHash 文档内容哈希。
+ * @property {string} fileName 原始文件名。
+ * @property {string} mimeType MIME 类型。
+ * @property {string} status 当前任务状态。
+ * @property {string|null} externalJobId 云端任务 ID。
+ * @property {number} attempts 已尝试次数。
+ * @property {string} nextAttemptAt 下次执行时间。
+ * @property {string|null} leaseUntil 当前租约到期时间。
+ * @property {string|null} lastErrorCode 最近错误码。
+ * @property {string|null} lastErrorMessage 最近脱敏错误信息。
+ * @property {object|null} resultMetadata 解析结果元数据。
+ * @property {string} createdAt ISO 8601 创建时间。
+ * @property {string} updatedAt ISO 8601 更新时间。
+ */
+
+/**
+ * @typedef {object} DocumentParserWorkerOptions
+ * @description 单轮文档解析 worker 的可注入配置。
+ * @property {object} [config] 文档解析配置。
+ * @property {object} [client] 可注入的云解析客户端。
+ * @property {number} [limit] 单轮最大处理任务数。
+ * @property {number} [now] 可注入的 Unix 毫秒时间戳。
+ */
+
+/**
+ * @typedef {object} DocumentParserWorkerResult
+ * @description 单轮文档解析 worker 的执行统计。
+ * @property {"disabled"|"not_configured"|"not_ready"|"ok"} status worker 状态。
+ * @property {string} [errorCode] 客户端初始化失败时的稳定错误码。
+ * @property {number} processed 已抢占任务数。
+ * @property {number} waiting 等待或重试任务数。
+ * @property {number} succeeded 成功任务数。
+ * @property {number} failed 失败任务数。
+ * @property {number} skipped 因并发抢占而跳过的任务数。
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
@@ -25,9 +76,17 @@ import {
 import { documentTypeFor, sanitizeProcessingError } from "./knowledgeMetadata.mjs";
 
 /**
- * 把文档加入幂等解析队列。
- * @param {{documentId: string, contentHash: string, fileName: string, mimeType?: string}} input 文档任务元数据。
- * @returns {Record<string, *>} 已存在或新建的任务。
+ * @description 把文档加入幂等解析队列。
+ * @param {DocumentParserTaskInput} input 文档任务元数据。
+ * @returns {DocumentParserTask} 已存在或新建的任务。
+ * @throws {Error & {code: "DOCUMENT_PARSER_TASK_INVALID", statusCode: 422}} 必要任务元数据缺失时抛出。
+ * @throws {Error} 数据库初始化、写入或查询失败时透传异常。
+ * @example
+ * const task = enqueueDocumentParserTask({
+ *   documentId: "doc-1",
+ *   contentHash: "sha256-value",
+ *   fileName: "guide.pdf"
+ * });
  */
 export function enqueueDocumentParserTask({ documentId, contentHash, fileName, mimeType = "application/pdf" }) {
   if (!documentId || !contentHash || !fileName) {
@@ -50,9 +109,12 @@ export function enqueueDocumentParserTask({ documentId, contentHash, fileName, m
 }
 
 /**
- * 列出文档解析任务，供管理端或运维检查使用。
+ * @description 列出文档解析任务，供管理端或运维检查使用。
  * @param {{status?: string, limit?: number}} [options={}] 过滤与数量限制。
- * @returns {Array<Record<string, *>>} 任务列表。
+ * @returns {DocumentParserTask[]} 任务列表。
+ * @throws {Error} 数据库查询失败时透传异常。
+ * @example
+ * const waitingTasks = listDocumentParserTasks({ status: "waiting", limit: 20 });
  */
 export function listDocumentParserTasks({ status, limit = 50 } = {}) {
   const db = getDb();
@@ -64,11 +126,14 @@ export function listDocumentParserTasks({ status, limit = 50 } = {}) {
 }
 
 /**
- * 执行一轮文档解析任务。
+ * @description 执行一轮文档解析任务。
  *
  * 每个任务只做一次提交或状态查询；适合由 cron、systemd timer 或进程内定时器周期调用。
- * @param {{config?: object, client?: object, limit?: number, now?: number}} [options={}] worker选项。
- * @returns {Promise<{status: string, errorCode?: string, processed: number, waiting: number, succeeded: number, failed: number, skipped: number}>} 本轮统计。
+ * @param {DocumentParserWorkerOptions} [options={}] worker 选项。
+ * @returns {Promise<DocumentParserWorkerResult>} 本轮统计。
+ * @throws {Error} 数据库初始化或任务查询失败时透传异常；单个任务错误会转换为任务状态。
+ * @example
+ * const result = await runDocumentParserTasks({ limit: 1 });
  */
 export async function runDocumentParserTasks(options = {}) {
   const parserConfig = options.config || buildDocumentParserConfig();
@@ -115,7 +180,12 @@ export async function runDocumentParserTasks(options = {}) {
   return result;
 }
 
-/** @param {object} input worker处理输入。 @returns {Promise<"waiting"|"succeeded"|"failed">} 任务结果。 */
+/**
+ * @description 执行单个文档解析任务的一次提交、轮询或入库步骤。
+ * @param {object} input worker处理输入。
+ * @returns {Promise<"waiting"|"succeeded"|"failed">} 任务结果。
+ * @throws {Error} 失败状态或重试状态无法写入数据库时透传异常。
+ */
 async function processTask({ db, task, parserConfig, client, nowMs }) {
   try {
     const row = db.prepare("SELECT * FROM knowledge_documents WHERE id = ?").get(task.document_id);
@@ -217,7 +287,14 @@ async function processTask({ db, task, parserConfig, client, nowMs }) {
   }
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id 任务ID。 @param {number} leaseMs 租约时长。 @param {string} now 当前时间。 @returns {Record<string, *> | null} 抢占后的任务。 */
+/**
+ * @description 通过数据库租约原子抢占一个可执行的文档解析任务。
+ * @param {import("better-sqlite3").Database} db 数据库。
+ * @param {string} id 任务ID。
+ * @param {number} leaseMs 租约时长。
+ * @param {string} now 当前时间。
+ * @returns {Record<string, *> | null} 抢占后的任务。
+ */
 function claimTask(db, id, leaseMs, now) {
   const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString();
   const changed = db.prepare(
@@ -228,7 +305,15 @@ function claimTask(db, id, leaseMs, now) {
   return changed.changes ? db.prepare("SELECT * FROM knowledge_processing_tasks WHERE id = ?").get(id) : null;
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id 任务ID。 @param {string} externalJobId 外部ID。 @param {string} nextAt 下次时间。 @param {object} metadata 元数据。 @returns {void} */
+/**
+ * @description 将任务更新为等待外部解析结果的状态。
+ * @param {import("better-sqlite3").Database} db 数据库。
+ * @param {string} id 任务ID。
+ * @param {string} externalJobId 外部ID。
+ * @param {string} nextAt 下次时间。
+ * @param {object} metadata 元数据。
+ * @returns {void} 无返回值。
+ */
 function setTaskWaiting(db, id, externalJobId, nextAt, metadata = {}) {
   db.prepare(
     `UPDATE knowledge_processing_tasks
@@ -238,7 +323,15 @@ function setTaskWaiting(db, id, externalJobId, nextAt, metadata = {}) {
   ).run(externalJobId, nextAt, JSON.stringify(metadata), new Date().toISOString(), id);
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id 任务ID。 @param {string} nextAt 下次时间。 @param {string} code 错误码。 @param {string} message 错误消息。 @returns {void} */
+/**
+ * @description 将可重试任务恢复为待处理状态并记录错误。
+ * @param {import("better-sqlite3").Database} db 数据库。
+ * @param {string} id 任务ID。
+ * @param {string} nextAt 下次时间。
+ * @param {string} code 错误码。
+ * @param {string} message 错误消息。
+ * @returns {void} 无返回值。
+ */
 function setTaskRetry(db, id, nextAt, code, message) {
   db.prepare(
     `UPDATE knowledge_processing_tasks
@@ -248,7 +341,13 @@ function setTaskRetry(db, id, nextAt, code, message) {
   ).run(nextAt, code, message, new Date().toISOString(), id);
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id 任务ID。 @param {object} metadata 结果元数据。 @returns {void} */
+/**
+ * @description 将文档解析任务标记为成功并保存结果元数据。
+ * @param {import("better-sqlite3").Database} db 数据库。
+ * @param {string} id 任务ID。
+ * @param {object} metadata 结果元数据。
+ * @returns {void} 无返回值。
+ */
 function markTaskSucceeded(db, id, metadata = {}) {
   const now = new Date().toISOString();
   db.prepare(
@@ -258,7 +357,14 @@ function markTaskSucceeded(db, id, metadata = {}) {
   ).run(now, JSON.stringify(metadata), now, id);
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id 任务ID。 @param {string} code 错误码。 @param {string} message 错误消息。 @returns {void} */
+/**
+ * @description 将文档解析任务标记为失败并保存错误信息。
+ * @param {import("better-sqlite3").Database} db 数据库。
+ * @param {string} id 任务ID。
+ * @param {string} code 错误码。
+ * @param {string} message 错误消息。
+ * @returns {void} 无返回值。
+ */
 function markTaskFailed(db, id, code, message) {
   const now = new Date().toISOString();
   db.prepare(
@@ -268,7 +374,16 @@ function markTaskFailed(db, id, code, message) {
   ).run(now, code, message, now, id);
 }
 
-/** @param {import("better-sqlite3").Database} db 数据库。 @param {string} id 文档ID。 @param {string} status 文档状态。 @param {string|null} code 错误码。 @param {string|null} message 错误消息。 @param {object} [extra={}] 附加字段。 @returns {void} */
+/**
+ * @description 同步更新知识文档的解析阶段、错误和索引元数据。
+ * @param {import("better-sqlite3").Database} db 数据库。
+ * @param {string} id 文档ID。
+ * @param {string} status 文档状态。
+ * @param {string|null} code 错误码。
+ * @param {string|null} message 错误消息。
+ * @param {object} [extra={}] 附加字段。
+ * @returns {void} 无返回值。
+ */
 function updateDocumentParserState(db, id, status, code, message, extra = {}) {
   db.prepare(
     `UPDATE knowledge_documents SET status = ?, processing_stage = ?, error_code = ?,
@@ -289,7 +404,11 @@ function updateDocumentParserState(db, id, status, code, message, extra = {}) {
   );
 }
 
-/** @param {Record<string, *>} row 数据库任务行。 @returns {Record<string, *>} API任务。 */
+/**
+ * @description 将文档解析任务数据库行转换为 API 结构。
+ * @param {Record<string, *>} row 数据库任务行。
+ * @returns {Record<string, *>} API任务。
+ */
 function toTask(row) {
   if (!row) return null;
   return {
@@ -312,7 +431,12 @@ function toTask(row) {
   };
 }
 
-/** @param {Record<string, *>} row 数据库上传行。 @returns {string} 安全文件路径。 */
+/**
+ * @description 解析并校验上传文件位于受控上传目录内的存储路径。
+ * @param {Record<string, *>} row 数据库上传行。
+ * @returns {string} 安全文件路径。
+ * @throws {Error & {code: "INVALID_UPLOAD_PATH"}} 文件路径越过受控上传目录时抛出。
+ */
 function storedPathFor(row) {
   const uploadRoot = resolve(config.uploadDir);
   const storedPath = resolve(uploadRoot, String(row.stored_name || ""));
@@ -324,17 +448,30 @@ function storedPathFor(row) {
   return storedPath;
 }
 
-/** @param {number} nowMs 当前时间。 @param {number} delayMs 延迟。 @returns {string} ISO时间。 */
+/**
+ * @description 根据基准时间和延迟计算下一次执行时间。
+ * @param {number} nowMs 当前时间。
+ * @param {number} delayMs 延迟。
+ * @returns {string} ISO时间。
+ */
 function nextAttemptAt(nowMs, delayMs) {
   return new Date(nowMs + Math.max(0, delayMs)).toISOString();
 }
 
-/** @param {number} attempts 已尝试次数。 @returns {number} 退避毫秒数。 */
+/**
+ * @description 按尝试次数计算有上限的指数退避时长。
+ * @param {number} attempts 已尝试次数。
+ * @returns {number} 退避毫秒数。
+ */
 function retryDelay(attempts) {
   return Math.min(60_000, 1_000 * (2 ** Math.max(0, attempts - 1)));
 }
 
-/** @param {*} value JSON值。 @returns {object|null} 安全对象。 */
+/**
+ * @description 安全解析任务结果元数据 JSON。
+ * @param {*} value JSON值。
+ * @returns {object|null} 安全对象。
+ */
 function parseMetadata(value) {
   if (!value) return null;
   try {

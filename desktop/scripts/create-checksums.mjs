@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 桌面安装产物校验和生成脚本。
+ * @description 按命令行给定的扩展名筛选安装包，计算 SHA-256 摘要并写入校验清单。
+ */
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";

@@ -1,5 +1,10 @@
 /**
- * v-highlight 代码高亮指令
+ * @fileoverview 提供代码高亮、行号和复制按钮的 Vue 指令。
+ * @description 基于 highlight.js 分批处理代码块，并监听动态插入内容以避免重复渲染。
+ */
+
+/**
+ * @description 提供 `v-highlight` 代码高亮指令。
  *
  * 为代码块提供语法高亮、行号显示和一键复制功能。
  * 基于 highlight.js 实现，支持多种编程语言的语法高亮。
@@ -38,12 +43,16 @@
  * - 智能监听：只在有新代码块时才触发处理
  *
  * @module directives/highlight
- * @author Scenic AI Guide Team
+ *
  */
 
 import { App, Directive } from 'vue'
 import hljs from 'highlight.js'
 
+/**
+ * @description 约束代码高亮指令绑定到 HTML 元素，并使用 Vue 指令生命周期。
+ * @typedef {Directive<HTMLElement>} HighlightDirective
+ */
 export type HighlightDirective = Directive<HTMLElement>
 
 // 高亮代码
@@ -245,6 +254,13 @@ const highlightDirective: HighlightDirective = {
   }
 }
 
+/**
+ * @description 将代码高亮指令以 `v-highlight` 名称注册到 Vue 应用实例。
+ * @param {App} app 待注册全局指令的 Vue 应用实例。
+ * @returns {void} 无返回值。
+ * @example
+ * setupHighlightDirective(app)
+ */
 export function setupHighlightDirective(app: App) {
   app.directive('highlight', highlightDirective)
 }

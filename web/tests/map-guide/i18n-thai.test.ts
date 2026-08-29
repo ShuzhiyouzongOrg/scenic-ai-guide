@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 泰语国际化完整性测试。
+ * @description 验证泰语业务文案和框架文案对英文基准键及插值占位符的完整覆盖。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { LanguageEnum } from '../../src/enums/appEnum'

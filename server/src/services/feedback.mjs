@@ -1,7 +1,11 @@
 /**
  * @fileoverview 基于 SQLite 的游客反馈创建与查询服务。
- *
+ * @description 基于 SQLite 的游客反馈创建与查询服务。
+ */
+
+/**
  * @typedef {object} Feedback
+ * @description 创建或查询得到的游客反馈记录。
  * @property {string} id 反馈记录 ID。
  * @property {string} sessionId 会话 ID。
  * @property {string} messageId 被评价的消息 ID。
@@ -17,7 +21,7 @@ import { recordKnowledgeGapFromFeedback } from "./knowledgeGaps.mjs";
 import { recordRagExperimentFeedback } from "./ragExperiment.mjs";
 
 /**
- * 将数据库字段转换为对外反馈对象。
+ * @description 将数据库字段转换为对外反馈对象。
  * @private
  * @param {Record<string, *>} row SQLite 行对象或待写入记录。
  * @returns {Feedback} 使用驼峰字段名的反馈对象。
@@ -36,8 +40,14 @@ function toFeedback(row) {
 }
 
 /**
- * 规范化并保存一条游客反馈。
- * @param {{sessionId?: *, messageId?: *, rating?: *, vote?: *, emotion?: *, comment?: *}} [input={}] 反馈输入。
+ * @description 规范化并保存一条游客反馈。
+ * @param {object} [input={}] 反馈输入。
+ * @param {*} [input.sessionId] 游客会话 ID。
+ * @param {*} [input.messageId] 被反馈的消息 ID。
+ * @param {*} [input.rating] 数值评分。
+ * @param {*} [input.vote] 点赞或点踩标识。
+ * @param {*} [input.emotion] 情绪标签。
+ * @param {*} [input.comment] 反馈备注。
  * @returns {Feedback} 已保存的反馈记录。
  * @throws {Error} 当数据库初始化或写入失败时透传底层异常。
  * @example
@@ -77,7 +87,7 @@ export function createFeedback(input = {}) {
 }
 
 /**
- * 按创建顺序列出反馈，可限定到指定会话。
+ * @description 按创建顺序列出反馈，可限定到指定会话。
  * @param {{sessionId?: string}} [options={}] 查询选项。
  * @param {string} [options.sessionId=""] 会话 ID；为空时查询全部反馈。
  * @returns {Feedback[]} 反馈列表。

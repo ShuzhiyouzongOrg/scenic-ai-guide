@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 数字人配置与会话集成测试脚本。
+ * @description 覆盖配置增删改查、短期会话、签名校验、Web 启动参数和权限边界。
+ */
 import assert from "node:assert";
 
 process.env.SQLITE_PATH = ":memory:";

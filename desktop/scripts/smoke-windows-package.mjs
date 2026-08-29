@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Windows 安装包冒烟验证脚本。
+ * @description 解包 NSIS 安装器、启动实际桌面应用并校验服务、数据库、问答与数字人运行状态。
+ */
 import assert from "node:assert/strict";
 import {
   existsSync,
@@ -24,6 +28,12 @@ const localTemp = process.env.CI && process.env.RUNNER_TEMP
 mkdirSync(localTemp, { recursive: true });
 const extractionRoot = mkdtempSync(join(localTemp, "windows-installer-smoke-"));
 
+/**
+ * @description 使用打包依赖携带的 7-Zip 依次解出 NSIS 插件归档和桌面应用目录。
+ * @param {string} outputDirectory 包含唯一 Windows 安装器的输出目录。
+ * @returns {string} 解包后的桌面应用根目录。
+ * @throws {assert.AssertionError} 安装器数量、7-Zip、归档内容或解包命令不符合预期时抛出。
+ */
 function unpackInstaller(outputDirectory) {
   const installers = readdirSync(outputDirectory).filter((name) => name.endsWith(".exe"));
   assert.equal(installers.length, 1, `Expected one Windows installer, found: ${installers.join(", ")}`);

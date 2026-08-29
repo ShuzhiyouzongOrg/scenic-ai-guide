@@ -1,9 +1,14 @@
 // @ts-nocheck -- 移植自 awesome-digital-human-live2d 的第三方 Live2D(Cubism SDK)代码，不纳入本项目严格类型检查
-/**
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+/**
+ * @fileoverview Live2D 模型集合与交互管理器。
+ * @description 管理当前角色模型的创建、销毁、拖拽、点击、更新、投影和角色切换。
  */
 
 import { CubismMatrix44 } from '@framework/math/cubismmatrix44';
@@ -17,12 +22,16 @@ import { LAppSubdelegate } from './lappsubdelegate';
 import { ResourceModel } from '../resource';
 
 /**
- * サンプルアプリケーションにおいてCubismModelを管理するクラス
- * モデル生成と破棄、タップイベントの処理、モデル切り替えを行う。
+ * @class
+ * @description 管理单个画布中的 Live2D 模型实例及其交互和绘制流程。
+ * @example
+ * const manager = new LAppLive2DManager();
  */
 export class LAppLive2DManager {
   /**
-   * 現在のシーンで保持しているすべてのモデルを解放する
+   * @description 释放当前场景持有的全部模型并清空模型向量。
+   * @returns {void} 无返回值。
+   * @private
    */
   private releaseAllModel(): void {
     for (let index = 0; index < this._models.getSize(); index++) {
@@ -32,10 +41,10 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 画面をドラッグした時の処理
-   *
-   * @param x 画面のX座標
-   * @param y 画面のY座標
+   * @description 将视图拖拽坐标传递给当前模型以驱动视线和姿态。
+   * @param {number} x 视图坐标系中的横坐标。
+   * @param {number} y 视图坐标系中的纵坐标。
+   * @returns {void} 无返回值。
    */
   public onDrag(x: number, y: number): void {
     const model: LAppModel = this._models.at(0);
@@ -45,10 +54,10 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 画面をタップした時の処理
-   *
-   * @param x 画面のX座標
-   * @param y 画面のY座標
+   * @description 处理视图点击并在启用调试时输出点击坐标。
+   * @param {number} x 视图坐标系中的横坐标。
+   * @param {number} y 视图坐标系中的纵坐标。
+   * @returns {void} 无返回值。
    */
   public onTap(x: number, y: number): void {
     if (LAppDefine.DebugLogEnable) {
@@ -78,8 +87,8 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 画面を更新するときの処理
-   * モデルの更新処理及び描画処理を行う
+   * @description 根据画布宽高、视图矩阵和角色取景参数更新并绘制当前模型。
+   * @returns {void} 无返回值。
    */
   public onUpdate(): void {
     const { width, height } = this._subdelegate.getCanvas();
@@ -116,8 +125,7 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 次のシーンに切りかえる
-   * サンプルアプリケーションではモデルセットの切り替えを行う。
+   * @description 保留的示例场景切换说明；当前应用通过角色资源直接切换模型。
    */
   // public nextScene(): void {
   //   const no: number = (this._sceneIndex + 1) % LAppDefine.ModelDirSize;
@@ -125,9 +133,8 @@ export class LAppLive2DManager {
   // }
 
   /**
-   * シーンを切り替える
-   * サンプルアプリケーションではモデルセットの切り替えを行う。
-   * @param index
+   * @description 保留的示例场景索引切换说明；当前应用未启用该实现。
+   * @param {number} index 示例模型目录索引。
    */
   // private changeScene(index: number): void {
   //   this._sceneIndex = index;
@@ -151,6 +158,11 @@ export class LAppLive2DManager {
   //   this._models.pushBack(instance);
   // }
 
+  /**
+   * @description 复制外部视图矩阵，用于后续模型投影计算。
+   * @param {CubismMatrix44} m 待复制的四阶视图矩阵。
+   * @returns {void} 无返回值。
+   */
   public setViewMatrix(m: CubismMatrix44) {
     for (let i = 0; i < 16; i++) {
       this._viewMatrix.getArray()[i] = m.getArray()[i];
@@ -158,7 +170,7 @@ export class LAppLive2DManager {
   }
 
   /**
-   * モデルの追加
+   * @description 保留的示例模型添加说明；当前应用未启用该实现。
    */
   // public addModel(sceneIndex: number = 0): void {
   //   this._sceneIndex = sceneIndex;
@@ -166,7 +178,9 @@ export class LAppLive2DManager {
   // }
 
   /**
-   * コンストラクタ
+   * @description 创建空模型集合、默认视图矩阵和未绑定的子委托状态。
+   * @example
+   * const manager = new LAppLive2DManager();
    */
   public constructor() {
     this._subdelegate = null;
@@ -177,7 +191,8 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 解放する。
+   * @description 释放全部模型并清除当前角色引用。
+   * @returns {void} 无返回值。
    */
   public release(): void {
     this.releaseAllModel();
@@ -185,14 +200,23 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 初期化する。
-   * @param subdelegate
+   * @description 绑定所属画布子委托，并按当前角色状态同步模型。
+   * @param {LAppSubdelegate} subdelegate 所属画布子委托。
+   * @returns {void} 无返回值。
    */
   public initialize(subdelegate: LAppSubdelegate): void {
     this._subdelegate = subdelegate;
     this.changeCharacter(this._character);
   }
 
+  /**
+   * @description 释放旧模型，并根据角色入口地址和名称加载新模型。
+   * @param {ResourceModel|null} character 新角色资源；传入 `null` 时仅卸载当前模型。
+   * @returns {void} 无返回值。
+   * @throws {Error} 创建模型时当前环境缺少 Web Audio API 则抛出异常。
+   * @example
+   * manager.changeCharacter(character);
+   */
   public changeCharacter(character: ResourceModel | null) {
     if (character == null) {
       this.releaseAllModel();
@@ -215,7 +239,9 @@ export class LAppLive2DManager {
   }
 
   /**
-   * 自身が所属するSubdelegate
+   * @description 保存该模型管理器所属的画布子委托。
+   * @type {LAppSubdelegate|null}
+   * @private
    */
   private _subdelegate: LAppSubdelegate;
 
@@ -224,11 +250,21 @@ export class LAppLive2DManager {
   // private _sceneIndex: number; // 表示するシーンのインデックス値
   private _character: ResourceModel | null;
 
-  // モーション再生開始のコールバック関数
+  /**
+   * @description 在模型动作开始时输出调试消息。
+   * @param {ACubismMotion} self 已开始播放的动作实例。
+   * @returns {void} 无返回值。
+   * @type {(self: ACubismMotion) => void}
+   */
   beganMotion = (self: ACubismMotion): void => {
     LAppPal.printMessage('Motion Began');
   };
-  // モーション再生終了のコールバック関数
+  /**
+   * @description 在模型动作结束时输出调试消息。
+   * @param {ACubismMotion} self 已结束播放的动作实例。
+   * @returns {void} 无返回值。
+   * @type {(self: ACubismMotion) => void}
+   */
   finishedMotion = (self: ACubismMotion): void => {
     LAppPal.printMessage('Motion Finished');
   };

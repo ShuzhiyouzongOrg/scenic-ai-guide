@@ -1,5 +1,6 @@
 /**
- * 全局错误处理模块
+ * @fileoverview Vue、脚本、Promise 与静态资源的全局错误处理工具。
+ * @description 安装浏览器级错误监听器，并过滤 ResizeObserver 等已知无害噪声。
  *
  * 提供统一的错误捕获和处理机制
  *
@@ -27,15 +28,23 @@
  * - ResourceError: 静态资源加载失败
  *
  * @module utils/sys/error-handle
- * @author Scenic AI Guide Team
  */
 import type { App } from 'vue'
 
+/**
+ * @description 可忽略的浏览器布局观察器错误文本列表。
+ * @type {string[]}
+ */
 const IGNORABLE_SCRIPT_ERRORS = [
   'ResizeObserver loop completed with undelivered notifications.',
   'ResizeObserver loop limit exceeded'
 ]
 
+/**
+ * @description 从字符串或错误事件中提取可比较的错误消息。
+ * @param {Event | string} message 错误事件或消息文本。
+ * @returns {string} 规范化后的消息；无法提取时返回空字符串。
+ */
 function normalizeErrorMessage(message: Event | string): string {
   if (typeof message === 'string') {
     return message
@@ -48,6 +57,12 @@ function normalizeErrorMessage(message: Event | string): string {
   return ''
 }
 
+/**
+ * @description 判断脚本错误是否属于 ResizeObserver 或扩展注入产生的可忽略噪声。
+ * @param {Event | string} message 错误事件或消息文本。
+ * @param {string} [source] 错误脚本来源地址。
+ * @returns {boolean} 错误可忽略时返回 true。
+ */
 function isIgnorableScriptError(message: Event | string, source?: string): boolean {
   const normalizedMessage = normalizeErrorMessage(message)
 
@@ -69,7 +84,13 @@ function isIgnorableScriptError(message: Event | string, source?: string): boole
 }
 
 /**
- * Vue 运行时错误处理
+ * @description 记录 Vue 组件运行时错误及其组件实例和上下文信息。
+ * @param {unknown} err Vue 捕获的异常。
+ * @param {any} instance 发生异常的组件实例。
+ * @param {string} info Vue 提供的错误上下文说明。
+ * @returns {void} 无返回值。
+ * @example
+ * app.config.errorHandler = vueErrorHandler
  */
 export function vueErrorHandler(err: unknown, instance: any, info: string) {
   console.error('[VueError]', err, info, instance)
@@ -78,7 +99,15 @@ export function vueErrorHandler(err: unknown, instance: any, info: string) {
 }
 
 /**
- * 全局脚本错误处理
+ * @description 过滤无害脚本噪声并记录浏览器全局脚本错误。
+ * @param {Event | string} message 错误事件或消息文本。
+ * @param {string} [source] 错误脚本来源地址。
+ * @param {number} [lineno] 错误行号。
+ * @param {number} [colno] 错误列号。
+ * @param {Error} [error] 浏览器提供的 Error 实例。
+ * @returns {boolean} 始终返回 true，以阻止浏览器默认错误处理。
+ * @example
+ * window.onerror = scriptErrorHandler
  */
 export function scriptErrorHandler(
   message: Event | string,
@@ -97,7 +126,10 @@ export function scriptErrorHandler(
 }
 
 /**
- * Promise 未捕获错误处理
+ * @description 注册 unhandledrejection 监听器并记录未捕获的 Promise 拒绝原因。
+ * @returns {void} 无返回值。
+ * @example
+ * registerPromiseErrorHandler()
  */
 export function registerPromiseErrorHandler() {
   window.addEventListener('unhandledrejection', (event) => {
@@ -107,7 +139,10 @@ export function registerPromiseErrorHandler() {
 }
 
 /**
- * 资源加载错误处理 (img, script, css...)
+ * @description 在捕获阶段监听图片、脚本和样式链接的加载失败事件。
+ * @returns {void} 无返回值。
+ * @example
+ * registerResourceErrorHandler()
  */
 export function registerResourceErrorHandler() {
   window.addEventListener(
@@ -133,7 +168,11 @@ export function registerResourceErrorHandler() {
 }
 
 /**
- * 安装统一错误处理
+ * @description 为 Vue 应用和浏览器环境安装全部统一错误处理器。
+ * @param {App} app Vue 应用实例。
+ * @returns {void} 无返回值。
+ * @example
+ * setupErrorHandle(app)
  */
 export function setupErrorHandle(app: App) {
   app.config.errorHandler = vueErrorHandler

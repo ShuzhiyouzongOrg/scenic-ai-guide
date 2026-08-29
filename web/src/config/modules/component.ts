@@ -1,24 +1,13 @@
 /**
- * 全局组件配置
- *
- * 统一管理系统级全局组件的注册。
- * 这些组件会在应用启动时全局注册，可在任何地方使用。
- *
- * ## 主要功能
- *
- * - 组件配置 - 集中管理全局组件的配置信息
- * - 异步加载 - 使用 defineAsyncComponent 实现按需加载
- * - 开关控制 - 支持通过 enabled 字段启用/禁用组件
- * - 配置查询 - 提供工具函数快速查询组件配置
- *
- * @module config/component
- * @author Scenic AI Guide Team
+ * @fileoverview 全局组件配置模块。
+ * @description 声明可全局注册的组件元数据，并提供启用组件筛选和按键查询能力。
  */
 
 import { defineAsyncComponent } from 'vue'
 
 /**
- * 全局组件配置列表
+ * @description 可参与全局注册的 Vue 组件配置列表。
+ * @type {GlobalComponentConfig[]}
  */
 export const globalComponentsConfig: GlobalComponentConfig[] = [
   {
@@ -64,33 +53,51 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
 ]
 
 /**
- * 全局组件配置接口
+ * @description 描述一个全局 Vue 组件的名称、键、实现、启用状态和说明。
+ * @typedef {object} GlobalComponentConfig
+ * @property {string} name 名称。
+ * @property {string} key 配置键。
+ * @property {any} component Vue 组件实现。
+ * @property {boolean} [enabled] 是否启用。
+ * @property {string} [description] 说明文本。
  */
 export interface GlobalComponentConfig {
-  /** 组件名称 */
+  /**
+   * @description 组件名称
+   */
   name: string
-  /** 组件标识 */
+  /**
+   * @description 组件标识
+   */
   key: string
-  /** 组件 */
+  /**
+   * @description 组件
+   */
   component: any
-  /** 是否启用 */
+  /**
+   * @description 是否启用
+   */
   enabled?: boolean
-  /** 组件描述 */
+  /**
+   * @description 组件描述
+   */
   description?: string
 }
 
 /**
- * 获取启用的全局组件
- * @returns 已启用的组件配置列表
+ * @description 筛选已启用的全局组件配置。
+ * @returns {GlobalComponentConfig[]} 未显式禁用、可参与全局注册的组件配置列表。
+ * @example
+ * const result = getEnabledGlobalComponents()
  */
 export const getEnabledGlobalComponents = () => {
   return globalComponentsConfig.filter((config) => config.enabled !== false)
 }
 
 /**
- * 根据 key 获取组件配置
- * @param key 组件标识
- * @returns 组件配置对象
+ * @description 按配置键查找全局组件。
+ * @param {string} key 配置键。
+ * @returns {GlobalComponentConfig | undefined} 匹配的全局组件配置；不存在对应键时返回 `undefined`。
  */
 export const getGlobalComponentByKey = (key: string) => {
   return globalComponentsConfig.find((config) => config.key === key)

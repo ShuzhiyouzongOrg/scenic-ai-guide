@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 桌面运行环境筛选与序列化测试。
+ * @description 验证白名单保留、敏感配置排除、必需字段检查和 dotenv 转义行为。
+ */
 import assert from "node:assert/strict";
 
 import {

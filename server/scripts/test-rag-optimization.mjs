@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG 优化功能综合测试脚本。
+ * @description 覆盖 PDF/XLSX 解析、分块、元数据、混合检索、缓存、上传和知识版本切换。
+ */
 import assert from "node:assert";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -516,12 +520,23 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 生成含标题行和单条数据行的 XLSX 工作簿夹具。
+ * @param {Array<*>} headers 表头。
+ * @param {Array<*>} row 数据行。
+ * @returns {Buffer} XLSX 二进制内容。
+ */
 function workbook(headers, row) {
   const book = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet([headers, row]), "景点");
   return XLSX.write(book, { type: "buffer", bookType: "xlsx" });
 }
 
+/**
+ * @description 生成包含单个 UTF-16BE 文本操作符的最小 PDF 夹具。
+ * @param {string} text 页面文本。
+ * @returns {Buffer} PDF 二进制内容。
+ */
 function textPdf(text) {
   const bytes = Buffer.from(`\ufeff${text}`, "utf16le");
   const swapped = Buffer.alloc(bytes.length);
@@ -539,6 +554,12 @@ function textPdf(text) {
   return Buffer.from(`%PDF-1.4\n${objects.join("\n")}\n%%EOF`, "latin1");
 }
 
+/**
+ * @description 向 ZIP 二进制末尾追加最小中央目录项。
+ * @param {Buffer} buffer 原始 ZIP 或 XLSX 内容。
+ * @param {string} fileName 目录项文件名。
+ * @returns {Buffer} 追加目录项后的内容。
+ */
 function appendZipDirectoryEntry(buffer, fileName) {
   const name = Buffer.from(fileName, "utf8");
   const entry = Buffer.alloc(46 + name.length);
@@ -550,6 +571,14 @@ function appendZipDirectoryEntry(buffer, fileName) {
   return Buffer.concat([buffer, entry]);
 }
 
+/**
+ * @description 追加带指定压缩前后大小的 ZIP 中央目录项，用于膨胀率测试。
+ * @param {Buffer} buffer 原始 ZIP 或 XLSX 内容。
+ * @param {string} fileName 目录项文件名。
+ * @param {number} compressedSize 声明压缩大小。
+ * @param {number} uncompressedSize 声明解压大小。
+ * @returns {Buffer} 追加压力目录项后的内容。
+ */
 function appendZipPressureEntry(buffer, fileName, compressedSize, uncompressedSize) {
   const name = Buffer.from(fileName, "utf8");
   const entry = Buffer.alloc(46 + name.length);

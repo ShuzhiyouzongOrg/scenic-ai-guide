@@ -1,12 +1,13 @@
 /**
  * @fileoverview 管理员与游客账号密码散列工具。
+ * @description 使用带独立随机盐的 scrypt 格式生成和校验管理员及游客密码。
  *
  * 使用 scrypt 和每个密码独立的随机盐，存储格式为 `scrypt$<saltHex>$<hashHex>`。
  */
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 /**
- * 生成带随机盐的 scrypt 密码散列。
+ * @description 生成带随机盐的 scrypt 密码散列。
  *
  * @param {string|number} plain 明文密码；非字符串值按字符串处理。
  * @returns {string} 可直接持久化的版本化散列字符串。
@@ -21,7 +22,7 @@ export function hashPassword(plain) {
 }
 
 /**
- * 以恒定时间比较明文密码和已存储的 scrypt 散列。
+ * @description 以恒定时间比较明文密码和已存储的 scrypt 散列。
  *
  * @param {string|number} plain 待验证的明文密码。
  * @param {string} stored `hashPassword` 生成的存储值。

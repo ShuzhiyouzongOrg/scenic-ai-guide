@@ -1,17 +1,13 @@
 /**
- * 顶部栏功能配置
- *
- * 统一管理顶部栏各个功能模块的启用状态。
- * 通过修改此配置文件可以快速启用或禁用顶部栏的功能按钮。
- *
- * @module config/headerBar
- * @author Scenic AI Guide Team
+ * @fileoverview 顶部栏功能配置模块。
+ * @description 集中控制菜单、刷新、搜索、全屏、语言、设置和主题切换等顶部栏功能。
  */
 
 import { HeaderBarFeatureConfig } from '@/types'
 
 /**
- * 顶部栏功能配置对象
+ * @description 顶部栏各功能的启用状态与说明。
+ * @type {HeaderBarFeatureConfig}
  */
 export const headerBarConfig: HeaderBarFeatureConfig = {
   menuButton: {
@@ -52,4 +48,8 @@ export const headerBarConfig: HeaderBarFeatureConfig = {
   }
 }
 
+/**
+ * @description 导出只读应用配置，防止运行期误改。
+ * @type {Readonly<import('@/types/config').AppConfig>}
+ */
 export default headerBarConfig

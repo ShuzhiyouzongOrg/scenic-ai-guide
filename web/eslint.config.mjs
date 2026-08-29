@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Web 工程 ESLint 扁平化配置。
+ * @description 汇总 JavaScript、TypeScript、Vue 与 Prettier 规则，并声明自动导入全局变量。
+ */
+
 // 从 URL 和路径模块中导入必要的功能
 import fs from 'fs'
 import path, { dirname } from 'path'
@@ -19,6 +24,12 @@ const autoImportConfig = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '.auto-import.json'), 'utf-8')
 )
 
+/**
+ * @description 导出 Web 源码使用的 ESLint 扁平化配置数组。
+ * @type {import('eslint').Linter.Config[]}
+ * @example
+ * pnpm lint
+ */
 export default [
   // 指定文件匹配规则
   {

@@ -1,4 +1,14 @@
-// 自定义四点旋转SVG
+/**
+ * @fileoverview 提供全局加载状态使用的四点旋转 SVG 模板。
+ * @description 统一定义可继承主题色的轻量加载图形，供组件直接嵌入页面。
+ */
+
+/**
+ * @description 可继承 `--theme-color` 的四点旋转加载图形源码。
+ * @type {string}
+ * @example
+ * loadingElement.innerHTML = fourDotsSpinnerSvg
+ */
 export const fourDotsSpinnerSvg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
     <style>

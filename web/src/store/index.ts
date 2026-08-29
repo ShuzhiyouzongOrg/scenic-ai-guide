@@ -1,32 +1,16 @@
 /**
- * Pinia Store 配置模块
- *
- * 提供全局状态管理的初始化和配置
- *
- * ## 主要功能
- *
- * - Pinia Store 实例创建
- * - 持久化插件配置（pinia-plugin-persistedstate）
- * - 版本化存储键管理
- * - 自动数据迁移（跨版本）
- * - LocalStorage 序列化配置
- * - Store 初始化函数
- *
- * ## 持久化策略
- *
- * - 使用 StorageKeyManager 生成版本化的存储键
- * - 格式：sys-v{version}-{storeId}
- * - 自动迁移旧版本数据到当前版本
- * - 使用 localStorage 作为存储介质
- *
- * @module store/index
- * @author Scenic AI Guide Team
+ * @fileoverview Pinia 状态管理入口。
+ * @description 创建支持持久化的 Pinia 实例，并向 Vue 应用安装状态管理。
  */
 import type { App } from 'vue'
 import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import { StorageKeyManager } from '@/utils/storage/storage-key-manager'
 
+/**
+ * @description 启用持久化插件的 Pinia 实例。
+ * @type {object}
+ */
 export const store = createPinia()
 
 // 创建存储键管理器实例
@@ -45,7 +29,9 @@ store.use(
 )
 
 /**
- * 初始化 Store
+ * @description 将已配置持久化插件的 Pinia 实例安装到 Vue 应用。
+ * @param {App<Element>} app 待安装状态管理插件的 Vue 应用实例。
+ * @returns {void} 状态管理实例安装完成后不返回值。
  */
 export function initStore(app: App<Element>): void {
   app.use(store)

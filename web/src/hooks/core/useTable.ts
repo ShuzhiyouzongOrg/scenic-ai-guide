@@ -1,5 +1,10 @@
 /**
- * useTable - 企业级表格数据管理方案
+ * @fileoverview 提供表格请求、分页、搜索、缓存和动态列的一体化管理。
+ * @description 根据 API 函数自动推导类型，并封装多种刷新策略与生命周期清理。
+ */
+
+/**
+ * @description useTable - 企业级表格数据管理方案
  *
  * 功能完整的表格数据管理解决方案，专为后台管理系统设计。
  * 封装了表格开发中的所有常见需求，让你专注于业务逻辑。
@@ -14,7 +19,7 @@
  * 6. 列配置管理 - 动态显示/隐藏列、列排序、配置持久化、批量操作（可选）
  *
  * @module useTable
- * @author Scenic AI Guide Team
+ *
  */
 
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, readonly } from 'vue'
@@ -41,77 +46,150 @@ type InferApiParams<T> = T extends (params: infer P) => any ? P : never
 type InferApiResponse<T> = T extends (params: any) => Promise<infer R> ? R : never
 type InferRecordType<T> = T extends Api.Common.PaginatedResponse<infer U> ? U : never
 
-// 优化的配置接口 - 支持自动类型推导
+/**
+ * @description 定义表格请求、响应转换、性能策略、生命周期回调和调试选项。
+ * @interface UseTableConfig
+ * @template TApiFn API 请求函数类型。
+ * @template TRecord 根据 API 响应推导出的行记录类型。
+ * @template TParams 根据 API 函数推导出的请求参数类型。
+ * @template TResponse 根据 API 函数推导出的原始响应类型。
+ * @property {object} core API、默认参数、分页字段和可选列工厂等核心配置。
+ * @property {object} [transform] 行数据转换和响应适配配置。
+ * @property {object} [performance] 缓存、防抖及缓存容量配置。
+ * @property {object} [hooks] 请求成功、失败、缓存命中和表单重置回调。
+ * @property {object} [debug] 日志开关与日志级别配置。
+ */
 export interface UseTableConfig<
   TApiFn extends (params: any) => Promise<any> = (params: any) => Promise<any>,
   TRecord = InferRecordType<InferApiResponse<TApiFn>>,
   TParams = InferApiParams<TApiFn>,
   TResponse = InferApiResponse<TApiFn>
 > {
-  // 核心配置
+  /**
+   * @description API、默认请求参数、分页字段和可选列工厂等核心配置。
+   */
   core: {
-    /** API 请求函数 */
+    /**
+     * @description API 请求函数
+     */
     apiFn: TApiFn
-    /** 默认请求参数 */
+    /**
+     * @description 默认请求参数
+     */
     apiParams?: Partial<TParams>
-    /** 排除 apiParams 中的属性 */
+    /**
+     * @description 排除 apiParams 中的属性
+     */
     excludeParams?: string[]
-    /** 是否立即加载数据 */
+    /**
+     * @description 是否立即加载数据
+     */
     immediate?: boolean
-    /** 列配置工厂函数 */
+    /**
+     * @description 列配置工厂函数
+     */
     columnsFactory?: () => ColumnOption<TRecord>[]
-    /** 自定义分页字段映射 */
+    /**
+     * @description 自定义分页字段映射
+     */
     paginationKey?: {
-      /** 当前页码字段名，默认为 'current' */
+      /**
+       * @description 当前页码字段名，默认为 'current'
+       */
       current?: string
-      /** 每页条数字段名，默认为 'size' */
+      /**
+       * @description 每页条数字段名，默认为 'size'
+       */
       size?: string
     }
   }
 
-  // 数据处理
+  /**
+   * @description 行数据转换与原始响应适配配置。
+   */
   transform?: {
-    /** 数据转换函数 */
+    /**
+     * @description 数据转换函数
+     */
     dataTransformer?: (data: TRecord[]) => TRecord[]
-    /** 响应数据适配器 */
+    /**
+     * @description 响应数据适配器
+     */
     responseAdapter?: (response: TResponse) => ApiResponse<TRecord>
   }
 
-  // 性能优化
+  /**
+   * @description 请求缓存、防抖时长与缓存容量配置。
+   */
   performance?: {
-    /** 是否启用缓存 */
+    /**
+     * @description 是否启用缓存
+     */
     enableCache?: boolean
-    /** 缓存时间（毫秒） */
+    /**
+     * @description 缓存时间（毫秒）
+     */
     cacheTime?: number
-    /** 防抖延迟时间（毫秒） */
+    /**
+     * @description 防抖延迟时间（毫秒）
+     */
     debounceTime?: number
-    /** 最大缓存条数限制 */
+    /**
+     * @description 最大缓存条数限制
+     */
     maxCacheSize?: number
   }
 
-  // 生命周期钩子
+  /**
+   * @description 数据请求、缓存命中、加载状态和表单重置回调。
+   */
   hooks?: {
-    /** 数据加载成功回调（仅网络请求成功时触发） */
+    /**
+     * @description 数据加载成功回调（仅网络请求成功时触发）
+     */
     onSuccess?: (data: TRecord[], response: ApiResponse<TRecord>) => void
-    /** 错误处理回调 */
+    /**
+     * @description 错误处理回调
+     */
     onError?: (error: TableError) => void
-    /** 缓存命中回调（从缓存获取数据时触发） */
+    /**
+     * @description 缓存命中回调（从缓存获取数据时触发）
+     */
     onCacheHit?: (data: TRecord[], response: ApiResponse<TRecord>) => void
-    /** 加载状态变化回调 */
+    /**
+     * @description 加载状态变化回调
+     */
     onLoading?: (loading: boolean) => void
-    /** 重置表单回调函数 */
+    /**
+     * @description 重置表单回调函数
+     */
     resetFormCallback?: () => void
   }
 
-  // 调试配置
+  /**
+   * @description 内部日志输出开关与日志级别配置。
+   */
   debug?: {
-    /** 是否启用日志输出 */
+    /**
+     * @description 是否启用日志输出
+     */
     enableLog?: boolean
-    /** 日志级别 */
+    /**
+     * @description 日志级别
+     */
     logLevel?: 'info' | 'warn' | 'error'
   }
 }
 
+/**
+ * @description 根据 API 函数自动推导请求与行数据类型，并创建表格分页、搜索、缓存及动态列控制器。
+ * @template TApiFn 接收请求参数并返回 Promise 的 API 函数类型。
+ * @param {UseTableConfig<TApiFn>} config 表格核心配置及可选的数据转换、性能、钩子和调试配置。
+ * @returns {ReturnType<typeof useTable<TApiFn>>} 由核心实现生成的响应式表格状态与操作方法集合。
+ * @example
+ * const table = useTable({ core: { apiFn: fetchScenicList, immediate: true } })
+ * await table.fetchData()
+ */
 export function useTable<TApiFn extends (params: any) => Promise<any>>(
   config: UseTableConfig<TApiFn>
 ) {
@@ -119,7 +197,7 @@ export function useTable<TApiFn extends (params: any) => Promise<any>>(
 }
 
 /**
- * useTable 的核心实现 - 强大的表格数据管理 Hook
+ * @description useTable 的核心实现 - 强大的表格数据管理 Hook
  *
  * 提供完整的表格解决方案，包括：
  * - 数据获取与缓存
@@ -660,103 +738,188 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   // 优化的返回值结构
   return {
     // 数据相关
-    /** 表格数据 */
+    /**
+     * @description 表格数据
+     */
     data,
-    /** 数据加载状态 */
+    /**
+     * @description 数据加载状态
+     */
     loading: readonly(loading),
-    /** 错误状态 */
+    /**
+     * @description 错误状态
+     */
     error: readonly(error),
-    /** 数据是否为空 */
+    /**
+     * @description 数据是否为空
+     */
     isEmpty: computed(() => data.value.length === 0),
-    /** 是否有数据 */
+    /**
+     * @description 是否有数据
+     */
     hasData,
 
     // 分页相关
-    /** 分页状态信息 */
+    /**
+     * @description 分页状态信息
+     */
     pagination: readonly(pagination),
-    /** 移动端分页配置 */
+    /**
+     * @description 移动端分页配置
+     */
     paginationMobile: mobilePagination,
-    /** 页面大小变化处理 */
+    /**
+     * @description 页面大小变化处理
+     */
     handleSizeChange,
-    /** 当前页变化处理 */
+    /**
+     * @description 当前页变化处理
+     */
     handleCurrentChange,
 
     // 搜索相关 - 统一前缀
-    /** 搜索参数 */
+    /**
+     * @description 搜索参数
+     */
     searchParams,
-    /** 替换搜索参数（适用于表单查询，避免旧字段残留） */
+    /**
+     * @description 替换搜索参数（适用于表单查询，避免旧字段残留）
+     */
     replaceSearchParams,
-    /** 重置搜索参数 */
+    /**
+     * @description 重置搜索参数
+     */
     resetSearchParams,
 
     // 数据操作 - 更明确的操作意图
-    /** 加载数据 */
+    /**
+     * @description 加载数据
+     */
     fetchData: getData,
-    /** 获取数据 */
+    /**
+     * @description 获取数据
+     */
     getData: getDataByPage,
-    /** 获取数据（防抖） */
+    /**
+     * @description 获取数据（防抖）
+     */
     getDataDebounced: debouncedGetDataByPage,
-    /** 清空数据 */
+    /**
+     * @description 清空数据
+     */
     clearData,
 
     // 刷新策略
-    /** 全量刷新：清空所有缓存，重新获取数据（适用于手动刷新按钮） */
+    /**
+     * @description 全量刷新：清空所有缓存，重新获取数据（适用于手动刷新按钮）
+     */
     refreshData,
-    /** 轻量刷新：仅清空当前搜索条件的缓存，保持分页状态（适用于定时刷新） */
+    /**
+     * @description 轻量刷新：仅清空当前搜索条件的缓存，保持分页状态（适用于定时刷新）
+     */
     refreshSoft,
-    /** 新增后刷新：回到第一页并清空分页缓存（适用于新增数据后） */
+    /**
+     * @description 新增后刷新：回到第一页并清空分页缓存（适用于新增数据后）
+     */
     refreshCreate,
-    /** 更新后刷新：保持当前页，仅清空当前搜索缓存（适用于更新数据后） */
+    /**
+     * @description 更新后刷新：保持当前页，仅清空当前搜索缓存（适用于更新数据后）
+     */
     refreshUpdate,
-    /** 删除后刷新：智能处理页码，避免空页面（适用于删除数据后） */
+    /**
+     * @description 删除后刷新：智能处理页码，避免空页面（适用于删除数据后）
+     */
     refreshRemove,
 
     // 缓存控制
-    /** 缓存统计信息 */
+    /**
+     * @description 缓存统计信息
+     */
     cacheInfo,
-    /** 清除缓存，根据不同的业务场景选择性地清理缓存： */
+    /**
+     * @description 清除缓存，根据不同的业务场景选择性地清理缓存：
+     */
     clearCache,
     // 支持4种清理策略
     // clearCache(CacheInvalidationStrategy.CLEAR_ALL, '手动刷新')     // 清空所有缓存
     // clearCache(CacheInvalidationStrategy.CLEAR_CURRENT, '搜索数据') // 只清空当前搜索条件的缓存
     // clearCache(CacheInvalidationStrategy.CLEAR_PAGINATION, '新增数据') // 清空分页相关缓存
     // clearCache(CacheInvalidationStrategy.KEEP_ALL, '保持缓存')      // 不清理任何缓存
-    /** 清理已过期的缓存条目，释放内存空间 */
+    /**
+     * @description 清理已过期的缓存条目，释放内存空间
+     */
     clearExpiredCache,
 
     // 请求控制
-    /** 取消当前请求 */
+    /**
+     * @description 取消当前请求
+     */
     cancelRequest,
 
     // 列配置 (如果提供了 columnsFactory)
     ...(columnConfig && {
-      /** 表格列配置 */
+      /**
+       * @description 表格列配置
+       */
       columns,
-      /** 列显示控制 */
+      /**
+       * @description 列显示控制
+       */
       columnChecks,
-      /** 新增列 */
+      /**
+       * @description 新增列
+       */
       addColumn: columnConfig.addColumn,
-      /** 删除列 */
+      /**
+       * @description 删除列
+       */
       removeColumn: columnConfig.removeColumn,
-      /** 切换列显示状态 */
+      /**
+       * @description 切换列显示状态
+       */
       toggleColumn: columnConfig.toggleColumn,
-      /** 更新列配置 */
+      /**
+       * @description 更新列配置
+       */
       updateColumn: columnConfig.updateColumn,
-      /** 批量更新列配置 */
+      /**
+       * @description 批量更新列配置
+       */
       batchUpdateColumns: columnConfig.batchUpdateColumns,
-      /** 重新排序列 */
+      /**
+       * @description 重新排序列
+       */
       reorderColumns: columnConfig.reorderColumns,
-      /** 获取指定列配置 */
+      /**
+       * @description 获取指定列配置
+       */
       getColumnConfig: columnConfig.getColumnConfig,
-      /** 获取所有列配置 */
+      /**
+       * @description 获取所有列配置
+       */
       getAllColumns: columnConfig.getAllColumns,
-      /** 重置所有列配置到默认状态 */
+      /**
+       * @description 重置所有列配置到默认状态
+       */
       resetColumns: columnConfig.resetColumns
     })
   }
 }
 
-// 重新导出类型和枚举，方便使用
+/**
+ * @description 重导出表格缓存失效策略枚举，供业务刷新场景选择清理范围。
+ * @see CacheInvalidationStrategy
+ */
 export { CacheInvalidationStrategy } from '../../utils/table/tableCache'
+/**
+ * @description 重导出表格 API 响应与缓存条目类型。
+ * @see ApiResponse
+ * @see CacheItem
+ */
 export type { ApiResponse, CacheItem } from '../../utils/table/tableCache'
+/**
+ * @description 重导出基础请求参数与标准化表格错误类型。
+ * @see BaseRequestParams
+ * @see TableError
+ */
 export type { BaseRequestParams, TableError } from '../../utils/table/tableUtils'

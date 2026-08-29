@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 桌面端 Node SQLite 运行时测试。
+ * @description 以 Electron 兼容环境变量调用服务端数据库测试，确认内置 SQLite 路径可用。
+ */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";

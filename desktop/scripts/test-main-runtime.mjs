@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Electron 主进程静态回归测试。
+ * @description 读取主进程、预加载及构建脚本源码，校验启动保护、IPC 桥接和运行时约束。
+ */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 

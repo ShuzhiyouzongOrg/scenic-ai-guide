@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 检索阈值候选评估脚本。
+ * @description 在黄金问题集上扫描检索分数，生成可用于调整回答和澄清阈值的统计报告。
+ */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { hybridSearch } from "../src/services/retrieval.mjs";
@@ -59,6 +63,13 @@ if (outputFlag) {
   writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
+/**
+ * @description 按回调生成的键分组，并为每组计算阈值指标。
+ * @param {object[]} rows 已评测案例。
+ * @param {(row: object) => *} keyFor 分组键生成函数。
+ * @param {object} thresholds 候选阈值。
+ * @returns {Record<string, object>} 排序后的分组指标。
+ */
 function groupMetrics(rows, keyFor, thresholds) {
   const groups = new Map();
   for (const row of rows) {
@@ -72,6 +83,12 @@ function groupMetrics(rows, keyFor, thresholds) {
     .map(([key, values]) => [key, measure(values, thresholds)]));
 }
 
+/**
+ * @description 使用候选阈值计算回答召回、无答案准确率和均衡分数。
+ * @param {object[]} rows 已评测案例。
+ * @param {object} thresholds 候选阈值。
+ * @returns {object} 混淆矩阵派生指标和决策原因统计。
+ */
 function measure(rows, thresholds) {
   let truePositive = 0;
   let falseNegative = 0;
@@ -103,6 +120,12 @@ function measure(rows, thresholds) {
   };
 }
 
+/**
+ * @description 根据范围决策、证据覆盖和通道分数判断是否应回答。
+ * @param {object} result 检索响应。
+ * @param {{minRuleScore: number, minBm25Score: number, minQueryCoverage: number}} thresholds 判定阈值。
+ * @returns {boolean} 满足回答条件时为 `true`。
+ */
 function classify(result, thresholds) {
   if (result.decision?.reason === "scope_blocked" || result.results.length === 0) return false;
   const coverage = Number(result.confidence?.evidenceCoverage || 0);
@@ -112,14 +135,31 @@ function classify(result, thresholds) {
     || (result.spotMatches || []).some((spot) => spot.confidence >= 0.8);
 }
 
+/**
+ * @description 按 JSON 表示去重阈值配置。
+ * @param {object[]} values 阈值配置列表。
+ * @returns {object[]} 保持首次出现顺序的唯一配置。
+ */
 function uniqueProfiles(values) {
   return [...new Map(values.map((value) => [JSON.stringify(value), value])).values()];
 }
 
+/**
+ * @description 计算并保留四位小数的比率。
+ * @param {number} value 分子。
+ * @param {number} total 分母。
+ * @returns {number} 比率；分母为零时返回 `0`。
+ */
 function rate(value, total) {
   return total === 0 ? 0 : Number((value / total).toFixed(4));
 }
 
+/**
+ * @description 计算比率，并在没有样本时返回空值。
+ * @param {number} value 分子。
+ * @param {number} total 分母。
+ * @returns {number|null} 比率；分母为零时返回 `null`。
+ */
 function rateOrNull(value, total) {
   return total === 0 ? null : rate(value, total);
 }

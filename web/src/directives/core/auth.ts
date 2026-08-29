@@ -1,5 +1,10 @@
 /**
- * v-auth 权限指令
+ * @fileoverview 提供基于路由权限标识的 Vue 指令。
+ * @description 在后端权限模式下校验当前路由授权列表，并移除未授权元素。
+ */
+
+/**
+ * @description 提供 `v-auth` 权限指令。
  *
  * 适用于后端权限控制模式，基于权限标识控制 DOM 元素的显示和隐藏。
  * 如果用户没有对应权限，元素将从 DOM 中移除。
@@ -29,12 +34,16 @@
  * - 权限列表从当前路由的 meta.authList 中获取
  *
  * @module directives/auth
- * @author Scenic AI Guide Team
+ *
  */
 
 import { router } from '@/router'
 import { App, Directive, DirectiveBinding } from 'vue'
 
+/**
+ * @description 表示接收单个权限标识并作用于 HTML 元素的 Vue 指令类型。
+ * @typedef {Directive<HTMLElement, string>} AuthDirective
+ */
 export type AuthDirective = Directive<HTMLElement, string>
 
 function checkAuthPermission(el: HTMLElement, binding: DirectiveBinding<string>): void {
@@ -61,6 +70,13 @@ const authDirective: AuthDirective = {
   updated: checkAuthPermission
 }
 
+/**
+ * @description 将操作权限指令以 `v-auth` 名称注册到 Vue 应用实例。
+ * @param {App} app 待注册全局指令的 Vue 应用实例。
+ * @returns {void} 无返回值。
+ * @example
+ * setupAuthDirective(app)
+ */
 export function setupAuthDirective(app: App): void {
   app.directive('auth', authDirective)
 }

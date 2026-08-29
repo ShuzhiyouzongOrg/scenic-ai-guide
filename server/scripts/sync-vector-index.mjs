@@ -1,5 +1,6 @@
 /**
- * 将当前活动知识快照同步到百炼 Embedding 与 Qdrant。
+ * @fileoverview 远程向量索引同步脚本。
+ * @description 将当前活动知识快照经百炼 Embedding 同步至 Qdrant，并输出索引版本摘要。
  * 仅在显式配置 `RAG_REMOTE_ENABLED=true` 和全部凭据后访问外部服务。
  */
 import { loadKnowledge } from "../src/services/knowledgeBuild.mjs";

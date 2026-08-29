@@ -1,17 +1,20 @@
 /**
  * @fileoverview SQLite 持久化、迁移和参考数据初始化模块。
+ * @description 为 Node 服务与 Electron 内置 SQLite 提供统一同步访问接口，并维护知识快照与参考数据。
  *
  * 数据库按需打开并在模块内缓存。普通服务端使用 `better-sqlite3`；Electron 桌面运行时通过
  * `NodeSqliteDatabase` 适配内置 `node:sqlite`，对上层暴露相同的同步 API。测试未设置
  * `SQLITE_PATH` 时使用内存数据库，从而保证进程级隔离。
- *
- * @typedef {{
- *   prepare(sql: string): {get(...args: unknown[]): any, all(...args: unknown[]): any[], run(...args: unknown[]): any},
- *   exec(sql: string): DatabaseLike,
- *   pragma(source: string): unknown[],
- *   transaction(callback: Function): Function,
- *   close(): void
- * }} DatabaseLike
+ */
+
+/**
+ * @typedef {object} DatabaseLike
+ * @description 项目服务层依赖的同步 SQLite 最小接口。
+ * @property {(sql: string) => {get(...args: unknown[]): any, all(...args: unknown[]): any[], run(...args: unknown[]): any}} prepare 创建预编译语句。
+ * @property {(sql: string) => DatabaseLike} exec 执行 SQL 文本。
+ * @property {(source: string) => unknown[]} pragma 执行 SQLite PRAGMA。
+ * @property {(callback: Function) => Function} transaction 创建同步事务包装函数。
+ * @property {() => void} close 关闭数据库连接。
  */
 
 import { createRequire } from "node:module";
@@ -20,13 +23,19 @@ import { config } from "../config.mjs";
 import { loadKnowledge } from "../services/knowledgeBuild.mjs";
 import { hashPassword } from "./password.mjs";
 
-/** @type {DatabaseLike|null} 当前进程复用的数据库实例。 */
+/**
+ * @description 当前进程复用的数据库实例。
+ * @type {DatabaseLike|null}
+ */
 let db = null;
-/** @type {NodeRequire} 用于从 ESM 加载原生 CommonJS SQLite 驱动。 */
+/**
+ * @description 用于从 ESM 加载原生 CommonJS SQLite 驱动。
+ * @type {NodeRequire}
+ */
 const require = createRequire(import.meta.url);
 
 /**
- * 根据运行环境创建 SQLite 驱动实例。
+ * @description 根据运行环境创建 SQLite 驱动实例。
  *
  * @param {string} path SQLite 文件路径或 `:memory:`。
  * @returns {DatabaseLike} 同步数据库适配器。
@@ -51,12 +60,14 @@ function createDatabase(path) {
 }
 
 /**
- * 将 Electron 内置 `node:sqlite` 包装成项目所需的 `better-sqlite3` 子集。
+ * @description 将 Electron 内置 `node:sqlite` 包装成项目所需的 `better-sqlite3` 子集。
  *
+ * @class
  * @private
  */
 class NodeSqliteDatabase {
   /**
+   * @description 创建基于 `node:sqlite` 的同步数据库适配器。
    * @param {string} path SQLite 文件路径或 `:memory:`。
    * @param {new (path: string) => any} DatabaseSync `node:sqlite` 的同步数据库构造器。
    * @throws {Error} 数据库文件无法打开或驱动初始化失败时抛出。
@@ -66,7 +77,7 @@ class NodeSqliteDatabase {
   }
 
   /**
-   * 创建可执行的 SQL 预编译语句。
+   * @description 创建可执行的 SQL 预编译语句。
    * @param {string} sql SQL 文本。
    * @returns {any} `node:sqlite` StatementSync。
    * @throws {Error} SQL 无法编译时透传 SQLite 异常。
@@ -76,7 +87,7 @@ class NodeSqliteDatabase {
   }
 
   /**
-   * 执行一段无需返回行集的 SQL。
+   * @description 执行一段无需返回行集的 SQL。
    * @param {string} sql SQL 文本。
    * @returns {NodeSqliteDatabase} 当前适配器，支持链式调用。
    * @throws {Error} SQL 执行失败时透传 SQLite 异常。
@@ -87,7 +98,7 @@ class NodeSqliteDatabase {
   }
 
   /**
-   * 执行 SQLite PRAGMA 读取或赋值语句。
+   * @description 执行 SQLite PRAGMA 读取或赋值语句。
    * @param {string} source 不含 `PRAGMA` 前缀的表达式。
    * @returns {unknown[]} 查询行；赋值操作返回空数组。
    * @throws {Error} PRAGMA 无效或执行失败时透传 SQLite 异常。
@@ -102,7 +113,7 @@ class NodeSqliteDatabase {
   }
 
   /**
-   * 将回调包装为同步事务，并在异常时自动回滚。
+   * @description 将回调包装为同步事务，并在异常时自动回滚。
    * @template {(...args: any[]) => any} T
    * @param {T} callback 事务主体。
    * @returns {T} 可调用的事务包装函数。
@@ -123,7 +134,7 @@ class NodeSqliteDatabase {
   }
 
   /**
-   * 关闭底层数据库连接。
+   * @description 关闭底层数据库连接。
    * @returns {void}
    * @throws {Error} 连接关闭失败时透传 SQLite 异常。
    */
@@ -132,7 +143,10 @@ class NodeSqliteDatabase {
   }
 }
 
-/** @type {Readonly<Record<string, string>>} 内置数字人的产品展示名称。 */
+/**
+ * @description 内置数字人的产品展示名称。
+ * @type {Readonly<Record<string, string>>}
+ */
 const DIGITAL_HUMAN_NAMES = {
   receptionMale: "景行·灵山迎宾使（男）",
   receptionFemale: "灵悦·莲心礼宾使（女）",
@@ -143,18 +157,36 @@ const DIGITAL_HUMAN_NAMES = {
   live2dKei: "知远·坛城研学使（男）",
   live2dHibiki: "清响·禅旅伙伴（男）"
 };
-/** @type {string} 新建数字人配置的默认欢迎语。 */
+/**
+ * @description 新建数字人配置的默认欢迎语。
+ * @type {string}
+ */
 const DEFAULT_DIGITAL_HUMAN_WELCOME = "您好，我是灵山胜境 AI 导游，很高兴为您服务。";
-/** @type {string} 历史迎宾女声音色，用于兼容迁移识别。 */
+/**
+ * @description 历史迎宾女声音色，用于兼容迁移识别。
+ * @type {string}
+ */
 const LEGACY_RECEPTION_FEMALE_VOICE = "x6_zhantingnvjiedai_pro";
-/** @type {string} 当前获授权的迎宾女声音色。 */
+/**
+ * @description 当前获授权的迎宾女声音色。
+ * @type {string}
+ */
 const LICENSED_RECEPTION_FEMALE_VOICE = "x6_jingqudaolannvsheng_mini";
-/** @type {string} 历史 Live2D 男声音色，用于兼容迁移识别。 */
+/**
+ * @description 历史 Live2D 男声音色，用于兼容迁移识别。
+ * @type {string}
+ */
 const LEGACY_LIVE2D_MALE_TTS_VOICE = "x4_pengfei";
-/** @type {string} 当前 Live2D 男声音色。 */
+/**
+ * @description 当前 Live2D 男声音色。
+ * @type {string}
+ */
 const LIVE2D_MALE_TTS_VOICE = "x6_zhantingnanjiedai_pro";
 
-/** @type {string} 创建所有业务表与索引的幂等 DDL。 */
+/**
+ * @description 创建所有业务表与索引的幂等 DDL。
+ * @type {string}
+ */
 const DDL = `
 CREATE TABLE IF NOT EXISTS admin_users (
   id TEXT PRIMARY KEY,
@@ -499,7 +531,7 @@ CREATE INDEX IF NOT EXISTS idx_web_vitals_version_metric_time
 `;
 
 /**
- * 解析当前进程应使用的 SQLite 地址。
+ * @description 解析当前进程应使用的 SQLite 地址。
  * @returns {string} 显式路径的绝对值，或未配置时的 `:memory:`。
  * @private
  */
@@ -512,7 +544,7 @@ function resolveSqlitePath() {
 }
 
 /**
- * 获取已迁移并完成参考数据初始化的单例数据库。
+ * @description 获取已迁移并完成参考数据初始化的单例数据库。
  *
  * @returns {DatabaseLike} 可同步执行查询和事务的数据库实例。
  * @throws {Error} 驱动加载、目录访问、迁移或种子数据写入失败时抛出。
@@ -536,11 +568,14 @@ export function getDb() {
 }
 
 /**
- * 将活动 JSON 快照的版本和分块元数据事务式同步到 SQLite，供一致性审计和后续迁移使用。
+ * @description 将活动 JSON 快照的版本和分块元数据事务式同步到 SQLite，供一致性审计和后续迁移使用。
  * JSON 仍是当前运行时只读快照；SQLite 保留可查询的版本与分块副本。
  * @param {DatabaseLike} instance 数据库连接。
  * @param {object|null} knowledge 知识快照。
  * @returns {{indexVersion: string, chunks: number}|null} 同步摘要。
+ * @throws {Error} 事务、SQL 写入或快照数据处理失败时抛出。
+ * @example
+ * const summary = syncKnowledgeSnapshot(getDb(), knowledge);
  */
 export function syncKnowledgeSnapshot(instance, knowledge) {
   if (!instance || !knowledge?.indexVersion || !Array.isArray(knowledge.chunks)) return null;
@@ -667,7 +702,7 @@ export function syncKnowledgeSnapshot(instance, knowledge) {
 }
 
 /**
- * 对数据库执行幂等建表、补列和参考数据迁移。
+ * @description 对数据库执行幂等建表、补列和参考数据迁移。
  *
  * @param {DatabaseLike} instance 待迁移数据库。
  * @returns {void}
@@ -706,7 +741,7 @@ export function migrate(instance) {
 // existing table, so databases created before a column was added need the new
 // columns back-filled. Each entry is applied only when the column is absent.
 /**
- * 为旧版数据库补充当前版本要求但尚不存在的列。
+ * @description 为旧版数据库补充当前版本要求但尚不存在的列。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @throws {Error} 表结构读取或 `ALTER TABLE` 失败时抛出。
@@ -764,11 +799,14 @@ function addMissingColumns(instance) {
 }
 
 /**
- * 将旧数据库中由新增列默认值误标为游客问答的运营资料重新隔离。
+ * @description 将旧数据库中由新增列默认值误标为游客问答的运营资料重新隔离。
  *
  * 该迁移只匹配明确的行为分析或运营统计文件名，重复执行不会改变结果。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {number} 本次修正的文档数量。
+ * @throws {Error} SQL 预编译或更新失败时透传 SQLite 异常。
+ * @example
+ * const changed = backfillLegacyKnowledgeScopes(getDb());
  */
 export function backfillLegacyKnowledgeScopes(instance) {
   const result = instance.prepare(
@@ -785,9 +823,12 @@ export function backfillLegacyKnowledgeScopes(instance) {
 }
 
 /**
- * 将旧数据库中的非游客资料默认访问范围收紧为管理员，避免新增列默认值过宽。
+ * @description 将旧数据库中的非游客资料默认访问范围收紧为管理员，避免新增列默认值过宽。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {number} 修正文档与分块总数。
+ * @throws {Error} SQL 预编译或更新失败时透传 SQLite 异常。
+ * @example
+ * const changed = backfillLegacyAccessScopes(getDb());
  */
 export function backfillLegacyAccessScopes(instance) {
   const documents = instance.prepare(
@@ -805,7 +846,7 @@ export function backfillLegacyAccessScopes(instance) {
 // human, admin account, scenic-spot catalogue). Heavy behaviour analytics rows
 // are imported separately (scripts/db-init.mjs or lazily in behaviorAnalytics).
 /**
- * 在单个事务中写入角色、管理员、数字人和景点参考数据。
+ * @description 在单个事务中写入角色、管理员、数字人和景点参考数据。
  *
  * @param {DatabaseLike} instance 已完成建表的数据库实例。
  * @returns {void}
@@ -830,7 +871,7 @@ export function seedReferenceData(instance) {
 }
 
 /**
- * 写入管理员、运营人员和游客三个内置角色及默认权限。
+ * @description 写入管理员、运营人员和游客三个内置角色及默认权限。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -869,7 +910,7 @@ function seedSystemRoles(instance) {
 }
 
 /**
- * 在管理员账号不存在时创建配置文件指定的初始账号。
+ * @description 在管理员账号不存在时创建配置文件指定的初始账号。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -896,7 +937,7 @@ function seedAdminUser(instance) {
 }
 
 /**
- * 写入默认启用的讯飞数字人配置并更新未修改过的历史种子。
+ * @description 写入默认启用的讯飞数字人配置并更新未修改过的历史种子。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -949,7 +990,7 @@ function seedDigitalHuman(instance) {
 // free model set — 2 male-presenting (Kei, Hibiki) and 2 female-presenting
 // (Haru, Hiyori); gender labels are approximate and only guide selection.
 /**
- * 写入完整的讯飞与 Live2D 数字人目录。
+ * @description 写入完整的讯飞与 Live2D 数字人目录。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -1020,7 +1061,7 @@ function seedDigitalHumanCatalog(instance) {
 // exact fixture into the deployment database. Remove only that known row and
 // restore the shipped scenic-guide avatar when the fixture was active.
 /**
- * 将旧测试数字人记录升级为当前可用配置。
+ * @description 将旧测试数字人记录升级为当前可用配置。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -1055,7 +1096,7 @@ function migrateLegacyDigitalHumanTestFixture(instance) {
 // Rename only names shipped by earlier versions. Administrator-defined names
 // are deliberately left untouched.
 /**
- * 将历史数字人名称迁移到当前产品命名。
+ * @description 将历史数字人名称迁移到当前产品命名。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -1102,7 +1143,7 @@ function migrateLegacyDigitalHumanNames(instance) {
 // but writeText fails its TTS licence check. Migrate only the untouched built-in
 // row so administrator-defined avatar and voice combinations remain unchanged.
 /**
- * 将已停用的讯飞音色替换为当前授权音色，同时保护用户自定义记录。
+ * @description 将已停用的讯飞音色替换为当前授权音色，同时保护用户自定义记录。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -1128,7 +1169,7 @@ function migrateUnsupportedXfyunVoices(instance) {
 }
 
 /**
- * 判断记录是否仍等同于历史迎宾女声默认种子。
+ * @description 判断记录是否仍等同于历史迎宾女声默认种子。
  * @param {Record<string, unknown>|undefined} row 数据库记录。
  * @returns {boolean} 可安全自动迁移时为 `true`。
  * @private
@@ -1157,7 +1198,7 @@ function isUntouchedLegacyReceptionFemaleSeed(row) {
 // mock tone instead of speech. Only migrate untouched built-in rows; custom
 // administrator voice choices are left unchanged.
 /**
- * 将 Live2D 历史男声音色迁移到当前可用音色。
+ * @description 将 Live2D 历史男声音色迁移到当前可用音色。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -1182,7 +1223,7 @@ function migrateUnsupportedLive2dVoices(instance) {
 }
 
 /**
- * 判断 Live2D 记录是否仍保持给定历史种子的默认值。
+ * @description 判断 Live2D 记录是否仍保持给定历史种子的默认值。
  * @param {Record<string, unknown>|undefined} row 数据库记录。
  * @param {Record<string, unknown>} seed 对照种子。
  * @returns {boolean} 未经用户定制时为 `true`。
@@ -1209,7 +1250,7 @@ function isUntouchedLegacyLive2dSeed(row, seed) {
 }
 
 /**
- * 将知识库中的结构化景点写入管理端景点表，已存在记录则保留并更新。
+ * @description 将知识库中的结构化景点写入管理端景点表，已存在记录则保留并更新。
  * @param {DatabaseLike} instance 数据库实例。
  * @returns {void}
  * @private
@@ -1258,7 +1299,7 @@ function seedScenicSpots(instance) {
 
 // Test/maintenance helper: drop the memoized handle so the next getDb() reopens.
 /**
- * 关闭并清空模块缓存的数据库实例。
+ * @description 关闭并清空模块缓存的数据库实例。
  *
  * @returns {void}
  * @throws {Error} SQLite 连接关闭失败时透传异常。

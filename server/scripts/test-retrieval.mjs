@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 景区知识检索冒烟测试脚本。
+ * @description 对典型景点、时间、票价和路线问题执行关键词及融合检索并输出结果。
+ */
 import { hybridSearch, keywordSearch } from "../src/services/retrieval.mjs";
 
 const questions = [

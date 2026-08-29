@@ -1,5 +1,6 @@
 /**
- * 工作标签页管理模块
+ * @fileoverview 路由驱动的工作标签页同步工具。
+ * @description 根据普通路由或 iframe 路由信息创建工作标签页，并遵循系统标签页显示设置。
  *
  * 提供工作标签页（Worktab）的自动管理功能
  *
@@ -19,7 +20,6 @@
  * - 多标签页导航系统
  *
  * @module utils/navigation/worktab
- * @author Scenic AI Guide Team
  */
 import { useWorktabStore } from '@/store/modules/worktab'
 import { RouteLocationNormalized } from 'vue-router'
@@ -29,8 +29,11 @@ import { IframeRouteManager } from '@/router/core'
 import { useCommon } from '@/hooks/core/useCommon'
 
 /**
- * 根据当前路由信息设置工作标签页（worktab）
- * @param to 当前路由对象
+ * @description 根据当前路由信息打开对应工作标签页，隐藏标签页的路由会被忽略。
+ * @param {RouteLocationNormalized} to 已完成标准化的目标路由。
+ * @returns {void} 无返回值。
+ * @example
+ * setWorktab(to)
  */
 export const setWorktab = (to: RouteLocationNormalized): void => {
   const worktabStore = useWorktabStore()

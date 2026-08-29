@@ -1,5 +1,10 @@
 /**
- * useChart - ECharts 图表管理
+ * @fileoverview 封装 ECharts 初始化、更新、主题适配与响应式尺寸管理。
+ * @description 提供基础图表组合式函数、统一主题配置及高级组件生命周期抽象。
+ */
+
+/**
+ * @description useChart - ECharts 图表管理
  *
  * 提供完整的 ECharts 图表生命周期管理和配置能力，简化图表开发流程。
  * 自动处理图表初始化、更新、销毁、主题切换、响应式调整等复杂逻辑。
@@ -46,7 +51,7 @@
  * ```
  *
  * @module useChart
- * @author Scenic AI Guide Team
+ *
  */
 
 import { echarts, type EChartsOption } from '@/plugins/echarts'
@@ -55,17 +60,32 @@ import { useSettingStore } from '@/store/modules/setting'
 import { getCssVar } from '@/utils/ui'
 import type { BaseChartProps, ChartThemeConfig, UseChartOptions } from '@/types/component/chart'
 
-// 图表主题配置
+/**
+ * @description 根据当前 CSS 变量生成图表尺寸、字体和颜色的默认主题配置。
+ * @returns {ChartThemeConfig} 可直接合并到业务图表配置中的主题参数。
+ * @example
+ * const { colors, fontSize } = useChartOps()
+ */
 export const useChartOps = (): ChartThemeConfig => ({
-  /** */
+  /**
+   * @description 图表默认高度。
+   */
   chartHeight: '16rem',
-  /** 字体大小 */
+  /**
+   * @description 字体大小
+   */
   fontSize: 13,
-  /** 字体颜色 */
+  /**
+   * @description 字体颜色
+   */
   fontColor: '#999',
-  /** 主题颜色 */
+  /**
+   * @description 主题颜色
+   */
   themeColor: getCssVar('--el-color-primary-light-1'),
-  /** 颜色组 */
+  /**
+   * @description 颜色组
+   */
   colors: [
     getCssVar('--el-color-primary-light-1'),
     '#4ABEFF',
@@ -82,6 +102,14 @@ const RESIZE_DELAYS = [50, 100, 200, 350] as const
 const MENU_RESIZE_DELAYS = [50, 100, 200] as const
 const RESIZE_DEBOUNCE_DELAY = 100
 
+/**
+ * @description 创建 ECharts 实例的初始化、更新、主题适配、空状态和销毁控制器。
+ * @param {UseChartOptions} [options={}] 图表初始化延迟、可见阈值、主题同步及 ECharts 初始化参数。
+ * @returns {ReturnType<typeof useChart>} 图表容器引用、生命周期方法、样式辅助方法和当前主题状态。
+ * @example
+ * const { chartRef, initChart, destroyChart } = useChart({ autoTheme: true })
+ * initChart({ series: [] })
+ */
 export function useChart(options: UseChartOptions = {}) {
   const { initOptions, initDelay = 0, threshold = 0.1, autoTheme = true } = options
 
@@ -624,20 +652,40 @@ export function useChart(options: UseChartOptions = {}) {
 
 // 高级图表组件抽象
 interface UseChartComponentOptions<T extends BaseChartProps> {
-  /** Props响应式对象 */
+  /**
+   * @description Props响应式对象
+   */
   props: T
-  /** 图表配置生成函数 */
+  /**
+   * @description 图表配置生成函数
+   */
   generateOptions: () => EChartsOption
-  /** 空数据检查函数 */
+  /**
+   * @description 空数据检查函数
+   */
   checkEmpty?: () => boolean
-  /** 自定义监听的响应式数据 */
+  /**
+   * @description 自定义监听的响应式数据
+   */
   watchSources?: (() => any)[]
-  /** 自定义可视事件处理 */
+  /**
+   * @description 自定义可视事件处理
+   */
   onVisible?: () => void
-  /** useChart选项 */
+  /**
+   * @description useChart选项
+   */
   chartOptions?: UseChartOptions
 }
 
+/**
+ * @description 在基础图表控制器之上编排组件属性监听、空数据展示和可见区域更新。
+ * @template T 图表组件属性类型，须满足基础图表属性约束。
+ * @param {UseChartComponentOptions<T>} options 组件属性、配置生成器、空数据判定器、监听源及图表初始化选项。
+ * @returns {ReturnType<typeof useChartComponent<T>>} 基础图表控制接口，以及 `isEmpty`、`updateChart` 和 `handleChartVisible`。
+ * @example
+ * const chart = useChartComponent({ props, generateOptions: () => ({ series: [] }) })
+ */
 export function useChartComponent<T extends BaseChartProps>(options: UseChartComponentOptions<T>) {
   const {
     props,

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 拈花湾地图导览数据迁移脚本。
+ * @description 从参考项目提取景点、路线和媒体信息，生成当前项目使用的标准化导览数据。
+ */
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -128,15 +132,33 @@ const sourceFiles = {
   config: join(sourceMapDir, "guide.config.js"),
 };
 
+/**
+ * @description 异步读取并解析 JSON 文件。
+ * @param {string} path 文件路径。
+ * @returns {Promise<*>} 解析后的 JSON 值。
+ * @throws {Error|SyntaxError} 文件读取或 JSON 解析失败时抛出。
+ */
 function readJson(path) {
   return readFile(path, "utf8").then(JSON.parse);
 }
 
+/**
+ * @description 以两空格缩进和结尾换行写入 JSON 文件。
+ * @param {string} path 输出路径。
+ * @param {*} value 可序列化数据。
+ * @returns {Promise<void>} 写入完成后兑现。
+ * @throws {Error} 目录创建、序列化或文件写入失败时抛出。
+ */
 async function writeJson(path, value) {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+/**
+ * @description 在隔离 VM 中加载参考项目的地图配置脚本。
+ * @returns {Promise<object>} 参考项目地图配置。
+ * @throws {Error} 配置文件读取或 VM 执行失败时抛出。
+ */
 async function loadConfig() {
   let script = await readFile(sourceFiles.config, "utf8");
   script = script.replace(
@@ -151,10 +173,21 @@ async function loadConfig() {
   return context.__guideConfig;
 }
 
+/**
+ * @description 过滤空值，将剩余值转为字符串并去重。
+ * @param {Array<*>} values 原始值列表。
+ * @returns {string[]} 保持首次出现顺序的唯一字符串。
+ */
 function unique(values) {
   return [...new Set(values.filter(Boolean).map(String))];
 }
 
+/**
+ * @description 根据参考配置和本地完整手绘图构建标准地图配置。
+ * @param {object} config 参考项目导览配置。
+ * @returns {Promise<object>} 单张手绘图、GCJ-02 边界和缩放参数组成的地图配置。
+ * @throws {Error} 手绘图缺失或文件读取失败时抛出。
+ */
 async function buildMapConfig(config) {
   const overlay = config.map.handDrawnOverlay;
   if (!existsSync(artworkPath)) {
@@ -209,6 +242,11 @@ async function buildMapConfig(config) {
   };
 }
 
+/**
+ * @description 将参考项目分类转换为标准导览分类。
+ * @param {object[]} sourceCategories 参考分类列表。
+ * @returns {object[]} 标准化分类列表。
+ */
 function migrateCategories(sourceCategories) {
   return sourceCategories.map((category, index) => ({
     id: String(category.code),
@@ -222,6 +260,11 @@ function migrateCategories(sourceCategories) {
   }));
 }
 
+/**
+ * @description 将点位官方音频转换为只读讲解元数据。
+ * @param {object} point 参考项目点位。
+ * @returns {object|undefined} 讲解元数据；无音频时为 `undefined`。
+ */
 function narrationForPoint(point) {
   if (!point.audio) return undefined;
   return {
@@ -234,6 +277,12 @@ function narrationForPoint(point) {
   };
 }
 
+/**
+ * @description 将参考点位及分类映射为标准景点和设施记录。
+ * @param {object[]} sourcePoints 参考点位列表。
+ * @param {object[]} categories 已迁移分类。
+ * @returns {object[]} 标准化景点与设施列表。
+ */
 function migrateSpots(sourcePoints, categories) {
   const categoryById = new Map(categories.map((category) => [category.id, category]));
   return sourcePoints.map((point) => {
@@ -277,6 +326,12 @@ function migrateSpots(sourcePoints, categories) {
   });
 }
 
+/**
+ * @description 收集只出现在路线节点、未出现在独立点位快照中的点位。
+ * @param {object[]} sourceRoutes 参考路线列表。
+ * @param {object[]} sourcePoints 已知参考点位。
+ * @returns {object[]} 去重后的路线专属点位。
+ */
 function collectRouteOnlyPoints(sourceRoutes, sourcePoints) {
   const knownIds = new Set(sourcePoints.map((point) => String(point.pointBaseId)));
   const routeOnlyById = new Map();
@@ -297,6 +352,12 @@ function collectRouteOnlyPoints(sourceRoutes, sourcePoints) {
   return [...routeOnlyById.values()];
 }
 
+/**
+ * @description 将官方路线及其路径点映射为标准路线和节点。
+ * @param {object[]} sourceRoutes 参考路线列表。
+ * @param {object[]} spots 已迁移景点列表。
+ * @returns {object[]} 标准化官方路线。
+ */
 function migrateRoutes(sourceRoutes, spots) {
   const spotBySourceId = new Map(
     spots.map((spot) => [String(spot.sourcePointId), spot]),
@@ -358,6 +419,13 @@ function migrateRoutes(sourceRoutes, spots) {
   });
 }
 
+/**
+ * @description 根据固定场景清单、热点关系和景点映射构建全景入口。
+ * @param {object} config 参考项目导览配置。
+ * @param {object[]} spots 已迁移景点列表。
+ * @returns {object[]} 标准化全景场景。
+ * @throws {TypeError} 全景基础地址不是有效 URL 时抛出。
+ */
 function buildPanoramas(config, spots) {
   const spotBySourceId = new Map(
     spots.map((spot) => [String(spot.sourcePointId), spot]),
@@ -392,12 +460,23 @@ function buildPanoramas(config, spots) {
   );
 }
 
+/**
+ * @description 统计存在重复名称的景点分组。
+ * @param {object[]} spots 景点列表。
+ * @returns {Array<[string, number]>} 名称及其重复数量。
+ */
 function duplicateNameGroups(spots) {
   const counts = new Map();
   for (const spot of spots) counts.set(spot.name, (counts.get(spot.name) || 0) + 1);
   return [...counts.entries()].filter(([, count]) => count > 1);
 }
 
+/**
+ * @description 生成点位坐标系证据和关键锚点核验记录。
+ * @param {object[]} sourcePoints 参考点位列表。
+ * @param {object} config 参考项目导览配置。
+ * @returns {object} GCJ-02 坐标审计报告。
+ */
 function buildCoordinateAudit(sourcePoints, config) {
   const anchorNames = ["游客中心", "景区入口", "拈花塔", "五灯湖广场", "微笑广场"];
   return {
@@ -427,6 +506,11 @@ function buildCoordinateAudit(sourcePoints, config) {
   };
 }
 
+/**
+ * @description 汇总完整手绘图尺寸、边界、旋转和缩放策略。
+ * @param {object} mapConfig 标准地图配置。
+ * @returns {object} 手绘图分析报告。
+ */
 function buildTileAnalysis(mapConfig) {
   const widths = unique(mapConfig.tileLayer.tiles.map((tile) => tile.width));
   const heights = unique(mapConfig.tileLayer.tiles.map((tile) => tile.height));
@@ -450,6 +534,11 @@ function buildTileAnalysis(mapConfig) {
   };
 }
 
+/**
+ * @description 汇总点位、分类、路线、全景及待人工复核项的迁移统计。
+ * @param {{sourcePoints: object[], sourceSnapshotRecordCount: number, routeOnlyRecordCount: number, spots: object[], categories: object[], routes: object[], panoramas: object[]}} input 迁移产物与来源统计。
+ * @returns {object} 迁移统计报告。
+ */
 function buildMigrationReport({
   sourcePoints,
   sourceSnapshotRecordCount,
@@ -509,6 +598,11 @@ function buildMigrationReport({
   };
 }
 
+/**
+ * @description 将分类、点位和路线源快照复制到审计目录。
+ * @returns {Promise<void>} 全部快照复制完成后兑现。
+ * @throws {Error} 目录创建或文件读写失败时抛出。
+ */
 async function copySourceSnapshots() {
   await mkdir(sourceSnapshotDir, { recursive: true });
   await Promise.all(
@@ -521,6 +615,11 @@ async function copySourceSnapshots() {
   );
 }
 
+/**
+ * @description 执行拈花湾导览数据迁移、报告生成和公开启动数据写入。
+ * @returns {Promise<void>} 全部产物生成并输出摘要后兑现。
+ * @throws {Error|SyntaxError} 必需源文件缺失、解析或产物写入失败时抛出。
+ */
 async function main() {
   for (const path of Object.values(sourceFiles)) {
     if (!existsSync(path)) throw new Error(`Required source file is missing: ${path}`);

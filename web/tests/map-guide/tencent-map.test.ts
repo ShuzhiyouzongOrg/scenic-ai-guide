@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 腾讯地图坐标适配测试。
+ * @description 验证腾讯地图接收 GCJ-02 坐标且旋转景区坐标不会产生二次偏移。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import type { CoordinateBounds, GuideCoordinate } from '../../src/types/map-guide'

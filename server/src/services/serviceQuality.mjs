@@ -1,8 +1,20 @@
 /**
  * @fileoverview 对话满意度、人工标注、反馈聚类和服务质量报告聚合服务。
- *
- * @typedef {{messageId: string, label: "correct"|"wrong"|"needs_knowledge", note: string, createdAt: string}} MessageAnnotation
+ * @description 汇总会话、反馈和人工标注，输出知识补录线索与服务质量优化建议。
+ */
+
+/**
+ * @typedef {object} MessageAnnotation
+ * @description 管理员对单条问答消息给出的质量标注。
+ * @property {string} messageId 被标注消息的 ID。
+ * @property {"correct"|"wrong"|"needs_knowledge"} label 标注类别。
+ * @property {string} note 补充说明。
+ * @property {string} createdAt 标注创建时间。
+ */
+
+/**
  * @typedef {object} ConversationSummary
+ * @description 用于服务质量分析的会话聚合摘要。
  * @property {string} sessionId 会话 ID。
  * @property {string} startedAt 首条消息时间。
  * @property {string} updatedAt 末条消息时间。
@@ -19,7 +31,7 @@ import { getDashboardAnalytics } from "./behaviorAnalytics.mjs";
 import { getDb } from "../db/database.mjs";
 
 /**
- * 获取单条消息的人工标注。
+ * @description 获取单条消息的人工标注。
  * @private
  * @param {string} messageId 消息 ID。
  * @returns {MessageAnnotation|null} 标注对象；未标注时返回 `null`。
@@ -31,7 +43,7 @@ function getAnnotation(messageId) {
 }
 
 /**
- * 列出全部消息标注。
+ * @description 列出全部消息标注。
  * @private
  * @returns {MessageAnnotation[]} 标注列表。
  * @throws {Error} 数据库查询失败时透传异常。
@@ -44,7 +56,7 @@ function listAnnotations() {
 }
 
 /**
- * 聚合会话消息和反馈，生成按最近更新时间降序排列的摘要。
+ * @description 聚合会话消息和反馈，生成按最近更新时间降序排列的摘要。
  * @param {{lowSatisfactionOnly?: boolean}} [options={}] 筛选选项。
  * @param {boolean} [options.lowSatisfactionOnly=false] 是否只返回低满意度会话。
  * @returns {ConversationSummary[]} 会话摘要列表。
@@ -79,7 +91,7 @@ export function listConversationSummaries({ lowSatisfactionOnly = false } = {}) 
 }
 
 /**
- * 获取会话消息、逐消息标注、反馈和摘要。
+ * @description 获取会话消息、逐消息标注、反馈和摘要。
  * @param {string} sessionId 会话 ID。
  * @returns {{sessionId: string, messages: Array<object>, feedback: Array<object>, summary: ConversationSummary|null}} 会话质量详情。
  * @throws {Error} 任一底层数据库查询失败时透传异常。
@@ -101,9 +113,11 @@ export function getConversationDetail(sessionId) {
 }
 
 /**
- * 新增或覆盖一条消息的人工质量标注。
+ * @description 新增或覆盖一条消息的人工质量标注。
  * @param {string} messageId 消息 ID。
- * @param {{label?: *, note?: *}} [input={}] 标注输入；未知标签归一化为 `needs_knowledge`。
+ * @param {object} [input={}] 标注输入；未知标签归一化为 `needs_knowledge`。
+ * @param {*} [input.label] 人工质量标签。
+ * @param {*} [input.note] 人工标注备注。
  * @returns {MessageAnnotation} 保存后的标注。
  * @throws {Error} 数据库写入失败或消息外键无效时透传异常。
  * @example
@@ -124,7 +138,7 @@ export function annotateMessage(messageId, input = {}) {
 }
 
 /**
- * 根据消息正文和已有标注生成待补充知识草稿。
+ * @description 根据消息正文和已有标注生成待补充知识草稿。
  * @param {string} messageId 来源消息 ID。
  * @returns {{id: string, title: string, question: string, suggestedAnswer: string, sourceMessageId: string, createdAt: string}} 知识草稿。
  * @throws {Error} 消息或标注数据库查询失败时透传异常。
@@ -146,7 +160,7 @@ export function createKnowledgeDraftFromMessage(messageId) {
 }
 
 /**
- * 按问题主题聚合反馈，并给出计数、平均评分和最近样本。
+ * @description 按问题主题聚合反馈，并给出计数、平均评分和最近样本。
  * @returns {Array<{label: string, count: number, averageRating: number, samples: Array<object>}>} 按数量降序排列的反馈聚类。
  * @throws {Error} 反馈数据库查询失败时透传异常。
  * @example
@@ -173,7 +187,7 @@ export function listFeedbackClusters() {
 }
 
 /**
- * 汇总满意度、错误标注、常见问题和数据看板建议，生成服务质量报告。
+ * @description 汇总满意度、错误标注、常见问题和数据看板建议，生成服务质量报告。
  * @returns {{generatedAt: string, conversationCount: number, lowSatisfactionCount: number, averageSatisfaction: number, commonIssues: Array<object>, wrongAnswerCount: number, optimizationSuggestions: string[]}} 服务质量报告。
  * @throws {Error} 任一底层数据库或分析数据加载失败时透传异常。
  * @example
@@ -200,7 +214,7 @@ export function buildServiceQualityReport() {
 }
 
 /**
- * 按派生键对数组元素分组，忽略空键。
+ * @description 按派生键对数组元素分组，忽略空键。
  * @private
  * @template T
  * @param {T[]} items 输入数组。
@@ -219,7 +233,7 @@ function groupBy(items, getKey) {
 }
 
 /**
- * 从会话文本中识别首个重点景点或咨询类型。
+ * @description 从会话文本中识别首个重点景点或咨询类型。
  * @private
  * @param {string} text 会话拼接文本。
  * @returns {string} 主题名称；未命中时为 `综合咨询`。
@@ -230,7 +244,7 @@ function topFocus(text) {
 }
 
 /**
- * 根据评论、情绪、投票和评分划分反馈主题。
+ * @description 根据评论、情绪、投票和评分划分反馈主题。
  * @private
  * @param {object} item 反馈对象。
  * @returns {string} 聚类标签。
@@ -246,7 +260,7 @@ function clusterFeedback(item) {
 }
 
 /**
- * 计算有限数值的平均值并保留一位小数。
+ * @description 计算有限数值的平均值并保留一位小数。
  * @private
  * @param {Array<*>} values 候选数值。
  * @returns {number} 平均值；无有效数值时为 `0`。

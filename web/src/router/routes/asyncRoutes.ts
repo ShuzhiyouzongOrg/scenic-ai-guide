@@ -1,9 +1,13 @@
+/**
+ * @fileoverview 异步路由列表。
+ * @description 导出由各业务路由模块聚合得到的动态路由配置。
+ */
 // 权限说明后续在项目官方文档页面中补充。
 import { AppRouteRecord } from '@/types/router'
 import { routeModules } from '../modules'
 
 /**
- * 动态路由（需要权限才能访问的路由）
- * 用于渲染菜单以及根据菜单权限动态加载路由，如果没有权限无法访问
+ * @description 根据业务模块生成的异步路由列表。
+ * @type {AppRouteRecord[]}
  */
 export const asyncRoutes: AppRouteRecord[] = routeModules

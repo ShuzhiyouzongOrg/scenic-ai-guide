@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 知识文档上传与检索集成测试脚本。
+ * @description 验证上传、解析、启停、预览、引用、重处理和检索可见性。
+ */
 import assert from "node:assert";
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -165,12 +169,22 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 将二维行数据写入单工作表 XLSX 夹具。
+ * @param {Array<Array<*>>} rows 工作表行。
+ * @returns {Buffer} XLSX 二进制内容。
+ */
 function createWorkbookBuffer(rows) {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(rows), "景点问答");
   return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 }
 
+/**
+ * @description 生成包含单个 UTF-16BE 文本操作符的最小 PDF 夹具。
+ * @param {string} text 页面文本。
+ * @returns {Buffer} PDF 二进制内容。
+ */
 function createTextPdf(text) {
   const bytes = Buffer.from(`\ufeff${text}`, "utf16le");
   const swapped = Buffer.alloc(bytes.length);

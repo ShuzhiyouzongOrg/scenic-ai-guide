@@ -1,6 +1,6 @@
 /**
- * 表情
- * 用于在消息提示的时候显示对应的表情
+ * @fileoverview 状态消息使用的文本表情映射。
+ * @description 为成功、请求错误和服务错误提示提供不依赖图标资源的文本前缀。
  *
  * 用法
  * ElMessage.success(`${EmojiText[200]} 图片上传成功`)
@@ -8,10 +8,14 @@
  * ElMessage.error(`${EmojiText[500]} 图片上传失败`)
  *
  * @module utils/ui/emojo
- * @author Scenic AI Guide Team
  */
 
-// macos 用户 按 shift + 6 可以唤出更多表情……
+/**
+ * @description 按状态码或默认键索引的文本表情集合。
+ * @type {Record<string, string>}
+ * @example
+ * ElMessage.success(`${EmojiText[200]} 图片上传成功`)
+ */
 const EmojiText: { [key: string]: string } = {
   '0': 'O_O', // 空
   '200': '^_^', // 成功
@@ -21,4 +25,8 @@ const EmojiText: { [key: string]: string } = {
 
 // const EmojiIcon = ['🟢', '🔴', '🟡 ', '🚀', '✨', '💡', '🛠️', '🔥', '🎉', '🌟', '🌈']
 
+/**
+ * @description 导出按状态码索引的文本表情集合。
+ * @type {Record<string, string>}
+ */
 export default EmojiText

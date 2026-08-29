@@ -1,9 +1,10 @@
 /**
  * @fileoverview API JSON 响应封装，统一成功与失败信封格式。
+ * @description 统一成功、创建和失败响应的状态码、响应头与信封结构。
  */
 
 /**
- * 序列化 JSON 并结束 HTTP 响应。
+ * @description 序列化 JSON 并结束 HTTP 响应。
  *
  * @param {import("node:http").ServerResponse} res HTTP 响应对象。
  * @param {number} statusCode HTTP 状态码。
@@ -23,12 +24,13 @@ export function sendJson(res, statusCode, body) {
 }
 
 /**
- * 返回 HTTP 200 成功信封。
+ * @description 返回 HTTP 200 成功信封。
  *
  * @param {import("node:http").ServerResponse} res HTTP 响应对象。
  * @param {unknown} [data=null] 业务数据。
  * @param {Record<string, unknown>} [meta={}] 分页、耗时等元信息。
  * @returns {void}
+ * @throws {TypeError} 数据或元信息无法 JSON 序列化时抛出。
  * @example
  * ok(res, { id: "spot-1" }, { cached: false });
  */
@@ -41,12 +43,13 @@ export function ok(res, data = null, meta = {}) {
 }
 
 /**
- * 返回 HTTP 201 创建成功信封。
+ * @description 返回 HTTP 201 创建成功信封。
  *
  * @param {import("node:http").ServerResponse} res HTTP 响应对象。
  * @param {unknown} [data=null] 新建资源。
  * @param {Record<string, unknown>} [meta={}] 附加元信息。
  * @returns {void}
+ * @throws {TypeError} 数据或元信息无法 JSON 序列化时抛出。
  * @example
  * created(res, { id: "new-id" });
  */
@@ -59,7 +62,7 @@ export function created(res, data = null, meta = {}) {
 }
 
 /**
- * 返回标准错误信封。
+ * @description 返回标准错误信封。
  *
  * @param {import("node:http").ServerResponse} res HTTP 响应对象。
  * @param {number} statusCode HTTP 错误状态码。
@@ -67,6 +70,7 @@ export function created(res, data = null, meta = {}) {
  * @param {string} message 面向调用方的错误说明。
  * @param {unknown} [details=null] 可选的字段级详情。
  * @returns {void}
+ * @throws {TypeError} 错误详情无法 JSON 序列化时抛出。
  * @example
  * fail(res, 404, "NOT_FOUND", "Resource not found.");
  */

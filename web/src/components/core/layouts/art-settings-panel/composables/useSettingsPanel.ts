@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 管理系统设置抽屉的生命周期与响应式布局。
+ * @description 协调主题、节庆效果、移动端菜单切换和设置面板开关状态。
+ */
+
 import { ref, computed, watch } from 'vue'
 import { useSettingStore } from '@/store/modules/setting'
 import { storeToRefs } from 'pinia'
@@ -12,7 +17,10 @@ import { useSettingsState } from './useSettingsState'
 import { useSettingsHandlers } from './useSettingsHandlers'
 
 /**
- * 设置面板核心逻辑管理
+ * @description 设置面板核心逻辑管理
+ * @returns {object} 设置抽屉状态及主题、布局、属性监听和初始化组合方法。
+ * @example
+ * const { showDrawer, useSettingsInitializer } = useSettingsPanel()
  */
 export function useSettingsPanel() {
   const settingStore = useSettingStore()

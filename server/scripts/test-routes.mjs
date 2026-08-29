@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 游览路线规划服务测试脚本。
+ * @description 验证路线图、场景推荐、节点讲解、保存和历史查询。
+ */
 import assert from "node:assert";
 import { getRouteGraph, recommendRoute, saveRouteSelection, listSavedRoutes } from "../src/services/routePlanner.mjs";
 

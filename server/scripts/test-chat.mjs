@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG 智能问答管线自测试脚本。
+ * @description 使用离线模型覆盖场景编排、回答护栏、引用清洗、公开文本与长度约束。
+ */
 // AI2 self-test: exercises the RAG answer pipeline across scenarios with the
 // offline mock provider. Asserts scenario routing, quality labels, grounding
 // and length rules. Run: npm run test:chat
@@ -18,6 +22,12 @@ const { clearFaqCache } = await import("../src/services/faqCache.mjs");
 const { buildTextDocumentChunks } = await import("../src/services/knowledgeBuild.mjs");
 
 const results = [];
+/**
+ * @description 执行异步测试并将成功或失败信息写入结果列表。
+ * @param {string} name 测试名称。
+ * @param {() => Promise<void>} fn 异步测试回调。
+ * @returns {Promise<number>} 记录结果后的结果列表长度。
+ */
 function record(name, fn) {
   return fn().then(
     () => results.push({ name, ok: true }),
@@ -25,6 +35,11 @@ function record(name, fn) {
   );
 }
 
+/**
+ * @description 按 Unicode 码点统计文本长度。
+ * @param {*} text 待统计文本。
+ * @returns {number} Unicode 码点数量。
+ */
 const charLen = (text) => [...String(text)].length;
 
 await record("factual height answer is grounded and short", async () => {

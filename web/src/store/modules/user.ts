@@ -1,35 +1,6 @@
 /**
- * 用户状态管理模块
- *
- * 提供用户相关的状态管理
- *
- * ## 主要功能
- *
- * - 用户登录状态管理
- * - 用户信息存储
- * - 访问令牌和刷新令牌管理
- * - 语言设置
- * - 搜索历史记录
- * - 锁屏状态和密码管理
- * - 登出清理逻辑
- *
- * ## 使用场景
- *
- * - 用户登录和认证
- * - 权限验证
- * - 个人信息展示
- * - 多语言切换
- * - 锁屏功能
- * - 搜索历史管理
- *
- * ## 持久化
- *
- * - 使用 localStorage 存储
- * - 存储键：sys-v{version}-user
- * - 登出时自动清理
- *
- * @module store/modules/user
- * @author Scenic AI Guide Team
+ * @fileoverview 用户状态管理模块。
+ * @description 维护登录、用户资料、令牌、语言、锁屏和搜索历史，并处理退出与用户切换。
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -43,8 +14,8 @@ import { useMenuStore } from './menu'
 import { StorageConfig } from '@/utils/storage/storage-config'
 
 /**
- * 用户状态管理
- * 管理用户登录状态、个人信息、语言设置、搜索历史、锁屏状态等
+ * @description 用户会话与资料 Store 定义。
+ * @type {import('pinia').StoreDefinition}
  */
 export const useUserStore = defineStore(
   'userStore',
@@ -69,24 +40,24 @@ export const useUserStore = defineStore(
     // 计算属性：获取用户信息
     const getUserInfo = computed(() => info.value)
     /**
-     * 设置用户信息
-     * @param newInfo 新的用户信息
+     * @description 设置用户信息。
+     * @param {Api.Auth.UserInfo} newInfo 新的用户信息。
      */
     const setUserInfo = (newInfo: Api.Auth.UserInfo) => {
       info.value = newInfo
     }
 
     /**
-     * 设置登录状态
-     * @param status 登录状态
+     * @description 设置登录状态。
+     * @param {boolean} status 登录状态。
      */
     const setLoginStatus = (status: boolean) => {
       isLogin.value = status
     }
 
     /**
-     * 设置语言
-     * @param lang 语言枚举值
+     * @description 设置语言。
+     * @param {LanguageEnum} lang 语言枚举值。
      */
     const setLanguage = (lang: LanguageEnum) => {
       setPageTitle(router.currentRoute.value)
@@ -94,33 +65,33 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 设置搜索历史
-     * @param list 搜索历史列表
+     * @description 设置搜索历史。
+     * @param {AppRouteRecord[]} list 搜索历史列表。
      */
     const setSearchHistory = (list: AppRouteRecord[]) => {
       searchHistory.value = list
     }
 
     /**
-     * 设置锁屏状态
-     * @param status 锁屏状态
+     * @description 设置锁屏状态。
+     * @param {boolean} status 锁屏状态。
      */
     const setLockStatus = (status: boolean) => {
       isLock.value = status
     }
 
     /**
-     * 设置锁屏密码
-     * @param password 锁屏密码
+     * @description 设置锁屏密码。
+     * @param {string} password 锁屏密码。
      */
     const setLockPassword = (password: string) => {
       lockPassword.value = password
     }
 
     /**
-     * 设置令牌
-     * @param newAccessToken 访问令牌
-     * @param newRefreshToken 刷新令牌（可选）
+     * @description 设置令牌。
+     * @param {string} newAccessToken 访问令牌。
+     * @param {string} [newRefreshToken] 可选的刷新令牌。
      */
     const setToken = (newAccessToken: string, newRefreshToken?: string) => {
       accessToken.value = newAccessToken
@@ -130,7 +101,7 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 退出登录
+     * @description 退出登录。
      * 清空所有用户相关状态并跳转到登录页
      * 如果是同一账号重新登录，保留工作台标签页
      */
@@ -170,7 +141,7 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 检查并清理工作台标签页
+     * @description 检查并清理工作台标签页。
      * 如果不是同一用户登录，清空工作台标签页
      * 应在登录成功后调用
      */

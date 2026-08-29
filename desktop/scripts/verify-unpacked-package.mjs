@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Electron 解包产物验证脚本。
+ * @description 定位一个或多个包含 app.asar 的应用根目录并执行通用打包完整性检查。
+ */
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

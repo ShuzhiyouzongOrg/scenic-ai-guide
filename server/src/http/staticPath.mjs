@@ -1,10 +1,11 @@
 /**
  * @fileoverview 静态文件路径安全解析器，用于阻止目录穿越、NUL 和跨盘符访问。
+ * @description 将 URL 路径约束在指定根目录内，阻止目录穿越、NUL 与跨盘符访问。
  */
 import * as systemPath from "node:path";
 
 /**
- * 将 URL 路径安全地限制在指定静态根目录内。
+ * @description 将 URL 路径安全地限制在指定静态根目录内。
  *
  * @param {string} publicDir 静态资源根目录。
  * @param {string} pathname URL pathname；根路径会映射到 `index.html`。

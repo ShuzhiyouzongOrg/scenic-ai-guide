@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Web 静态资源审计与构建裁剪脚本。
+ * @description 扫描资源引用、动态保护目录和构建产物，报告冗余文件并按显式白名单裁剪。
+ */
 import { createHash } from 'node:crypto'
 import {
   existsSync,
@@ -9,6 +13,45 @@ import {
 import { dirname, extname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+/**
+ * @description 描述文本语料文件的路径和规范化内容。
+ * @typedef {object} TextCorpusRecord
+ * @property {string} path 文件绝对路径。
+ * @property {string} relativePath 相对于仓库根目录的正斜杠路径。
+ * @property {string} text 统一使用正斜杠的文本内容。
+ */
+
+/**
+ * @description 描述静态资源在某个文本文件中的首次引用位置。
+ * @typedef {object} ReferenceRecord
+ * @property {string} path 引用来源的仓库相对路径。
+ * @property {number} line 首次引用所在的一基行号。
+ */
+
+/**
+ * @description 描述需要验证的字面量静态资源 URL 及其来源文件。
+ * @typedef {object} LiteralUrlRecord
+ * @property {string} urlPath 以斜杠开头的静态资源 URL。
+ * @property {string} source 包含该 URL 的仓库相对路径。
+ */
+
+/**
+ * @description 描述一个公开或源码静态资源及其引用、保护规则和审计状态。
+ * @typedef {object} AssetRecord
+ * @property {'public' | 'source'} root 资源所属根目录类型。
+ * @property {string} path 文件绝对路径。
+ * @property {string} relativePath 相对于资源根目录的正斜杠路径。
+ * @property {number} bytes 文件字节数。
+ * @property {ReferenceRecord[]} runtimeReferences 运行时代码引用位置。
+ * @property {ReferenceRecord[]} documentationReferences 文档引用位置。
+ * @property {object | null} protection 匹配到的动态资源保护规则。
+ * @property {string} status 当前资源审计分类。
+ */
+
+/**
+ * @description 当前审计脚本所在目录，用于推导 Web 工程和仓库根路径。
+ * @type {string}
+ */
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const webDir = resolve(scriptDir, '..')
 const repoDir = resolve(webDir, '..')
@@ -170,6 +213,14 @@ if (problems.length > 0) {
   process.exitCode = 1
 }
 
+/**
+ * @description 根据资源根目录和文件路径创建待审计的资源记录。
+ * @param {'public' | 'source'} root 资源所属根目录类型。
+ * @param {string} baseDir 计算资源相对路径的根目录。
+ * @param {string} path 资源文件绝对路径。
+ * @returns {AssetRecord} 已填充体积且引用和分类尚待计算的资源记录。
+ * @throws {Error} 文件状态无法读取时由文件系统接口抛出。
+ */
 function describeFile(root, baseDir, path) {
   return {
     root,
@@ -183,6 +234,12 @@ function describeFile(root, baseDir, path) {
   }
 }
 
+/**
+ * @description 递归列出文件或目录树中的文件，并跳过审计忽略目录。
+ * @param {string} root 待遍历的文件或目录路径。
+ * @returns {string[]} 按路径排序的文件绝对路径列表。
+ * @throws {Error} 路径状态或目录内容无法读取时由文件系统接口抛出。
+ */
 function walkFiles(root) {
   if (!existsSync(root)) return []
   const rootStat = statSync(root)
@@ -197,6 +254,12 @@ function walkFiles(root) {
   return files.sort((left, right) => left.localeCompare(right))
 }
 
+/**
+ * @description 从多个根路径加载尺寸受限且扩展名受支持的文本语料。
+ * @param {string[]} roots 待扫描的文件或目录根路径列表。
+ * @returns {TextCorpusRecord[]} 可用于引用检索的文本语料记录。
+ * @throws {Error} 候选文件状态或内容无法读取时由文件系统接口抛出。
+ */
 function loadTextCorpus(roots) {
   const files = roots.flatMap(walkFiles)
   const corpus = []
@@ -214,6 +277,11 @@ function loadTextCorpus(roots) {
   return corpus
 }
 
+/**
+ * @description 为资源生成公开路径、源码路径和路径别名等可检索引用形式。
+ * @param {AssetRecord} record 待生成检索词的资源记录。
+ * @returns {string[]} 去除空值后的资源引用检索词列表。
+ */
 function referenceNeedles(record) {
   if (record.root === 'public') {
     return [record.relativePath, `/${record.relativePath}`, `%BASE_URL%${record.relativePath}`]
@@ -234,6 +302,12 @@ function referenceNeedles(record) {
   ].filter(Boolean)
 }
 
+/**
+ * @description 在文本语料中查找资源任一引用形式的首次出现位置。
+ * @param {AssetRecord} record 待查找引用的资源记录。
+ * @param {TextCorpusRecord[]} corpus 待检索的文本语料。
+ * @returns {ReferenceRecord[]} 命中该资源的文件和一基行号列表。
+ */
 function findReferences(record, corpus) {
   const needles = [...new Set(referenceNeedles(record))]
   const references = []
@@ -252,6 +326,11 @@ function findReferences(record, corpus) {
   return references
 }
 
+/**
+ * @description 查找覆盖当前资源路径的动态资源保护规则。
+ * @param {AssetRecord} record 待判断的资源记录。
+ * @returns {object | null} 首条匹配的保护规则；未匹配时返回 `null`。
+ */
 function findDynamicProtection(record) {
   return (
     dynamicProtectionRules.find(
@@ -260,6 +339,11 @@ function findDynamicProtection(record) {
   )
 }
 
+/**
+ * @description 根据显式排除、运行时引用和动态保护规则划分资源审计状态。
+ * @param {AssetRecord} record 已完成引用和保护规则计算的资源记录。
+ * @returns {string} 资源对应的审计状态编码。
+ */
 function classify(record) {
   if (record.root === 'public' && confirmedPublicExclusions.has(record.relativePath)) {
     return 'confirmed-build-exclusion'
@@ -275,6 +359,12 @@ function classify(record) {
   return 'candidate'
 }
 
+/**
+ * @description 校验显式生产排除项、替代资源和仅源码资源仍满足既定边界。
+ * @param {AssetRecord[]} publicRecords 公开目录资源记录。
+ * @param {AssetRecord[]} sourceRecords 源码资源记录。
+ * @returns {void} 发现的问题追加到全局问题列表，不返回数据。
+ */
 function validateConfirmedExclusions(publicRecords, sourceRecords) {
   for (const [relativePath, replacement] of confirmedPublicExclusions) {
     const record = publicRecords.find((item) => item.relativePath === relativePath)
@@ -308,6 +398,11 @@ function validateConfirmedExclusions(publicRecords, sourceRecords) {
   }
 }
 
+/**
+ * @description 从文本语料中收集去重后的字面量静态资源 URL。
+ * @param {TextCorpusRecord[]} corpus 待扫描的文本语料。
+ * @returns {LiteralUrlRecord[]} 按 URL 和来源排序的静态资源引用列表。
+ */
 function collectLiteralStaticUrls(corpus) {
   const found = new Map()
   const patterns = [
@@ -339,6 +434,12 @@ function collectLiteralStaticUrls(corpus) {
   )
 }
 
+/**
+ * @description 校验源码字面量 URL 指向的非构建资源实际存在于公开目录。
+ * @param {LiteralUrlRecord[]} literalUrls 源码中收集的静态资源 URL。
+ * @returns {void} 缺失资源追加到全局问题列表，不返回数据。
+ * @throws {Error} 已存在目标的文件状态无法读取时由文件系统接口抛出。
+ */
 function validateLiteralSourceUrls(literalUrls) {
   for (const item of literalUrls) {
     if (item.urlPath.startsWith('/assets/')) continue
@@ -349,6 +450,11 @@ function validateLiteralSourceUrls(literalUrls) {
   }
 }
 
+/**
+ * @description 校验 Electron 打包配置和主进程仍以 Web 构建目录为静态资源根。
+ * @returns {void} 边界偏移问题追加到全局问题列表，不返回数据。
+ * @throws {Error} Electron 配置或主进程文件无法读取时抛出。
+ */
 function validateElectronBoundary() {
   const builderPath = join(repoDir, 'desktop', 'electron-builder.yml')
   const mainPath = join(repoDir, 'desktop', 'main.mjs')
@@ -362,6 +468,11 @@ function validateElectronBoundary() {
   }
 }
 
+/**
+ * @description 从构建目录删除显式确认的冗余公开资源副本及其 Gzip 文件。
+ * @returns {number} 本次删除的构建产物总字节数。
+ * @throws {Error} 文件状态读取或删除失败时由文件系统接口抛出。
+ */
 function pruneConfirmedDistCopies() {
   let removedBytes = 0
   for (const relativePath of confirmedPublicExclusions.keys()) {
@@ -376,6 +487,12 @@ function pruneConfirmedDistCopies() {
   return removedBytes
 }
 
+/**
+ * @description 校验构建目录完整镜像未排除的公开资源且文件体积一致。
+ * @param {AssetRecord[]} publicRecords 公开目录资源记录。
+ * @returns {void} 镜像缺失或体积变化问题追加到全局问题列表。
+ * @throws {Error} 构建产物文件状态无法读取时由文件系统接口抛出。
+ */
 function validateDistMirror(publicRecords) {
   for (const record of publicRecords) {
     const target = join(distDir, record.relativePath)
@@ -395,6 +512,12 @@ function validateDistMirror(publicRecords) {
   }
 }
 
+/**
+ * @description 通过文件体积和 SHA-256 摘要校验仅源码资源未被间接打入构建目录。
+ * @param {AssetRecord[]} sourceRecords 源码资源记录。
+ * @returns {void} 发现同内容构建副本时追加问题，不返回数据。
+ * @throws {Error} 构建或源码文件无法读取时由文件系统接口抛出。
+ */
 function validateSourceOnlyHashes(sourceRecords) {
   const distFiles = walkFiles(distDir)
   const filesBySize = new Map()
@@ -417,6 +540,11 @@ function validateSourceOnlyHashes(sourceRecords) {
   }
 }
 
+/**
+ * @description 校验构建文本中的字面量静态 URL 均能解析为现存构建文件。
+ * @returns {void} 缺失构建资源追加到全局问题列表，不返回数据。
+ * @throws {Error} 构建文本或目标文件状态无法读取时由文件系统接口抛出。
+ */
 function validateBuiltLiteralUrls() {
   const builtCorpus = loadTextCorpus([distDir])
   for (const item of collectLiteralStaticUrls(builtCorpus)) {
@@ -428,10 +556,24 @@ function validateBuiltLiteralUrls() {
   }
 }
 
+/**
+ * @description 计算文件内容的 SHA-256 摘要。
+ * @param {string} path 待计算摘要的文件路径。
+ * @returns {string} 小写十六进制 SHA-256 摘要。
+ * @throws {Error} 文件无法读取时由文件系统接口抛出。
+ */
 function sha256(path) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
 }
 
+/**
+ * @description 输出资源分类、保护目录、生产排除项和人工复核候选的审计摘要。
+ * @param {AssetRecord[]} publicRecords 公开目录资源记录。
+ * @param {AssetRecord[]} sourceRecords 源码资源记录。
+ * @param {LiteralUrlRecord[]} literalUrls 已校验的字面量静态 URL。
+ * @param {number} prunedBytes 本次从构建目录删除的字节数。
+ * @returns {void} 审计摘要写入标准输出后不返回数据。
+ */
 function printReport(publicRecords, sourceRecords, literalUrls, prunedBytes) {
   const allRecords = [...publicRecords, ...sourceRecords]
   const statusCounts = Object.fromEntries(
@@ -494,16 +636,31 @@ function printReport(publicRecords, sourceRecords, literalUrls, prunedBytes) {
   }
 }
 
+/**
+ * @description 将资源引用位置格式化为逗号分隔的路径与行号文本。
+ * @param {ReferenceRecord[]} references 资源引用位置列表。
+ * @returns {string} 适合日志输出的引用位置文本。
+ */
 function formatReferences(references) {
   return references.map((reference) => `${reference.path}:${reference.line}`).join(', ')
 }
 
+/**
+ * @description 将字节数格式化为 B、KiB 或 MiB 文本。
+ * @param {number} bytes 待格式化的字节数。
+ * @returns {string} 按数量级格式化的体积文本。
+ */
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`
   return `${(bytes / (1024 * 1024)).toFixed(2)} MiB`
 }
 
+/**
+ * @description 将 Windows 路径分隔符统一转换为正斜杠。
+ * @param {string} path 待规范化的路径。
+ * @returns {string} 使用正斜杠的路径。
+ */
 function toPosix(path) {
   return path.replaceAll('\\', '/')
 }

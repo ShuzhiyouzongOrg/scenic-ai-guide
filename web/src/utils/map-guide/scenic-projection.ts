@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 景区手绘图旋转投影工具。
+ * @description 在 Web Mercator 空间中旋转景点坐标与边界，使网页端标记和手绘地图保持同一显示方向。
+ */
+
 import type { CoordinateBounds, GuideCoordinate } from '@/types/map-guide'
 import { transformCoordinate } from './coordinate'
 
@@ -46,8 +51,14 @@ function boundsCenter(bounds: CoordinateBounds): MercatorPoint {
 }
 
 /**
- * Applies the same clockwise screen-space rotation as the source WeChat map's
- * `rotate` property. The transform is performed once in Web Mercator space.
+ * @description 以手绘图边界中心为原点，在 Web Mercator 空间应用与微信地图一致的顺时针屏幕旋转。
+ * @param {GuideCoordinate} coordinate 原始景点或路线坐标。
+ * @param {CoordinateBounds} artworkBounds 未旋转手绘图的地理边界。
+ * @param {number} rotationDegrees 顺时针旋转角度，单位为度。
+ * @returns {GuideCoordinate} 旋转后的 WGS84 显示坐标。
+ * @throws {Error} 当输入坐标或边界使用 `UNKNOWN` 坐标系时抛出。
+ * @example
+ * toScenicDisplayCoordinate(spot, artworkBounds, 12)
  */
 export function toScenicDisplayCoordinate(
   coordinate: GuideCoordinate,
@@ -68,6 +79,16 @@ export function toScenicDisplayCoordinate(
   })
 }
 
+/**
+ * @description 对显示坐标应用反向旋转，恢复为手绘图源坐标方向。
+ * @param {GuideCoordinate} coordinate 已旋转的地图显示坐标。
+ * @param {CoordinateBounds} artworkBounds 未旋转手绘图的地理边界。
+ * @param {number} rotationDegrees 显示阶段采用的顺时针旋转角度。
+ * @returns {GuideCoordinate} 反向旋转后的 WGS84 坐标。
+ * @throws {Error} 当输入坐标或边界使用 `UNKNOWN` 坐标系时抛出。
+ * @example
+ * fromScenicDisplayCoordinate(displayPoint, artworkBounds, 12)
+ */
 export function fromScenicDisplayCoordinate(
   coordinate: GuideCoordinate,
   artworkBounds: CoordinateBounds,
@@ -76,6 +97,15 @@ export function fromScenicDisplayCoordinate(
   return toScenicDisplayCoordinate(coordinate, artworkBounds, -rotationDegrees)
 }
 
+/**
+ * @description 旋转手绘图四个角点后，计算能够完整包围旋转结果的 WGS84 轴对齐边界。
+ * @param {CoordinateBounds} artworkBounds 未旋转手绘图的地理边界。
+ * @param {number} rotationDegrees 顺时针旋转角度，单位为度。
+ * @returns {CoordinateBounds} 旋转后手绘图的西南角与东北角外接边界。
+ * @throws {Error} 当边界使用 `UNKNOWN` 坐标系时抛出。
+ * @example
+ * scenicDisplayBounds(artworkBounds, 12)
+ */
 export function scenicDisplayBounds(
   artworkBounds: CoordinateBounds,
   rotationDegrees: number

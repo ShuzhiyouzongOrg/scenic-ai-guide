@@ -1,18 +1,29 @@
 /**
  * @fileoverview 多轮对话消息的 SQLite 存储和上下文查询服务。
  *
- * 每条消息同时记录意图、情绪和耗时，供追问消解、反馈和服务质量分析复用。
- *
- * @typedef {{id: string, sessionId: string, role: string, content: string, intentLabel: string|null, emotionLabel: string|null, latencyMs: number|null, createdAt: string}} ConversationMessage
+ * @description 每条消息同时记录意图、情绪和耗时，供追问消解、反馈和服务质量分析复用。
+ */
+
+/**
+ * @typedef {object} ConversationMessage
+ * @description 从 SQLite 读取或写入后返回的会话消息。
+ * @property {string} id 消息 ID。
+ * @property {string} sessionId 会话 ID。
+ * @property {string} role 消息角色。
+ * @property {string} content 消息正文。
+ * @property {string|null} intentLabel 意图标签。
+ * @property {string|null} emotionLabel 情绪标签。
+ * @property {number|null} latencyMs 响应耗时，单位为毫秒。
+ * @property {string} createdAt ISO 8601 创建时间。
  */
 
 import { randomBytes } from "node:crypto";
 import { getDb } from "../db/database.mjs";
 
 /**
- * 确保游客会话存在；已存在时不修改原记录。
+ * @description 确保游客会话存在；已存在时不修改原记录。
  * @param {string} sessionId 会话 ID。
- * @returns {void}
+ * @returns {void} 无返回值。
  * @throws {Error} 数据库写入失败时透传异常。
  * @private
  */
@@ -27,7 +38,7 @@ function ensureSession(sessionId) {
 }
 
 /**
- * 将消息数据库行转换为 API 结构。
+ * @description 将消息数据库行转换为 API 结构。
  * @param {Record<string, any>} row `messages` 数据库行。
  * @returns {ConversationMessage} 规范化消息。
  * @private
@@ -46,9 +57,14 @@ function toMessage(row) {
 }
 
 /**
- * 向会话追加消息，并同步增加会话消息计数。
+ * @description 向会话追加消息，并同步增加会话消息计数。
  * @param {string} sessionId 会话 ID；为空时不写入。
- * @param {{role: string, content: string, intentLabel?: string, emotionLabel?: string, latencyMs?: number}} message 消息数据。
+ * @param {object} message 消息数据。
+ * @param {string} message.role 消息角色。
+ * @param {string} message.content 消息正文。
+ * @param {string} [message.intentLabel] 意图标签。
+ * @param {string} [message.emotionLabel] 情绪标签。
+ * @param {number} [message.latencyMs] 响应耗时，单位为毫秒。
  * @returns {ConversationMessage|null} 已保存消息；会话 ID 为空时返回 `null`。
  * @throws {Error} 会话或消息数据库写入失败时透传异常。
  * @example
@@ -83,7 +99,7 @@ export function appendMessage(sessionId, message) {
 }
 
 /**
- * 获取适合发送给模型的最近多轮上下文，结果按时间正序排列。
+ * @description 获取适合发送给模型的最近多轮上下文，结果按时间正序排列。
  * @param {string} sessionId 会话 ID。
  * @param {number} [limit=6] 最大消息数。
  * @returns {Array<{role: string, content: string}>} 精简历史消息。
@@ -104,7 +120,7 @@ export function getHistory(sessionId, limit = 6) {
 }
 
 /**
- * 从历史消息中查找最近提及的景点，用于将“它多高”等追问重新锚定到主题。
+ * @description 从历史消息中查找最近提及的景点，用于将“它多高”等追问重新锚定到主题。
  * @param {string} sessionId 会话 ID。
  * @param {string[]} [spotNames=[]] 可识别景点名称。
  * @returns {string|null} 最近命中的景点名。
@@ -136,7 +152,7 @@ export function getLastSpotName(sessionId, spotNames = []) {
 }
 
 /**
- * 获取会话内全部完整消息。
+ * @description 获取会话内全部完整消息。
  * @param {string} sessionId 会话 ID。
  * @returns {ConversationMessage[]} 按时间正序排列的消息。
  * @throws {Error} 数据库查询失败时透传异常。
@@ -151,7 +167,7 @@ export function getMessages(sessionId) {
 }
 
 /**
- * 事务性删除会话消息及其标注、关联反馈，并重置消息计数。
+ * @description 事务性删除会话消息及其标注、关联反馈，并重置消息计数。
  * @param {string} sessionId 会话 ID。
  * @returns {{sessionId: string, deleted: number}} 删除结果。
  * @throws {Error} 数据库事务失败时透传异常并回滚。
@@ -181,7 +197,7 @@ export function clearMessages(sessionId) {
 }
 
 /**
- * 列出系统内全部消息，供运营分析使用。
+ * @description 列出系统内全部消息，供运营分析使用。
  * @returns {ConversationMessage[]} 全量消息。
  * @throws {Error} 数据库查询失败时透传异常。
  * @example

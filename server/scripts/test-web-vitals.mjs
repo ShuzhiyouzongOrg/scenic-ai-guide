@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Web Vitals 采集与报表测试脚本。
+ * @description 验证性能指标记录、分位数、评级分布、版本和设备维度聚合。
+ */
 import assert from "node:assert/strict";
 
 process.env.SQLITE_PATH = ":memory:";

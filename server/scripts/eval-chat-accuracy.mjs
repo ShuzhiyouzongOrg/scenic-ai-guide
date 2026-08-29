@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 智能问答准确率评测脚本。
+ * @description 执行离线问答案例并校验回答场景、引用、关键词与拒答行为。
+ */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { answerQuestion } from "../src/services/chat.mjs";
@@ -104,6 +108,12 @@ if (failures.length > 0) {
   process.exitCode = 1;
 }
 
+/**
+ * @description 校验回答是否命中每组期望词中的至少一个。
+ * @param {*} answer 回答文本。
+ * @param {Array<string|string[]>} groups 期望词组。
+ * @returns {boolean} 所有词组均命中时为 `true`。
+ */
 function termsSatisfied(answer, groups) {
   if (!groups.length) {
     return true;
@@ -115,6 +125,12 @@ function termsSatisfied(answer, groups) {
   });
 }
 
+/**
+ * @description 将期望景点 ID 映射为名称并检查实体命中。
+ * @param {string[]} actualSpotNames 实际命中的景点名称。
+ * @param {string[]} expectedSpotIds 期望景点 ID。
+ * @returns {boolean} 无期望景点或至少命中一个景点时为 `true`。
+ */
 function spotSatisfied(actualSpotNames, expectedSpotIds) {
   if (!expectedSpotIds.length) {
     return true;
@@ -147,6 +163,12 @@ function spotSatisfied(actualSpotNames, expectedSpotIds) {
   return expectedNames.some((name) => actualSpotNames.includes(name));
 }
 
+/**
+ * @description 计算并保留四位小数的准确率。
+ * @param {number} value 通过数量。
+ * @param {number} total 总数量。
+ * @returns {number} 准确率；总数为零时返回 `0`。
+ */
 function rate(value, total) {
   if (!total) {
     return 0;

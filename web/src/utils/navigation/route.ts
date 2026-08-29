@@ -1,5 +1,6 @@
 /**
- * 路由工具模块
+ * @fileoverview 菜单路由识别与默认路径查找工具。
+ * @description 判断 iframe 与可导航菜单，并递归解析菜单树中的首个有效落点。
  *
  * 提供路由处理和菜单路径相关的工具函数
  *
@@ -19,19 +20,27 @@
  * - iframe 页面特殊处理
  *
  * @module utils/navigation/route
- * @author Scenic AI Guide Team
  */
 
 import { AppRouteRecord } from '@/types'
 
-// 检查是否为 iframe 路由
+/**
+ * @description 判断路由地址是否属于系统约定的 iframe 路由。
+ * @param {string} url 待检查的路由地址。
+ * @returns {boolean} 地址以 iframe 路由前缀开头时返回 true。
+ * @example
+ * isIframe('/outside/iframe/docs')
+ */
 export function isIframe(url: string): boolean {
   return url.startsWith('/outside/iframe/')
 }
 
 /**
- * 判断菜单项是否可作为默认导航落点
- * 隐藏的全屏页面虽然不展示在菜单中，但仍然可能是合法首页。
+ * @description 判断菜单项是否可作为默认导航落点；隐藏的全屏页面仍可视为合法落点。
+ * @param {AppRouteRecord} menuItem 待判断的菜单项。
+ * @returns {boolean} 路径有效且菜单可导航时返回 true。
+ * @example
+ * const navigable = isNavigableMenuItem(menuItem)
  */
 export const isNavigableMenuItem = (menuItem: AppRouteRecord): boolean => {
   if (!menuItem.path || !menuItem.path.trim()) {
@@ -46,18 +55,20 @@ export const isNavigableMenuItem = (menuItem: AppRouteRecord): boolean => {
 }
 
 /**
- * 标准化路径格式
- * @param path 路径
- * @returns 标准化后的路径
+ * @description 确保路径以正斜杠开头。
+ * @param {string} path 原始路径。
+ * @returns {string} 标准化后的绝对路由路径。
  */
 const normalizePath = (path: string): string => {
   return path.startsWith('/') ? path : `/${path}`
 }
 
 /**
- * 递归获取菜单的第一个有效路径
- * @param menuList 菜单列表
- * @returns 第一个有效路径，如果没有找到则返回空字符串
+ * @description 深度优先查找菜单树中的首个可导航路径，并将其标准化。
+ * @param {AppRouteRecord[]} menuList 菜单列表。
+ * @returns {string} 首个有效路径；未找到时返回空字符串。
+ * @example
+ * const homePath = getFirstMenuPath(menuList)
  */
 export const getFirstMenuPath = (menuList: AppRouteRecord[]): string => {
   if (!Array.isArray(menuList) || menuList.length === 0) {

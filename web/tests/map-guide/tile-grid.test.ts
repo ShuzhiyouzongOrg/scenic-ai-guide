@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 手绘瓦片网格完整性测试。
+ * @description 验证手绘瓦片边界、行列顺序和相邻瓦片衔接不存在缝隙或重叠。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {

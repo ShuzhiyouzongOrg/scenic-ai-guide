@@ -1,5 +1,6 @@
 /**
- * 主题动画工具模块
+ * @fileoverview 明暗主题切换动画工具。
+ * @description 根据用户点击位置执行 View Transition 圆形扩散动画，并为不支持该 API 的浏览器降级切换。
  *
  * 提供主题切换的视觉动画效果
  *
@@ -25,7 +26,6 @@
  * - 自动计算最大扩散半径
  *
  * @module utils/theme/animation
- * @author Scenic AI Guide Team
  */
 import { useCommon } from '@/hooks/core/useCommon'
 import { useTheme } from '@/hooks/core/useTheme'
@@ -34,8 +34,11 @@ import { useSettingStore } from '@/store/modules/setting'
 const { LIGHT, DARK } = SystemThemeEnum
 
 /**
- * 主题切换动画
- * @param e 鼠标点击事件
+ * @description 以点击坐标为圆心计算扩散半径，并执行或降级完成主题切换。
+ * @param {any} e 提供 `clientX` 与 `clientY` 视口点击坐标的鼠标事件。
+ * @returns {void} 无返回值。
+ * @example
+ * themeAnimation(mouseEvent)
  */
 export const themeAnimation = (e: any) => {
   const x = e.clientX
@@ -56,7 +59,8 @@ export const themeAnimation = (e: any) => {
 }
 
 /**
- * 切换主题
+ * @description 在明暗主题之间切换样式并刷新依赖主题的界面状态。
+ * @returns {void} 无返回值。
  */
 const toggleTheme = () => {
   useTheme().switchThemeStyles(useSettingStore().systemThemeType === LIGHT ? DARK : LIGHT)
@@ -64,8 +68,11 @@ const toggleTheme = () => {
 }
 
 /**
- * 切换主题过渡效果
- * @param enable 是否启用过渡效果
+ * @description 添加或延迟移除主题过渡类，控制页面颜色变化动画。
+ * @param {boolean} enable 是否启用主题过渡效果。
+ * @returns {void} 无返回值。
+ * @example
+ * toggleTransition(true)
  */
 export const toggleTransition = (enable: boolean) => {
   const body = document.body

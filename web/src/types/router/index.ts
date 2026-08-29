@@ -1,76 +1,117 @@
 /**
- * 路由类型定义模块
- *
- * 提供路由相关的类型定义
- *
- * ## 主要功能
- *
- * - 路由元数据类型（标题、图标、权限等）
- * - 应用路由记录类型
- * - 路由配置扩展
- *
- * ## 使用场景
- *
- * - 路由配置类型约束
- * - 路由元数据定义
- * - 菜单生成
- * - 权限控制
- *
- * @module types/router/index
- * @author Scenic AI Guide Team
+ * @fileoverview 应用路由类型定义。
+ * @description 扩展 Vue Router 的路由元数据和业务路由记录结构。
  */
 
 import { RouteRecordRaw } from 'vue-router'
 
 /**
- * 路由元数据接口
- * 定义路由的各种配置属性
+ * @description 描述路由标题、图标、可见性、缓存和权限元数据。
+ * @typedef {object} RouteMeta
+ * @property {string} title 标题。
+ * @property {string} [icon] 图标标识。
+ * @property {boolean} [showBadge] 是否显示徽章。
+ * @property {string} [showTextBadge] 文本徽章内容。
+ * @property {boolean} [isHide] 是否在菜单中隐藏。
+ * @property {boolean} [isHideTab] 是否在标签页中隐藏。
+ * @property {string} [link] 外部链接。
+ * @property {boolean} [isIframe] 是否使用 iframe。
+ * @property {boolean} [keepAlive] 是否缓存页面。
+ * @property {Array<{ title: string authMark: string }>} [authList] 按钮权限列表。
+ * @property {boolean} [isFirstLevel] 是否为一级路由。
+ * @property {string[]} [roles] 角色列表。
+ * @property {boolean} [fixedTab] 是否固定标签页。
+ * @property {string} [activePath] 菜单激活路径。
+ * @property {boolean} [isFullPage] 是否使用全屏页面。
+ * @property {boolean} [isAuthButton] 是否为权限按钮行。
+ * @property {string} [authMark] 权限标识。
+ * @property {string} [parentPath] 父路由路径。
  */
 export interface RouteMeta extends Record<string | number | symbol, unknown> {
-  /** 路由标题 */
+  /**
+   * @description 路由标题
+   */
   title: string
-  /** 路由图标 */
+  /**
+   * @description 路由图标
+   */
   icon?: string
-  /** 是否显示徽章 */
+  /**
+   * @description 是否显示徽章
+   */
   showBadge?: boolean
-  /** 文本徽章 */
+  /**
+   * @description 文本徽章
+   */
   showTextBadge?: string
-  /** 是否在菜单中隐藏 */
+  /**
+   * @description 是否在菜单中隐藏
+   */
   isHide?: boolean
-  /** 是否在标签页中隐藏 */
+  /**
+   * @description 是否在标签页中隐藏
+   */
   isHideTab?: boolean
-  /** 外部链接 */
+  /**
+   * @description 外部链接
+   */
   link?: string
-  /** 是否为iframe */
+  /**
+   * @description 是否为iframe
+   */
   isIframe?: boolean
-  /** 是否缓存 */
+  /**
+   * @description 是否缓存
+   */
   keepAlive?: boolean
-  /** 操作权限 */
+  /**
+   * @description 操作权限
+   */
   authList?: Array<{
     title: string
     authMark: string
   }>
-  /** 是否为一级菜单 */
+  /**
+   * @description 是否为一级菜单
+   */
   isFirstLevel?: boolean
-  /** 角色权限 */
+  /**
+   * @description 角色权限
+   */
   roles?: string[]
-  /** 是否固定标签页 */
+  /**
+   * @description 是否固定标签页
+   */
   fixedTab?: boolean
-  /** 激活菜单路径 */
+  /**
+   * @description 激活菜单路径
+   */
   activePath?: string
-  /** 是否为全屏页面 */
+  /**
+   * @description 是否为全屏页面
+   */
   isFullPage?: boolean
-  /** 是否为权限按钮行 */
+  /**
+   * @description 是否为权限按钮行
+   */
   isAuthButton?: boolean
-  /** 权限标识 */
+  /**
+   * @description 权限标识
+   */
   authMark?: string
-  /** 父级路径 */
+  /**
+   * @description 父级路径
+   */
   parentPath?: string
 }
 
 /**
- * 应用路由记录接口
- * 扩展 Vue Router 的路由记录类型
+ * @description 描述项目扩展后的 Vue Router 路由记录。
+ * @typedef {object} AppRouteRecord
+ * @property {number} [id] 后端菜单记录标识。
+ * @property {RouteMeta} meta 路由展示、缓存与权限元数据。
+ * @property {AppRouteRecord[]} [children] 子路由列表。
+ * @property {string | (() => Promise<any>)} [component] Vue 组件实现。
  */
 export interface AppRouteRecord extends Omit<RouteRecordRaw, 'meta' | 'children' | 'component'> {
   id?: number

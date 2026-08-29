@@ -1,9 +1,14 @@
 // @ts-nocheck -- 移植自 awesome-digital-human-live2d 的第三方 Live2D(Cubism SDK)代码，不纳入本项目严格类型检查
-/**
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+/**
+ * @fileoverview Live2D 模型加载、更新与绘制实现。
+ * @description 负责解析模型资源、组装 Cubism 组件、驱动动作与口型并提交 WebGL 绘制。
  */
 
 import { CubismDefaultParameterId } from '@framework/cubismdefaultparameterid';
@@ -81,14 +86,20 @@ enum LoadStep {
 }
 
 /**
- * ユーザーが実際に使用するモデルの実装クラス<br>
- * モデル生成、機能コンポーネント生成、更新処理とレンダリングの呼び出しを行う。
+ * @class
+ * @description 实现应用实际使用的 Live2D 模型加载、组件初始化、帧更新和渲染流程。
+ * @example
+ * const model = new LAppModel();
+ * model.setSubdelegate(subdelegate);
  */
 export class LAppModel extends CubismUserModel {
   /**
-   * model3.jsonが置かれたディレクトリとファイルパスからモデルを生成する
-   * @param dir
-   * @param fileName
+   * @description 从模型目录和入口文件异步加载 model3 配置，并启动模型组装流程。
+   * @param {string} dir 模型资源目录地址，末尾应包含路径分隔符。
+   * @param {string} fileName model3 配置文件名。
+   * @returns {void} 无返回值。
+   * @example
+   * model.loadAssets('/live2d/characters/Haru/', 'Haru.model3.json');
    */
   public loadAssets(dir: string, fileName: string): void {
     this._released = false;
@@ -130,10 +141,10 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * model3.jsonからモデルを生成する。
-   * model3.jsonの記述に従ってモデル生成、モーション、物理演算などのコンポーネント生成を行う。
-   *
-   * @param setting ICubismModelSettingのインスタンス
+   * @description 按 model3 设置依次加载模型、表情、物理、姿态、动作、纹理和 MotionSync 组件。
+   * @param {ICubismModelSetting} setting 已解析的 Cubism 模型设置。
+   * @returns {void} 无返回值。
+   * @private
    */
   private setupModel(setting: ICubismModelSetting): void {
     this._updating = true;
@@ -516,7 +527,9 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * テクスチャユニットにテクスチャをロードする
+   * @description 加载模型纹理并绑定到 Cubism WebGL 渲染器的纹理单元。
+   * @returns {void} 无返回值。
+   * @private
    */
   private setupTextures(): void {
     // iPhoneでのアルファ品質向上のためTypescriptではpremultipliedAlphaを採用
@@ -586,7 +599,8 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * レンダラを再構築する
+   * @description 删除并重新创建 Cubism 渲染器，然后重新绑定全部纹理。
+   * @returns {void} 无返回值。
    */
   public reloadRenderer(): void {
     this.deleteRenderer();
@@ -595,7 +609,8 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * 更新
+   * @description 按帧更新动作、表情、拖拽、呼吸、物理、姿态和音频口型参数。
+   * @returns {void} 无返回值。
    */
   public update(): void {
     if (this._state != LoadStep.CompleteSetup) return;
@@ -708,6 +723,12 @@ export class LAppModel extends CubismUserModel {
     this._model.update();
   }
 
+  /**
+   * @description 将已播放 PCM 提交给官方 MotionSync，并把分析结果应用到模型参数。
+   * @param {number} deltaTimeSeconds 与上一帧的时间间隔，单位为秒。
+   * @returns {boolean} 官方 MotionSync 成功处理本帧时返回 `true`。
+   * @private
+   */
   private updateOfficialMotionSync(deltaTimeSeconds: number): boolean {
     if (
       !this._motionSync ||
@@ -748,6 +769,11 @@ export class LAppModel extends CubismUserModel {
     }
   }
 
+  /**
+   * @description 释放当前模型的 MotionSync 实例并清空待处理 PCM。
+   * @returns {void} 无返回值。
+   * @private
+   */
   private releaseMotionSync(): void {
     this._motionSync?.release();
     this._motionSync = null;
@@ -755,12 +781,15 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * 引数で指定したモーションの再生を開始する
-   * @param group モーショングループ名
-   * @param no グループ内の番号
-   * @param priority 優先度
-   * @param onFinishedMotionHandler モーション再生終了時に呼び出されるコールバック関数
-   * @return 開始したモーションの識別番号を返す。個別のモーションが終了したか否かを判定するisFinished()の引数で使用する。開始できない時は[-1]
+   * @description 按组名、索引和优先级加载并开始播放指定模型动作。
+   * @param {string} group 动作组名称。
+   * @param {number} no 动作在组内的索引。
+   * @param {number} priority 动作播放优先级。
+   * @param {FinishedMotionCallback} [onFinishedMotionHandler] 动作播放结束回调。
+   * @param {BeganMotionCallback} [onBeganMotionHandler] 动作开始播放回调。
+   * @returns {CubismMotionQueueEntryHandle} 动作队列句柄；无法开始时返回无效句柄。
+   * @example
+   * model.startMotion('Idle', 0, PriorityNormal);
    */
   public startMotion(
     group: string,
@@ -841,11 +870,14 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * ランダムに選ばれたモーションの再生を開始する。
-   * @param group モーショングループ名
-   * @param priority 優先度
-   * @param onFinishedMotionHandler モーション再生終了時に呼び出されるコールバック関数
-   * @return 開始したモーションの識別番号を返す。個別のモーションが終了したか否かを判定するisFinished()の引数で使用する。開始できない時は[-1]
+   * @description 从指定动作组中随机选择一个动作并开始播放。
+   * @param {string} group 动作组名称。
+   * @param {number} priority 动作播放优先级。
+   * @param {FinishedMotionCallback} [onFinishedMotionHandler] 动作播放结束回调。
+   * @param {BeganMotionCallback} [onBeganMotionHandler] 动作开始播放回调。
+   * @returns {CubismMotionQueueEntryHandle} 动作队列句柄；组内无动作时返回无效句柄。
+   * @example
+   * model.startRandomMotion('Idle', PriorityIdle);
    */
   public startRandomMotion(
     group: string,
@@ -871,9 +903,9 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * 引数で指定した表情モーションをセットする
-   *
-   * @param expressionId 表情モーションのID
+   * @description 设置并播放指定标识的表情动作。
+   * @param {string} expressionId 表情动作标识。
+   * @returns {void} 无返回值。
    */
   public setExpression(expressionId: string): void {
     const motion: ACubismMotion = this._expressions.getValue(expressionId);
@@ -892,7 +924,8 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * ランダムに選ばれた表情モーションをセットする
+   * @description 从已加载的表情集合中随机选择并播放一个表情。
+   * @returns {void} 无返回值。
    */
   public setRandomExpression(): void {
     if (this._expressions.getSize() == 0) {
@@ -911,19 +944,20 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * イベントの発火を受け取る
+   * @description 接收动作时间线事件并写入 Cubism 调试日志。
+   * @param {csmString} eventValue 动作事件值。
+   * @returns {void} 无返回值。
    */
   public motionEventFired(eventValue: csmString): void {
     CubismLogInfo('{0} is fired on LAppModel!!', eventValue.s);
   }
 
   /**
-   * 当たり判定テスト
-   * 指定ＩＤの頂点リストから矩形を計算し、座標をが矩形範囲内か判定する。
-   *
-   * @param hitArenaName  当たり判定をテストする対象のID
-   * @param x             判定を行うX座標
-   * @param y             判定を行うY座標
+   * @description 根据指定命中区域的顶点边界判断模型坐标是否落在区域内。
+   * @param {string} hitArenaName 待检测的命中区域名称。
+   * @param {number} x 待检测的模型横坐标。
+   * @param {number} y 待检测的模型纵坐标。
+   * @returns {boolean} 模型不透明且坐标命中指定区域时返回 `true`。
    */
   public hitTest(hitArenaName: string, x: number, y: number): boolean {
     // 透明時は当たり判定無し。
@@ -944,10 +978,9 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * モーションデータをグループ名から一括でロードする。
-   * モーションデータの名前は内部でModelSettingから取得する。
-   *
-   * @param group モーションデータのグループ名
+   * @description 按动作组批量预加载模型设置中声明的全部动作数据。
+   * @param {string} group 待预加载的动作组名称。
+   * @returns {void} 无返回值。
    */
   public preLoadMotionGroup(group: string): void {
     for (let i = 0; i < this._modelSetting.getMotionCount(group); i++) {
@@ -1019,21 +1052,24 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * すべてのモーションデータを解放する。
+   * @description 清空全部已加载的模型动作数据。
+   * @returns {void} 无返回值。
    */
   public releaseMotions(): void {
     this._motions.clear();
   }
 
   /**
-   * 全ての表情データを解放する。
+   * @description 清空全部已加载的表情动作数据。
+   * @returns {void} 无返回值。
    */
   public releaseExpressions(): void {
     this._expressions.clear();
   }
 
   /**
-   * モデルを描画する処理。モデルを描画する空間のView-Projection行列を渡す。
+   * @description 根据所属画布设置渲染状态并绘制当前 Cubism 模型。
+   * @returns {void} 无返回值。
    */
   public doDraw(): void {
     if (this._model == null) return;
@@ -1050,7 +1086,9 @@ export class LAppModel extends CubismUserModel {
   }
 
   /**
-   * モデルを描画する処理。モデルを描画する空間のView-Projection行列を渡す。
+   * @description 将模型矩阵合入视图投影矩阵，并在模型完成加载后提交绘制。
+   * @param {CubismMatrix44} matrix 当前视图投影矩阵；调用后会被原地更新。
+   * @returns {void} 无返回值。
    */
   public draw(matrix: CubismMatrix44): void {
     if (this._model == null) {
@@ -1067,6 +1105,13 @@ export class LAppModel extends CubismUserModel {
     }
   }
 
+  /**
+   * @description 重新读取 MOC3 文件并执行 Cubism 一致性校验。
+   * @returns {Promise<boolean|undefined>} 校验结果；模型文件未配置时返回 `undefined`。
+   * @throws {Error} 模型请求、二进制读取或底层一致性校验失败时以 Promise 拒绝。
+   * @example
+   * const consistent = await model.hasMocConsistencyFromFile();
+   */
   public async hasMocConsistencyFromFile() {
     CSM_ASSERT(this._modelSetting.getModelFileName().localeCompare(``));
 
@@ -1092,22 +1137,39 @@ export class LAppModel extends CubismUserModel {
     }
   }
 
+  /**
+   * @description 绑定负责提供画布、WebGL 和纹理管理器的子委托。
+   * @param {LAppSubdelegate} subdelegate 当前模型所属的画布子委托。
+   * @returns {void} 无返回值。
+   */
   public setSubdelegate(subdelegate: LAppSubdelegate): void {
     this._subdelegate = subdelegate;
   }
 
+  /**
+   * @description 标记模型加载任务失效，释放 MotionSync 并调用基类释放模型资源。
+   * @returns {void} 无返回值。
+   */
   public release(): void {
     this._released = true;
     this.releaseMotionSync();
     super.release();
   }
 
+  /**
+   * @description 判断当前模型尚未释放且仍是最新加载请求的所有者。
+   * @returns {boolean} 异步加载结果仍可应用时返回 `true`。
+   * @private
+   */
   private isLoadActive(): boolean {
     return !this._released && this._live2dManager.isModelLoadCurrent(this);
   }
 
   /**
-   * コンストラクタ
+   * @description 初始化模型状态、动作集合、参数标识和音频口型同步依赖。
+   * @throws {Error} 当前环境缺少 Web Audio API 且首次创建 Live2D 管理器时抛出异常。
+   * @example
+   * const model = new LAppModel();
    */
   public constructor() {
     super();

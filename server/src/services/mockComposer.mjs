@@ -1,9 +1,14 @@
 /**
  * @fileoverview 离线模拟大模型的确定性导游回答组合器。
+ * @description
+ * 根据检索元数据和问答场景生成确定性的多语言离线导游回答。
  *
  * 将检索和场景分类元数据转换为简洁、基于资料的多语言回答，使完整 RAG 流程无需云端密钥也可演示。
- *
+ */
+
+/**
  * @typedef {object} MockAnswerMeta
+ * @description 离线回答组合器所需的场景、检索与实体元数据。
  * @property {string} [scenario] 回答场景。
  * @property {string} [mode] 回答模式。
  * @property {string} [locale] 目标语言。
@@ -13,9 +18,16 @@
  * @property {object[]} [spotMatches] 景点实体匹配。
  * @property {object} [spot] 景点详情。
  * @property {string[]} [interests] 游客兴趣。
+ * @property {{reason?: string}} [decision] 检索可回答性决策。
+ * @property {string} [otherPlace] 超出服务范围的目的地名称。
+ * @property {string} [sensitiveCategory] 敏感问题分类。
  */
 
-/** @type {Record<string, RegExp>} 业务意图到事实句筛选模式的映射。 */
+/**
+ * @description
+ * 业务意图到事实句筛选模式的映射。
+ * @type {Record<string, RegExp>} 业务意图到事实句筛选模式的映射。
+ */
 const INTENT_PATTERNS = {
   height:
     /(通高\s*)?\d+(\.\d+)?\s*(米|m|meters?|미터|メートル|公尺|เมตร)|总高|通高|高度|height|높이|高さ|ความสูง/i,
@@ -33,11 +45,19 @@ const INTENT_PATTERNS = {
     /路线|入园|出口|建议|小时|先|再|最后|route|enter|continue|finish|경로|입장|이동|ルート|入園|巡り|路線|เส้นทาง|ทางเข้า|ทางออก|แนะนำ|ชั่วโมง/i,
 };
 
-/** @type {RegExp} 不应出现在自然导游回答中的结构化资料字段标签。 */
+/**
+ * @description
+ * 不应出现在自然导游回答中的结构化资料字段标签。
+ * @type {RegExp} 不应出现在自然导游回答中的结构化资料字段标签。
+ */
 const FIELD_LABEL =
   /(建筑\/景观参数|演艺\/开放信息|核心功能|文化内涵|详细介绍|游玩亮点|备注|建築\/景觀參數|表演\/開放資訊|核心功能|文化內涵|詳細介紹|遊玩亮點|備註)[：:]/g;
 
-/** @type {Record<string, object>} 各支持语言的固定话术和模板函数。 */
+/**
+ * @description
+ * 各支持语言的固定话术和模板函数。
+ * @type {Record<string, object>} 各支持语言的固定话术和模板函数。
+ */
 const COPY = {
   zh: {
     about: (subject) => `关于${subject},`,
@@ -141,7 +161,11 @@ const COPY = {
   },
 };
 
-/** @type {Record<string, Record<string, (topic: string) => string>>} 按公开拒答原因区分的多语言话术。 */
+/**
+ * @description
+ * 按公开拒答原因区分的多语言话术。
+ * @type {Record<string, Record<string, (topic: string) => string>>} 按公开拒答原因区分的多语言话术。
+ */
 const NO_DATA_REASON_COPY = {
   zh: {
     no_candidate: (topic) => `抱歉，当前资料中没有找到与${topic}直接相关的内容，我不会据此猜测。`,
@@ -176,6 +200,7 @@ const NO_DATA_REASON_COPY = {
 };
 
 /**
+ * @description
  * 获取目标语言话术，未知语言回退为简体中文。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -186,6 +211,7 @@ function copyFor(meta) {
 }
 
 /**
+ * @description
  * 移除结构字段标签、合并空白并清理文本。
  * @private
  * @param {*} text 原始文本。
@@ -199,6 +225,7 @@ function clean(text) {
 }
 
 /**
+ * @description
  * 按中英文句末标点拆分文本。
  * @private
  * @param {*} text 原始文本。
@@ -212,6 +239,7 @@ function splitSentences(text) {
 }
 
 /**
+ * @description
  * 优先选择匹配事实模式的句子，否则选择开头句子。
  * @private
  * @param {*} text 原始文本。
@@ -230,6 +258,7 @@ function pickSentences(text, pattern, max = 2) {
 }
 
 /**
+ * @description
  * 按业务优先级从多项检索意图中选择主要意图。
  * @private
  * @param {object[]} [intents=[]] 检索意图。
@@ -254,6 +283,7 @@ function primaryIntent(intents = []) {
 }
 
 /**
+ * @description
  * 为若干容易答非所问的具体问题选择更严格的事实句模式。
  * @private
  * @param {*} question 用户问题。
@@ -293,6 +323,7 @@ function patternFromQuestion(question) {
 }
 
 /**
+ * @description
  * 从首条检索结果或景点实体中推导回答主题名。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -308,6 +339,7 @@ function subjectName(meta) {
 }
 
 /**
+ * @description
  * 将清理后的文本限制到最大字符数，优先在后半段句末截断。
  * @private
  * @param {*} text 原始文本。
@@ -329,6 +361,7 @@ function trimTo(text, max) {
 }
 
 /**
+ * @description
  * 根据主要意图从检索资料中组合普通问答或详细讲解。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -382,6 +415,7 @@ function composeGrounded(meta) {
 }
 
 /**
+ * @description
  * 从路线资料的箭头节点或正文句子组合编号路线。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -421,6 +455,7 @@ function composeRoute(meta) {
 }
 
 /**
+ * @description
  * 获取目标语言的三步默认路线。
  * @private
  * @param {string} locale 目标语言。
@@ -463,6 +498,7 @@ function fallbackRoute(locale) {
 }
 
 /**
+ * @description
  * 生成明确说明资料未覆盖的回答，并引用游客原问题作为主题。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -478,6 +514,7 @@ function composeNoData(meta) {
 }
 
 /**
+ * @description
  * 生成服务范围外景区的礼貌引导回答。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -489,6 +526,7 @@ function composeOutOfScope(meta) {
 }
 
 /**
+ * @description
  * 按敏感类别生成拒答和景区话题引导。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -511,6 +549,7 @@ function composeSensitive(meta) {
 }
 
 /**
+ * @description
  * 根据景点详情或首条检索资料组合约一分钟口播。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -535,6 +574,7 @@ function composeNarration(meta) {
 }
 
 /**
+ * @description
  * 根据景点、资料和游客兴趣组合到达后的伴随讲解。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -556,6 +596,7 @@ function composeAccompany(meta) {
 }
 
 /**
+ * @description
  * 区分问候、感谢和普通闲聊并返回对应语言话术。
  * @private
  * @param {MockAnswerMeta} meta 回答元数据。
@@ -578,6 +619,7 @@ function composeChitchat(meta) {
 }
 
 /**
+ * @description
  * 按场景分派确定性回答组合器。
  * @param {MockAnswerMeta} meta 回答元数据。
  * @returns {string} 可直接展示和口播的回答文本。

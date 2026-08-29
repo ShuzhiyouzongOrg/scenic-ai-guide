@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 远程 RAG 适配层测试脚本。
+ * @description 通过模拟接口覆盖向量化、Qdrant 索引、重排、超时重试、熔断与本地降级。
+ */
 import assert from "node:assert";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -84,6 +88,13 @@ try {
   let collectionExists = false;
   let queryChunkIds = ["chunk-a"];
   let expectedIndexVersion = "version-test";
+  /**
+   * @description 模拟 Embedding、Reranker 与 Qdrant HTTP 接口并校验请求契约。
+   * @param {*} url 请求地址。
+   * @param {RequestInit} [init={}] Fetch 请求选项。
+   * @returns {Promise<{status: number, ok: boolean, json: () => Promise<*>}>} JSON Response 替身。
+   * @throws {AssertionError|Error|SyntaxError} 请求契约不符、索引版本不符、正文解析失败或路径未覆盖时抛出。
+   */
   const fakeFetch = async (url, init = {}) => {
     const body = init.body ? JSON.parse(init.body) : null;
     calls.push({ url: String(url), method: init.method || "GET", body, headers: init.headers || {} });
@@ -347,6 +358,12 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+/**
+ * @description 构造远程 RAG 测试使用的最小 JSON Response 替身。
+ * @param {number} status HTTP 状态码。
+ * @param {*} body JSON 正文。
+ * @returns {{status: number, ok: boolean, json: () => Promise<*>}} Response 替身。
+ */
 function jsonResponse(status, body) {
   return {
     status,
@@ -355,14 +372,30 @@ function jsonResponse(status, body) {
   };
 }
 
+/**
+ * @description 根据种子生成可重复的 64 维测试向量。
+ * @param {number} seed 数值种子。
+ * @returns {number[]} 64 维向量。
+ */
 function vector64(seed) {
   return Array.from({ length: 64 }, (_, index) => ((index + seed) % 11) - 5 || 0.25);
 }
 
+/**
+ * @description 计算向量的欧几里得范数。
+ * @param {number[]} vector 数值向量。
+ * @returns {number} L2 范数。
+ */
 function vectorNorm(vector) {
   return Math.sqrt(vector.reduce((sum, value) => sum + value * value, 0));
 }
 
+/**
+ * @description 构造可同步到远程向量库的知识分块夹具。
+ * @param {string} id 分块 ID。
+ * @param {string} content 分块正文。
+ * @returns {object} visitor_qa 范围的测试知识分块。
+ */
 function knowledgeChunk(id, content) {
   return {
     id,

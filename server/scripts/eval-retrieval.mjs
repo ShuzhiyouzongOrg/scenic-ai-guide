@@ -1,3 +1,7 @@
+/**
+ * @fileoverview RAG 检索质量评估脚本。
+ * @description 对规则、关键词、BM25、融合与重排模式计算召回率、MRR、NDCG、引用命中率和时延。
+ */
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -190,10 +194,21 @@ if (failures.length > 0 && !allowCaseFailures) {
   process.exitCode = 1;
 }
 
+/**
+ * @description 根据数据集文件名推断评测套件。
+ * @param {string} filePath 数据集路径。
+ * @returns {"full"|"smoke"} 扩展集为 `full`，否则为 `smoke`。
+ */
 function inferSuite(filePath) {
   return filePath.includes("expanded") ? "full" : "smoke";
 }
 
+/**
+ * @description 将命令行检索模式映射为对应搜索函数。
+ * @param {string} value 检索模式。
+ * @returns {typeof keywordSearch} 规则、BM25 或混合检索函数。
+ * @throws {Error} 模式不受支持时抛出。
+ */
 function selectSearch(value) {
   if (value === "rule") return keywordSearch;
   if (value === "bm25") return bm25Search;
@@ -201,27 +216,55 @@ function selectSearch(value) {
   throw new Error(`Unsupported retrieval mode: ${value}`);
 }
 
+/**
+ * @description 将 Windows 路径分隔符转换为可移植正斜杠。
+ * @param {string} filePath 文件路径。
+ * @returns {string} 可移植路径。
+ */
 function toPortablePath(filePath) {
   return filePath.replaceAll("\\", "/");
 }
 
+/**
+ * @description 调用黄金集校验器检查指定检索数据集。
+ * @param {string} filePath 检索数据集路径。
+ * @returns {Promise<object>} 黄金集校验报告。
+ * @throws {Error|SyntaxError} 校验模块加载或数据集解析失败时抛出。
+ */
 async function validateDataset(filePath) {
   const { validateRagGoldens } = await import("./validate-rag-goldens.mjs");
   return validateRagGoldens({ retrievalPath: filePath });
 }
 
+/**
+ * @description 判断检索结果是否命中案例期望的标题、景点或文档。
+ * @param {object|null|undefined} entry 检索结果。
+ * @param {object} item 黄金案例。
+ * @returns {boolean} 命中任一相关性条件时为 `true`。
+ */
 function isRelevant(entry, item) {
   return matchesAny(entry?.title, item.expectedTopTitles || [])
     || (item.expectedSpotIds || []).includes(entry?.scenicSpotId)
     || (item.expectedDocumentIds || []).includes(entry?.documentId);
 }
 
+/**
+ * @description 判断结构化引用是否命中案例期望来源。
+ * @param {object|null|undefined} citation 结构化引用。
+ * @param {object} item 黄金案例。
+ * @returns {boolean} 命中标题、景点或文档时为 `true`。
+ */
 function isCitationRelevant(citation, item) {
   return matchesAny(citation?.sectionTitle, item.expectedTopTitles || [])
     || (item.expectedSpotIds || []).includes(citation?.scenicSpotId)
     || (item.expectedDocumentIds || []).includes(citation?.documentId);
 }
 
+/**
+ * @description 从检索结果摘取失败报告所需字段。
+ * @param {object} entry 检索结果。
+ * @returns {object} 精简失败候选。
+ */
 function toFailureResult(entry) {
   return {
     title: entry.title,
@@ -233,16 +276,34 @@ function toFailureResult(entry) {
   };
 }
 
+/**
+ * @description 判断实际文本与任一期望文本是否相等或互相包含。
+ * @param {string|null|undefined} value 实际文本。
+ * @param {string[]} expectedValues 期望文本列表。
+ * @returns {boolean} 存在匹配项时为 `true`。
+ */
 function matchesAny(value, expectedValues) {
   if (!value || expectedValues.length === 0) return false;
   return expectedValues.some((expected) => value === expected || value.includes(expected) || expected.includes(value));
 }
 
+/**
+ * @description 计算并保留四位小数的比率。
+ * @param {number} value 分子。
+ * @param {number} total 分母。
+ * @returns {number} 比率；分母为零时返回 `0`。
+ */
 function toRate(value, total) {
   if (total === 0) return 0;
   return Number((value / total).toFixed(4));
 }
 
+/**
+ * @description 按最近秩法计算数值样本分位数。
+ * @param {number[]} values 数值样本。
+ * @param {number} ratio 分位比例。
+ * @returns {number} 保留三位小数的分位值；空样本返回 `0`。
+ */
 function percentile(values, ratio) {
   if (values.length === 0) return 0;
   const sorted = [...values].sort((left, right) => left - right);
@@ -250,6 +311,11 @@ function percentile(values, ratio) {
   return Number(sorted[index].toFixed(3));
 }
 
+/**
+ * @description 计算检索上下文两两词集合 Jaccard 相似度的平均值。
+ * @param {object[]} results 检索结果。
+ * @returns {number} 保留四位小数的平均冗余度。
+ */
 function contextRedundancy(results) {
   if (results.length < 2) return 0;
   let total = 0;
@@ -266,6 +332,11 @@ function contextRedundancy(results) {
   return Number((total / Math.max(pairs, 1)).toFixed(4));
 }
 
+/**
+ * @description 从结果标题和正文提取长度至少为二的字母数字词项。
+ * @param {object|null|undefined} result 检索结果。
+ * @returns {string[]} 规范化词项。
+ */
 function contentTerms(result) {
   return String(`${result?.title || ""} ${result?.content || ""}`)
     .normalize("NFKC")
@@ -273,6 +344,11 @@ function contentTerms(result) {
     .match(/[\p{L}\p{N}]{2,}/gu) || [];
 }
 
+/**
+ * @description 按语言聚合召回、引用、拒答和时延指标。
+ * @param {object[]} values 逐案例评测结果。
+ * @returns {Record<string, object>} 以语言代码为键的指标报告。
+ */
 function buildLanguageMetrics(values) {
   const locales = [...new Set(values.map((item) => item.locale || "und"))].sort();
   return Object.fromEntries(locales.map((locale) => {

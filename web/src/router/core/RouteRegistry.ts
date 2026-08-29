@@ -1,10 +1,6 @@
 /**
- * 路由注册核心类
- *
- * 负责动态路由的注册、验证和管理
- *
- * @module router/core/RouteRegistry
- * @author Scenic AI Guide Team
+ * @fileoverview 动态路由注册器。
+ * @description 验证、转换并注册用户菜单路由，同时维护注销函数和注册状态。
  */
 
 import type { Router, RouteRecordRaw } from 'vue-router'
@@ -13,6 +9,12 @@ import { ComponentLoader } from './ComponentLoader'
 import { RouteValidator } from './RouteValidator'
 import { RouteTransformer } from './RouteTransformer'
 
+/**
+ * @description 验证、转换、注册和注销动态路由。
+ * @class
+ * @example
+ * const instance = new RouteRegistry()
+ */
 export class RouteRegistry {
   private router: Router
   private componentLoader: ComponentLoader
@@ -21,6 +23,10 @@ export class RouteRegistry {
   private removeRouteFns: (() => void)[] = []
   private registered = false
 
+  /**
+   * @description 使用指定 Vue Router 创建注册器及其加载、验证和转换依赖。
+   * @param {Router} router 接收动态路由注册操作的 Vue Router 实例。
+   */
   constructor(router: Router) {
     this.router = router
     this.componentLoader = new ComponentLoader()
@@ -29,7 +35,10 @@ export class RouteRegistry {
   }
 
   /**
-   * 注册动态路由
+   * @description 验证并注册菜单对应的动态路由。
+   * @param {AppRouteRecord[]} menuList 菜单列表。
+   * @returns {void} 无返回值。
+   * @throws {Error} 路由配置校验失败时抛出。
    */
   register(menuList: AppRouteRecord[]): void {
     if (this.registered) {
@@ -59,7 +68,8 @@ export class RouteRegistry {
   }
 
   /**
-   * 移除所有动态路由
+   * @description 注销当前注册器添加的全部动态路由。
+   * @returns {void} 无返回值。
    */
   unregister(): void {
     this.removeRouteFns.forEach((fn) => fn())
@@ -68,21 +78,24 @@ export class RouteRegistry {
   }
 
   /**
-   * 检查是否已注册
+   * @description 读取动态路由是否已经注册。
+   * @returns {boolean} 已完成动态路由注册时返回 `true`。
    */
   isRegistered(): boolean {
     return this.registered
   }
 
   /**
-   * 获取移除函数列表（用于 store 管理）
+   * @description 获取动态路由注销函数列表。
+   * @returns {(() => void)[]} 当前动态路由对应的注销函数列表。
    */
   getRemoveRouteFns(): (() => void)[] {
     return this.removeRouteFns
   }
 
   /**
-   * 标记为已注册（用于错误处理场景，避免重复请求）
+   * @description 将注册状态标记为已完成。
+   * @returns {void} 无返回值。
    */
   markAsRegistered(): void {
     this.registered = true

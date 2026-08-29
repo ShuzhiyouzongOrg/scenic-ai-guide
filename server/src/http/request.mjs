@@ -1,12 +1,25 @@
 /**
  * @fileoverview Node HTTP 请求体解析工具，覆盖 JSON、原始字节和 multipart 表单。
- *
- * @typedef {{fileName: string, mimeType: string, buffer: Buffer}} MultipartFile
- * @typedef {{fields: Record<string, string>, files: Record<string, MultipartFile>}} MultipartForm
+ * @description 解析 JSON、原始字节和 multipart 表单，并实施请求体大小与格式限制。
  */
 
 /**
- * 读取并解析 JSON 请求体；空请求体返回空对象。
+ * @typedef {object} MultipartFile
+ * @description multipart 表单中的单个文件字段。
+ * @property {string} fileName 客户端提交的文件名。
+ * @property {string} mimeType 文件媒体类型。
+ * @property {Buffer} buffer 文件原始字节。
+ */
+
+/**
+ * @typedef {object} MultipartForm
+ * @description 解析后的 multipart 文本字段和文件字段集合。
+ * @property {Record<string, string>} fields 文本字段映射。
+ * @property {Record<string, MultipartFile>} files 文件字段映射。
+ */
+
+/**
+ * @description 读取并解析 JSON 请求体；空请求体返回空对象。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求对象。
  * @returns {Promise<Record<string, unknown>>} 解析后的 JSON 对象。
@@ -32,7 +45,7 @@ export async function readJson(req) {
 }
 
 /**
- * 以 UTF-8 文本读取完整请求体。
+ * @description 以 UTF-8 文本读取完整请求体。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求对象。
  * @returns {Promise<string>} 请求体文本。
@@ -45,7 +58,7 @@ export function readBody(req) {
 }
 
 /**
- * 将请求流聚合为 Buffer，并限制最大字节数以防止内存耗尽。
+ * @description 将请求流聚合为 Buffer，并限制最大字节数以防止内存耗尽。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求对象。
  * @param {number} [maxBytes=15728640] 允许读取的最大字节数。
@@ -76,7 +89,7 @@ export function readBodyBuffer(req, maxBytes = 15 * 1024 * 1024) {
 }
 
 /**
- * 解析简单的 `multipart/form-data` 请求，将文本字段和文件字段分开返回。
+ * @description 解析简单的 `multipart/form-data` 请求，将文本字段和文件字段分开返回。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求对象。
  * @param {number} [maxBytes=15728640] 表单体最大字节数。
@@ -133,7 +146,7 @@ export async function readMultipartForm(req, maxBytes = 15 * 1024 * 1024) {
 }
 
 /**
- * 从 Authorization 请求头提取 Bearer Token。
+ * @description 从 Authorization 请求头提取 Bearer Token。
  *
  * @param {import("node:http").IncomingMessage} req HTTP 请求对象。
  * @returns {string} Token 文本；请求头缺失或格式不匹配时返回空字符串。

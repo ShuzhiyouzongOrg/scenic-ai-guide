@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 账号认证与权限集成测试脚本。
+ * @description 以内存数据库验证注册、登录、角色权限、Token 失效和账号状态变更。
+ */
 import assert from "node:assert/strict";
 
 process.env.SQLITE_PATH = ":memory:";
@@ -24,18 +28,42 @@ const visitor = createAdminUser({
 });
 
 let passed = 0;
+/**
+ * @description 执行同步断言并累计通过数。
+ * @param {string} name 测试名称。
+ * @param {() => void} fn 断言回调。
+ * @returns {void}
+ * @throws {*} 断言回调失败时原样抛出异常。
+ */
 function check(name, fn) {
   fn();
   passed += 1;
   console.log(`PASS  ${name}`);
 }
 
+/**
+ * @description 发起 HTTP 请求并解析 JSON 响应。
+ * @param {string} origin 服务根地址。
+ * @param {string} path API 路径。
+ * @param {RequestInit} [options={}] Fetch 请求选项。
+ * @returns {Promise<{response: Response, body: object}>} 原始响应及 JSON 正文。
+ * @throws {TypeError|SyntaxError} 网络请求或 JSON 解析失败时抛出。
+ */
 async function jsonRequest(origin, path, options = {}) {
   const response = await fetch(`${origin}${path}`, options);
   const body = await response.json();
   return { response, body };
 }
 
+/**
+ * @description 调用登录接口，并按需携带用户选择的角色。
+ * @param {string} origin 服务根地址。
+ * @param {string} username 用户名。
+ * @param {string} password 密码。
+ * @param {string|undefined} role 登录角色。
+ * @returns {Promise<{response: Response, body: object}>} 登录接口响应。
+ * @throws {TypeError|SyntaxError} 网络请求或 JSON 解析失败时抛出。
+ */
 async function requestLogin(origin, username, password, role) {
   return jsonRequest(origin, "/api/auth/login", {
     method: "POST",

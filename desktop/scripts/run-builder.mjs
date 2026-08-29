@@ -1,3 +1,7 @@
+/**
+ * @fileoverview electron-builder 命令代理脚本。
+ * @description 统一桌面构建工作目录，并在本地 Windows 环境中重定向缓存与产物目录。
+ */
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

@@ -1,17 +1,6 @@
 /**
- * 配置图片资源
- *
- * 统一管理设置中心使用的预览图片资源。
- * 包含主题样式、菜单布局、菜单风格的预览图。
- *
- * ## 图片分类
- *
- * - themeStyles: 系统主题预览图（亮色/暗色/自动）
- * - menuLayouts: 菜单布局预览图（左侧/顶部/混合/双栏）
- * - menuStyles: 菜单风格预览图（设计/暗色/亮色）
- *
- * @module config/assets/images
- * @author Scenic AI Guide Team
+ * @fileoverview 界面图片资源配置。
+ * @description 集中声明系统设置、主题和菜单布局使用的图片资源地址。
  */
 
 import lightTheme from '@imgs/settings/theme_styles/light.png'
@@ -26,36 +15,63 @@ import darkStyle from '@imgs/settings/menu_styles/dark.png'
 import lightStyle from '@imgs/settings/menu_styles/light.png'
 
 /**
- * 配置中心图片资源对象
+ * @description 系统设置、主题和菜单布局使用的图片资源映射。
+ * @type {Record<string, string>}
  */
 export const configImages = {
-  /** 系统主题预览图 */
+  /**
+   * @description 系统主题预览图
+   */
   themeStyles: {
-    /** 亮色主题 */
+    /**
+     * @description 亮色主题
+     */
     light: lightTheme,
-    /** 暗色主题 */
+    /**
+     * @description 暗色主题
+     */
     dark: darkTheme,
-    /** 自动主题（跟随系统） */
+    /**
+     * @description 自动主题（跟随系统）
+     */
     system: systemTheme
   },
-  /** 菜单布局预览图 */
+  /**
+   * @description 菜单布局预览图
+   */
   menuLayouts: {
-    /** 左侧菜单 */
+    /**
+     * @description 左侧菜单
+     */
     vertical: verticalLayout,
-    /** 顶部菜单 */
+    /**
+     * @description 顶部菜单
+     */
     horizontal: horizontalLayout,
-    /** 混合菜单 */
+    /**
+     * @description 混合菜单
+     */
     mixed: mixedLayout,
-    /** 双栏菜单 */
+    /**
+     * @description 双栏菜单
+     */
     dualColumn: dualColumnLayout
   },
-  /** 菜单风格预览图 */
+  /**
+   * @description 菜单风格预览图
+   */
   menuStyles: {
-    /** 设计风格 */
+    /**
+     * @description 设计风格
+     */
     design: designStyle,
-    /** 暗色风格 */
+    /**
+     * @description 暗色风格
+     */
     dark: darkStyle,
-    /** 亮色风格 */
+    /**
+     * @description 亮色风格
+     */
     light: lightStyle
   }
 }

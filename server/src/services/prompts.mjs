@@ -1,29 +1,98 @@
 /**
  * @fileoverview 灵山数字人导游的系统提示、检索上下文及多轮消息构造服务。
- *
+ * @description
+ * 构建数字人导游系统提示、受预算约束的检索上下文和多轮消息。
+ */
+
+/**
  * @typedef {"qa"|"explain"|"route"} PromptMode
- * @typedef {{role: "system"|"user"|"assistant", content: string}} ChatPromptMessage
- * @typedef {{source?: string, scenicSpotName?: string, title?: string, content?: string}} PromptRetrievalResult
+ * @description 数字人导游支持的回答模式。
+ */
+
+/**
+ * @typedef {object} ChatPromptMessage
+ * @description OpenAI 兼容接口使用的对话消息。
+ * @property {"system"|"user"|"assistant"} role 消息角色。
+ * @property {string} content 消息正文。
+ */
+
+/**
+ * @typedef {object} PromptCitation
+ * @description 检索结果附带的引用标识。
+ * @property {string} citationId 引用 ID。
+ */
+
+/**
+ * @typedef {object} PromptRetrievalResult
+ * @description 可装入模型上下文的检索结果。
+ * @property {string} [source] 来源文档名称。
+ * @property {string} [documentId] 来源文档 ID。
+ * @property {string} [scenicSpotName] 景点名称。
+ * @property {string} [title] 分块标题。
+ * @property {string} [content] 分块正文。
+ * @property {string} [contextContent] 所属父级上下文正文。
+ * @property {string} [parentContent] 父级分块正文。
+ * @property {number} [score] 检索或重排分数。
+ * @property {PromptCitation} [citation] 结构化引用。
+ * @property {number} [page] PDF 页码。
+ * @property {string} [sheetName] XLSX 工作表名称。
+ * @property {string} [range] XLSX 单元格范围。
+ */
+
+/**
+ * @typedef {object} PackedPromptContext
+ * @description 按 token 预算装箱后的单条模型上下文。
+ * @property {PromptRetrievalResult} item 原始检索结果。
+ * @property {string} context 实际装入提示的正文。
+ * @property {number} tokens 正文估算 token 数。
+ */
+
+/**
+ * @typedef {object} PromptConflict
+ * @description 多来源事实冲突摘要。
+ * @property {string} field 冲突字段。
+ * @property {string[]} values 不同事实值。
+ * @property {string[]} [citations] 相关引用 ID。
  */
 
 import { estimateTextTokens } from "./knowledgeBuild.mjs";
 import { localeInstruction, normalizeLocale } from "./language.mjs";
 
-/** @type {number} 检索上下文总 token 预算，避免低配置服务发送超长请求。 */
+/**
+ * @description
+ * 检索上下文总 token 预算，避免低配置服务发送超长请求。
+ * @type {number} 检索上下文总 token 预算，避免低配置服务发送超长请求。
+ */
 export const CONTEXT_TOKEN_BUDGET = 3200;
-/** @type {number} 单个来源 parent 的最大 token 预算。 */
+/**
+ * @description
+ * 单个来源 parent 的最大 token 预算。
+ * @type {number} 单个来源 parent 的最大 token 预算。
+ */
 export const CONTEXT_ITEM_TOKEN_BUDGET = 900;
-/** @type {number} 同一文档在单次上下文中允许占用的最大 token。 */
+/**
+ * @description
+ * 同一文档在单次上下文中允许占用的最大 token。
+ * @type {number} 同一文档在单次上下文中允许占用的最大 token。
+ */
 export const CONTEXT_DOCUMENT_TOKEN_BUDGET = 1400;
 
-/** @type {string} 数字人导游的人设与语言风格约束。 */
+/**
+ * @description
+ * 数字人导游的人设与语言风格约束。
+ * @type {string} 数字人导游的人设与语言风格约束。
+ */
 const PERSONA = [
   "你是“灵山胜境”景区当前启用的 AI 数字人导游。",
   "你的风格:亲切、专业、简洁,像一位熟悉灵山、懂佛教文化的资深导游,而不是百科朗读机。",
   "语气温和自然,可以用口语化的表达,但不浮夸、不卖弄、不使用表情符号。"
 ].join("");
 
-/** @type {string} 知识依据、范围限制与安全拒答规则。 */
+/**
+ * @description
+ * 知识依据、范围限制与安全拒答规则。
+ * @type {string} 知识依据、范围限制与安全拒答规则。
+ */
 const GROUNDING_RULES = [
   "只依据下面提供的【灵山胜境资料】回答,不得编造资料中没有的事实(如高度、票价、时间、地点)。",
   "如果资料中没有相关信息,要如实说明“当前资料未覆盖”,并给出可以追问的方向,绝不猜测。",
@@ -33,7 +102,11 @@ const GROUNDING_RULES = [
   "景区、场馆、景点和演出的开放时间属于不同对象；仅回答游客实际询问的对象，不得把建议入园时间或演出时刻当作景区开放时间。"
 ].join("");
 
-/** @type {Record<PromptMode, string>} 各回答模式的结构和长度要求。 */
+/**
+ * @description
+ * 各回答模式的结构和长度要求。
+ * @type {Record<PromptMode, string>} 各回答模式的结构和长度要求。
+ */
 const MODE_RULES = {
   qa: "这是普通问答:请控制在 80-180 字,直接给出要点,必要时补一句友好的建议。请只输出纯文本,不要使用 Markdown 标题、粗体、代码块或链接语法。",
   explain: "这是讲解模式:请用 200-400 字,像口播讲解词一样有层次地介绍,可包含背景、特色与亮点。请只输出纯文本,不要使用 Markdown 标题、粗体、代码块或链接语法。",
@@ -41,6 +114,7 @@ const MODE_RULES = {
 };
 
 /**
+ * @description
  * 构建普通问答、景点讲解或路线推荐的系统提示。
  * @param {{mode?: PromptMode|string, locale?: *}} [options={}] 提示配置。
  * @returns {string} 包含人设、依据规则、回答语言和模式要求的系统提示。
@@ -62,6 +136,7 @@ export function buildSystemPrompt({ mode = "qa", locale = "zh" } = {}) {
 }
 
 /**
+ * @description
  * 构建约一分钟景点口播所使用的系统提示。
  * @returns {string} 景点口播的人设、字数和依据约束。
  * @example
@@ -77,6 +152,7 @@ export function buildNarrationSystemPrompt() {
 }
 
 /**
+ * @description
  * 构建游客到达景点后实时伴随讲解所使用的系统提示。
  * @returns {string} 伴随讲解的人设、字数和依据约束。
  * @example
@@ -92,6 +168,7 @@ export function buildAccompanySystemPrompt() {
 }
 
 /**
+ * @description
  * 将检索结果渲染为紧凑的大模型知识上下文，最多取前五项。
  * @param {PromptRetrievalResult[]} [results=[]] 已按相关性排序的检索结果。
  * @returns {string} 带资料编号、来源、景点名、标题和正文的上下文文本。
@@ -114,10 +191,16 @@ export function buildContextBlock(results = []) {
 }
 
 /**
+ * @description
  * 按相关性顺序装箱检索资料，分别限制单来源和总 token，并在句子边界截断。
  * @param {PromptRetrievalResult[]} results 检索结果。
- * @param {{maxTokens?: number, perItemTokens?: number, perDocumentTokens?: number}} [options={}] 预算参数。
- * @returns {Array<{item: PromptRetrievalResult, context: string, tokens: number}>} 已装箱资料。
+ * @param {object} [options={}] 预算参数。
+ * @param {number} [options.maxTokens] 上下文总 token 预算。
+ * @param {number} [options.perItemTokens] 单个检索结果的 token 预算。
+ * @param {number} [options.perDocumentTokens] 单一来源文档的累计 token 预算。
+ * @returns {PackedPromptContext[]} 已装箱资料。
+ * @example
+ * const packed = packContextResults(results, { maxTokens: 1600, perItemTokens: 500 });
  */
 export function packContextResults(results = [], options = {}) {
   const maxTokens = Math.max(128, Math.floor(Number(options.maxTokens || CONTEXT_TOKEN_BUDGET)));
@@ -151,6 +234,7 @@ export function packContextResults(results = [], options = {}) {
 }
 
 /**
+ * @description
  * 先按检索/重排分，再以事实型内容和来源轮换作为稳定次级排序。
  * @param {PromptRetrievalResult[]} results 检索结果。
  * @returns {PromptRetrievalResult[]} 装箱顺序。
@@ -183,7 +267,12 @@ function prioritizeContextResults(results) {
   return output;
 }
 
-/** @param {PromptRetrievalResult} item 候选。 @returns {number} 数字、时间、地点等事实内容优先级。 */
+/**
+ * @description
+ * 评估检索候选中数字、时间和地点等事实内容的优先级。
+ * @param {PromptRetrievalResult} item 候选。
+ * @returns {number} 数字、时间、地点等事实内容优先级。
+ */
 function factPriority(item) {
   const text = `${item.title || ""} ${item.content || ""}`;
   let score = 0;
@@ -193,7 +282,13 @@ function factPriority(item) {
   return score;
 }
 
-/** @param {string} text 正文。 @param {number} maxTokens 最大 token 数。 @returns {string} 截断正文。 */
+/**
+ * @description
+ * 在 token 预算内按句子边界截断正文。
+ * @param {string} text 正文。
+ * @param {number} maxTokens 最大 token 数。
+ * @returns {string} 截断正文。
+ */
 function truncateAtSentenceBoundary(text, maxTokens) {
   if (!text || estimateTextTokens(text) <= maxTokens) return text;
   const units = text.split(/(?<=[。！？；.!?])\s*|\n+/u).map((unit) => unit.trim()).filter(Boolean);
@@ -208,8 +303,9 @@ function truncateAtSentenceBoundary(text, maxTokens) {
 }
 
 /**
+ * @description
  * 构建完整对话消息：系统提示、最近六轮有效历史以及带检索资料的当前问题。
- * @param {{mode?: PromptMode|string, question: *, results?: PromptRetrievalResult[], conflicts?: object[], history?: ChatPromptMessage[], locale?: *}} input 构建参数。
+ * @param {{mode?: PromptMode|string, question: *, results?: PromptRetrievalResult[], conflicts?: PromptConflict[], history?: ChatPromptMessage[], locale?: *}} input 构建参数。
  * @returns {ChatPromptMessage[]} 可传给 OpenAI 兼容接口的消息数组。
  * @example
  * const messages = buildMessages({ mode: "qa", question: "开放时间？", results: [] });
@@ -237,6 +333,7 @@ export function buildMessages({ mode, question, results, conflicts = [], history
 }
 
 /**
+ * @description
  * 清除历史回答中的内部引用编号，防止旧会话把技术标记再次带入模型输出。
  * @param {*} value 历史消息正文。
  * @returns {string} 面向模型的自然语言正文。

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 服务端数据恢复脚本。
+ * @description 从指定备份目录恢复数据库与持久化数据，并在缺少参数时列出可用备份。
+ */
 import { cpSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { config } from "../src/config.mjs";

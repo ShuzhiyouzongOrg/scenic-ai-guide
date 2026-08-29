@@ -1,18 +1,32 @@
 /**
  * @fileoverview 知识文档和分块共用的准入、状态与元数据约束。
+ * @description
+ * 集中定义知识文档与分块的用途、访问范围、处理状态及元数据归一化规则。
  */
 
-/** @type {ReadonlySet<string>} 允许的知识用途范围。 */
+/**
+ * @description
+ * 允许的知识用途范围。
+ * @type {Set<"visitor_qa"|"operations_analytics"|"internal_reference">}
+ */
 export const KNOWLEDGE_SCOPES = new Set([
   "visitor_qa",
   "operations_analytics",
   "internal_reference"
 ]);
 
-/** @type {ReadonlySet<string>} 允许的知识访问范围。 */
+/**
+ * @description
+ * 允许的知识访问范围。
+ * @type {Set<"public"|"authenticated"|"admin"|"internal">}
+ */
 export const ACCESS_SCOPES = new Set(["public", "authenticated", "admin", "internal"]);
 
-/** @type {ReadonlySet<string>} 文档处理状态机允许的状态。 */
+/**
+ * @description
+ * 文档处理状态机允许的状态。
+ * @type {Set<"uploaded"|"classified"|"extracting"|"chunking"|"indexing"|"processed"|"needs_ocr"|"skipped"|"failed">}
+ */
 export const KNOWLEDGE_STATUSES = new Set([
   "uploaded",
   "classified",
@@ -26,10 +40,13 @@ export const KNOWLEDGE_STATUSES = new Set([
 ]);
 
 /**
+ * @description
  * 根据显式值和文件名确定知识用途；行为分析类资料默认隔离。
  * @param {*} value 显式用途。
  * @param {string} fileName 文件名。
  * @returns {"visitor_qa"|"operations_analytics"|"internal_reference"} 规范化用途。
+ * @example
+ * const scope = normalizeKnowledgeScope(undefined, "游客行为分析.xlsx");
  */
 export function normalizeKnowledgeScope(value, fileName = "") {
   if (KNOWLEDGE_SCOPES.has(String(value || ""))) {
@@ -42,10 +59,13 @@ export function normalizeKnowledgeScope(value, fileName = "") {
 }
 
 /**
+ * @description
  * 规范化文档访问范围；游客问答默认公开，运营与内部资料默认仅管理员可见。
  * @param {*} value 显式访问范围。
  * @param {*} knowledgeScope 知识用途。
  * @returns {"public"|"authenticated"|"admin"|"internal"} 访问范围。
+ * @example
+ * const accessScope = normalizeAccessScope(undefined, "operations_analytics");
  */
 export function normalizeAccessScope(value, knowledgeScope = "visitor_qa") {
   const normalized = String(value || "").trim().toLowerCase();
@@ -53,34 +73,50 @@ export function normalizeAccessScope(value, knowledgeScope = "visitor_qa") {
   return knowledgeScope === "visitor_qa" ? "public" : "admin";
 }
 
-/** @param {*} value 租户标识。 @returns {string} 不含控制字符的稳定租户标识。 */
+/**
+ * @description
+ * 清理租户标识中的控制字符，并为空值提供公共租户标识。
+ * @param {*} value 租户标识。
+ * @returns {string} 不含控制字符的稳定租户标识。
+ * @example
+ * const tenantId = normalizeTenantId(" scenic-tenant ");
+ */
 export function normalizeTenantId(value) {
   const normalized = String(value || "default").trim().replace(/[\u0000-\u001f\u007f]/gu, "");
   return normalized.slice(0, 64) || "default";
 }
 
 /**
+ * @description
  * 将扩展名映射为审计用文档类型。
  * @param {*} extension 扩展名，可带点号。
  * @returns {string} 文档类型。
+ * @example
+ * const documentType = documentTypeFor(".PDF");
  */
 export function documentTypeFor(extension) {
   return String(extension || "").replace(/^\./u, "").toLowerCase() || "unknown";
 }
 
 /**
+ * @description
  * 判断文档是否允许进入游客问答索引。
- * @param {object} document 文档元数据。
+ * @param {object|null|undefined} document 文档元数据。
  * @returns {boolean} 允许进入游客问答时为 `true`。
+ * @example
+ * const visible = isVisitorKnowledgeDocument({ knowledgeScope: "visitor_qa", enabled: true });
  */
 export function isVisitorKnowledgeDocument(document) {
   return document?.knowledgeScope === "visitor_qa" && document?.enabled !== false;
 }
 
 /**
+ * @description
  * 将错误文本限制为可返回给管理员的短消息，避免泄露本地路径和凭据。
  * @param {*} value 原始错误文本。
  * @returns {string} 脱敏后的错误消息。
+ * @example
+ * const message = sanitizeProcessingError("读取 C:\\data\\source.pdf 失败");
  */
 export function sanitizeProcessingError(value) {
   return String(value || "Processing failed.")

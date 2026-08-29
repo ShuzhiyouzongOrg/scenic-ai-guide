@@ -1,6 +1,14 @@
+/**
+ * @fileoverview 帮助与更新日志路由配置。
+ * @description 声明官方文档外链和项目更新日志页面路由。
+ */
 import { AppRouteRecord } from '@/types/router'
 import { WEB_LINKS } from '@/utils/constants'
 
+/**
+ * @description 官方文档与更新日志路由列表。
+ * @type {AppRouteRecord[]}
+ */
 export const helpRoutes: AppRouteRecord[] = [
   {
     path: '/help/docs',

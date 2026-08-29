@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 手绘地图投影稳定性测试。
+ * @description 验证手绘地图旋转投影、反向换算与显示边界计算保持坐标稳定。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import type { CoordinateBounds, GuideCoordinate } from '../../src/types/map-guide'

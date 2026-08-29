@@ -1,6 +1,20 @@
+/**
+ * @fileoverview 数字人角色与音色目录。
+ * @description 声明项目可选的讯飞、Live2D 角色以及讯飞发音人配置。
+ */
 import type { DigitalHumanEngine } from '@/api/digital-human'
 import { BUNDLED_LIVE2D_MODELS } from '@/lib/live2d/resource'
 
+/**
+ * @description 描述可选数字人角色的引擎、云端形象、本地模型、文案键和预览图。
+ * @typedef {object} AvatarOption
+ * @property {string} id 唯一标识。
+ * @property {DigitalHumanEngine} engine 数字人渲染引擎。
+ * @property {string} avatarId 讯飞形象标识。
+ * @property {string} modelId Live2D 模型标识。
+ * @property {string} labelKey 名称国际化键。
+ * @property {string} [preview] 预览图片地址。
+ */
 export interface AvatarOption {
   id: string
   engine: DigitalHumanEngine
@@ -10,13 +24,25 @@ export interface AvatarOption {
   preview?: string
 }
 
+/**
+ * @description 描述讯飞发音人的参数标识、名称文案键和语言文案键。
+ * @typedef {object} VoiceOption
+ * @property {string} parameter 讯飞发音人参数。
+ * @property {string} labelKey 名称国际化键。
+ * @property {string} languageKey 语言国际化键。
+ */
 export interface VoiceOption {
   parameter: string
   labelKey: string
   languageKey: string
 }
 
-/** Ready-to-use avatar identifiers already provisioned for this project. */
+/**
+ * @description 项目已配置并可选择的讯飞与 Live2D 角色列表。
+ * @type {AvatarOption[]}
+ * @example
+ * const firstAvatar = avatarOptions[0]
+ */
 export const avatarOptions: AvatarOption[] = [
   {
     id: 'xf-reception-male',
@@ -57,9 +83,10 @@ export const avatarOptions: AvatarOption[] = [
 ]
 
 /**
- * Voice identifiers accepted by iFlytek. The first four entries are transcribed
- * from 发言人管理.png; the remaining entries preserve voices already used by the
- * project so existing configurations remain easy to select.
+ * @description 项目允许选择的讯飞发音人列表。
+ * @type {VoiceOption[]}
+ * @example
+ * const firstVoice = voiceOptions[0]
  */
 export const voiceOptions: VoiceOption[] = [
   {

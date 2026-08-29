@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 地图路线映射规则测试。
+ * @description 验证路线节点、景点映射、设施样式和官方折线路径的解析优先级。
+ */
+
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { useGuideRoutes } from '../../src/composables/map-guide/useGuideRoutes'

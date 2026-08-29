@@ -1,7 +1,12 @@
 /**
  * @fileoverview 景点一分钟口播和游客到达后的实时伴随讲解生成服务。
- *
+ * @description
+ * 基于景点知识与检索证据生成一分钟口播和游客到达后的伴随讲解。
+ */
+
+/**
  * @typedef {object} NarrationResult
+ * @description 景点讲解文本及其知识来源和模型元数据。
  * @property {string|null} spotId 景点 ID；仅凭名称且未匹配知识库时为 `null`。
  * @property {string} spotName 景点名称。
  * @property {string} narration 生成的口播文本。
@@ -17,6 +22,7 @@ import { buildNarrationSystemPrompt, buildAccompanySystemPrompt, buildContextBlo
 import { formatPublicAssistantText } from "./chat.mjs";
 
 /**
+ * @description
  * 按精确 ID、精确名称或别名从知识库定位景点。
  * @private
  * @param {{spotId?: string, spotName?: string}} query 景点查询条件。
@@ -40,6 +46,7 @@ function findSpot({ spotId, spotName }) {
 }
 
 /**
+ * @description
  * 为目标景点获取口播依据；检索故障时回退为空资料，允许模型按无资料策略作答。
  * @private
  * @param {object|null} spot 已定位的景点记录。
@@ -56,6 +63,7 @@ function spotContextResults(spot, fallbackQuery) {
 }
 
 /**
+ * @description
  * 为景点生成约一分钟、200 至 400 字的口播讲解。
  * @param {{spotId?: string, spotName?: string, signal?: AbortSignal}} [input={}] 生成参数。
  * @returns {Promise<NarrationResult>} 景点信息、口播、引用和模型元数据。
@@ -106,6 +114,7 @@ export async function generateSpotNarration({ spotId, spotName, signal } = {}) {
 }
 
 /**
+ * @description
  * 为刚到达景点的游客生成结合兴趣的实时伴随讲解。
  * @param {{spotId?: string, spotName?: string, interests?: string[], signal?: AbortSignal}} [input={}] 生成参数。
  * @returns {Promise<NarrationResult & {interests: string[]}>} 伴随讲解及原始兴趣列表。

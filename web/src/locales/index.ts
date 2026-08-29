@@ -1,5 +1,10 @@
 /**
- * 国际化配置
+ * @fileoverview 创建并导出 Web 应用的 vue-i18n 实例。
+ * @description 合并框架与业务文案、恢复持久化语言偏好并提供全局翻译函数。
+ */
+
+/**
+ * @description 国际化配置
  *
  * 基于 vue-i18n 实现的多语言国际化解决方案。
  * 支持简体中文、英文、韩文、繁体中文、日文和泰文切换，自动从本地存储恢复用户的语言偏好。
@@ -22,7 +27,7 @@
  * - th: ภาษาไทย
  *
  * @module locales
- * @author Scenic AI Guide Team
+ *
  */
 
 import { createI18n } from 'vue-i18n'
@@ -39,12 +44,12 @@ import zhMessages from './langs/zh.json'
 import thMessages from './langs/th.json'
 
 /**
- * 存储键管理器实例
+ * @description 存储键管理器实例
  */
 const storageKeyManager = new StorageKeyManager()
 
 /**
- * 语言消息对象
+ * @description 语言消息对象
  */
 function mergeMessages(
   base: Record<string, any>,
@@ -79,8 +84,8 @@ const messages = {
 }
 
 /**
- * 语言选项列表
- * 用于语言切换下拉框
+ * @description 语言切换控件使用的语言代码与本地化名称列表。
+ * @type {Array<{value: LanguageEnum, label: string}>}
  */
 export const languageOptions = [
   { value: LanguageEnum.ZH, label: '简体中文' },
@@ -92,8 +97,8 @@ export const languageOptions = [
 ]
 
 /**
- * 从存储中获取语言设置
- * @returns 语言设置，如果获取失败则返回默认语言
+ * @description 从存储中获取语言设置
+ * @returns {LanguageEnum} 已保存且有效的语言设置；读取失败时返回默认语言。
  */
 const getDefaultLanguage = (): LanguageEnum => {
   // 尝试从版本化的存储中获取语言设置
@@ -130,7 +135,7 @@ const getDefaultLanguage = (): LanguageEnum => {
 }
 
 /**
- * i18n 配置选项
+ * @description i18n 配置选项
  */
 const i18nOptions: I18nOptions = {
   locale: getDefaultLanguage(),
@@ -141,21 +146,30 @@ const i18nOptions: I18nOptions = {
 }
 
 /**
- * i18n 实例
+ * @description i18n 实例
+ * @type {I18n}
  */
 const i18n: I18n = createI18n(i18nOptions)
 
 /**
- * 翻译函数类型
+ * @description 翻译函数类型
  */
 interface Translation {
   (key: string): string
 }
 
 /**
- * 全局翻译函数
- * 可在任何地方使用，无需导入 useI18n
+ * @description 无需组件上下文即可调用的全局翻译函数。
+ * @type {Translation}
+ * @param {string} key vue-i18n 消息键。
+ * @returns {string} 当前语言对应的翻译文本。
+ * @example
+ * const title = $t('app.navGuide')
  */
 export const $t = i18n.global.t as Translation
 
+/**
+ * @description 导出已合并业务与框架消息并恢复用户语言偏好的 vue-i18n 实例。
+ * @type {I18n}
+ */
 export default i18n

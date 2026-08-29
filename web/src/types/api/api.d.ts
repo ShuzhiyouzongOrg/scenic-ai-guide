@@ -1,5 +1,9 @@
 /**
- * API 接口类型定义模块
+ * @fileoverview 后端 API 全局类型声明。
+ * @description 通过 Api 命名空间声明分页、认证、用户和角色管理请求响应类型。
+ */
+/**
+ * @description API 接口类型定义模块
  *
  * 提供所有后端接口的类型定义
  *
@@ -33,22 +37,36 @@
  */
 
 declare namespace Api {
-  /** 通用类型 */
+  /**
+   * @description 通用类型
+   */
   namespace Common {
-    /** 分页参数 */
+    /**
+     * @description 分页参数
+     */
     interface PaginationParams {
-      /** 当前页码 */
+      /**
+       * @description 当前页码
+       */
       current: number
-      /** 每页条数 */
+      /**
+       * @description 每页条数
+       */
       size: number
-      /** 总条数 */
+      /**
+       * @description 总条数
+       */
       total: number
     }
 
-    /** 通用搜索参数 */
+    /**
+     * @description 通用搜索参数
+     */
     type CommonSearchParams = Pick<PaginationParams, 'current' | 'size'>
 
-    /** 分页响应基础结构 */
+    /**
+     * @description 分页响应基础结构
+     */
     interface PaginatedResponse<T = any> {
       records: T[]
       current: number
@@ -56,20 +74,28 @@ declare namespace Api {
       total: number
     }
 
-    /** 启用状态 */
+    /**
+     * @description 启用状态
+     */
     type EnableStatus = '1' | '2'
   }
 
-  /** 认证类型 */
+  /**
+   * @description 认证类型
+   */
   namespace Auth {
-    /** 登录参数 */
+    /**
+     * @description 登录参数
+     */
     interface LoginParams {
       userName: string
       password: string
       role: 'admin' | 'operator' | 'visitor'
     }
 
-    /** 登录响应 */
+    /**
+     * @description 登录响应
+     */
     interface LoginResponse {
       token: string
       refreshToken: string
@@ -82,7 +108,9 @@ declare namespace Api {
       role: string
     }
 
-    /** 用户信息 */
+    /**
+     * @description 用户信息
+     */
     interface UserInfo {
       buttons: string[]
       roles: string[]
@@ -100,12 +128,18 @@ declare namespace Api {
     }
   }
 
-  /** 系统管理类型 */
+  /**
+   * @description 系统管理类型
+   */
   namespace SystemManage {
-    /** 用户列表 */
+    /**
+     * @description 用户列表
+     */
     type UserList = Api.Common.PaginatedResponse<UserListItem>
 
-    /** 用户列表项 */
+    /**
+     * @description 用户列表项
+     */
     interface UserListItem {
       id: number
       avatar: string
@@ -122,16 +156,22 @@ declare namespace Api {
       updateTime: string
     }
 
-    /** 用户搜索参数 */
+    /**
+     * @description 用户搜索参数
+     */
     type UserSearchParams = Partial<
       Pick<UserListItem, 'id' | 'userName' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
         Api.Common.CommonSearchParams
     >
 
-    /** 角色列表 */
+    /**
+     * @description 角色列表
+     */
     type RoleList = Api.Common.PaginatedResponse<RoleListItem>
 
-    /** 角色列表项 */
+    /**
+     * @description 角色列表项
+     */
     interface RoleListItem {
       roleId: number
       roleName: string
@@ -141,7 +181,9 @@ declare namespace Api {
       createTime: string
     }
 
-    /** 角色搜索参数 */
+    /**
+     * @description 角色搜索参数
+     */
     type RoleSearchParams = Partial<
       Pick<RoleListItem, 'roleId' | 'roleName' | 'roleCode' | 'description' | 'enabled'> &
         Api.Common.CommonSearchParams & {

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 维护框架界面的韩语、繁体中文和日语覆盖文案。
+ * @description 将扁平路径目录转换为 vue-i18n 使用的嵌套消息对象。
+ */
+
 import { LanguageEnum } from '@/enums/appEnum'
 
 type OverrideTuple = readonly [
@@ -187,6 +192,10 @@ function setNested(target: Record<string, unknown>, path: string, value: unknown
 
 const languages = [LanguageEnum.KO, LanguageEnum.ZH_TW, LanguageEnum.JA] as const
 
+/**
+ * @description 将韩语、繁体中文和日语框架覆盖文案由点分路径展开为嵌套消息对象。
+ * @type {Record<LanguageEnum.KO | LanguageEnum.ZH_TW | LanguageEnum.JA, Record<string, unknown>>}
+ */
 export const frameworkMessages = Object.fromEntries(
   languages.map((language, languageIndex) => {
     const messages: Record<string, unknown> = {}

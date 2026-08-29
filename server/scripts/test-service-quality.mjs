@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 服务质量闭环测试脚本。
+ * @description 验证会话标注、反馈聚类、知识草稿和质量报告聚合。
+ */
 import assert from "node:assert/strict";
 import { appendMessage } from "../src/services/conversation.mjs";
 import { createFeedback } from "../src/services/feedback.mjs";

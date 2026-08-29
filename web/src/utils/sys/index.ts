@@ -1,5 +1,6 @@
 /**
- * 系统管理相关工具函数统一导出
+ * @fileoverview 系统级工具统一导出入口。
+ * @description 导出版本升级入口和全局类型安全事件总线。
  */
 
 export * from './upgrade'
