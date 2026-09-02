@@ -29,9 +29,9 @@ Windows 本地构建缓存和打包输出会自动写入工作区的 `LocalTemp`
 
 ## GitHub Actions
 
-`.github/workflows/desktop-artifacts.yml` 同时支持自动触发与手动触发。工作流、桌面端、Web 端、桌面运行时服务代码或数据，以及共用 XLSX 依赖发生变更并推送到 `main` 后，会自动构建一次 Web 产物，再分别在 Windows x64、macOS x64、macOS arm64 与 Linux x64 环境生成 `.exe`、`.dmg`、`.AppImage` 和 `.deb`，并上传为 Actions Artifacts。仅修改文档或游客移动端时不会触发桌面构建；需要构建其他分支时仍可使用 `workflow_dispatch` 手动运行。
+`.github/workflows/desktop-artifacts.yml` 同时支持自动触发与手动触发。工作流、桌面端、Web 端、桌面运行时服务代码或数据，以及共用 XLSX 依赖发生变更并推送到 `main` 后，会自动构建一次 Web 产物，再分别在 Windows x64、macOS x64、macOS arm64 与 Linux x64 环境生成 `.exe`、`.dmg`、`.AppImage`、`.deb` 和 `.rpm`，并上传为 Actions Artifacts。仅修改文档或游客移动端时不会触发桌面构建；需要构建其他分支时仍可使用 `workflow_dispatch` 手动运行。
 
-Electron 43 的官方平台基线包含 Ubuntu 18.04 及以上版本。Linux 打包任务会检查 `.deb`、`.AppImage` 和解包运行时，并在发现 Node 原生模块时失败，防止再次引入依赖构建机 glibc 的文件。正式发布前仍建议在 Ubuntu 18.04、20.04 和 22.04 的干净环境中分别执行安装、启动和数据库读写验收。
+Electron 43 的官方平台基线包含 Ubuntu 18.04 及以上版本。Linux 打包任务会检查 `.deb`、`.rpm`、`.AppImage` 和解包运行时，并在发现 Node 原生模块时失败，防止再次引入依赖构建机 glibc 的文件。正式发布前仍建议在 Ubuntu 18.04、20.04 和 22.04 的干净环境中分别执行安装、启动和数据库读写验收。
 
 该工作流不会创建或发布 GitHub Release，也不会自动更新应用。相同分支出现连续构建时，新任务会取消仍在运行的旧任务，避免重复消耗构建资源。桌面安装产物保留 30 天，可直接下载测试；用于各平台打包的中间 Web 产物保留 1 天。
 
@@ -50,7 +50,7 @@ Electron 43 的官方平台基线包含 Ubuntu 18.04 及以上版本。Linux 打
 
 工作流在构建前端时注入讯飞交互数字人凭证，在打包时生成被 Git 忽略的桌面服务配置。桌面端也会通过受限的预加载桥接读取本机运行配置，避免前端编译配置意外缺失时直接降级为纯文本。缺少任一必需 Secret、前端未内联讯飞配置、安装包未携带服务配置、数据库代码不是 `node:sqlite` 路径，或产物包含原生 `.node` 文件时，工作流都会明确失败。
 
-Linux 构建固定使用 Ubuntu 22.04 runner，并对 DEB、AppImage 与解包目录中的所有 ELF 文件执行 `GLIBC_2.27` 上限检查，以保持 Electron 43 官方声明的 Ubuntu 18.04 最低兼容基线。Windows 门禁会解包最终 NSIS 安装器并启动其中的应用，真实验证 DeepSeek 问答、讯飞数字人连接、本地服务和 SQLite 初始化。
+Linux 构建固定使用 Ubuntu 22.04 runner，并对 DEB、RPM、AppImage 与解包目录中的所有 ELF 文件执行 `GLIBC_2.27` 上限检查，以保持 Electron 43 官方声明的 Ubuntu 18.04 最低兼容基线。Windows 门禁会解包最终 NSIS 安装器并启动其中的应用，真实验证 DeepSeek 问答、讯飞数字人连接、本地服务和 SQLite 初始化。
 
 评审版安装包会明文携带可被解包读取的评审专用凭证，只能在受控的内部评审范围分发；评审结束后必须轮换相关密钥。正式公开发行前应改为远程服务端代理或操作系统凭据存储。
 

@@ -1,6 +1,6 @@
 /**
  * @fileoverview Linux 桌面安装产物验证脚本。
- * @description 检查 AppImage、DEB 与解包目录结构，并核验 ELF 文件的 glibc 兼容上限。
+ * @description 检查 AppImage、DEB、RPM 与解包目录结构，并核验 ELF 文件的 glibc 兼容上限。
  */
 import assert from "node:assert/strict";
 import {
@@ -29,10 +29,11 @@ const outputDirectory = resolve(process.argv[2] || "dist");
 assert.ok(existsSync(outputDirectory), `Package directory is missing: ${outputDirectory}`);
 
 const packageFiles = readdirSync(outputDirectory).filter((name) =>
-  [".AppImage", ".deb"].includes(extname(name))
+  [".AppImage", ".deb", ".rpm"].includes(extname(name))
 );
 assert.ok(packageFiles.some((name) => name.endsWith(".AppImage")), "AppImage is missing.");
 assert.ok(packageFiles.some((name) => name.endsWith(".deb")), "Debian package is missing.");
+assert.ok(packageFiles.some((name) => name.endsWith(".rpm")), "RPM package is missing.");
 
 const unpackedDirectory = join(outputDirectory, "linux-unpacked");
 assert.ok(existsSync(unpackedDirectory), "linux-unpacked runtime is missing.");
@@ -113,7 +114,7 @@ function verifyGlibcCompatibility(root) {
 }
 
 /**
- * @description 从已提取的 DEB 或 AppImage 目录中定位包含 `resources/app.asar` 的应用根目录。
+ * @description 从已提取的 DEB、RPM 或 AppImage 目录中定位包含 `resources/app.asar` 的应用根目录。
  * @param {string} directory 提取后的包目录。
  * @returns {string} Electron 应用根目录。
  * @throws {assert.AssertionError} 未找到 `resources/app.asar` 时抛出。
@@ -162,6 +163,25 @@ try {
   run("dpkg-deb", ["--extract", join(outputDirectory, debFile), debExtract]);
   verifyRoot(findPackagedRoot(debExtract));
 
+  const rpmFiles = packageFiles.filter((name) => name.endsWith(".rpm"));
+  assert.equal(rpmFiles.length, 1, `Expected one RPM package, found: ${rpmFiles.join(", ")}`);
+  const [rpmFile] = rpmFiles;
+  const rpmPath = join(outputDirectory, rpmFile);
+  const rpmArchitecture = spawnSync("rpm", ["-qp", "--qf", "%{ARCH}", rpmPath], {
+    encoding: "utf8"
+  });
+  assert.equal(rpmArchitecture.error, undefined, rpmArchitecture.error?.message);
+  assert.equal(rpmArchitecture.status, 0, rpmArchitecture.stderr || rpmArchitecture.stdout);
+  assert.equal(rpmArchitecture.stdout.trim(), "x86_64", "RPM package architecture must be x86_64.");
+  const rpmExtract = join(verificationRoot, "rpm");
+  mkdirSync(rpmExtract, { recursive: true });
+  run(
+    "bash",
+    ["-o", "pipefail", "-c", 'rpm2cpio "$1" | cpio -id --quiet', "verify-rpm", rpmPath],
+    { cwd: rpmExtract }
+  );
+  verifyRoot(findPackagedRoot(rpmExtract));
+
   const appImagePath = join(outputDirectory, appImageFile);
   const appImageExtract = join(verificationRoot, "appimage");
   mkdirSync(appImageExtract, { recursive: true });
@@ -176,4 +196,4 @@ for (const name of packageFiles) {
   assert.ok(statSync(join(outputDirectory, name)).size > 0, `${name} is empty.`);
 }
 
-console.log("Linux unpacked runtime, Debian package, and AppImage passed portability checks.");
+console.log("Linux unpacked runtime, Debian package, RPM package, and AppImage passed portability checks.");

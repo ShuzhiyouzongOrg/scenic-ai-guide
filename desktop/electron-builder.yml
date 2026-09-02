@@ -71,9 +71,15 @@ linux:
     - target: deb
       arch:
         - x64
+    - target: rpm
+      arch:
+        - x64
 
 appImage:
   artifactName: ShuzhiYouzong-${version}-linux-${arch}.${ext}
 
 deb:
+  artifactName: ShuzhiYouzong-${version}-linux-${arch}.${ext}
+
+rpm:
   artifactName: ShuzhiYouzong-${version}-linux-${arch}.${ext}

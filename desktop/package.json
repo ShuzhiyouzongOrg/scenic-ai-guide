@@ -31,7 +31,7 @@
     "predist:mac:arm64": "npm run prepare:runtime",
     "dist:mac:arm64": "node scripts/run-builder.mjs --mac dmg --arm64 --publish never",
     "predist:linux": "npm run prepare:runtime",
-    "dist:linux": "node scripts/run-builder.mjs --linux AppImage deb --x64 --publish never"
+    "dist:linux": "node scripts/run-builder.mjs --linux AppImage deb rpm --x64 --publish never"
   },
   "dependencies": {
     "xlsx": "file:../vendor/xlsx-0.20.3.tgz"

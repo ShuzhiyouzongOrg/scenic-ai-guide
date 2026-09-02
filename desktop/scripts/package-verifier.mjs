@@ -149,13 +149,13 @@ export function verifyPackagedTree(root, { readAsar }) {
 /**
  * @description 列出 electron-builder 输出目录中的可发布安装包文件名。
  * @param {string} outputDirectory electron-builder 输出目录。
- * @returns {string[]} 按名称排序的 EXE、DMG、AppImage 与 DEB 文件名。
+ * @returns {string[]} 按名称排序的 EXE、DMG、AppImage、DEB 与 RPM 文件名。
  * @throws {Error} 输出目录不存在或无法读取时透传文件系统异常。
  * @example
  * const packages = packageExtensions("dist");
  */
 export function packageExtensions(outputDirectory) {
   return readdirSync(outputDirectory)
-    .filter((name) => [".exe", ".dmg", ".AppImage", ".deb"].includes(extname(name)))
+    .filter((name) => [".exe", ".dmg", ".AppImage", ".deb", ".rpm"].includes(extname(name)))
     .sort();
 }

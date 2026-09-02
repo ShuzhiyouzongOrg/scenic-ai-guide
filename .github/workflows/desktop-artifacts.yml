@@ -131,7 +131,7 @@ jobs:
             runner: ubuntu-22.04
             command: npm run dist:linux
             artifact: shuzhiyouzong-linux-x64
-            file_extensions: ".AppImage .deb"
+            file_extensions: ".AppImage .deb .rpm"
             expected_arch: x64
     runs-on: ${{ matrix.runner }}
     steps:
@@ -228,6 +228,7 @@ jobs:
             desktop/dist/*.dmg
             desktop/dist/*.AppImage
             desktop/dist/*.deb
+            desktop/dist/*.rpm
             desktop/dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
