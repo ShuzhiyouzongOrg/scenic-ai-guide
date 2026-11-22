@@ -1,63 +1,108 @@
 <template>
-	<view class="page">
-		<web-view
-			v-if="runtimeUrl.length > 0"
-			class="avatar-webview"
-			:src="runtimeUrl"
-			:ios-allows-inline-media-playback="true"
-			@load="handleLoad"
-			@error="handleError"
-			@message="handleMessage"
-		/>
-		<view v-else class="loading-state">
-			<view class="loading-orbit"><view class="loading-core"></view></view>
-			<text class="loading-title">正在连接讯飞动态数字人</text>
-			<text class="loading-copy">连接成功后请点击页面中的启动按钮，以允许视频与声音播放。</text>
-		</view>
-	</view>
+  <view class="page" :class="themeClass">
+    <web-view v-if="phase == 'connecting' || phase == 'ready'" :key="attempt" class="avatar-webview" :src="runtimeUrl"
+      :ios-allows-inline-media-playback="true" @load="handleLoad" @error="handleError" @message="handleMessage" />
+    <scroll-view v-else class="fallback" direction="vertical">
+      <view class="content">
+        <empty-state icon="!" :title="phase == 'invalid' ? t('会话地址无效','Invalid session link','連線位址無效') : t('数字人未能连接','Couldn’t connect the avatar','數位人未能連線')" :description="phase == 'invalid' ? t('请返回地图，重新打开数字人。','Return to the map and open a new avatar session.','請返回地圖，重新開啟數位人。') : t('请检查网络。会话过期时，返回地图可重新连接。','Check your connection. For an expired session, open a new one from the map.','請檢查網路。連線逾期時，可從地圖重新開啟。')" />
+        <view v-if="phase == 'failed'" class="action"><sg-button :label="t('重新连接','Try again','重新連線')" @action="connect" /></view>
+        <view class="action"><sg-button kind="secondary" :label="t('返回地图','Return to map','返回地圖')" @action="leave" /></view>
+      </view>
+    </scroll-view>
+  </view>
 </template>
 
 <script setup lang="uts">
-	const runtimeUrl = ref<string>('')
+  import { getApiBaseUrl } from '@/config/env.uts'
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { stageUrl } from '@/design/stage-presentation.uts'
+  import { themeClass } from '@/design/theme.uts'
+  const locale = ref<string>(getAppLocale())
+  function t(zh : string, en : string, traditional : string) : string {
+    return localize(locale.value, zh, en, traditional)
+  }
+  const runtimeUrl = ref<string>('')
+  const phase = ref<string>('invalid')
+  const attempt = ref(0)
+  let timer = 0
+  let visible = false
+  let spinnerVisible = false
 
-	function handleLoad() {
-		uni.hideLoading()
-	}
+  function showSpinner() {
+    if (!visible || spinnerVisible) return
+    spinnerVisible = true
+    uni.showLoading({title:t('连接数字人','Connecting…','連線中')})
+  }
+  function hideSpinner() {
+    if (!spinnerVisible) return
+    spinnerVisible = false
+    uni.hideLoading()
+  }
 
-	function handleError(event : WebViewErrorEvent) {
-		uni.hideLoading()
-		// HarmonyOS ArkWeb may report a recoverable sub-resource error after the
-		// controlled page has already rendered. Keep the page interactive and log
-		// the precise error instead of covering a working avatar session.
-		console.warn('digital human webview resource warning', event.detail.errCode, event.detail.errMsg, event.detail.fullUrl)
-		uni.showToast({ title: '部分资源正在重试', icon: 'none', duration: 1600 })
-	}
-
-	function handleMessage(event : UniWebViewMessageEvent) {
-		console.log('digital human web message', event.detail)
-	}
-
-	onLoad((options : OnLoadOptions) => {
-		const value = options['src'] ?? ''
-		if (value.length == 0) {
-			uni.showToast({ title: '数字人会话地址无效', icon: 'none' })
-			return
-		}
-		runtimeUrl.value = decodeURIComponent(value)
-		uni.showLoading({ title: '连接动态形象' })
-	})
-
-	onUnload(() => {
-		uni.hideLoading()
-	})
+  function stopWaiting() {
+    clearTimeout(timer)
+    hideSpinner()
+  }
+  function failConnection() {
+    if (phase.value != 'connecting') return
+    phase.value = 'failed'
+    stopWaiting()
+  }
+  function connect() {
+    if (runtimeUrl.value.length == 0) return
+    attempt.value++
+    phase.value = 'connecting'
+    showSpinner()
+    clearTimeout(timer)
+    timer = setTimeout(() => { failConnection() }, 20000)
+  }
+  function handleLoad() {
+    if (phase.value != 'connecting') return
+    phase.value = 'ready'
+    stopWaiting()
+  }
+  function handleError(event : WebViewErrorEvent) {
+    // ArkWeb can report a failed subresource while the hosted session is usable.
+    const url = event.detail.fullUrl ?? ''
+    const documentFailed = url == runtimeUrl.value
+    if (phase.value == 'connecting' && (documentFailed || url.length == 0)) {
+      failConnection()
+      return
+    }
+    if (visible && phase.value == 'ready') {
+      uni.showToast({title:t('部分资源未载入','Some resources didn’t load','部分資源未載入'), icon:'none', duration:1600})
+    }
+  }
+  function handleMessage(_event : UniWebViewMessageEvent) {
+    // The full-screen document owns playback. Its messages do not drive the map or the inline avatar.
+  }
+  function leave() {
+    uni.navigateBack({fail: () => uni.switchTab({url:'/pages/map/index'})})
+  }
+  onLoad((options : OnLoadOptions) => {
+    const supplied = options['src'] ?? ''
+    const prefix = getApiBaseUrl() + '/digital-human/?session='
+    let value = supplied
+    try { if (!supplied.startsWith(prefix)) value = decodeURIComponent(supplied) ?? '' } catch (error) { return }
+    if (!value.startsWith(prefix) || value.length <= prefix.length) return
+    runtimeUrl.value = stageUrl(value, locale.value)
+    connect()
+  })
+  onShow(() => {
+    visible = true
+    locale.value = getAppLocale()
+    uni.setNavigationBarTitle({title:t('讯飞数字人','iFLYTEK avatar','訊飛數位人')})
+    if (phase.value == 'connecting') showSpinner()
+  })
+  onHide(() => { hideSpinner(); visible = false })
+  onUnload(() => { stopWaiting(); visible = false })
 </script>
 
-<style>
-	.page { flex: 1; background-color: #062f68; }
-	.avatar-webview { flex: 1; width: 100%; }
-	.loading-state { flex: 1; align-items: center; justify-content: center; padding: 32px; }
-	.loading-orbit { width: 72px; height: 72px; border-radius: 36px; border: 2px solid rgba(120,221,236,0.42); align-items: center; justify-content: center; }
-	.loading-core { width: 34px; height: 34px; border-radius: 17px; background: linear-gradient(to bottom right, #49e0d0, #3b8bff); box-shadow: 0 0 24px rgba(73,224,208,0.56); }
-	.loading-title { margin-top: 22px; color: #ffffff; font-size: 18px; font-weight: 800; }
-	.loading-copy { margin-top: 10px; color: #b9d2ea; font-size: 12px; line-height: 20px; text-align: center; }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .avatar-webview { flex: 1; width: 100%; }
+  .fallback { flex: 1; }
+  .content { padding: $sg-space-6 $sg-space-4; }
+  .action { margin-top: $sg-space-4; }
 </style>

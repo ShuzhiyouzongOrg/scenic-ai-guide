@@ -1,4 +1,5 @@
 import { apiRequest, apiUploadFile } from './http.uts'
+import type { RegisterAbort } from './http.uts'
 import type {
 	AuthLoginResult,
 	AuthProfile,
@@ -69,13 +70,19 @@ export function createDefaultDigitalHumanConfig() : DigitalHumanConfig {
 	} as DigitalHumanConfig
 }
 
-export function askQuestion(question : string, sessionId : string = '') : Promise<ChatAnswer> {
+function answerLanguage(locale : string) : string {
+	// The service normalizes these to zh, zh-TW and en. Preserve the former default.
+	if (locale == 'en') return 'en'
+	return locale == 'zh-Hant' ? 'zh-TW' : 'zh-CN'
+}
+
+export function askQuestion(question : string, sessionId : string = '', locale : string = 'zh-Hans', registerAbort : RegisterAbort | null = null) : Promise<ChatAnswer> {
 	return apiRequest<ChatAnswer>('/api/chat/ask', 'POST', {
 		question,
 		sessionId,
 		mode: 'hybrid',
-		locale: 'zh-CN'
-	})
+		locale: answerLanguage(locale)
+	}, registerAbort)
 }
 
 export function fetchChatHistory(sessionId : string) : Promise<ConversationMessage[]> {
@@ -86,20 +93,21 @@ export function clearChatHistory(sessionId : string) : Promise<UTSJSONObject> {
 	return apiRequest<UTSJSONObject>('/api/chat/history?sessionId=' + encodeURIComponent(sessionId), 'DELETE')
 }
 
-export function synthesizeSpeech(text : string, voice : string = 'x6_jingqudaolannvsheng_mini', speed : number = 1) : Promise<TtsResult> {
+export function synthesizeSpeech(text : string, voice : string = 'x6_jingqudaolannvsheng_mini', speed : number = 1, registerAbort : RegisterAbort | null = null) : Promise<TtsResult> {
 	return apiRequest<TtsResult>('/api/voice/tts', 'POST', {
 		text,
 		voice,
 		speed
-	})
+	}, registerAbort)
 }
 
-export function askVoice(filePath : string, sessionId : string) : Promise<VoiceAskResult> {
+export function askVoice(filePath : string, sessionId : string, locale : string = 'zh-Hans', registerAbort : RegisterAbort | null = null) : Promise<VoiceAskResult> {
 	return apiUploadFile<VoiceAskResult>('/api/voice/ask-upload', filePath, {
 		sessionId,
 		mode: 'hybrid',
-		locale: 'zh-CN'
-	} as UTSJSONObject, 'audio')
+		// The server uses this locale for both IAT recognition and the answer.
+		locale: answerLanguage(locale)
+	} as UTSJSONObject, 'audio', registerAbort)
 }
 
 export function recommendRoute(durationMinutes : number, interests : string[]) : Promise<RouteRecommendResult> {

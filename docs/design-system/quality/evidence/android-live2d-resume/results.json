@@ -1,0 +1,525 @@
+{
+  "date": "2026-11-22",
+  "device": "MuMu Android 12 / 1080 x 1920 / 480 dpi / io.dcloud.uniappx",
+  "setup": "Private localhost backend, native HBuilderX Android Vapor runtime; only QA client API base redirected. No cloud account or physical phone.",
+  "before": {
+    "file": "before.webp",
+    "captureSeconds": 17,
+    "productionBuildSha256": "69a3a37be0f1fbe5a58c21b10936eed62aca3f431281dece88536cbf3b66b6d8",
+    "observation": "Static and Live2D heads, shoulders and arms visible together."
+  },
+  "after": {
+    "file": "after.webp",
+    "captureRound": 2,
+    "captureSeconds": 17,
+    "screenshotSize": [
+      1080,
+      1920
+    ],
+    "productionBuildSha256": "8c16fe025f9cea8d86535c642e4d46d80d71cd5eba827233f850325f8dfd0692",
+    "sourceSha256": "67155e27166e56b1c554c63840dc97d2fe6994366fcbe620f2a7b6d9d9c9e4cf",
+    "runtimeJsSha256": "1224ccae508734ebe36a6bc7a6d31f9d4ad6c79e1c2057ec4e45d2228e25c497",
+    "bridgeSha256": "5ce885a6a9a3864d6fe63309a73a4d8275d3701a48160c9123f768402a3b4df8",
+    "installedQABundleSha256": "542951a23b618e378af18ba3e0b2090c31ce8c85786c6b8b9b207f547075de53",
+    "sequenceFile": "return-sequence.webp",
+    "metric": "Number of face/neck-region pixels changing by more than 12 on any RGB channel between 1/2/5/10/17s. Based on 432 x 768 lossless captures, x=[249,350), y=[196,315). Full-frame visual review is separate.",
+    "returns": [
+      {
+        "round": 1,
+        "entry": "cold restart",
+        "resumedHost": "io.dcloud.uniappx/io.dcloud.uniappxv.UniAppActivity",
+        "beforeSettings": {
+          "0": {
+            "stage": true,
+            "canvasSize": [
+              552,
+              846
+            ],
+            "noticeHidden": true,
+            "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+            "pingType": "function",
+            "modelResource": 1,
+            "validTextures": 3,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{c5c2bec V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{9ca3f20 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          }
+        },
+        "model": {
+          "stage": true,
+          "canvasSize": [
+            552,
+            846
+          ],
+          "noticeHidden": true,
+          "modelResource": 1,
+          "validTextures": 3,
+          "pingType": "function"
+        },
+        "returnKeyCaptureOffsetsSeconds": [
+          0.0,
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          17.0
+        ],
+        "changedFacePixelsVsPreviousCapture": [
+          4289,
+          4106,
+          5300,
+          5452
+        ]
+      },
+      {
+        "round": 2,
+        "entry": "cold restart",
+        "resumedHost": "io.dcloud.uniappx/io.dcloud.uniappxv.UniAppActivity",
+        "beforeSettings": {
+          "0": {
+            "stage": true,
+            "canvasSize": [
+              552,
+              846
+            ],
+            "noticeHidden": true,
+            "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+            "pingType": "function",
+            "modelResource": 1,
+            "validTextures": 3,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{f13bc6d V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{d92c211 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          }
+        },
+        "model": {
+          "stage": true,
+          "canvasSize": [
+            552,
+            846
+          ],
+          "noticeHidden": true,
+          "modelResource": 1,
+          "validTextures": 3,
+          "pingType": "function"
+        },
+        "returnKeyCaptureOffsetsSeconds": [
+          0.0,
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          17.0
+        ],
+        "changedFacePixelsVsPreviousCapture": [
+          4759,
+          4698,
+          4884,
+          3982
+        ]
+      },
+      {
+        "round": 3,
+        "entry": "cold restart",
+        "resumedHost": "io.dcloud.uniappx/io.dcloud.uniappxv.UniAppActivity",
+        "beforeSettings": {
+          "0": {
+            "stage": true,
+            "canvasSize": [
+              552,
+              846
+            ],
+            "noticeHidden": true,
+            "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+            "pingType": "function",
+            "modelResource": 1,
+            "validTextures": 3,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{6066d8f V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{f6da613 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          }
+        },
+        "model": {
+          "stage": true,
+          "canvasSize": [
+            552,
+            846
+          ],
+          "noticeHidden": true,
+          "modelResource": 1,
+          "validTextures": 3,
+          "pingType": "function"
+        },
+        "returnKeyCaptureOffsetsSeconds": [
+          0.0,
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          17.0
+        ],
+        "changedFacePixelsVsPreviousCapture": [
+          3608,
+          5172,
+          5032,
+          4559
+        ]
+      },
+      {
+        "round": 4,
+        "entry": "cold restart",
+        "resumedHost": "io.dcloud.uniappx/io.dcloud.uniappxv.UniAppActivity",
+        "beforeSettings": {
+          "0": {
+            "devtools_socket_available": false,
+            "targetUrlMatched": false,
+            "nativeHierarchy": []
+          },
+          "2": {
+            "stage": true,
+            "canvasSize": [
+              300,
+              150
+            ],
+            "noticeHidden": false,
+            "noticeText": "正在加载 Live2D 模型",
+            "pingType": "undefined",
+            "modelResource": 0,
+            "validTextures": 0,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{c1ce46a V.E...... .......D 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{e7589b0 VFEDHVC.. ......ID 0,0-551,846}"
+            ]
+          },
+          "5": {
+            "stage": true,
+            "canvasSize": [
+              552,
+              846
+            ],
+            "noticeHidden": true,
+            "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+            "pingType": "function",
+            "modelResource": 1,
+            "validTextures": 3,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{c1ce46a V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{e7589b0 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          }
+        },
+        "model": {
+          "stage": true,
+          "canvasSize": [
+            552,
+            846
+          ],
+          "noticeHidden": true,
+          "modelResource": 1,
+          "validTextures": 3,
+          "pingType": "function"
+        },
+        "returnKeyCaptureOffsetsSeconds": [
+          0.0,
+          1.03,
+          2.22,
+          5.0,
+          10.0,
+          17.0
+        ],
+        "changedFacePixelsVsPreviousCapture": [
+          5161,
+          5736,
+          4597,
+          4350
+        ]
+      },
+      {
+        "round": 5,
+        "entry": "cold restart",
+        "resumedHost": "io.dcloud.uniappx/io.dcloud.uniappxv.UniAppActivity",
+        "beforeSettings": {
+          "0": {
+            "devtools_socket_available": false,
+            "targetUrlMatched": false,
+            "nativeHierarchy": []
+          },
+          "2": {
+            "stage": true,
+            "canvasSize": [
+              300,
+              150
+            ],
+            "noticeHidden": false,
+            "noticeText": "正在加载 Live2D 模型",
+            "pingType": "undefined",
+            "modelResource": 0,
+            "validTextures": 0,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{397b599 V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{8995e57 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          },
+          "5": {
+            "stage": true,
+            "canvasSize": [
+              552,
+              846
+            ],
+            "noticeHidden": true,
+            "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+            "pingType": "function",
+            "modelResource": 1,
+            "validTextures": 3,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{397b599 V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{8995e57 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          }
+        },
+        "model": {
+          "stage": true,
+          "canvasSize": [
+            552,
+            846
+          ],
+          "noticeHidden": true,
+          "modelResource": 1,
+          "validTextures": 3,
+          "pingType": "function"
+        },
+        "returnKeyCaptureOffsetsSeconds": [
+          0.0,
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          17.0
+        ],
+        "changedFacePixelsVsPreviousCapture": [
+          4619,
+          5314,
+          4178,
+          4148
+        ]
+      },
+      {
+        "round": 6,
+        "entry": "warm",
+        "resumedHost": "io.dcloud.uniappx/io.dcloud.uniappxv.UniAppActivity",
+        "beforeSettings": {
+          "0": {
+            "stage": true,
+            "canvasSize": [
+              552,
+              846
+            ],
+            "noticeHidden": true,
+            "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+            "pingType": "function",
+            "modelResource": 1,
+            "validTextures": 3,
+            "nativeHierarchy": [
+              "uts.sdk.modules.DCloudUniWebView.NativeWebViewImpl{397b599 V.E...... ........ 0,0-551,846}",
+              "uts.sdk.modules.DCloudUniWebView.UniInternalWebView{8995e57 VFEDHVC.. ........ 0,0-551,846}"
+            ]
+          }
+        },
+        "model": {
+          "stage": true,
+          "canvasSize": [
+            552,
+            846
+          ],
+          "noticeHidden": true,
+          "modelResource": 1,
+          "validTextures": 3,
+          "pingType": "function"
+        },
+        "returnKeyCaptureOffsetsSeconds": [
+          0.0,
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          17.0
+        ],
+        "changedFacePixelsVsPreviousCapture": [
+          4417,
+          4395,
+          5704,
+          5366
+        ]
+      }
+    ],
+    "reducedMotion": {
+      "reducedDOM": {
+        "devtools_socket_available": true,
+        "targetUrlMatched": false
+      },
+      "restoredDOM": {
+        "stage": true,
+        "canvasSize": [
+          552,
+          846
+        ],
+        "noticeHidden": true,
+        "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+        "pingType": "function",
+        "modelResource": 1,
+        "validTextures": 3
+      }
+    },
+    "baseRestored": true,
+    "originalBaseSha256": "d744d524863676498c6d5aab87b5f6219a939db65c160150ae8ed204541e49fe",
+    "coldDocumentRequestObservations": [
+      {
+        "guideHistoryRequest": "2026-11-22T15:50:40.080000+00:00",
+        "modelRequest": "2026-11-22T15:50:40.721000+00:00",
+        "delaySeconds": 0.641
+      },
+      {
+        "guideHistoryRequest": "2026-11-22T15:51:14.609000+00:00",
+        "modelRequest": "2026-11-22T15:51:15.281000+00:00",
+        "delaySeconds": 0.672
+      },
+      {
+        "guideHistoryRequest": "2026-11-22T15:51:46.807000+00:00",
+        "modelRequest": "2026-11-22T15:51:47.507000+00:00",
+        "delaySeconds": 0.7
+      },
+      {
+        "guideHistoryRequest": "2026-11-22T15:52:19.598000+00:00",
+        "modelRequest": "2026-11-22T15:52:26.698000+00:00",
+        "delaySeconds": 7.1
+      },
+      {
+        "guideHistoryRequest": "2026-11-22T15:52:56.978000+00:00",
+        "modelRequest": "2026-11-22T15:53:04.026000+00:00",
+        "delaySeconds": 7.048
+      }
+    ],
+    "round6": "A second return in cold-start 5, without killing the process.",
+    "intermediateDiagnostics": [
+      "A preliminary exclusive-renderer build exposed native Vapor plain packets. Android console reported packet.getString is not a function.",
+      "The next build had an intermittent empty stage with no native browser target. On the first watchdog iteration 1/5 independent cold starts fell back to the static portrait. These earlier runs are excluded from the final results.",
+      "In the final build, cold starts 4 and 5 had no native WebView at the first probe. Both later exposed a native WebView, loaded three textures and returned an active model."
+    ]
+  },
+  "scope": "Android emulator. No WeChat physical device or Harmony.",
+  "ime": {
+    "original_id": "com.sohu.inputmethod.sogou.chuizi/com.sohu.inputmethod.sogou.SogouIME",
+    "controlled_input": {
+      "shown": true,
+      "framework_adjust_resize": true,
+      "frame_lines": [
+        "Frames: containing=[0,72][1080,1920] parent=[0,72][1080,1920] display=[0,72][1080,1920]",
+        "mFrame=[0,1242][1080,1920] last=[0,1242][1080,1920]"
+      ],
+      "inset_lines": [],
+      "physical_size": "1080x1920"
+    },
+    "original_restored": true,
+    "temporary_service_removed": true,
+    "enabled_methods_restored": true,
+    "pressed_insert_button": false,
+    "tapped_send_px": [
+      540,
+      1090
+    ],
+    "ime_after_send": {
+      "shown": false,
+      "framework_adjust_resize": true,
+      "frame_lines": [
+        "Frames: containing=[0,72][1080,1920] parent=[0,72][1080,1920] display=[0,72][1080,1920]",
+        "mFrame=[0,1242][1080,1920] last=[0,1242][1080,1920]"
+      ],
+      "inset_lines": [],
+      "physical_size": "1080x1920"
+    },
+    "postSendModel": {
+      "stage": true,
+      "canvasSize": [
+        552,
+        846
+      ],
+      "noticeHidden": true,
+      "noticeText": "\n        \n        正在加载 Live2D 模型\n      ",
+      "pingType": "function",
+      "modelResource": 1,
+      "validTextures": 3
+    },
+    "mockAskStatus": 200,
+    "input": "Scenic",
+    "heights": "The Android IME occupied physical y=1242..1920, equivalent to 226dp at density 3.0.",
+    "screenshot": "ime-submit.webp",
+    "capturedAfterSendSeconds": [
+      0,
+      2,
+      5,
+      10,
+      17,
+      26
+    ],
+    "mockTtsStatus": 200
+  },
+  "screenshots": {
+    "before.webp": {
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "sha256": "61f0db964d5b3b4808cc885267252ef85d51fc398931a18c76386028bc1244e0"
+    },
+    "after.webp": {
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "sha256": "ec62de8baa0d6345093cb8656836361e37225fdc1fdc7c28361fb0504c1271ac"
+    },
+    "comparison.webp": {
+      "dimensions": [
+        882,
+        825
+      ],
+      "sha256": "091d12740af9a9886729750133a9f5ef967a821d11806772370a203d6b3d4a1c"
+    },
+    "return-sequence.webp": {
+      "dimensions": [
+        746,
+        857
+      ],
+      "sha256": "bf7cde4aebf3a5bb7a466782ce2171fefb6991ca2c5aa812a9d313b4b9fba46d"
+    },
+    "ime-submit.webp": {
+      "dimensions": [
+        750,
+        560
+      ],
+      "sha256": "9180c0652bca390da713ab6612ab1021193dac0eab2f8510754781edf5361eb6"
+    },
+    "model-status.webp": {
+      "dimensions": [
+        432,
+        768
+      ],
+      "sha256": "588fe8eabba8a37e588a67580dc49c145eb55303008b81f26fb8e254b6f12cfa"
+    }
+  },
+  "setupRestoration": {
+    "nativeBaseBundleSha256AfterIme": "d744d524863676498c6d5aab87b5f6219a939db65c160150ae8ed204541e49fe",
+    "adbReverse5264Removed": true,
+    "cdpForwardsCleared": true,
+    "privateBackendPortsReleased": [
+      5264,
+      5265
+    ],
+    "temporaryKeyboardRemoved": true,
+    "originalImeDefaultAndEnabledSetRestored": true,
+    "temporaryHBuilderProjectClosed": true
+  }
+}

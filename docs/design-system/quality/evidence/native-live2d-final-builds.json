@@ -1,0 +1,230 @@
+{
+  "date": "2026-11-22",
+  "compiler": "HBuilderX 5.24, uni-app x Vapor bytecode",
+  "build_mode": "development compiler targeting non-published native apps",
+  "input_files": 395,
+  "source_sha256": "a4aa3c7750fe211c9ef7891217de9afbd74f72801a4e68c520c6fc0b32b16d7e",
+  "targets": {
+    "android": {
+      "pages": 10,
+      "compiler_ready_ms": 149469,
+      "source_sha256": "a4aa3c7750fe211c9ef7891217de9afbd74f72801a4e68c520c6fc0b32b16d7e",
+      "app_service_sha256": "7fc5bff2db160a4c2fc54e74c29116ee9fe3564bb46c318a0625491f89e2931e",
+      "bytecode_files": 91,
+      "compiler_warnings": [
+        "Property 'aria-expanded' is not supported on '<view>'",
+        "Property 'aria-hidden' is not supported on '<image>'",
+        "Property 'aria-hidden' is not supported on '<view>'",
+        "Property 'aria-label' is not supported on '<image>'",
+        "Property 'aria-label' is not supported on '<view>'",
+        "Property 'aria-live' is not supported on '<text>'",
+        "Property 'aria-pressed' is not supported on '<view>'",
+        "Property 'role' is not supported on '<text>'",
+        "Property 'role' is not supported on '<view>'",
+        "Property 'tabindex' is not supported on '<view>'"
+      ],
+      "assertions": {
+        "english_asr_upload": true,
+        "stage_locale_and_native_theme": true,
+        "narrow_large_type_prompts": true,
+        "production_api_config": true
+      },
+      "modules": {
+        "scenic-motion-preference": {
+          "debug_dex_bytes": 1032,
+          "debug_dex_sha256": "f781bfa8f90803b3dce04e79fd986e25a4902c75aaee93f2e54af480eaf3a8f2",
+          "proxy_in_js": true
+        },
+        "scenic-form-label": {
+          "debug_dex_bytes": 2380,
+          "debug_dex_sha256": "e0744a0b6026fff4f2f49012104a8acaf45be7bb4cac0cbeb1c246cf0a442945",
+          "proxy_in_js": true
+        }
+      },
+      "photos": {
+        "brahma": {
+          "thumbnail": {
+            "bytes": 5752,
+            "sha256": "cde558dd0dd64652cc4b3b499212ae697b2317f49627c12ac1d8fc1b8feac9ac"
+          },
+          "detail": {
+            "bytes": 101058,
+            "sha256": "b9e2930962b71921cb9a1309f924e209184033a7be4c9193cdfa88dbb7354f86"
+          }
+        },
+        "jiulong": {
+          "thumbnail": {
+            "bytes": 3992,
+            "sha256": "ac88a83fa703c4cafdae7d069c7d4e1e66d3376cbb398c473f67552d17b2a0da"
+          },
+          "detail": {
+            "bytes": 32930,
+            "sha256": "4653136a77cec6723dba59f68e992368ac5f7fc4b9986acbf769774ffcd93e6f"
+          }
+        },
+        "mandala": {
+          "thumbnail": {
+            "bytes": 2344,
+            "sha256": "f360a16bf97e21a438212c07cf212142ebc704267fe0af688ba0c21de74c077a"
+          },
+          "detail": {
+            "bytes": 18322,
+            "sha256": "448a40b2cd6fd78505bb57aaec62421b2aa074a7ce64bbec4fbf708deefd79cc"
+          }
+        },
+        "tower": {
+          "thumbnail": {
+            "bytes": 2786,
+            "sha256": "fd3e8500b6e302248d63cd764f781744c249b135c22f7cfffa1a47143116188c"
+          },
+          "detail": {
+            "bytes": 29320,
+            "sha256": "43ceea3df232d2b8fbddf2e9134507b3f6859c56bd12804700549a4eab2b9ae6"
+          }
+        },
+        "wudeng": {
+          "thumbnail": {
+            "bytes": 2484,
+            "sha256": "1877d6caa57a2bce7eb6b3da62339b0d932a389b864e212e2f7f25911225b882"
+          },
+          "detail": {
+            "bytes": 52850,
+            "sha256": "edac945c75316d9ce42f12a54925e2e0272aab7e124e92ddfeff13fcfd34d8d0"
+          }
+        },
+        "xiangfu": {
+          "thumbnail": {
+            "bytes": 4628,
+            "sha256": "8017dcb885af0bcf72541f1520c996381568e7151a8dc833483c5939fdb6a6a5"
+          },
+          "detail": {
+            "bytes": 75558,
+            "sha256": "d71740942933fe2004b30c3d1d83d01af731da9b48039c81bf818202e2654be3"
+          }
+        }
+      },
+      "previous_build_comparison": {
+        "previous_files": 148,
+        "current_files": 148,
+        "previous_sha256": "841eb8660e2aa3f41fd9c20ae914271f10b205f5f840f6ec0b45f52653592665",
+        "current_sha256": "ff6db377b90cf8b7f54d57abe8ec13f10c461447b0ecd95207c154aba88a6118",
+        "changed_files": [
+          "app-service.js"
+        ],
+        "identical_content_files": 147
+      }
+    },
+    "ios": {
+      "pages": 10,
+      "compiler_ready_ms": 136922,
+      "source_sha256": "a4aa3c7750fe211c9ef7891217de9afbd74f72801a4e68c520c6fc0b32b16d7e",
+      "app_service_sha256": "81b1fa2be4a6c3a7ecb0e3eaf995bc6885eaf3982ffe2e3c445dc09e92fdb30c",
+      "bytecode_files": 61,
+      "compiler_warnings": [
+        "Property 'aria-expanded' is not supported on '<view>'",
+        "Property 'aria-hidden' is not supported on '<image>'",
+        "Property 'aria-hidden' is not supported on '<view>'",
+        "Property 'aria-label' is not supported on '<image>'",
+        "Property 'aria-label' is not supported on '<view>'",
+        "Property 'aria-live' is not supported on '<text>'",
+        "Property 'aria-pressed' is not supported on '<view>'",
+        "Property 'role' is not supported on '<text>'",
+        "Property 'role' is not supported on '<view>'",
+        "Property 'tabindex' is not supported on '<view>'"
+      ],
+      "assertions": {
+        "english_asr_upload": true,
+        "stage_locale_and_native_theme": true,
+        "narrow_large_type_prompts": true,
+        "production_api_config": true
+      },
+      "modules": {
+        "scenic-motion-preference": {
+          "packaged": false,
+          "proxy_in_js": false
+        },
+        "scenic-form-label": {
+          "packaged": false,
+          "proxy_in_js": false
+        }
+      },
+      "photos": {
+        "brahma": {
+          "thumbnail": {
+            "bytes": 5752,
+            "sha256": "cde558dd0dd64652cc4b3b499212ae697b2317f49627c12ac1d8fc1b8feac9ac"
+          },
+          "detail": {
+            "bytes": 101058,
+            "sha256": "b9e2930962b71921cb9a1309f924e209184033a7be4c9193cdfa88dbb7354f86"
+          }
+        },
+        "jiulong": {
+          "thumbnail": {
+            "bytes": 3992,
+            "sha256": "ac88a83fa703c4cafdae7d069c7d4e1e66d3376cbb398c473f67552d17b2a0da"
+          },
+          "detail": {
+            "bytes": 32930,
+            "sha256": "4653136a77cec6723dba59f68e992368ac5f7fc4b9986acbf769774ffcd93e6f"
+          }
+        },
+        "mandala": {
+          "thumbnail": {
+            "bytes": 2344,
+            "sha256": "f360a16bf97e21a438212c07cf212142ebc704267fe0af688ba0c21de74c077a"
+          },
+          "detail": {
+            "bytes": 18322,
+            "sha256": "448a40b2cd6fd78505bb57aaec62421b2aa074a7ce64bbec4fbf708deefd79cc"
+          }
+        },
+        "tower": {
+          "thumbnail": {
+            "bytes": 2786,
+            "sha256": "fd3e8500b6e302248d63cd764f781744c249b135c22f7cfffa1a47143116188c"
+          },
+          "detail": {
+            "bytes": 29320,
+            "sha256": "43ceea3df232d2b8fbddf2e9134507b3f6859c56bd12804700549a4eab2b9ae6"
+          }
+        },
+        "wudeng": {
+          "thumbnail": {
+            "bytes": 2484,
+            "sha256": "1877d6caa57a2bce7eb6b3da62339b0d932a389b864e212e2f7f25911225b882"
+          },
+          "detail": {
+            "bytes": 52850,
+            "sha256": "edac945c75316d9ce42f12a54925e2e0272aab7e124e92ddfeff13fcfd34d8d0"
+          }
+        },
+        "xiangfu": {
+          "thumbnail": {
+            "bytes": 4628,
+            "sha256": "8017dcb885af0bcf72541f1520c996381568e7151a8dc833483c5939fdb6a6a5"
+          },
+          "detail": {
+            "bytes": 75558,
+            "sha256": "d71740942933fe2004b30c3d1d83d01af731da9b48039c81bf818202e2654be3"
+          }
+        }
+      },
+      "previous_build_comparison": {
+        "previous_files": 114,
+        "current_files": 114,
+        "previous_sha256": "66e88005d08591c61d2ae471546f286b8bf33e85a5861ce67db8014d3874a310",
+        "current_sha256": "ea9bd681b5e8bac75cb646414748843b27efb7985e4ae25672ee418126f62c43",
+        "changed_files": [
+          "app-service.js"
+        ],
+        "identical_content_files": 113
+      }
+    }
+  },
+  "server_english_iat": {
+    "source": "server/src/services/voice.mjs",
+    "sha256": "aea4f52a7e8b15968f27c32fad05781445519f362d1a4447df7733c363629a93",
+    "maps_en_to_en_us": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "size": [
+    56,
+    56
+  ],
+  "micRequests": 2,
+  "uploads": 1,
+  "heldSlideCancel": true,
+  "tapThenSend": true,
+  "speakingTapOnlyInterrupts": true,
+  "speakingTouchMouseSpaceHeldUntilNaturalEnd": "no microphone started",
+  "pausedEnter": "resumed playing without microphone",
+  "jsErrors": []
+}

@@ -1,0 +1,55 @@
+import { computed, ref } from 'vue'
+import { orbRmsGain } from '@/design/orb-tokens.uts'
+// #ifdef APP-ANDROID || APP-IOS
+import { readMotionPreference } from '@/uni_modules/scenic-motion-preference'
+// #endif
+
+const preferenceKey = 'scenic-guide-reduce-motion'
+
+// Expand quiet speech for small indicators. The recorder retains linear RMS.
+export function voiceDisplayLevel(rms : number) : number {
+  if (!Number.isFinite(rms) || rms <= 0) return 0
+  return Math.min(1.0, orbRmsGain * Math.sqrt(Math.min(1.0, rms)))
+}
+const platformReduction = ref(false)
+export const systemRequiresReducedMotion = computed<boolean>(() => platformReduction.value)
+// Use quiet defaults on hosts without a verified OS preference bridge.
+export const reduceMotionPreference = ref(true)
+export const reducedMotion = computed<boolean>(() => platformReduction.value || reduceMotionPreference.value)
+export const pressFeedbackClass = computed<string>(() => reducedMotion.value ? 'sg-press-static' : 'sg-press-release')
+
+export function refreshSystemMotion() {
+  // #ifdef APP-ANDROID || APP-IOS
+  // A base without the platform preference bridge keeps motion quiet.
+  try { platformReduction.value = readMotionPreference() != false } catch (error) { platformReduction.value = true }
+  // #endif
+}
+
+export function setReduceMotionPreference(value : boolean) {
+  reduceMotionPreference.value = value
+  try { uni.setStorageSync(preferenceKey, value ? 'on' : 'off') } catch (error) { }
+}
+
+export function initializeDesignMotion() {
+  // #ifdef APP-ANDROID || APP-IOS
+  reduceMotionPreference.value = false
+  refreshSystemMotion()
+  // #endif
+  // #ifdef MP-WEIXIN
+  // WeChat exposes no verified OS Reduce Motion value. Respect an explicit saved
+  // preference below; allow bounded, state-driven feedback on a fresh install.
+  reduceMotionPreference.value = false
+  // #endif
+  // #ifdef WEB
+  reduceMotionPreference.value = false
+  const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+  platformReduction.value = query.matches
+  const update = () => { platformReduction.value = query.matches }
+  if (typeof query.addEventListener == 'function') query.addEventListener('change', update)
+  else query.addListener(update)
+  // #endif
+  try {
+    const saved = uni.getStorageSync(preferenceKey)
+    if (saved == 'on' || saved == 'off') reduceMotionPreference.value = saved == 'on'
+  } catch (error) { }
+}

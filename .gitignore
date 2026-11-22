@@ -20,6 +20,8 @@ server/.env
 *.mobileprovision
 
 # Build output
+__pycache__/
+/.vite/
 dist/
 dist-ssr/
 desktop/dist/

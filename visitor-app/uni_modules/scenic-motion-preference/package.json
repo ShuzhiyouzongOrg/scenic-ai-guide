@@ -1,0 +1,7 @@
+{
+  "id": "scenic-motion-preference",
+  "displayName": "Scenic motion preference",
+  "version": "1.0.0",
+  "description": "Read Android animator and iOS Reduce Motion preferences for Scenic AI Guide.",
+  "uni_modules": { "dependencies": [] }
+}

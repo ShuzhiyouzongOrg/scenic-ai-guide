@@ -1,0 +1,26 @@
+{
+  "environment": "MuMu Android 12, standard io.dcloud.uniappx Vapor base, HBuilderX 5.24",
+  "input": "cold starts of the installed visitor app with an observation at refreshSystemMotion",
+  "samples": [
+    {
+      "animatorDurationScale": 1,
+      "bridgeExceptionInjected": false,
+      "runtimeObservation": "boolean:false:false"
+    },
+    {
+      "animatorDurationScale": 0,
+      "bridgeExceptionInjected": false,
+      "runtimeObservation": "boolean:true:true"
+    },
+    {
+      "animatorDurationScale": 1,
+      "bridgeExceptionInjected": true,
+      "runtimeObservation": "fallback:true:Error: qa-missing-bridge"
+    }
+  ],
+  "restored": {
+    "originalAppServiceSHA256Matches": true,
+    "systemAnimatorScaleMatches": true,
+    "temporaryObservationRemoved": true
+  }
+}

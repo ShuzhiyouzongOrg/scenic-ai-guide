@@ -1,0 +1,638 @@
+{
+ "chromium-320-en-dark": {
+  "version": "151.0.7922.34",
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "system reduction suppresses the manual override",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+   "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+   "long-press, slide to cancel; zero uploads and released tracks",
+   "second tap finishes recording; multipart voice ask returned 200",
+   "typed question exactly once; history preserves full answer and sources",
+   "host narration pauses, resumes and stops; subtitle retained during pause",
+   "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "pageErrors": [],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/voice/ask-upload",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  }
+ },
+ "chromium-390-zh-light": {
+  "version": "151.0.7922.34",
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "in-page motion switch persists on and off",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+   "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+   "long-press, slide to cancel; zero uploads and released tracks",
+   "second tap finishes recording; multipart voice ask returned 200",
+   "typed question exactly once; history preserves full answer and sources",
+   "host narration pauses, resumes and stops; subtitle retained during pause",
+   "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "pageErrors": [],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/voice/ask-upload",
+    200
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  }
+ },
+ "webkit-320-en-dark": {
+  "version": "26.5",
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "system reduction suppresses the manual override",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "recorder API absent; app shows disabled/error text and offers keyboard",
+   "typed question exactly once; history preserves full answer and sources",
+   "host narration pauses, resumes and stops; subtitle retained during pause",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "pageErrors": [],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  }
+ },
+ "webkit-390-zh-light": {
+  "version": "26.5",
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "in-page motion switch persists on and off",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "recorder API absent; app shows disabled/error text and offers keyboard",
+   "typed question exactly once; history preserves full answer and sources",
+   "host narration pauses, resumes and stops; subtitle retained during pause",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "pageErrors": [],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  }
+ }
+}

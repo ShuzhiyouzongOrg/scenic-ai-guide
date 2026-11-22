@@ -1,0 +1,14 @@
+<template>
+  <view class="heading">
+    <text class="title">{{ title }}</text>
+    <text v-if="subtitle.length > 0" class="subtitle">{{ subtitle }}</text>
+  </view>
+</template>
+<script setup lang="uts">
+  withDefaults(defineProps<{title : string, subtitle ?: string}>(), { subtitle: '' })
+</script>
+<style lang="scss">
+  .heading { padding-top: $sg-space-3; padding-bottom: $sg-space-4; }
+  .title { font-size: $sg-type-title; font-weight: 700; color: $sg-text; }
+  .subtitle { margin-top: $sg-space-1; font-size: $sg-type-label; color: $sg-muted; }
+</style>

@@ -1,8 +1,7 @@
 :root {
-  color-scheme: light;
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  background: #eaf4ff;
-  color: #0b294a;
+  background: var(--sg-background);
+  color: var(--sg-text);
 }
 
 * {
@@ -16,9 +15,7 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(circle at 92% 4%, rgb(34 181 213 / 24%), transparent 36%),
-    linear-gradient(160deg, #e8f5ff 0%, #f8fbff 52%, #eef8f3 100%);
+  background: var(--sg-background);
 }
 
 button,
@@ -39,9 +36,9 @@ input {
 
 .stage-card,
 .control-card {
-  border: 1px solid rgb(255 255 255 / 78%);
+  border: 1px solid var(--sg-border);
   border-radius: 30px;
-  background: rgb(255 255 255 / 88%);
+  background: var(--sg-surface);
   box-shadow: 0 20px 50px rgb(28 77 126 / 13%);
   overflow: hidden;
 }
@@ -50,7 +47,7 @@ input {
   min-height: 580px;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(150deg, #063d73, #087fa2 62%, #1aa8a9);
+  background: var(--sg-hero);
 }
 
 .avatar-stage {
@@ -58,7 +55,7 @@ input {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: linear-gradient(165deg, #084c82, #087a98);
+  background: var(--sg-hero);
 }
 
 .avatar-stage > video,
@@ -77,7 +74,7 @@ input {
   justify-content: center;
   gap: 12px;
   padding: 28px;
-  color: #fff;
+  color: var(--sg-on-hero);
   text-align: center;
   transition: opacity 220ms ease;
 }
@@ -106,7 +103,7 @@ input {
 }
 
 .stage-placeholder span:last-child {
-  color: rgb(255 255 255 / 76%);
+  color: var(--sg-on-hero);
 }
 
 .stage-toolbar {
@@ -115,8 +112,8 @@ input {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgb(3 36 69 / 72%);
-  color: #fff;
+  background: var(--sg-hero);
+  color: var(--sg-on-hero);
 }
 
 .provider-badge {
@@ -124,7 +121,7 @@ input {
   padding: 6px 10px;
   border-radius: 999px;
   background: rgb(255 210 103 / 17%);
-  color: #ffd267;
+  color: var(--sg-on-hero);
   font-size: 13px;
   font-weight: 700;
 }
@@ -132,9 +129,10 @@ input {
 .text-button {
   border: 1px solid rgb(255 255 255 / 34%);
   border-radius: 999px;
+  min-height: 44px;
   padding: 7px 11px;
   background: transparent;
-  color: #fff;
+  color: var(--sg-on-hero);
   cursor: pointer;
 }
 
@@ -160,25 +158,19 @@ input {
 .intro-copy p,
 .answer-panel p {
   margin: 0;
-  color: #617891;
+  color: var(--sg-muted);
   line-height: 1.75;
 }
 
-.eyebrow {
-  color: #db8a00;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.19em;
-}
 
 .primary-button {
   width: 100%;
   min-height: 52px;
   border: 0;
   border-radius: 18px;
-  background: linear-gradient(100deg, #076ad7, #08a1bf);
+  background: var(--sg-primary);
   box-shadow: 0 12px 24px rgb(7 106 215 / 22%);
-  color: #fff;
+  color: var(--sg-on-primary);
   font-weight: 800;
   cursor: pointer;
 }
@@ -197,7 +189,7 @@ input {
 
 .question-form label,
 .answer-panel > span {
-  color: #193d63;
+  color: var(--sg-text);
   font-size: 14px;
   font-weight: 800;
 }
@@ -210,16 +202,16 @@ input {
 .question-row input {
   min-width: 0;
   flex: 1;
-  border: 1px solid #d7e3ef;
+  border: 1px solid var(--sg-border);
   border-radius: 15px;
   padding: 0 14px;
-  background: #f7faff;
-  color: #0b294a;
+  background: var(--sg-inset);
+  color: var(--sg-text);
   outline: none;
 }
 
 .question-row input:focus {
-  border-color: #1684dc;
+  border-color: var(--sg-primary);
   box-shadow: 0 0 0 3px rgb(22 132 220 / 12%);
 }
 
@@ -228,8 +220,8 @@ input {
   border: 0;
   border-radius: 15px;
   padding: 0 16px;
-  background: #0c70d5;
-  color: #fff;
+  background: var(--sg-primary);
+  color: var(--sg-on-primary);
   font-weight: 700;
   cursor: pointer;
 }
@@ -246,9 +238,9 @@ input {
   display: grid;
   align-content: start;
   gap: 8px;
-  border: 1px solid #e1eaf3;
+  border: 1px solid var(--sg-border);
   border-radius: 20px;
-  background: linear-gradient(145deg, #f5f9ff, #f7fcf9);
+  background: var(--sg-inset);
 }
 
 /* Compact stage embedded in the uni-app x AI guide card. The regular full-page
@@ -256,7 +248,7 @@ input {
 body.embed-mode {
   min-height: 100vh;
   overflow: hidden;
-  background: #fff;
+  background: var(--sg-surface);
 }
 
 body.embed-mode .app-shell {
@@ -273,34 +265,34 @@ body.embed-mode .stage-card {
   min-height: 100vh;
   border: 0;
   border-radius: 0;
-  background: #fff;
+  background: var(--sg-surface);
   box-shadow: none;
 }
 
 body.embed-mode .avatar-stage {
-  background: #fff;
+  background: var(--sg-surface);
 }
 
 body.embed-mode .stage-placeholder {
-  background: #fff;
-  color: #173c65;
+  background: var(--sg-surface);
+  color: var(--sg-text);
 }
 
 body.embed-mode .stage-placeholder span:last-child {
-  color: #74869b;
+  color: var(--sg-muted);
 }
 
 body.embed-mode .brand-mark {
-  border-color: #dce7f2;
-  background: #eef6ff;
+  border-color: var(--sg-border);
+  background: var(--sg-inset);
   box-shadow: none;
-  color: #0b68d0;
+  color: var(--sg-primary);
 }
 
 body.embed-mode .avatar-stage > video,
 body.embed-mode .avatar-stage > div:not(.stage-placeholder),
 body.embed-mode .avatar-stage > div:not(.stage-placeholder) video {
-  background: #fff !important;
+  background: var(--sg-surface) !important;
 }
 
 body.embed-mode .avatar-stage video {
@@ -315,20 +307,20 @@ body.embed-mode:not(.avatar-stream-ready) .avatar-stage video {
 body.embed-mode .stage-toolbar {
   min-height: 42px;
   padding: 7px 10px;
-  background: rgb(244 248 252 / 96%);
-  color: #26445f;
+  background: var(--sg-surface);
+  color: var(--sg-text);
 }
 
 body.embed-mode .provider-badge {
   padding: 5px 8px;
-  background: #fff3d8;
-  color: #9b6500;
+  background: var(--sg-inset);
+  color: var(--sg-accent);
   font-size: 11px;
 }
 
 body.embed-mode .text-button {
-  border-color: #d6e1ec;
-  color: #1d5f99;
+  border-color: var(--sg-border);
+  color: var(--sg-primary);
   font-size: 11px;
 }
 
@@ -377,4 +369,11 @@ body.embed-mode .primary-button[hidden] {
     padding: 22px 18px;
     border-radius: 24px;
   }
+}
+
+:root[data-motion="reduce"] .stage-placeholder,
+:root[data-motion="reduce"] .avatar-stage video { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-placeholder, body.embed-mode .avatar-stage video { transition: none; }
 }

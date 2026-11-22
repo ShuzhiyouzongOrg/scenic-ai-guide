@@ -1,0 +1,52 @@
+import { getAppLocale, localize } from '@/stores/locale.uts'
+
+// The source gallery also contains external covers marked pending-license.
+export function spotPhoto(id : string, detail : boolean = false) : string {
+  if (id == 'LS-011') return '/static/destinations/lingshan.webp'
+  let file = ''
+  switch (id) {
+    case 'LS-006': file = 'jiulong'; break
+    case 'LS-010': file = 'xiangfu'; break
+    case 'LS-013': file = 'brahma'; break
+    case 'LS-014': file = 'mandala'; break
+    case 'nianhuawan-169': file = 'tower'; break
+    case 'nianhuawan-175': file = 'wudeng'; break
+    default: return ''
+  }
+  return (detail ? '/pages/spot/static/' : '/static/destinations/') + file + '.webp'
+}
+type PhotoCredit = { area : string, title : string, author : string, license : string, source : string, terms : string }
+const gallery : PhotoCredit[] = [
+  { area:'lingshan', title:'无锡灵山大佛', author:'PHAN013', license:'CC0 1.0', source:'https://commons.wikimedia.org/wiki/File:无锡灵山大佛.jpg', terms:'https://creativecommons.org/publicdomain/zero/1.0/' },
+  { area:'nianhuawan', title:'灵山小镇拈花湾20200913 27', author:'西安兵马俑', license:'CC BY-SA 4.0', source:'https://commons.wikimedia.org/wiki/File:灵山小镇拈花湾20200913_27.jpg', terms:'https://creativecommons.org/licenses/by-sa/4.0/' },
+  { area:'lingshan', title:'Grand Buddha at Ling Shan', author:'王波波', license:'CC BY-SA 3.0', source:'https://commons.wikimedia.org/wiki/File:Grand_Buddha_at_Ling_Shan.jpg', terms:'https://creativecommons.org/licenses/by-sa/3.0/' },
+  { area:'lingshan', title:'Wuxi Xiangfu Temple', author:'王波波', license:'CC BY-SA 3.0', source:'https://commons.wikimedia.org/wiki/File:Wuxi_Xiangfu_Temple.jpg', terms:'https://creativecommons.org/licenses/by-sa/3.0/' },
+  { area:'lingshan', title:'Holy Altar in Brahma Palace', author:'Joaquín Salido Bello', license:'CC BY-SA 4.0', source:'https://commons.wikimedia.org/wiki/File:Holy_Altar_in_Brahma_Palace.jpg', terms:'https://creativecommons.org/licenses/by-sa/4.0/' },
+  { area:'lingshan', title:'Lingshan “Five-signets” Palace', author:'Synyan', license:'CC BY 3.0', source:'https://commons.wikimedia.org/wiki/File:Lingshan_%22Five-signets%22_Palace.jpg', terms:'https://creativecommons.org/licenses/by/3.0/' },
+  { area:'nianhuawan', title:'灵山小镇拈花湾20200912 05', author:'西安兵马俑', license:'CC BY-SA 4.0', source:'https://commons.wikimedia.org/wiki/File:灵山小镇拈花湾20200912_05.jpg', terms:'https://creativecommons.org/licenses/by-sa/4.0/' },
+  { area:'nianhuawan', title:'灵山小镇拈花湾20200913 30', author:'西安兵马俑', license:'CC BY-SA 4.0', source:'https://commons.wikimedia.org/wiki/File:灵山小镇拈花湾20200913_30.jpg', terms:'https://creativecommons.org/licenses/by-sa/4.0/' }
+]
+export function showPhotoCredits() {
+  const locale = getAppLocale()
+  uni.showActionSheet({ itemList: [localize(locale,'灵山胜境','Lingshan','靈山勝境'),localize(locale,'拈花湾','Nianhua Bay','拈花灣')],
+    success: (result) => {
+      const area = result.tapIndex == 1 ? 'nianhuawan' : 'lingshan'
+      const photos = gallery.filter((photo : PhotoCredit) : boolean => photo.area == area)
+      showGallery(locale, photos)
+    }
+  })
+}
+function showGallery(locale : string, photos : PhotoCredit[]) {
+  uni.showActionSheet({
+    itemList: photos.map<string>((photo : PhotoCredit) : string => photo.title + ' · ' + photo.author),
+    success: (result) => {
+      const photo = photos[result.tapIndex]
+      const details = photo.author + ' · ' + photo.license + '\n' +
+        localize(locale,'移动版经裁切或缩小并转为 WebP，衍生图沿用原许可。','Cropped or resized and converted to WebP. The adapted photo retains its original license.','行動版經裁切或縮小並轉為 WebP，衍生圖沿用原授權。') +
+        '\n' + photo.source + '\n' + photo.terms
+      uni.showModal({ title:photo.title, content:details, confirmText:localize(locale,'复制链接','Copy links','複製連結'),
+        success:(answer) => { if (answer.confirm) uni.setClipboardData({data:photo.source + '\n' + photo.terms}) }
+      })
+    }
+  })
+}

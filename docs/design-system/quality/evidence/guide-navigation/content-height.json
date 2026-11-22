@@ -1,0 +1,68 @@
+{
+  "before": {
+    ".scene-scroll": [
+      0,
+      111,
+      390,
+      574
+    ],
+    ".stage-layout": [
+      16,
+      111,
+      358,
+      308
+    ],
+    ".guide-header": [
+      0,
+      0,
+      390,
+      111
+    ],
+    ".dock": [
+      0,
+      685,
+      390,
+      105
+    ],
+    ".guide-tabbar": null,
+    ".uni-tabbar": [
+      0,
+      790,
+      390,
+      54
+    ]
+  },
+  "after": {
+    ".scene-scroll": [
+      0,
+      111,
+      390,
+      671
+    ],
+    ".stage-layout": [
+      16,
+      111,
+      358,
+      360
+    ],
+    ".guide-header": [
+      0,
+      0,
+      390,
+      111
+    ],
+    ".dock": null,
+    ".guide-tabbar": [
+      0,
+      782,
+      390,
+      62
+    ],
+    ".uni-tabbar": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

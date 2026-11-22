@@ -94,9 +94,7 @@
 				{
 					"path": "index",
 					"style": {
-						"navigationBarTitleText": "讯飞动态数字人",
-						"navigationBarBackgroundColor": "#062f68",
-						"navigationBarTextStyle": "white"
+						"navigationBarTitleText": "讯飞动态数字人"
 					}
 				}
 			]
@@ -104,49 +102,49 @@
 		// #endif
 	],
 	"tabBar": {
-		"color": "#8a96a8",
-		"selectedColor": "#0b68d0",
-		"backgroundColor": "#ffffff",
-		"borderStyle": "black",
-		"height": "60px",
+		"color": "@tabMuted",
+		"selectedColor": "@tabActive",
+		"backgroundColor": "@surface",
+		"borderStyle": "@tabBorder",
+		"height": "54px",
 		"list": [
 			{
 				"pagePath": "pages/home/index",
 				"text": "首页",
-				"iconPath": "static/tabbar/home.png",
-				"selectedIconPath": "static/tabbar/home-active.png"
+				"iconPath": "@homeIcon",
+				"selectedIconPath": "@homeSelected"
 			},
 			{
 				"pagePath": "pages/map/index",
 				"text": "地图",
-				"iconPath": "static/tabbar/map.png",
-				"selectedIconPath": "static/tabbar/map-active.png"
+				"iconPath": "@mapIcon",
+				"selectedIconPath": "@mapSelected"
 			},
 			{
 				"pagePath": "pages/ai-guide/index",
 				"text": "AI导游",
-				"iconPath": "static/tabbar/ai.png",
-				"selectedIconPath": "static/tabbar/ai-active.png"
+				"iconPath": "@aiIcon",
+				"selectedIconPath": "@aiSelected"
 			},
 			{
 				"pagePath": "pages/trip/index",
 				"text": "行程",
-				"iconPath": "static/tabbar/trip.png",
-				"selectedIconPath": "static/tabbar/trip-active.png"
+				"iconPath": "@tripIcon",
+				"selectedIconPath": "@tripSelected"
 			},
 			{
 				"pagePath": "pages/profile/index",
 				"text": "我的",
-				"iconPath": "static/tabbar/profile.png",
-				"selectedIconPath": "static/tabbar/profile-active.png"
+				"iconPath": "@profileIcon",
+				"selectedIconPath": "@profileSelected"
 			}
 		]
 	},
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
+		"navigationBarTextStyle": "@navText",
 		"navigationBarTitleText": "数智游踪",
-		"navigationBarBackgroundColor": "#ffffff",
-		"backgroundColor": "#f3f6fb",
+		"navigationBarBackgroundColor": "@surface",
+		"backgroundColor": "@background",
 		"enablePullDownRefresh": false
 	},
 	"uniIdRouter": {}

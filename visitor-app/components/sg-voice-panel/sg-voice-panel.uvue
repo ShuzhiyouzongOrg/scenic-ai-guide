@@ -1,0 +1,25 @@
+<template>
+	<view class="panel">
+		<view class="status">
+			<sg-icon :name="state == 'ERROR' ? 'info' : 'voice'" tone="ai" :size="16" />
+			<text class="status-text" aria-live="polite">{{ message }}</text>
+			<text v-if="state == 'RECORDING'" class="clock">{{ elapsed }}</text>
+		</view>
+		<sg-button v-if="canCancel" :label="g('取消录音')" kind="quiet" @action="emit('cancel')" />
+		<sg-button v-if="hostPlayback && (state == 'PLAYING' || state == 'PAUSED')" :label="state == 'PAUSED' ? g('继续') : g('暂停')" kind="quiet" @action="emit('pause')" />
+		<sg-button v-if="state == 'PLAYING' || state == 'PAUSED' || state == 'RESPONDING'" :label="g('停止')" kind="quiet" @action="emit('interrupt')" />
+	</view>
+</template>
+<script setup lang="uts">
+	import { guideText } from '@/design/guide-locale.uts'
+	function g(key : string) : string { return guideText(props.locale, key) }
+	const props = defineProps<{ locale : string, state : string, elapsed : string, message : string, hostPlayback : boolean, canCancel : boolean }>()
+	const emit = defineEmits(['cancel', 'pause', 'interrupt'])
+</script>
+<style lang="scss">
+	.panel, .status { flex-direction: row; align-items: center; }
+	.panel { min-height: $sg-space-8; margin-bottom: $sg-space-1; }
+	.status { flex: 1; }
+	.clock { margin-left: $sg-space-1; font-size: $sg-type-caption; color: $sg-text; }
+	.status-text { flex: 1; margin-left: $sg-space-2; font-size: $sg-type-caption; color: $sg-secondary; }
+</style>

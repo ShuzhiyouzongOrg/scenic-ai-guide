@@ -1,0 +1,5 @@
+import { UIAccessibility } from 'UIKit'
+
+export function readMotionPreference() : boolean {
+  return UIAccessibility.isReduceMotionEnabled
+}

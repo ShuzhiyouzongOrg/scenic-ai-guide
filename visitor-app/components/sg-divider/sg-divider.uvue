@@ -1,0 +1,6 @@
+<template>
+  <view class="divider" aria-hidden="true"></view>
+</template>
+<style lang="scss">
+  .divider { height: 1px; background-color: $sg-divider; }
+</style>

@@ -1,0 +1,131 @@
+{
+  "host": "H5 in Chromium, 390 x 844 CSS pixels. Supplemental browser control only.",
+  "method": "Simulated microphone device supplies a 16 kHz mono PCM16 WAV to the normal getUserMedia / MediaRecorder / Web Audio path. Read the rendered bar heights and signal ring on the actual guide page. Isolated API responses, no user audio.",
+  "signal": {
+    "frequencyHz": 313,
+    "segments": [
+      {
+        "seconds": 2,
+        "peak": 0
+      },
+      {
+        "seconds": 2,
+        "peak": 0.055
+      },
+      {
+        "seconds": 2,
+        "peak": 0.32
+      }
+    ],
+    "afterwards": "digital silence"
+  },
+  "before": [
+    {
+      "bars": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "orbSignal": false,
+      "opacity": null,
+      "clock": "0:01",
+      "t": 1.03
+    },
+    {
+      "bars": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "orbSignal": true,
+      "opacity": "0.223742",
+      "clock": "0:03",
+      "t": 3.12
+    },
+    {
+      "bars": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "orbSignal": true,
+      "opacity": "0.364577",
+      "clock": "0:05",
+      "t": 5.2
+    }
+  ],
+  "after": [
+    {
+      "bars": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "orbSignal": false,
+      "opacity": null,
+      "clock": "0:01",
+      "t": 1.05
+    },
+    {
+      "bars": [
+        7,
+        7,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "orbSignal": true,
+      "opacity": "0.232343",
+      "clock": "0:03",
+      "t": 3.12
+    },
+    {
+      "bars": [
+        15,
+        15,
+        15,
+        15,
+        14,
+        14,
+        14
+      ],
+      "orbSignal": true,
+      "opacity": "0.417128",
+      "clock": "0:05",
+      "t": 5.22
+    },
+    {
+      "bars": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "orbSignal": false,
+      "opacity": null,
+      "clock": "0:07",
+      "t": 7.8
+    }
+  ]
+}

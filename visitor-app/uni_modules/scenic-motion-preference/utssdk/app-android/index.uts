@@ -1,0 +1,7 @@
+import ValueAnimator from 'android.animation.ValueAnimator'
+import Build from 'android.os.Build'
+
+export function readMotionPreference() : boolean {
+  if (Build.VERSION.SDK_INT < 26) return true
+  return !ValueAnimator.areAnimatorsEnabled()
+}

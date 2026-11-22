@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-22",
+  "os": "MuMu Android 12, 1080×1920 / 480dpi",
+  "runtime_js_sha256": "94686fe39d2f682d84208d928819875d74a50fef5f93dfb597013b6b94a9f67f",
+  "gfxinfo_interval": "Reset on Home, change system theme, scroll through highlights, open place, mark and unmark visit, open profile, list, and feedback, edit rating and text",
+  "gfxinfo": [
+    "Stats since: 4208293139599ns",
+    "Total frames rendered: 410",
+    "Janky frames: 0 (0.00%)",
+    "Janky frames (legacy): 103 (25.12%)",
+    "50th percentile: 5ms",
+    "90th percentile: 26ms",
+    "95th percentile: 61ms",
+    "99th percentile: 150ms",
+    "Pipeline=Skia (OpenGL)"
+  ],
+  "accessibility": {
+    "talkback_installed": false,
+    "service_count": 2,
+    "enabled_services": "null",
+    "tree_node_count": 44,
+    "feedback_fields": [
+      {
+        "class": "android.widget.EditText",
+        "bounds": "[138,1247][942,1577]",
+        "focused": "true",
+        "has_test_text": true,
+        "accessible_name": ""
+      }
+    ],
+    "before_label_adapter": {
+      "note": "tree_node_count and feedback_fields above were sampled before the new Android label association"
+    },
+    "after_label_adapter": {
+      "tool": "Android Instrumentation.getUiAutomation(), live getRootInActiveWindow, forward and reverse AccessibilityNodeInfo relations, values never read",
+      "android_debug_dex_bytes": 2380,
+      "relations": [
+        {
+          "page": "auth",
+          "edit_class": "android.widget.EditText",
+          "labeled_by": {
+            "class": "android.view.ViewGroup",
+            "content_description": "用户名"
+          },
+          "label_for": "android.widget.EditText",
+          "has_native_hint": false
+        },
+        {
+          "page": "auth",
+          "edit_class": "android.widget.EditText",
+          "labeled_by": {
+            "class": "android.view.ViewGroup",
+            "content_description": "密码"
+          },
+          "label_for": "android.widget.EditText",
+          "has_native_hint": false
+        },
+        {
+          "page": "feedback",
+          "edit_class": "android.widget.EditText",
+          "labeled_by": {
+            "class": "android.view.ViewGroup",
+            "content_description": "意见或建议"
+          },
+          "label_for": "android.widget.EditText",
+          "has_native_hint": false
+        }
+      ],
+      "qa_probe_removed": true,
+      "talkback_spoken_output": "unverified",
+      "debug_bundle_sha256": "0f7cdc1dd9880bfb949fdbd0f81adaea2116e69b6fc68bf43a03d29b849ea92c"
+    }
+  },
+  "ime": {
+    "selected": "com.sohu.inputmethod.sogou.chuizi/com.sohu.inputmethod.sogou.SogouIME",
+    "shown": true,
+    "adjust_resize": true,
+    "inset": "InsetsSource type=ITYPE_IME frame=[0,1920][1080,1920] visible=true",
+    "available_imes": [
+      "com.sohu.inputmethod.sogou.chuizi/com.sohu.inputmethod.sogou.SogouIME"
+    ],
+    "show_ime_with_hard_keyboard": "1"
+  },
+  "tab_locale_followup": {
+    "system_dark_before_launch": true,
+    "cold_start": true,
+    "theme_toggle": true,
+    "home_key_and_resume": true,
+    "native_tab_labels": [
+      "Home",
+      "Map",
+      "AI Guide",
+      "Trips",
+      "Profile"
+    ],
+    "runtime_js_sha256": "aa01f48020848badcbf178b9d3805cd9b19e095289f2ee957e4011e9fcb8c539"
+  }
+}

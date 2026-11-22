@@ -1,76 +1,80 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view class="profile-header">
-			<view class="profile-orb"></view>
-			<view class="profile-avatar" @click="chooseProfileAvatar">
-				<image class="profile-avatar-image" :src="profileAvatarSource" mode="aspectFill" />
-				<view class="profile-status-dot"></view>
-				<view class="profile-avatar-edit"><text class="profile-avatar-edit-text">{{ avatarUploading ? t('上传中', 'Uploading', '上傳中') : t('更换头像', 'Change', '更換頭像') }}</text></view>
-			</view>
-			<text class="profile-name">{{ displayName }}</text>
-			<text class="profile-copy">{{ authUser == null ? t('当前使用本设备游客会话，导览功能可直接使用', 'Guest mode is active on this device', '目前使用本裝置訪客工作階段') : t('游客账号已登录，本设备导览记录继续保留', 'Visitor account signed in', '訪客帳號已登入') }}</text>
-			<view class="auth-button" @click="handleAuth"><text class="auth-button-text">{{ authUser == null ? t('登录 / 注册', 'Sign in / Register', '登入 / 註冊') : t('退出登录', 'Sign out', '登出') }}</text><text class="auth-button-arrow">→</text></view>
-		</view>
-
-		<view class="content">
-			<view class="stats-card">
-				<view class="stat-item"><text class="stat-value">{{ favoriteCount }}</text><text class="stat-label">{{ t('收藏景点', 'Favorites', '收藏景點') }}</text></view>
-				<view class="stat-divider"></view>
-				<view class="stat-item"><text class="stat-value">{{ savedRouteCount }}</text><text class="stat-label">{{ t('保存行程', 'Saved trips', '儲存行程') }}</text></view>
-				<view class="stat-divider"></view>
-				<view class="stat-item"><text class="stat-value">{{ footprintCount }}</text><text class="stat-label">{{ t('游览足迹', 'Footprints', '遊覽足跡') }}</text></view>
-			</view>
-
-			<text class="menu-section-title">{{ t('我的服务', 'My services', '我的服務') }}</text>
-			<view class="preference-card">
-				<view class="preference-item" @click="chooseScenicArea">
-					<view class="menu-icon menu-icon-blue"><rice-icon name="location-fill" size="19" color="#0b68d0" /></view>
-					<view class="menu-copy"><text class="menu-title">{{ t('当前景区', 'Current scenic area', '目前景區') }}</text><text class="menu-label">{{ scenicAreaName }} · {{ t('地图与行程将同步切换', 'Map and trip data switch together', '地圖與行程將同步切換') }}</text></view>
-					<text class="preference-value">{{ t('切换', 'Change', '切換') }}</text><text class="menu-arrow">›</text>
-				</view>
-				<view class="menu-divider"></view>
-				<view class="preference-item" @click="chooseDigitalHuman">
-					<view class="menu-icon menu-icon-cyan"><rice-icon name="voice" size="19" color="#087fbd" /></view>
-					<view class="menu-copy"><text class="menu-title">{{ t('数字人导游', 'Digital guide', '數位人導遊') }}</text><text class="menu-label">{{ selectedDigitalHumanName }} · {{ selectedDigitalHumanStatus }}</text></view>
-					<text class="preference-value">{{ t('切换', 'Change', '切換') }}</text><text class="menu-arrow">›</text>
-				</view>
-			</view>
-
-			<view class="menu-card service-menu-card">
-				<view class="menu-item" @click="openTrip"><view class="menu-icon menu-icon-blue"><rice-icon name="calendar-fill" size="19" color="#0b68d0" /></view><view class="menu-copy"><text class="menu-title">{{ t('我的行程', 'My trips', '我的行程') }}</text><text class="menu-label">{{ t('查看已保存和进行中的路线', 'View saved and active routes', '查看已儲存和進行中的路線') }}</text></view><text class="menu-arrow">›</text></view>
-				<view class="menu-divider"></view>
-				<view class="menu-item" @click="openFavorites"><view class="menu-icon menu-icon-gold"><rice-icon name="star-fill" size="19" color="#d88400" /></view><view class="menu-copy"><text class="menu-title">{{ t('收藏与足迹', 'Favorites & footprints', '收藏與足跡') }}</text><text class="menu-label">{{ t('查看本设备保存的景点记录', 'View places saved on this device', '查看本裝置儲存的景點記錄') }}</text></view><text class="menu-arrow">›</text></view>
-				<view class="menu-divider"></view>
-				<view class="menu-item" @click="openGuide"><view class="menu-icon menu-icon-cyan"><rice-icon name="chat-fill" size="19" color="#087fbd" /></view><view class="menu-copy"><text class="menu-title">{{ t('对话记录', 'Chat history', '對話記錄') }}</text><text class="menu-label">{{ t('继续本设备上的 AI 导游会话', 'Continue AI guide conversations', '繼續本裝置上的 AI 導遊對話') }}</text></view><text class="menu-arrow">›</text></view>
-				<view class="menu-divider"></view>
-				<view class="menu-item" @click="openFeedback"><view class="menu-icon menu-icon-rose"><rice-icon name="comments-fill" size="19" color="#e45b70" /></view><view class="menu-copy"><text class="menu-title">{{ t('意见反馈', 'Feedback', '意見回饋') }}</text><text class="menu-label">{{ t('帮助我们改进导游服务', 'Help us improve the guide', '協助我們改進導遊服務') }}</text></view><text class="menu-arrow">›</text></view>
-				<view class="menu-divider"></view>
-				<view class="menu-item" @click="chooseLanguage"><view class="menu-icon menu-icon-purple"><text class="language-icon-text">文</text></view><view class="menu-copy"><text class="menu-title">{{ t('切换语言', 'Language', '切換語言') }}</text><text class="menu-label">{{ currentLanguageName }}</text></view><text class="preference-value">{{ t('切换', 'Change', '切換') }}</text><text class="menu-arrow">›</text></view>
-			</view>
-
-			<text class="menu-section-title menu-section-space">{{ t('更多设置', 'More settings', '更多設定') }}</text>
-			<view class="settings-card">
-				<view class="setting-item" @click="showPrivacy"><text class="setting-title">{{ t('隐私与权限', 'Privacy', '隱私與權限') }}</text><text class="setting-label">{{ t('定位、麦克风与数据使用说明', 'Location, microphone and data usage', '定位、麥克風與資料使用說明') }}</text><text class="menu-arrow">›</text></view>
-				<view class="menu-divider"></view>
-				<view class="setting-item" @click="showAbout"><text class="setting-title">{{ t('关于应用', 'About', '關於應用程式') }}</text><text class="setting-label">{{ t('数智游踪', 'Shuzhi Youzong', '數智遊蹤') }} 0.2.0</text><text class="menu-arrow">›</text></view>
-			</view>
-		</view>
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <view class="top" :style="headerStyle"><sg-page-header :title="t('我的', 'Profile', '我的')" /></view>
+      <view class="account">
+        <view class="identity">
+          <view class="avatar" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="t('更换头像', 'Change avatar', '更換頭像')" @click="chooseProfileAvatar">
+            <sg-avatar :src="profileAvatarSource" :label="displayName" />
+            <view class="camera"><sg-icon name="camera" tone="inverse" :size="14" /></view>
+          </view>
+          <view class="ident-copy">
+            <text class="name">{{ displayName }}</text>
+            <text class="meta">{{ avatarUploading ? t('上传中', 'Uploading', '上傳中') : (authUser == null ? t('本设备游客会话', 'Guest on this device', '本裝置訪客工作階段') : t('游客账号已登录', 'Signed in', '訪客帳號已登入')) }}</text>
+          </view>
+        </view>
+        <sg-button :label="authUser == null ? t('登录 / 注册', 'Sign in / Register', '登入 / 註冊') : t('退出登录', 'Sign out', '登出')" kind="secondary" @action="handleAuth" />
+      </view>
+      <view class="stats">
+        <view class="stat" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="t('收藏景点', 'Favorites', '收藏景點')" @click="openFavorites"><text class="count">{{ favoriteCount }}</text><text class="meta">{{ t('收藏景点', 'Favorites', '收藏景點') }}</text></view>
+        <view class="stat" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="t('保存行程', 'Saved trips', '儲存行程')" @click="openTrip"><text class="count">{{ savedRouteCount < 0 ? '—' : savedRouteCount.toString() }}</text><text class="meta">{{ t('保存行程', 'Saved trips', '儲存行程') }}</text></view>
+        <view class="stat" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="t('游览足迹', 'Visits', '遊覽足跡')" @click="openFavorites"><text class="count">{{ visitedCount }}</text><text class="meta">{{ t('游览足迹', 'Visits', '遊覽足跡') }}</text></view>
+      </view>
+      <app-section :title="t('导览偏好', 'Guide preferences', '導覽偏好')">
+        <view class="group">
+            <sg-service-row icon="location" :title="t('当前景区', 'Scenic area', '目前景區')" :detail="scenicAreaName" @action="chooseScenicArea" />
+            <sg-divider />
+            <sg-service-row icon="voice" :title="t('数字人导游', 'Digital guide', '數位人導遊')" :detail="selectedDigitalHumanName + ' · ' + selectedDigitalHumanStatus" @action="chooseDigitalHuman" />
+            <sg-divider />
+            <sg-service-row icon="switch" :title="t('语言', 'Language', '語言')" :detail="currentLanguageName" @action="chooseLanguage" />
+            <sg-divider />
+            <sg-service-row icon="eyes" :title="t('大号字体', 'Larger text', '大號字體')" :detail="largeText ? t('已开启', 'On', '已開啟') : t('标准', 'Standard', '標準')" @action="toggleLargeText" />
+            <sg-divider />
+            <sg-service-row icon="pause" :title="t('减少动态效果', 'Reduce motion', '減少動態效果')" :detail="reduceMotionPreference ? t('已开启', 'On', '已開啟') : standardMotionLabel" @action="toggleMotion" />
+        </view>
+      </app-section>
+      <app-section :title="t('我的服务', 'My services', '我的服務')">
+        <view class="group">
+            <sg-service-row icon="calendar" :title="t('我的行程', 'My trips', '我的行程')" @action="openTrip" />
+            <sg-divider />
+            <sg-service-row icon="star" :title="t('收藏、到访与最近浏览', 'Saved places and history', '收藏、到訪與最近瀏覽')" @action="openFavorites" />
+            <sg-divider />
+            <sg-service-row icon="chat" :title="t('对话记录', 'Chat history', '對話記錄')" @action="openGuide" />
+            <sg-divider />
+            <sg-service-row icon="comments" :title="t('意见反馈', 'Feedback', '意見回饋')" @action="openFeedback" />
+        </view>
+      </app-section>
+      <app-section :title="t('设置', 'Settings', '設定')">
+        <view class="group">
+            <sg-service-row icon="info" :title="t('隐私与权限', 'Privacy and permissions', '隱私與權限')" @action="showPrivacy" />
+            <sg-divider />
+            <sg-service-row icon="photo" :title="t('照片署名', 'Photo credits', '照片署名')" @action="showPhotoCredits" />
+            <sg-divider />
+            <sg-service-row icon="help" :title="t('关于应用', 'About', '關於應用程式')" @action="showAbout" />
+        </view>
+      </app-section>
+    </view>
+  </scroll-view>
 </template>
-
 <script setup lang="uts">
-	import type { AuthUser, DigitalHumanConfig } from '@/domain/types.uts'
+  import { openGuideHistory } from '@/stores/navigation-context.uts'
+	import { largeText, themeClass, toggleLargeText } from '@/design/theme.uts'
+  import { useScenicInsets } from '@/design/layout.uts'
+  import { setReduceMotionPreference, reduceMotionPreference } from '@/design/motion.uts'
+  import { showPhotoCredits } from '@/design/scenic-media.uts'
+  import type { AuthUser, DigitalHumanConfig } from '@/domain/types.uts'
 	import { createDefaultDigitalHumanConfig, fetchAuthProfile, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchSavedRoutes, uploadProfileAvatar } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
 	import { clearAuthSession, getAuthToken, getCachedAuthUser, updateCachedAuthProfile } from '@/stores/auth.uts'
 	import { getPreferredScenicArea, getSelectedDigitalHumanId, setDigitalHumanRenderMode, setPreferredScenicArea, setSelectedDigitalHumanId } from '@/stores/guide-preferences.uts'
 	import { getAppLanguageName, getAppLocale, localize, setAppLocale } from '@/stores/locale.uts'
 	import { ensureVisitorSession } from '@/stores/session.uts'
-	import { getFavoriteSpotIds, getFootprintSpotIds } from '@/stores/visitor-activity.uts'
+	import { getFavoriteSpotIds, getVisitedSpotIds } from '@/stores/visitor-activity.uts'
+  const { headerStyle } = useScenicInsets()
 
-	const savedRouteCount = ref<number>(0)
+	const savedRouteCount = ref<number>(-1)
 	const favoriteCount = ref<number>(0)
-	const footprintCount = ref<number>(0)
+	const visitedCount = ref<number>(0)
 	const authUser = ref<AuthUser | null>(null)
 	const avatarUploading = ref<boolean>(false)
 	// Native storage may return null for a key that has not been written yet.
@@ -87,9 +91,9 @@
 		const avatar = authUser.value?.avatar ?? ''
 		return avatar.length > 0 ? resolveAssetUrl(avatar) : '/static/logo.png'
 	})
-	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
+	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? t('拈花湾','Nianhua Bay','拈花灣') : t('灵山胜境','Lingshan','靈山勝境'))
 	const selectedDigitalHumanName = computed<string>(() => selectedDigitalHuman.value?.name ?? '云觉·大佛文化使（女）')
-	const selectedDigitalHumanStatus = computed<string>(() => selectedDigitalHuman.value?.engine == 'xfyun' ? t('讯飞云音色已接入', 'iFLYTEK cloud voice', '訊飛雲端音色已接入') : t('Live2D 模型模式', 'Live2D model', 'Live2D 模型模式'))
+	const selectedDigitalHumanStatus = computed<string>(() => selectedDigitalHuman.value?.engine == 'xfyun' ? t('讯飞云音色', 'iFLYTEK cloud voice', '訊飛雲端音色') : t('Live2D 模型模式', 'Live2D model', 'Live2D 模型模式'))
 
 	function t(simplified : string, english : string, traditional : string) : string {
 		return localize(currentLocale.value, simplified, english, traditional)
@@ -122,9 +126,9 @@
 		}
 	}
 
-	function safeFootprintCount() : number {
+	function safeVisitedCount() : number {
 		try {
-			return getFootprintSpotIds().length
+			return getVisitedSpotIds().length
 		} catch (error) {
 			console.warn('read local activity failed', error)
 			return 0
@@ -161,7 +165,14 @@
 			configs = configs.filter((item : DigitalHumanConfig) : boolean => item.engine == 'live2d')
 			setDigitalHumanRenderMode('live2d')
 			// #endif
-			if (configs.length == 0) configs = [await fetchDigitalHumanConfig()]
+			if (configs.length == 0) {
+				// #ifdef MP-WEIXIN
+				configs = [createProfileDefaultDigitalHuman()]
+				// #endif
+				// #ifndef MP-WEIXIN
+				configs = [await fetchDigitalHumanConfig()]
+				// #endif
+			}
 			digitalHumans.value = configs
 			const selectedId = getSelectedDigitalHumanId()
 			selectedDigitalHuman.value = configs.find((item : DigitalHumanConfig) : boolean => item.id == selectedId) ?? configs[0]
@@ -177,25 +188,19 @@
 		refreshGuidePreferences()
 		authUser.value = safeCachedAuthUser()
 		favoriteCount.value = safeFavoriteCount()
-		footprintCount.value = safeFootprintCount()
-		let route = ''
-		try {
-			const storedRoute = uni.getStorageSync('scenic-current-route')
-			if (storedRoute != null) route = storedRoute as string
-		} catch (error) {
-			console.warn('read current route failed', error)
-		}
-		savedRouteCount.value = route.length > 0 ? 1 : 0
+		visitedCount.value = safeVisitedCount()
 		try {
 			const sessionId = await ensureVisitorSession()
 			const routes = await fetchSavedRoutes(sessionId)
 			savedRouteCount.value = routes.length
 		} catch (error) {
-			console.error('load saved routes failed', error)
+			// Keep the previous successful count, or the unknown marker on first load.
 		}
-		if (safeAuthToken().length > 0) {
+		const token = safeAuthToken()
+		if (token.length > 0) {
 			try {
 				const profile = await fetchAuthProfile()
+				if (token != safeAuthToken()) return
 				updateCachedAuthProfile(profile)
 				authUser.value = safeCachedAuthUser()
 			} catch (error) {
@@ -206,19 +211,19 @@
 
 	function chooseScenicArea() {
 		uni.showActionSheet({
-			itemList: ['灵山胜境', '拈花湾'],
+			itemList: [t('灵山胜境','Lingshan','靈山勝境'), t('拈花湾','Nianhua Bay','拈花灣')],
 			success: (result) => {
 				const nextArea = result.tapIndex == 1 ? 'nianhuawan' : 'lingshan'
 				setPreferredScenicArea(nextArea)
 				scenicArea.value = nextArea
-				uni.showToast({ title: '已切换到' + scenicAreaName.value, icon: 'none' })
+				uni.showToast({ title: t('已切换到','Switched to ','已切換到') + scenicAreaName.value, icon: 'none' })
 			}
 		})
 	}
 
 	function chooseDigitalHuman() {
 		if (digitalHumans.value.length == 0) {
-			uni.showToast({ title: '数字人配置暂未载入', icon: 'none' })
+			uni.showToast({ title: t('数字人配置暂未载入','Guide settings are unavailable','數位人設定暫未載入'), icon: 'none' })
 			return
 		}
 		uni.showActionSheet({
@@ -228,7 +233,7 @@
 					selectedDigitalHuman.value = selected
 					setSelectedDigitalHumanId(selected.id)
 					setDigitalHumanRenderMode(selected.engine == 'xfyun' ? 'xfyun' : 'live2d')
-					uni.showToast({ title: '已切换为' + selected.name, icon: 'none' })
+					uni.showToast({ title: t('已切换为','Selected ','已切換為') + selected.name, icon: 'none' })
 				}
 			})
 	}
@@ -254,13 +259,13 @@
 			return
 		}
 		uni.showModal({
-			title: '退出登录',
-			content: '退出后本设备的行程、收藏、足迹和对话记录仍会保留。',
+			title: t('退出登录','Sign out','登出'),
+			content: t('退出后本设备的行程、收藏、足迹和对话记录仍会保留。','Your trips, favorites, visits and conversations will stay on this device.','登出後本裝置的行程、收藏、足跡與對話紀錄仍會保留。'),
 			success: (result) => {
 				if (!result.confirm) return
 				clearAuthSession()
 				authUser.value = null
-				uni.showToast({ title: '已退出登录', icon: 'none' })
+				uni.showToast({ title: t('已退出登录','Signed out','已登出'), icon: 'none' })
 			}
 		})
 	}
@@ -269,9 +274,9 @@
 		if (avatarUploading.value) return
 		if (authUser.value == null || getAuthToken().length == 0) {
 			uni.showModal({
-				title: '登录后设置头像',
-				content: '头像将安全保存到你的游客账号，可在各端登录后同步显示。',
-				confirmText: '去登录',
+				title: t('登录后设置头像','Sign in to change your avatar','登入後設定頭像'),
+				content: t('头像将保存到你的游客账号，可在各端登录后同步显示。','Your avatar is saved to your visitor account and appears wherever you sign in.','頭像將儲存到你的訪客帳號，可於各端登入後同步顯示。'),
+				confirmText: t('去登录','Sign in','去登入'),
 				success: (result) => {
 					if (result.confirm) uni.navigateTo({ url: '/pages/auth/index' })
 				}
@@ -288,36 +293,36 @@
 				handleProfileAvatarUpload(file.path, file.size)
 			},
 			fail: (error) => {
-				if (!error.errMsg.includes('cancel')) uni.showToast({ title: '未能读取所选图片', icon: 'none' })
+				if (!error.errMsg.includes('cancel')) uni.showToast({ title: t('未能读取所选图片','Could not open the image','未能讀取所選圖片'), icon: 'none' })
 			}
 		})
 	}
 
 	async function handleProfileAvatarUpload(filePath : string, fileSize : number) {
 		if (fileSize > 5 * 1024 * 1024) {
-			uni.showToast({ title: '请选择不超过 5 MB 的图片', icon: 'none' })
+			uni.showToast({ title: t('请选择不超过 5 MB 的图片','Choose an image up to 5 MB','請選擇不超過 5 MB 的圖片'), icon: 'none' })
 			return
 		}
 		avatarUploading.value = true
-		uni.showLoading({ title: '正在上传', mask: true })
+		uni.showLoading({ title: t('正在上传','Uploading','正在上傳'), mask: true })
 		try {
 			const profile = await uploadProfileAvatar(filePath)
 			updateCachedAuthProfile(profile)
 			authUser.value = getCachedAuthUser()
-			uni.showToast({ title: '头像已更新', icon: 'success' })
+			uni.showToast({ title: t('头像已更新','Avatar updated','頭像已更新'), icon: 'success' })
 		} catch (error) {
 			console.error('upload profile avatar failed', error)
-			uni.showToast({ title: '头像上传失败，请稍后重试', icon: 'none' })
+			uni.showToast({ title: t('头像上传失败，请稍后重试','Upload failed. Please try again.','頭像上傳失敗，請稍後重試'), icon: 'none' })
 		} finally {
 			uni.hideLoading()
 			avatarUploading.value = false
 		}
 	}
 
-	function showPrivacy() { uni.showModal({ title: '隐私与权限', content: '定位仅在地图页用于展示当前位置；麦克风仅在你主动点击语音提问时启用；相册或相机仅在你主动更换头像时启用；账号、反馈和导览数据提交到当前项目后端。', showCancel: false }) }
-	function showAbout() { uni.showModal({ title: '数智游踪', content: '基于 uni-app x Vapor 构建的多端游客应用。', showCancel: false }) }
+	function showPrivacy() { uni.showModal({ title: t('隐私与权限','Privacy and permissions','隱私與權限'), content: t('地图使用定位显示当前位置。只有发起语音提问或更换头像时才会使用麦克风、相机或相册。账号、反馈和导览数据提交到项目服务。','Location is used on the map. The microphone, camera and photo library are accessed when you ask a voice question or update your avatar. Account, feedback and guide data go to the project service.','地圖使用定位顯示目前位置。只有發起語音提問或更換頭像時才會使用麥克風、相機或相簿。帳號、回饋與導覽資料提交到專案服務。'), showCancel: false }) }
+	function showAbout() { uni.showModal({ title: '数智游踪', content: t('基于 uni-app x Vapor 构建的多端游客应用。','A cross-platform visitor guide built with uni-app x Vapor.','以 uni-app x Vapor 建構的多端訪客應用程式。'), showCancel: false }) }
 	function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
-	function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
+	function openGuide() { openGuideHistory() }
 	function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
 	function openFeedback() { uni.navigateTo({ url: '/pages/feedback/index' }) }
 
@@ -325,48 +330,32 @@
 		currentLocale.value = safeAppLocale()
 		refreshProfileState()
 	})
-</script>
 
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.profile-header { position: relative; overflow: hidden; padding: 58px 20px 72px; align-items: center; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
-	.profile-orb { position: absolute; right: -74px; top: -88px; width: 220px; height: 220px; border-radius: 110px; background-color: rgba(255,255,255,0.06); }
-	.profile-avatar { position: relative; width: 82px; height: 82px; border-radius: 27px; overflow: hidden; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.38); box-shadow: 0 12px 28px rgba(3,29,75,0.24); }
-	.profile-avatar-image { width: 80px; height: 80px; }
-	.profile-status-dot { position: absolute; right: 6px; bottom: 20px; width: 12px; height: 12px; border-radius: 7px; background-color: #37d0b8; border: 2px solid #ffffff; }
-	.profile-avatar-edit { position: absolute; left: 0; right: 0; bottom: 0; height: 20px; align-items: center; justify-content: center; background-color: rgba(2,23,57,0.66); }
-	.profile-avatar-edit-text { font-size: 9px; font-weight: 600; color: #ffffff; }
-	.profile-name { font-size: 24px; font-weight: 800; color: #ffffff; margin-top: 14px; }
-	.profile-copy { font-size: 12px; color: #d9efff; margin: 7px 0 16px; text-align: center; }
-	.auth-button { height: 36px; padding: 0 15px; flex-direction: row; align-items: center; border-radius: 18px; background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); }
-	.auth-button-text { font-size: 12px; color: #ffffff; font-weight: 600; }
-	.auth-button-arrow { font-size: 14px; color: #d9efff; margin-left: 7px; }
-	.content { position: relative; z-index: 2; margin-top: -34px; padding: 0 16px 36px; }
-	.stats-card { flex-direction: row; align-items: center; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 22px; padding: 18px 8px; box-shadow: 0 11px 28px rgba(18,61,115,0.11); }
-	.stat-item { flex: 1; align-items: center; }
-	.stat-value { font-size: 22px; font-weight: 800; color: #0b68d0; }
-	.stat-label { font-size: 11px; color: #7d899d; margin-top: 4px; }
-	.stat-divider { width: 1px; height: 28px; background-color: #e7ecf3; }
-	.menu-section-title { font-size: 14px; font-weight: 700; color: #24354d; margin: 24px 4px 10px; }
-	.menu-section-space { margin-top: 20px; }
-	.menu-card, .settings-card, .preference-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 3px 14px; overflow: hidden; box-shadow: 0 7px 20px rgba(24,62,110,0.04); }
-	.menu-item { min-height: 72px; flex-direction: row; align-items: center; }
-	.preference-item { min-height: 72px; flex-direction: row; align-items: center; }
-	.service-menu-card { margin-top: 10px; }
-	.preference-value { font-size: 10px; color: #0b68d0; background-color: #e7f1ff; padding: 5px 8px; border-radius: 10px; }
-	.menu-icon { width: 38px; height: 38px; border-radius: 13px; align-items: center; justify-content: center; margin-right: 12px; }
-	.menu-icon-cyan { background-color: #e4f7fb; }
-	.menu-icon-gold { background-color: #faf0dc; }
-	.menu-icon-blue { background-color: #e7f1ff; }
-	.menu-icon-rose { background-color: #f7eaea; }
-	.menu-icon-purple { background-color: #efeafa; }
-	.language-icon-text { color: #7655b5; font-size: 16px; font-weight: 800; }
-	.menu-copy { flex: 1; }
-	.menu-title { font-size: 14px; font-weight: 700; color: #23344d; }
-	.menu-label { font-size: 10px; color: #8793a5; margin-top: 4px; }
-	.menu-arrow { font-size: 22px; color: #a2adbc; margin-left: 8px; }
-	.menu-divider { height: 1px; background-color: #eef1f5; margin-left: 50px; }
-	.setting-item { min-height: 64px; flex-direction: row; align-items: center; }
-	.setting-title { width: 86px; font-size: 13px; font-weight: 600; color: #26364f; }
-	.setting-label { flex: 1; font-size: 10px; color: #8793a5; }
+  const standardMotionLabel = computed<string>(() => {
+    // #ifdef WEB || APP-ANDROID
+    return t('跟随系统', 'Follow system', '跟隨系統')
+    // #endif
+    // #ifndef WEB || APP-ANDROID
+    return t('标准', 'Standard', '標準')
+    // #endif
+  })
+  function toggleMotion() { setReduceMotionPreference(!reduceMotionPreference.value) }
+</script>
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: 0 $sg-space-5 $sg-space-8; }
+  .top { margin-bottom: $sg-space-4; }
+  .account, .group { border: 1px solid $sg-divider; background-color: $sg-surface; border-radius: $sg-radius-md; overflow: hidden; }
+  .account { padding: $sg-space-4; }
+  .identity, .stats { flex-direction: row; align-items: center; }
+  .identity { margin-bottom: $sg-space-4; }
+  .avatar { width: 64px; height: 64px; position: relative; }
+  .camera { position: absolute; right: 0; bottom: 0; width: $sg-space-6; height: $sg-space-6; border-radius: $sg-radius-pill; background-color: $sg-primary; align-items: center; justify-content: center; }
+  .ident-copy { flex: 1; margin-left: $sg-space-4; }
+  .name { font-size: $sg-type-section; color: $sg-text; font-weight: 700; }
+  .meta { font-size: $sg-type-label; color: $sg-muted; margin-top: $sg-space-1; }
+  .stats { padding: $sg-space-3 0; margin-top: $sg-space-3; border-radius: $sg-radius-md; background-color: $sg-inset; }
+  .stat { flex: 1; align-items: center; justify-content: center; min-height: $sg-touch; }
+  .count { font-size: $sg-type-section; color: $sg-primary; font-weight: 700; }
 </style>

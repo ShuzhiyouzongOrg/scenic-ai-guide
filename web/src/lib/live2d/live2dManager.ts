@@ -150,6 +150,7 @@ export class Live2dManager {
       })
     )
     if (token !== this._playbackToken) return 0
+    decoded.forEach((buffer, index) => { if (buffer) this._segmentIndices.set(buffer, index) })
     const validBuffers = decoded.filter((buffer): buffer is AudioBuffer => Boolean(buffer))
     this._ttsQueue.push(...validBuffers)
     this.playAudio()
@@ -227,7 +228,7 @@ export class Live2dManager {
       this._frequencyDomain.fill(-120)
     }
 
-    return this._lipSyncAnalyzer.analyze({
+    const frame = this._lipSyncAnalyzer.analyze({
       timeDomain: this._timeDomain,
       spectrumDb: this._frequencyDomain,
       sampleRate: this._audioContext.sampleRate,
@@ -235,6 +236,12 @@ export class Live2dManager {
       deltaTimeMs: deltaTimeSeconds * 1000,
       playbackState
     })
+    this._lastLevel = playbackState === 'playing' ? frame.rms : -1
+    return frame
+  }
+
+  public getPlaybackMeter() {
+    return { level: this._lastLevel, segment: this._audioSource?.buffer ? this._segmentIndices.get(this._audioSource.buffer) ?? -1 : -1 }
   }
 
   /**
@@ -377,6 +384,8 @@ export class Live2dManager {
   private _pendingMotionSyncPcm: Float32Array[] = []
   private _audioIsPlaying = false
   private _audioSource: AudioBufferSourceNode | null = null
+  private _lastLevel = -1
+  private _segmentIndices = new WeakMap<AudioBuffer, number>()
   private _playbackToken = 0
   private _lipFactor = 1
   private _ready = false

@@ -1,0 +1,126 @@
+{
+  "engine": "webkit",
+  "case": "webkit-320-en-dark",
+  "checks": [
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "system reduction suppresses the manual override",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "recorder API absent; app shows disabled/error text and offers keyboard",
+    "typed question exactly once; history preserves full answer and sources",
+    "WebKit advertised WAV but returned playback error; localized recovery and caption visible",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "POST",
+      "/api/visitor/session",
+      201
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "GET",
+      "/api/chat/history",
+      200
+    ],
+    [
+      "POST",
+      "/api/chat/ask",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/spots",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/routes",
+      200
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ]
+  ],
+  "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+    ".stage-frame": [
+      16,
+      121,
+      288,
+      275
+    ],
+    ".ambient-orb": [
+      36,
+      193,
+      62,
+      62
+    ],
+    ".renderer": [
+      143,
+      121,
+      161,
+      275
+    ],
+    ".mic": [
+      128,
+      586,
+      64,
+      64
+    ],
+    ".guide-header": [
+      0,
+      0,
+      320,
+      121
+    ],
+    "uni-tabbar .uni-tabbar": [
+      0,
+      706,
+      320,
+      54
+    ]
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.DDnq952T.js",
+  "guideChunkSha256": "f2d1df58f322554f67642908299a1c6b792caa35dfb9be5b796f3d21bf45d8d0",
+  "capabilities": {
+    "recording": false,
+    "wavPlayback": true
+  },
+  "homeRoute": "/",
+  "version": "26.5"
+}

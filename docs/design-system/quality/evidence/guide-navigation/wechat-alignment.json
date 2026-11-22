@@ -1,0 +1,122 @@
+{
+  "environment": "WeChat DevTools 1.06.2303220 / library 3.18.0 / iPhone 12-13 Pro / 390 x 844 CSS px / simulator zoom 79%",
+  "metric": "Original IDE screenshot pixel bounding box [x,y,width,height] of dark icon and label strokes below the track. Home tab uses its selected asset on the system home page.",
+  "pixels": {
+    "guide": {
+      "home": [
+        [
+          118,
+          761,
+          18,
+          16
+        ],
+        [
+          119,
+          784,
+          15,
+          7
+        ]
+      ],
+      "map": [
+        [
+          179,
+          760,
+          18,
+          17
+        ],
+        [
+          181,
+          784,
+          15,
+          7
+        ]
+      ],
+      "trip": [
+        [
+          303,
+          760,
+          16,
+          17
+        ],
+        [
+          304,
+          784,
+          15,
+          7
+        ]
+      ],
+      "profile": [
+        [
+          366,
+          761,
+          14,
+          16
+        ],
+        [
+          366,
+          784,
+          14,
+          7
+        ]
+      ]
+    },
+    "home": {
+      "home": [
+        [
+          117,
+          760,
+          19,
+          17
+        ],
+        [
+          119,
+          783,
+          15,
+          8
+        ]
+      ],
+      "map": [
+        [
+          179,
+          760,
+          18,
+          18
+        ],
+        [
+          181,
+          784,
+          15,
+          7
+        ]
+      ],
+      "trip": [
+        [
+          303,
+          760,
+          17,
+          17
+        ],
+        [
+          304,
+          784,
+          15,
+          7
+        ]
+      ],
+      "profile": [
+        [
+          365,
+          760,
+          16,
+          17
+        ],
+        [
+          366,
+          784,
+          15,
+          7
+        ]
+      ]
+    }
+  }
+}

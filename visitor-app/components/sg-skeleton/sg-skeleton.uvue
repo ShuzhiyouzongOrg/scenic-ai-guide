@@ -1,0 +1,17 @@
+<template>
+  <view class="skeleton" aria-hidden="true">
+    <view v-if="variant == 'card'" class="frame"></view>
+    <view class="line title"></view>
+    <view class="line detail"></view>
+  </view>
+</template>
+<script setup lang="uts">
+  withDefaults(defineProps<{ variant ?: string }>(), {variant: 'row'})
+</script>
+<style lang="scss">
+  .skeleton { padding: $sg-space-4; border-radius: $sg-radius-md; background-color: $sg-surface; }
+  .frame { height: 112px; margin-bottom: $sg-space-2; background-color: $sg-inset; border-radius: $sg-radius-sm; }
+  .line { height: $sg-space-3; margin-top: $sg-space-2; border-radius: $sg-radius-sm; background-color: $sg-inset; }
+  .title { width: 44%; }
+  .detail { width: 72%; }
+</style>

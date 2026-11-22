@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-22",
+  "hbuilderx": "5.24",
+  "input_files": 416,
+  "input_sha256": "9eae13efe1c6d6f08fe6e8f1e6cdef9450a5cabe6754b43d4f2279f8f9649c3b",
+  "workspace_differences": [],
+  "targets": {
+    "android": {
+      "pages": 10,
+      "build": "Vapor development bytecode",
+      "ready_ms": 160681,
+      "bytecode_files": 112,
+      "service_sha256": "bf8ee55a0b82178803d414cb35b90097c862e3217d50ab31fc986aaf6711d915",
+      "orb_textures": {
+        "glow.webp": "79b2e0393a8e1c0457d87de2ae7e7a35fcc5d9cb69569ff8e60ef71ac3b71279",
+        "orb-body.webp": "a8836b55a41cd5ff9f382d9ed426ae6b8d66a8f467f4600877fa519a3de6539b",
+        "orb-sheen.webp": "5e68c0515eb57025226953e71f27a89966789b8dc7e139cca8e1a246c1114658",
+        "orb-signal.webp": "e28112a4dc9d1acb7490c2a41a8fe33f4f185b3e5a39896b645c0930aff4572c",
+        "orb-thought.webp": "a8f0b3d0751651f060393f987c525c5497da030969a6e6ac4e90ec5c488e9442"
+      },
+      "in_bundle": {
+        "rms_perceptual_transfer_in_bundle": true,
+        "computed_signal_ring_in_bundle": true,
+        "project_motion_preference_in_bundle": true,
+        "native_motion_proxy_in_bundle": true
+      }
+    },
+    "ios": {
+      "pages": 10,
+      "build": "Vapor development bytecode",
+      "ready_ms": 142507,
+      "bytecode_files": 75,
+      "service_sha256": "f95d8ee10504e7d9f4a09c12f63bcee33478407c7cfd56ed451e122c9cff006f",
+      "orb_textures": {
+        "glow.webp": "79b2e0393a8e1c0457d87de2ae7e7a35fcc5d9cb69569ff8e60ef71ac3b71279",
+        "orb-body.webp": "a8836b55a41cd5ff9f382d9ed426ae6b8d66a8f467f4600877fa519a3de6539b",
+        "orb-sheen.webp": "5e68c0515eb57025226953e71f27a89966789b8dc7e139cca8e1a246c1114658",
+        "orb-signal.webp": "e28112a4dc9d1acb7490c2a41a8fe33f4f185b3e5a39896b645c0930aff4572c",
+        "orb-thought.webp": "a8f0b3d0751651f060393f987c525c5497da030969a6e6ac4e90ec5c488e9442"
+      },
+      "in_bundle": {
+        "rms_perceptual_transfer_in_bundle": true,
+        "computed_signal_ring_in_bundle": true,
+        "project_motion_preference_in_bundle": true,
+        "native_motion_proxy_in_bundle": true
+      },
+      "motion_system_verification": {
+        "source": "UIKit.UIAccessibility.isReduceMotionEnabled",
+        "compiled_proxy": "readMotionPreferenceByJs",
+        "compiler_limitation": "DCloud reports its Windows standard iOS base does not include UTS plugins. Production device behavior needs a custom iOS base with the plugin and a provisioned device on Mac/Xcode or a signed cloud build. No iOS device or UIKit value verified in this run."
+      }
+    },
+    "wechat": {
+      "build": "production VDOM",
+      "raw_bytes": {
+        "main": 2054538,
+        "pages/auth/": 8339,
+        "pages/favorites/": 8638,
+        "pages/feedback/": 7257,
+        "pages/spot/": 318829
+      },
+      "main_remaining_bytes": 42614,
+      "ai_components": [
+        "guide-level-meter",
+        "guide-message-card",
+        "guide-sheet",
+        "guide-subtitle-panel",
+        "guide-voice-dock",
+        "scenic-live2d",
+        "sg-ai-ambient-orb",
+        "sg-button",
+        "sg-choice",
+        "sg-guide-stage",
+        "sg-icon"
+      ],
+      "nine_routes": {
+        "pages/home/index": {
+          "wcc": 79267,
+          "wcsc": 5771
+        },
+        "pages/trip/index": {
+          "wcc": 77394,
+          "wcsc": 6003
+        },
+        "pages/map/index": {
+          "wcc": 76683,
+          "wcsc": 7302
+        },
+        "pages/ai-guide/index": {
+          "wcc": 86987,
+          "wcsc": 8220
+        },
+        "pages/profile/index": {
+          "wcc": 69402,
+          "wcsc": 5452
+        },
+        "pages/spot/detail": {
+          "wcc": 65909,
+          "wcsc": 4853
+        },
+        "pages/auth/index": {
+          "wcc": 59976,
+          "wcsc": 5099
+        },
+        "pages/favorites/index": {
+          "wcc": 67952,
+          "wcsc": 4684
+        },
+        "pages/feedback/index": {
+          "wcc": 59394,
+          "wcsc": 5278
+        }
+      },
+      "host_qa": {
+        "build_mode": "separate local-only input, production mode compilation",
+        "api": "http://127.0.0.1:5264",
+        "public_origin_present_in_any_compiled_js": false,
+        "direct_wechat_recorder_in_production_output": true,
+        "upload_performed": false
+      }
+    }
+  }
+}

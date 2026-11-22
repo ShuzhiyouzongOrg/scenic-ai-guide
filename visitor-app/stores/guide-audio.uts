@@ -1,0 +1,72 @@
+import { computed, ref } from 'vue'
+
+export class GuideRequestScope {
+	id : number = 0
+	private abortTask : (() => void) | null = null
+
+	begin() : number {
+		this.id++
+		const previous = this.abortTask
+		this.abortTask = null
+		previous?.()
+		return this.id
+	}
+	attach(id : number, abort : () => void) {
+		if (id == this.id) this.abortTask = abort
+		else abort()
+	}
+	complete(id : number) { if (id == this.id) this.abortTask = null }
+}
+
+// The displayed state follows the active transport. A missing level is -1;
+// silence from a working meter is 0. Keep these separate in every renderer.
+export function useGuideAudio() {
+	const recording = ref(false)
+	const capturePending = ref(false)
+	const finishingRecording = ref(false)
+	const sending = ref(false)
+	const voiceError = ref('')
+	const playbackState = ref('IDLE')
+	const playbackOwner = ref('')
+	const amplitude = ref(-1)
+	const sampleCount = ref(0)
+	const amplitudeSource = ref('')
+	const activeSubtitle = ref('')
+	const orbPageActive = ref(true)
+	const cancelled = ref(false)
+	const unavailable = ref(false)
+	const reconnecting = ref(false)
+	const interactionState = computed<string>(() => {
+		if (cancelled.value) return 'CANCELLED'
+		if (recording.value) return 'LISTENING'
+		if (sending.value || capturePending.value || finishingRecording.value) return 'THINKING'
+		if (unavailable.value) return 'DISABLED'
+		if (voiceError.value.length > 0) return 'ERROR'
+		if (playbackState.value == 'PLAYING') return 'SPEAKING'
+		if (playbackState.value == 'PAUSED') return 'PAUSED'
+		if (reconnecting.value) return 'RECONNECTING'
+		if (playbackState.value == 'RESPONDING') return 'THINKING'
+		return 'IDLE'
+	})
+	function resetMeter() {
+		amplitude.value = -1
+		amplitudeSource.value = ''
+		sampleCount.value = 0
+	}
+	function sample(source : string, level : number) {
+		if (!orbPageActive.value) return
+		if (source == 'microphone' && !recording.value) return
+		if (source == 'playback' && playbackState.value != 'PLAYING') return
+		if (!Number.isFinite(level) || level < 0) { resetMeter(); return }
+		amplitudeSource.value = source
+		amplitude.value = Math.min(1, level)
+		sampleCount.value++
+	}
+	function beginAction() {
+		cancelled.value = false
+		unavailable.value = false
+		voiceError.value = ''
+		resetMeter()
+	}
+	return { recording, sending, capturePending, finishingRecording, voiceError, playbackState, playbackOwner, interactionState, amplitude, amplitudeSource, sampleCount, orbPageActive, activeSubtitle, cancelled, unavailable, reconnecting, beginAction, sample, resetMeter }
+}

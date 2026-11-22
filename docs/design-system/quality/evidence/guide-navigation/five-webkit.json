@@ -1,0 +1,482 @@
+{
+ "browser-320-dark": {
+  "engine": "webkit",
+  "version": "26.5",
+  "api": [
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "errors": [],
+  "console_errors": [
+   "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+  ],
+  "injectedFailures": [
+   [
+    "GET",
+    "/api/map-guide/routes",
+    503
+   ]
+  ],
+  "pages": {
+   "home": {
+    "width": 320,
+    "pageBottom": 636,
+    "tabTop": 636,
+    "bg": "rgb(17, 26, 22)",
+    "mediaDark": true,
+    "mediaReduced": true,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "map": {
+    "width": 320,
+    "pageBottom": 636,
+    "tabTop": 636,
+    "bg": "rgb(176, 216, 184)",
+    "mediaDark": true,
+    "mediaReduced": true,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "ai-guide": {
+    "width": 320,
+    "pageBottom": 690,
+    "tabTop": 628,
+    "bg": "rgb(17, 26, 22)",
+    "mediaDark": true,
+    "mediaReduced": true,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "trip": {
+    "width": 320,
+    "pageBottom": 636,
+    "tabTop": 636,
+    "bg": "rgb(17, 26, 22)",
+    "mediaDark": true,
+    "mediaReduced": true,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "profile": {
+    "width": 320,
+    "pageBottom": 636,
+    "tabTop": 636,
+    "bg": "rgb(17, 26, 22)",
+    "mediaDark": true,
+    "mediaReduced": true,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  "largeTextPersistenceChecked": true,
+  "destinationsAndStateImagesChecked": true
+ },
+ "browser-390-light": {
+  "engine": "webkit",
+  "version": "26.5",
+  "api": [
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "POST",
+    "/api/routes/recommend",
+    200
+   ],
+   [
+    "POST",
+    "/api/routes/recommend",
+    200
+   ],
+   [
+    "POST",
+    "/api/routes/save",
+    201
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "errors": [],
+  "console_errors": [
+   "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+   "create embedded digital human failed Error: 请求失败（503）",
+   "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+  ],
+  "injectedFailures": [
+   [
+    "GET",
+    "/api/map-guide/routes",
+    503
+   ]
+  ],
+  "pages": {
+   "home": {
+    "width": 390,
+    "pageBottom": 790,
+    "tabTop": 790,
+    "bg": "rgb(245, 246, 241)",
+    "mediaDark": false,
+    "mediaReduced": false,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "map": {
+    "width": 390,
+    "pageBottom": 790,
+    "tabTop": 790,
+    "bg": "rgb(176, 216, 184)",
+    "mediaDark": false,
+    "mediaReduced": false,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "ai-guide": {
+    "width": 390,
+    "pageBottom": 844,
+    "tabTop": 782,
+    "bg": "rgb(245, 246, 241)",
+    "mediaDark": false,
+    "mediaReduced": false,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "trip": {
+    "width": 390,
+    "pageBottom": 790,
+    "tabTop": 790,
+    "bg": "rgb(245, 246, 241)",
+    "mediaDark": false,
+    "mediaReduced": false,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "profile": {
+    "width": 390,
+    "pageBottom": 790,
+    "tabTop": 790,
+    "bg": "rgb(245, 246, 241)",
+    "mediaDark": false,
+    "mediaReduced": false,
+    "icons": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  "keyboardActivationChecked": true,
+  "destinationsAndStateImagesChecked": true
+ }
+}

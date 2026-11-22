@@ -340,6 +340,11 @@ try {
   assert.match(live2dRuntimeResponse.headers.get("content-type"), /^text\/javascript/);
   assert.match(await live2dRuntimeResponse.text(), /scenicLive2dSpeak/);
 
+  const live2dBridgeResponse = await fetch(`${origin}/live2d/vendor/dcloud/uni.webview.1.5.8.js`);
+  assert.equal(live2dBridgeResponse.status, 200);
+  assert.match(live2dBridgeResponse.headers.get("content-type"), /^text\/javascript/);
+  assert.match(await live2dBridgeResponse.text(), /__uniapp_x_/);
+
   const live2dModelResponse = await fetch(`${origin}/live2d/characters/Haru/Haru.model3.json`);
   assert.equal(live2dModelResponse.status, 200);
   assert.match(live2dModelResponse.headers.get("content-type"), /^application\/json/);

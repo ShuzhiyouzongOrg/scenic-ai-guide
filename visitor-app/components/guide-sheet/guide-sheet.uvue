@@ -1,0 +1,73 @@
+<template>
+  <view id="guide-sheet" class="overlay" role="dialog" aria-modal="true" :aria-label="title" :aria-hidden="!open">
+    <view class="shade" :class="[visible ? 'shade-shown' : '', instant ? 'instant' : '']" @click="emit('close')"></view>
+    <view class="panel" :class="[visible ? 'panel-shown' : '', instant ? 'instant' : '']">
+      <view class="head"><text class="title">{{ title }}</text>
+        <view class="dismiss" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="closeLabel" @click="emit('close')"><sg-icon name="cross" /></view>
+      </view>
+      <scroll-view class="body" direction="vertical" :show-scrollbar="true"><slot></slot></scroll-view>
+      <view class="sheet-safe-area" :style="safeAreaStyle"></view>
+    </view>
+  </view>
+</template>
+<script setup lang="uts">
+  import { reducedMotion } from '@/design/motion.uts'
+  import { sheetDuration } from '@/design/palette.uts'
+  const props=defineProps<{ open:boolean,title:string,closeLabel:string,bottomInset:number }>()
+  const safeAreaStyle = computed<string>(() => {
+    // #ifdef WEB
+    return 'height:env(safe-area-inset-bottom,0px);'
+    // #endif
+    // #ifndef WEB
+    return 'height:' + Math.max(0, props.bottomInset) + 'px;'
+    // #endif
+  })
+  const emit=defineEmits(['close','closed'])
+  // #ifdef WEB
+  import { createGuideSheetFocus } from '@/services/guide-sheet-focus.js'
+  const focus = createGuideSheetFocus(() => emit('close'))
+  // #endif
+  const visible=ref(false)
+  const instant=computed<boolean>(()=>reducedMotion.value)
+  let timer:number|null=null
+  function clearTimer(){ if(timer!=null) clearTimeout(timer!);timer=null }
+  function transition(open:boolean) {
+    clearTimer()
+    // #ifdef WEB
+    if (open) {
+      focus.capture()
+      nextTick(() => { if (props.open) focus.open() })
+    } else focus.close()
+    // #endif
+    if(open) {
+      if(instant.value) visible.value=true
+      else timer=setTimeout(()=>{timer=null;visible.value=true},20)
+    } else {
+      visible.value=false
+      if(instant.value) emit('closed')
+      else timer=setTimeout(()=>{timer=null;emit('closed')},sheetDuration)
+    }
+  }
+  watch(():boolean=>props.open, (open:boolean)=>transition(open))
+  onMounted(()=>transition(props.open))
+  onUnmounted(()=>{
+    clearTimer()
+    // #ifdef WEB
+    focus.close()
+    // #endif
+  })
+</script>
+<style lang="scss">
+  .shade { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+  .overlay { flex: 1; width: 100%; height: 100%; justify-content: flex-end; }
+  .shade { background-color: $sg-base-text; opacity: 0; transition-property: opacity; transition-duration: $sg-duration-sheet; }
+  .panel { height: 74%; background-color: $sg-surface; border-top-left-radius: $sg-radius-lg; border-top-right-radius: $sg-radius-lg; padding: $sg-space-4 $sg-space-5; transform: translateY($sg-translation); opacity: 0; transition-property: transform, opacity; transition-duration: $sg-duration-sheet; transition-timing-function: $sg-ease-arrive; }
+  .shade-shown { opacity: .42; }
+  .panel-shown { opacity: 1; transform: translateY(0px); }
+  .instant { transition-duration: $sg-duration-immediate; }
+  .head { flex-direction: row; align-items: center; margin-bottom: $sg-space-3; }
+  .title { flex: 1; color: $sg-text; font-size: $sg-type-section; font-weight: 700; }
+  .dismiss { width: $sg-touch; height: $sg-touch; align-items: center; justify-content: center; border-radius: $sg-radius-pill; background-color: $sg-inset; }
+  .body { flex: 1; min-height: 0; }
+  .sheet-safe-area { flex-shrink: 0; }
+</style>

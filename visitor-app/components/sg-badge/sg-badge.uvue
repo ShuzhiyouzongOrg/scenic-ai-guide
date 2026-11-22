@@ -1,0 +1,10 @@
+<template>
+  <view class="badge"><text class="label">{{ label }}</text></view>
+</template>
+<script setup lang="uts">
+  defineProps<{ label : string }>()
+</script>
+<style lang="scss">
+  .badge { align-self: flex-start; padding: $sg-space-1 $sg-space-2; border-radius: $sg-radius-sm; background-color: $sg-inset; }
+  .label { color: $sg-primary; font-size: $sg-type-caption; font-weight: 600; }
+</style>

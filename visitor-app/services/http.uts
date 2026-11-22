@@ -14,7 +14,9 @@ function unwrap<T>(raw : any) : T {
 	return raw as T
 }
 
-export function apiRequest<T>(path : string, method : RequestMethod = 'GET', data : any | null = null) : Promise<T> {
+export type RegisterAbort = (abort : () => void) => void
+
+export function apiRequest<T>(path : string, method : RequestMethod = 'GET', data : any | null = null, registerAbort : RegisterAbort | null = null) : Promise<T> {
 	return new Promise<T>((resolve, reject) => {
 		const storedToken = uni.getStorageSync(AUTH_TOKEN_KEY)
 		const token = storedToken == null ? '' : storedToken as string
@@ -22,7 +24,7 @@ export function apiRequest<T>(path : string, method : RequestMethod = 'GET', dat
 			'content-type': 'application/json'
 		} as UTSJSONObject
 		if (token.length > 0) header['authorization'] = 'Bearer ' + token
-		uni.request({
+		const task = uni.request({
 			url: joinUrl(path),
 			method,
 			data: data,
@@ -37,16 +39,17 @@ export function apiRequest<T>(path : string, method : RequestMethod = 'GET', dat
 			},
 			fail: (error : RequestFail) => reject(new Error(error.errMsg))
 		})
+		registerAbort?.(() => { task.abort() })
 	})
 }
 
-export function apiUploadFile<T>(path : string, filePath : string, formData : UTSJSONObject = {}, fieldName : string = 'file') : Promise<T> {
+export function apiUploadFile<T>(path : string, filePath : string, formData : UTSJSONObject = {}, fieldName : string = 'file', registerAbort : RegisterAbort | null = null) : Promise<T> {
 	return new Promise<T>((resolve, reject) => {
 		const storedToken = uni.getStorageSync(AUTH_TOKEN_KEY)
 		const token = storedToken == null ? '' : storedToken as string
 		const header = {} as UTSJSONObject
 		if (token.length > 0) header['authorization'] = 'Bearer ' + token
-		uni.uploadFile({
+		const task = uni.uploadFile({
 			url: joinUrl(path),
 			filePath,
 			name: fieldName,
@@ -67,6 +70,7 @@ export function apiUploadFile<T>(path : string, filePath : string, formData : UT
 			},
 			fail: (error : UploadFileFail) => reject(new Error(error.errMsg))
 		})
+		registerAbort?.(() => { task.abort() })
 	})
 }
 

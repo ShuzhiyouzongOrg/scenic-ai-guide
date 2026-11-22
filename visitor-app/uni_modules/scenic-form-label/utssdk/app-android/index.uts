@@ -1,0 +1,14 @@
+import View from 'android.view.View'
+import EditText from 'android.widget.EditText'
+
+// A separate label preserves the editing control's value, hint and password semantics.
+export function bindFormLabel(fieldId : string, name : string) : boolean {
+  const field = uni.getElementById(fieldId)?.getAndroidView<EditText>()
+  const label = uni.getElementById(fieldId + '-native-label')?.getAndroidView<View>()
+  if (field == null || label == null) return false
+  if (field.getId() == View.NO_ID) field.setId(View.generateViewId())
+  label.setContentDescription(name)
+  label.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+  label.setLabelFor(field.getId())
+  return label.getLabelFor() == field.getId()
+}

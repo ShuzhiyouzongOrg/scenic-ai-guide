@@ -1,217 +1,194 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view class="hero">
-			<view class="hero-orb hero-orb-large"></view>
-			<view class="hero-orb hero-orb-small"></view>
-			<view class="hero-top">
-				<view class="brand-row">
-					<view class="brand-mark"><image class="brand-mark-image" src="/static/logo.png" mode="aspectFit" /></view>
-					<view>
-						<text class="brand-name">数智游踪</text>
-						<text class="brand-location">无锡 · 灵山胜境</text>
-					</view>
-				</view>
-				<view class="weather-pill">
-					<rice-icon name="sun" size="14" color="#ffd279" />
-					<text class="weather-text">24°</text>
-				</view>
-			</view>
-
-			<view class="hero-main">
-				<text class="hero-kicker">YOUR AI TRAVEL COMPANION</text>
-				<text class="hero-title">一部手机，智游灵山</text>
-				<text class="hero-copy">从景点讲解到路线规划，让懂你的 AI 导游陪伴每一段旅程。</text>
-			</view>
-
-			<view class="hero-actions">
-				<view class="hero-button hero-button-primary" @click="openGuide">
-					<rice-icon name="chat-fill" size="17" color="#0b68d0" />
-					<text class="hero-button-primary-text">开启 AI 导览</text>
-				</view>
-				<view class="hero-button hero-button-ghost" @click="openMap">
-					<text class="hero-button-ghost-text">打开地图</text>
-					<text class="hero-button-arrow">→</text>
-				</view>
-			</view>
-
-			<view class="hero-insights">
-				<view class="insight-item">
-					<text class="insight-value">40+</text>
-					<text class="insight-label">智慧点位</text>
-				</view>
-				<view class="insight-divider"></view>
-				<view class="insight-item">
-					<text class="insight-value">5 min</text>
-					<text class="insight-label">快速规划</text>
-				</view>
-				<view class="insight-divider"></view>
-				<view class="insight-item">
-					<text class="insight-value">AI</text>
-					<text class="insight-label">随行讲解</text>
-				</view>
-			</view>
-		</view>
-
-		<view class="page-content">
-			<view class="quick-panel">
-				<view class="quick-row">
-					<view class="quick-item quick-item-space" @click="openMap">
-						<view class="quick-icon quick-icon-cyan"><rice-icon name="location-fill" size="20" color="#087fbd" /></view>
-						<view class="quick-copy-block">
-							<text class="quick-title">景区地图</text>
-							<text class="quick-copy">点位与路线一图掌握</text>
-						</view>
-						<text class="quick-arrow">›</text>
-					</view>
-					<view class="quick-item" @click="openGuide">
-						<view class="quick-icon quick-icon-gold"><rice-icon name="chat-fill" size="20" color="#d88400" /></view>
-						<view class="quick-copy-block">
-							<text class="quick-title">AI 导游</text>
-							<text class="quick-copy">随时提问与语音讲解</text>
-						</view>
-						<text class="quick-arrow">›</text>
-					</view>
-				</view>
-				<view class="quick-row quick-row-space">
-					<view class="quick-item quick-item-space" @click="openTrip">
-						<view class="quick-icon quick-icon-blue"><rice-icon name="calendar-fill" size="20" color="#0b68d0" /></view>
-						<view class="quick-copy-block">
-							<text class="quick-title">定制行程</text>
-							<text class="quick-copy">按时间与兴趣生成</text>
-						</view>
-						<text class="quick-arrow">›</text>
-					</view>
-					<view class="quick-item" @click="openFavorites">
-						<view class="quick-icon quick-icon-rose"><rice-icon name="star-fill" size="20" color="#e45b70" /></view>
-						<view class="quick-copy-block">
-							<text class="quick-title">旅行收藏</text>
-							<text class="quick-copy">重温景点与游览足迹</text>
-						</view>
-						<text class="quick-arrow">›</text>
-					</view>
-				</view>
-			</view>
-
-			<app-section title="人气景点" subtitle="精选灵山文化与自然看点" action-text="地图查看" @action="openMap">
-				<view v-if="loading" class="loading-card">
-					<rice-loading mode="circle" color="#0b68d0" />
-					<text class="loading-text">正在加载景区数据</text>
-				</view>
-				<scroll-view v-else-if="spots.length > 0" class="spot-scroll" direction="horizontal" :show-scrollbar="false">
-					<spot-card v-for="spot in spots" :key="spot.id" :spot="spot" />
-				</scroll-view>
-				<empty-state v-else icon="景" title="景点数据尚未连接" description="确认 Node 服务与当前设备网络连通后，重新进入页面即可载入真实景点。" />
-			</app-section>
-
-			<app-section title="今日推荐" subtitle="经典文化线 · 适合首次到访" action-text="重新规划" @action="openTrip">
-				<view class="route-card" @click="openTrip">
-					<view class="route-visual">
-						<text class="route-number">03</text>
-						<text class="route-number-copy">个核心景点</text>
-					</view>
-					<view class="route-content">
-						<view class="route-top">
-							<text class="route-label">半日精选 · 约 3 小时</text>
-							<text class="route-arrow">↗</text>
-						</view>
-						<text class="route-title">灵山文化经典线</text>
-						<text class="route-copy">九龙灌浴 · 祥符禅寺 · 灵山大佛 · 梵宫</text>
-						<view class="route-progress">
-							<view class="route-progress-fill"></view>
-						</view>
-					</view>
-				</view>
-			</app-section>
-		</view>
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <view class="top" :style="headerStyle">
+        <sg-page-header :title="t('发现无锡', 'Explore Wuxi', '發現無錫')" :subtitle="t('数智游踪 · 景区导览', 'Scenic AI Guide', '數智遊蹤 · 景區導覽')" />
+      </view>
+      <view class="areas">
+        <view class="chip"><sg-choice :label="t('灵山胜境', 'Lingshan', '靈山勝境')" :selected="area == 'lingshan'" @action="selectArea('lingshan')" /></view>
+        <sg-choice :label="t('拈花湾', 'Nianhua Bay', '拈花灣')" :selected="area == 'nianhuawan'" @action="selectArea('nianhuawan')" />
+      </view>
+      <view class="destination" :class="pressFeedbackClass" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="destinationName + ' ' + mapLabel" hover-class="pressed" :hover-start-time="feedbackDelay" :hover-stay-time="feedbackDelay" @click="openMap">
+        <image class="hero-photo" :src="area == 'nianhuawan' ? '/static/destinations/nianhuawan.webp' : '/static/destinations/lingshan.webp'" mode="aspectFill" />
+        <view class="destination-caption">
+          <view class="destination-text">
+            <text class="destination-title">{{ destinationName }}</text>
+            <text class="destination-detail">{{ area == 'nianhuawan' ? t('小镇街巷与水岸漫步', 'Town lanes and waterside walks', '小鎮街巷與水岸漫步') : t('山麓间的佛像与寺院', 'Temples in the Lingshan foothills', '山麓間的佛像與寺院') }}</text>
+          </view>
+          <text class="destination-action">{{ mapLabel }}</text>
+        </view>
+      </view>
+      <app-section :title="t('随行服务', 'Travel tools', '隨行服務')">
+        <view class="features">
+          <view class="feature first"><sg-editorial-card src="/static/editorial/guide.webp" :title="t('AI 导游', 'AI guide', 'AI 導遊')" @action="openGuide" /></view>
+          <view class="feature"><sg-editorial-card src="/static/editorial/trip.webp" :title="t('规划行程', 'Plan a trip', '規劃行程')" @action="openTrip" /></view>
+        </view>
+      </app-section>
+      <app-section :title="t('热门目的地', 'Destination highlights', '熱門目的地')" :subtitle="t('按景点入选景区官方路线的次数排列', 'Places featured most often on official routes', '按景點入選景區官方路線的次數排列')">
+        <sg-skeleton v-if="loading || routesLoading" variant="row" />
+        <view v-else-if="routesFailed || failed">
+          <empty-state icon="!" :title="t('目的地暂时无法加载','Highlights could not load','目的地暫時無法載入')" :description="t('可重试或打开景区地图。','Try again or open the map.','可重試或打開景區地圖。')" />
+          <sg-button kind="quiet" :label="t('重试','Try again','重試')" @action="retryHighlights" />
+        </view>
+        <view v-else-if="highlights.length > 0" class="group">
+          <view v-for="(place,index) in highlights" :key="place.spot.id">
+            <sg-divider v-if="index > 0" />
+            <spot-card :spot="place.spot" :area="area" :detail="routeCountLabel(place.count)" />
+          </view>
+        </view>
+        <empty-state v-else icon="景" :title="t('暂无路线推荐地点','No highlights on these routes yet','暫無路線推薦地點')" :description="t('仍可按景点浏览。','You can still browse individual places.','仍可按景點瀏覽。')" />
+      </app-section>
+      <app-section :title="t('景点推荐', 'Places to visit', '景點推薦')" :action-text="t('查看地图', 'View map', '查看地圖')" @action="openMap">
+        <sg-skeleton v-if="loading" variant="row" />
+        <view v-else-if="failed">
+          <empty-state icon="!" :title="t('暂时无法加载景点', 'Places could not load', '暫時無法載入景點')" :description="t('检查网络后可以重试。', 'Check your connection and try again.', '檢查網路後可以重試。')" />
+          <view class="retry"><sg-button :label="t('重新加载', 'Try again', '重新載入')" kind="secondary" @action="loadSpots" /></view>
+        </view>
+        <view v-else-if="recommendations.length > 0" class="group">
+          <view v-for="(spot, index) in recommendations" :key="spot.id"><sg-divider v-if="index > 0" /><spot-card :spot="spot" :area="area" :detail="guideText(locale,spot.categoryName)" /></view>
+        </view>
+        <empty-state v-else icon="景" :title="t('暂无推荐景点', 'No featured places yet', '暫無推薦景點')" :description="t('可继续使用景区地图和 AI 导游。', 'The map and AI guide are available.', '可繼續使用景區地圖和 AI 導遊。')" />
+      </app-section>
+      <app-section v-if="services.length > 0" :title="t('特色旅游服务','Visitor services','特色旅遊服務')">
+        <view class="group"><view v-for="(service,index) in services" :key="service.id">
+          <sg-divider v-if="index > 0" />
+          <sg-service-row icon="location" :title="service.name" :detail="guideText(locale, service.categoryName)" @action="openService(service)" />
+        </view></view>
+      </app-section>
+      <view class="group favorites"><sg-service-row icon="star" :title="t('收藏与最近浏览', 'Saved and recently viewed', '收藏與最近瀏覽')" @action="openFavorites" /></view>
+    </view>
+  </scroll-view>
 </template>
-
 <script setup lang="uts">
-	import type { ScenicSpot } from '@/domain/types.uts'
-	import { fetchScenicSpots } from '@/services/guide-api.uts'
+  import type { GuideRoute, GuideRouteNode, ScenicAreaId, ScenicSpot } from '@/domain/types.uts'
+  import { fetchScenicSpots, fetchGuideRoutes } from '@/services/guide-api.uts'
+  import { getPreferredScenicArea, setPreferredScenicArea } from '@/stores/guide-preferences.uts'
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  import { guideText } from '@/design/guide-locale.uts'
+  import { spotPhoto } from '@/design/scenic-media.uts'
+  import { useScenicInsets } from '@/design/layout.uts'
+  import { feedbackDelay } from '@/design/palette.uts'
+  import { pressFeedbackClass } from '@/design/motion.uts'
+  const { headerStyle } = useScenicInsets()
 
-	const loading = ref<boolean>(true)
-	const spots = ref<ScenicSpot[]>([])
-
-	async function loadSpots() {
-		loading.value = true
-		try {
-			const data = await fetchScenicSpots()
-			spots.value = data.filter((item : ScenicSpot) : boolean => item.kind == 'scenic').slice(0, 8)
-		} catch (error) {
-			console.error('load scenic spots failed', error)
-			spots.value = []
-		} finally {
-			loading.value = false
-		}
-	}
-
-	function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
-	function openMap() { uni.switchTab({ url: '/pages/map/index' }) }
-	function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
-	function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
-
-	onLoad(() => { loadSpots() })
+  const locale = ref('zh-Hans')
+  const area = ref<ScenicAreaId>('lingshan')
+  const spots = ref<ScenicSpot[]>([])
+  const routes = ref<GuideRoute[]>([])
+  const services = ref<ScenicSpot[]>([])
+  const routesLoading = ref(true)
+  const routesFailed = ref(false)
+  let routeRequest = 0
+  const loading = ref(true)
+  const failed = ref(false)
+  let loadedArea = ''
+  let requestNumber = 0
+  function t(zh : string, en : string, hant : string) : string { return localize(locale.value, zh, en, hant) }
+  const destinationName = computed<string>(() => area.value == 'nianhuawan' ? t('拈花湾', 'Nianhua Bay', '拈花灣') : t('灵山胜境', 'Lingshan', '靈山勝境'))
+  const mapLabel = computed<string>(() => t('打开地图', 'Open map', '開啟地圖'))
+  type Highlight = { spot : ScenicSpot, count : number }
+  const highlights = computed<Highlight[]>(() => {
+    const output : Highlight[] = []
+    spots.value.forEach((spot : ScenicSpot) => {
+      const count = routes.value.filter((route : GuideRoute) : boolean =>
+        route.isOfficial && route.nodes.some((node : GuideRouteNode) : boolean =>
+          node.spotId == spot.id || (spot.sourcePointId != null && node.sourcePointId == spot.sourcePointId)
+        )
+      ).length
+      if (count > 0) output.push({ spot, count } as Highlight)
+    })
+    return output.sort((a : Highlight, b : Highlight) : number => {
+      if (a.count != b.count) return b.count - a.count
+      const hasA = spotPhoto(a.spot.id).length > 0
+      const hasB = spotPhoto(b.spot.id).length > 0
+      return hasA == hasB ? 0 : (hasA ? -1 : 1)
+    }).slice(0,3)
+  })
+  const recommendations = computed<ScenicSpot[]>(() =>
+    spots.value.filter((spot : ScenicSpot) : boolean => !highlights.value.some((item : Highlight) : boolean => item.spot.id == spot.id)).slice(0,8)
+  )
+  function routeCountLabel(count : number) : string {
+    const n = count.toString()
+    return t('入选 ' + n + ' 条官方路线', n + (count == 1 ? ' official route' : ' official routes'), '入選 ' + n + ' 條官方路線')
+  }
+  async function loadRoutes() {
+    const current = ++routeRequest
+    routesLoading.value = true
+    routesFailed.value = false
+    try {
+      const result = await fetchGuideRoutes(area.value)
+      if (current == routeRequest) routes.value = result
+    } catch (error) {
+      if (current == routeRequest) routesFailed.value = true
+    } finally { if (current == routeRequest) routesLoading.value = false }
+  }
+  function retryHighlights() {
+    if (failed.value) loadSpots()
+    if (routesFailed.value) loadRoutes()
+  }
+  function loadArea() {
+    routes.value = []
+    spots.value = []
+    services.value = []
+    loadSpots()
+    loadRoutes()
+  }
+  async function loadSpots() {
+    const current = ++requestNumber
+    const requestedArea = area.value
+    loading.value = true
+    failed.value = false
+    try {
+      const result = await fetchScenicSpots(requestedArea)
+      if (current != requestNumber) return
+      const scenic = result.filter((item : ScenicSpot) : boolean => item.kind == 'scenic')
+      spots.value = scenic
+      const ids = requestedArea == 'nianhuawan' ? ['nianhuawan-176','nianhuawan-182','nianhuawan-527'] : ['lingshan-806','lingshan-904']
+      services.value = result.filter((spot : ScenicSpot) : boolean => spot.kind == 'facility' && ids.includes(spot.id))
+      loadedArea = requestedArea
+    } catch (error) {
+      if (current != requestNumber) return
+      failed.value = true
+    } finally { if (current == requestNumber) loading.value = false }
+  }
+  function selectArea(next : ScenicAreaId) {
+    if (next == area.value) return
+    area.value = next
+    setPreferredScenicArea(next)
+    loadArea()
+  }
+  function openGuide() { uni.switchTab({ url: '/pages/ai-guide/index' }) }
+  function openTrip() { uni.switchTab({ url: '/pages/trip/index' }) }
+  function openMap() { uni.switchTab({ url: '/pages/map/index' }) }
+  function openFavorites() { uni.navigateTo({ url: '/pages/favorites/index' }) }
+  function openService(service : ScenicSpot) { uni.navigateTo({ url: '/pages/spot/detail?id=' + encodeURIComponent(service.id) + '&area=' + area.value }) }
+  onShow(() => {
+    locale.value = getAppLocale()
+    const preferred = getPreferredScenicArea()
+    const changed = preferred != area.value
+    area.value = preferred
+    if (changed || area.value != loadedArea) loadArea()
+    else retryHighlights()
+  })
 </script>
-
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.hero { position: relative; overflow: hidden; padding: 54px 20px 26px; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
-	.hero-orb { position: absolute; border-radius: 999px; background-color: rgba(255,255,255,0.06); }
-	.hero-orb-large { width: 230px; height: 230px; right: -92px; top: -76px; }
-	.hero-orb-small { width: 112px; height: 112px; left: -48px; bottom: 96px; background-color: rgba(255,184,52,0.14); }
-	.hero-top { position: relative; flex-direction: row; justify-content: space-between; align-items: center; }
-	.brand-row { flex-direction: row; align-items: center; }
-	.brand-mark { width: 42px; height: 42px; border-radius: 14px; align-items: center; justify-content: center; overflow: hidden; background-color: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); margin-right: 10px; }
-	.brand-mark-image { width: 40px; height: 40px; }
-	.brand-name { font-size: 14px; font-weight: 700; color: #ffffff; }
-	.brand-location { font-size: 10px; color: #c9e7ff; margin-top: 3px; }
-	.weather-pill { flex-direction: row; align-items: center; padding: 7px 11px; border-radius: 18px; background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.12); }
-	.weather-text { font-size: 12px; font-weight: 600; color: #ffffff; margin-left: 5px; }
-	.hero-main { position: relative; margin-top: 32px; }
-	.hero-kicker { font-size: 9px; letter-spacing: 2px; color: #ffd279; font-weight: 700; }
-	.hero-title { font-size: 31px; line-height: 41px; font-weight: 800; color: #ffffff; margin-top: 9px; }
-	.hero-copy { width: 300px; font-size: 14px; line-height: 23px; color: #d8efff; margin-top: 10px; }
-	.hero-actions { position: relative; flex-direction: row; align-items: center; margin-top: 22px; }
-	.hero-button { height: 46px; border-radius: 23px; flex-direction: row; align-items: center; justify-content: center; }
-	.hero-button-primary { flex: 1; background-color: #ffffff; margin-right: 10px; box-shadow: 0 8px 20px rgba(2,31,82,0.18); }
-	.hero-button-ghost { width: 128px; border: 1px solid rgba(255,255,255,0.42); background-color: rgba(255,255,255,0.06); }
-	.hero-button-primary-text { font-size: 14px; color: #0b68d0; font-weight: 700; margin-left: 7px; }
-	.hero-button-ghost-text { font-size: 13px; color: #ffffff; }
-	.hero-button-arrow { font-size: 16px; color: #d9efff; margin-left: 7px; }
-	.hero-insights { position: relative; flex-direction: row; align-items: center; margin-top: 24px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,0.12); }
-	.insight-item { flex: 1; align-items: center; }
-	.insight-value { font-size: 15px; font-weight: 700; color: #ffffff; }
-	.insight-label { font-size: 9px; color: #bcdcf4; margin-top: 4px; }
-	.insight-divider { width: 1px; height: 25px; background-color: rgba(255,255,255,0.12); }
-	.page-content { padding: 0 16px 44px; }
-	.quick-panel { margin-top: 16px; }
-	.quick-row { flex-direction: row; }
-	.quick-row-space { margin-top: 10px; }
-	.quick-item { flex: 1; min-height: 88px; padding: 13px 12px; flex-direction: row; align-items: center; background-color: #ffffff; border: 1px solid #e4eaf4; border-radius: 20px; box-shadow: 0 8px 22px rgba(25,65,120,0.07); }
-	.quick-item-space { margin-right: 10px; }
-	.quick-icon { width: 38px; height: 38px; border-radius: 13px; align-items: center; justify-content: center; margin-right: 10px; }
-	.quick-icon-cyan { background-color: #e4f7fb; }
-	.quick-icon-gold { background-color: #faf0dc; }
-	.quick-icon-blue { background-color: #e7f1ff; }
-	.quick-icon-rose { background-color: #f7eaea; }
-	.quick-copy-block { flex: 1; }
-	.quick-title { font-size: 14px; font-weight: 700; color: #182941; }
-	.quick-copy { font-size: 9px; line-height: 14px; color: #7d899c; margin-top: 4px; }
-	.quick-arrow { font-size: 20px; color: #9aa6b7; margin-left: 4px; }
-	.loading-card { height: 130px; align-items: center; justify-content: center; background-color: #ffffff; border: 1px solid #e4eaf4; border-radius: 24px; }
-	.loading-text { font-size: 12px; color: #77849a; margin-top: 10px; }
-	.spot-scroll { height: 298px; flex-direction: row; padding: 2px 2px 14px; }
-	.route-card { flex-direction: row; overflow: hidden; background-color: #ffffff; border: 1px solid #e3eaf5; border-radius: 24px; box-shadow: 0 10px 28px rgba(21,65,124,0.08); }
-	.route-visual { width: 88px; min-height: 150px; align-items: center; justify-content: center; background: linear-gradient(to bottom, #17b7c3, #087ab8); }
-	.route-number { font-size: 30px; font-weight: 800; color: #ffffff; }
-	.route-number-copy { font-size: 9px; color: #e4fbff; margin-top: 5px; }
-	.route-content { flex: 1; padding: 17px 16px; }
-	.route-top { flex-direction: row; align-items: center; justify-content: space-between; }
-	.route-label { font-size: 10px; color: #d17d00; }
-	.route-arrow { font-size: 17px; color: #0b68d0; }
-	.route-title { font-size: 18px; font-weight: 700; color: #1a2a43; margin-top: 7px; }
-	.route-copy { font-size: 11px; line-height: 18px; color: #748198; margin-top: 9px; }
-	.route-progress { height: 5px; background-color: #edf1ee; border-radius: 3px; margin-top: 13px; overflow: hidden; }
-	.route-progress-fill { width: 68%; height: 5px; background: linear-gradient(to right, #0b68d0, #14b6c4); border-radius: 3px; }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: 0 $sg-space-5 $sg-space-8; }
+  .areas, .features, .destination-caption { flex-direction: row; align-items: center; }
+  .areas { margin: $sg-space-3 0; }
+  .chip, .first { margin-right: $sg-space-2; }
+  .destination { border-radius: $sg-radius-lg; overflow: hidden; background-color: $sg-hero; }
+  .hero-photo { width: 100%; height: 176px; }
+  .destination-caption { padding: $sg-space-4; }
+  .destination-text, .feature { flex: 1; }
+  .destination-title { color: $sg-on-hero; font-size: $sg-type-section; font-weight: 700; }
+  .destination-detail { color: $sg-on-hero; font-size: $sg-type-label; margin-top: $sg-space-1; }
+  .destination-action { color: $sg-on-hero; font-size: $sg-type-label; font-weight: 600; margin-left: $sg-space-3; }
+  .group { border: 1px solid $sg-divider; border-radius: $sg-radius-md; overflow: hidden; background-color: $sg-surface; }
+  .favorites { margin-top: $sg-space-6; }
+  .retry { margin-top: $sg-space-2; }
+  @import '@/design/press.scss';
+  @include sg-press-feedback;
 </style>

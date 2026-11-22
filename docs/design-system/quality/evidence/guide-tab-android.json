@@ -1,0 +1,130 @@
+{
+  "device": "MuMu Android 12, 1080x1920, 480dpi",
+  "api": "127.0.0.1:5264",
+  "local_service_sha256": "cab7e114e7999f9f0472b0fe820186888956a5ce598b8f7488bf83412da12516",
+  "ai_bar_observed": "one custom bottom row with the original four destination icons and one microphone",
+  "return_paths_observed": [
+    "AI to Map while recording, re-enter AI",
+    "AI to Trips and back",
+    "AI to Profile and back",
+    "AI to Home and back"
+  ],
+  "gestures": [
+    "tap centre started platform recording",
+    "leaving during recording cancelled capture and restored system tabs",
+    "press-hold, move upwards and release reached cancelled state"
+  ],
+  "screenshot_dimensions": [
+    432,
+    768
+  ],
+  "measurement": "For the four outside cells, bound dark icon pixels (RGB maximum <175) in rows 710-740 and labels in rows 741-764; compare rendered AI control to ordinary native Map bar. Coordinates in the 432×768 evidence images.",
+  "ai_baselines": [
+    {
+      "icon": {
+        "center_x": 42.5,
+        "first_row": 715,
+        "last_row": 735
+      },
+      "label": {
+        "center_x": 43.0,
+        "first_row": 746,
+        "last_row": 756
+      }
+    },
+    {
+      "icon": {
+        "center_x": 129.0,
+        "first_row": 714,
+        "last_row": 736
+      },
+      "label": {
+        "center_x": 129.0,
+        "first_row": 746,
+        "last_row": 756
+      }
+    },
+    {
+      "icon": {
+        "center_x": 301.5,
+        "first_row": 713,
+        "last_row": 736
+      },
+      "label": {
+        "center_x": 302.0,
+        "first_row": 746,
+        "last_row": 756
+      }
+    },
+    {
+      "icon": {
+        "center_x": 388.5,
+        "first_row": 715,
+        "last_row": 735
+      },
+      "label": {
+        "center_x": 388.5,
+        "first_row": 746,
+        "last_row": 756
+      }
+    }
+  ],
+  "native_map_baselines": [
+    {
+      "icon": {
+        "center_x": 42.5,
+        "first_row": 716,
+        "last_row": 737
+      },
+      "label": {
+        "center_x": 42.5,
+        "first_row": 747,
+        "last_row": 756
+      }
+    },
+    {
+      "icon": {
+        "center_x": 129.0,
+        "first_row": 715,
+        "last_row": 738
+      },
+      "label": {
+        "center_x": 129.0,
+        "first_row": 747,
+        "last_row": 756
+      }
+    },
+    {
+      "icon": {
+        "center_x": 301.5,
+        "first_row": 715,
+        "last_row": 737
+      },
+      "label": {
+        "center_x": 301.5,
+        "first_row": 747,
+        "last_row": 757
+      }
+    },
+    {
+      "icon": {
+        "center_x": 388.5,
+        "first_row": 716,
+        "last_row": 737
+      },
+      "label": {
+        "center_x": 388.5,
+        "first_row": 747,
+        "last_row": 757
+      }
+    }
+  ],
+  "fatal_exception_observed": false,
+  "signed_ios_runtime_verified": false,
+  "capture_stage": "Navigation-only run before the Android keyboard geometry and editable text-color fixes; the final text panel, tap-to-send and return are captured separately in guide-tab-android-ime.json.",
+  "emulator_safe_bottom_dp": 0,
+  "native_test_target_limitations": [
+    "No physical Android cutout/gesture inset was available on this emulator.",
+    "The local QA base had an expired profile session and logged 401 during its refresh. The tab owner and routing verification do not assert account authorization."
+  ]
+}

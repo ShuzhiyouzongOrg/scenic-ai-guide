@@ -1,0 +1,371 @@
+{
+  "kind": "Deterministic PCM fixture through built MP-WEIXIN code. WeChat hardware and UI are not exercised.",
+  "meterExpectation": "Three distinct levels and no stale bars after sustained silence.",
+  "generated": {
+    "frequencyHz": 220,
+    "format": "signed 16-bit little-endian, mono",
+    "sampleRateHz": 16000,
+    "secondsPerSegment": 2,
+    "frameBytes": 2048,
+    "fullFrameMs": 64,
+    "frameCount": 94,
+    "finalFrameBytes": 1536,
+    "sha256": "38bfee41d553e2649de17add2a06315ce372a2ce8f8f2fc15b7e2a6e884398cc"
+  },
+  "options": {
+    "duration": 60000,
+    "format": "PCM",
+    "sampleRate": 16000,
+    "numberOfChannels": 1,
+    "frameSize": 2
+  },
+  "tokens": {
+    "orbAttackMs": 105,
+    "orbListenCycleMs": 2050,
+    "orbReleaseMs": 310,
+    "orbRmsGain": 1.65,
+    "orbSize": 172,
+    "orbSpeakCycleMs": 1600,
+    "orbStageHeight": 260,
+    "orbTickMs": 80
+  },
+  "clock": "16 ms deterministic steps. When callbacks coincide the Orb ticks before PCM delivery.",
+  "segments": [
+    {
+      "name": "silence",
+      "peakFractionOfFullScale": 0,
+      "fullSegmentFrames": 31,
+      "measuredFrameRmsRange": [
+        0,
+        0
+      ],
+      "endpoint": {
+        "timeMs": 2000,
+        "rms": 0,
+        "state": "LISTENING",
+        "sampleCount": 31,
+        "envelopeFromSheenOpacity": 0,
+        "volumeRing": false,
+        "glowStrength": 0.387457,
+        "bodyTransform": "rotate(-0.1763099232728007deg) scale(0.8792863645962767,0.8804617640847621);",
+        "meterBarHeightsPx": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "name": "quiet",
+      "peakFractionOfFullScale": 0.025,
+      "fullSegmentFrames": 30,
+      "measuredFrameRmsRange": [
+        0.017629,
+        0.017725
+      ],
+      "endpoint": {
+        "timeMs": 4000,
+        "rms": 0.017655,
+        "state": "LISTENING",
+        "sampleCount": 62,
+        "envelopeFromSheenOpacity": 0.219438,
+        "volumeRing": true,
+        "glowStrength": 0.459784,
+        "bodyTransform": "rotate(-1.662403046109561deg) scale(0.8985065736780669,0.9095892606521306);",
+        "meterBarHeightsPx": [
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "name": "normal",
+      "peakFractionOfFullScale": 0.32,
+      "fullSegmentFrames": 31,
+      "measuredFrameRmsRange": [
+        0.225651,
+        0.226882
+      ],
+      "endpoint": {
+        "timeMs": 6000,
+        "rms": 0.225704,
+        "state": "LISTENING",
+        "sampleCount": 94,
+        "envelopeFromSheenOpacity": 0.785284,
+        "volumeRing": true,
+        "glowStrength": 0.63156,
+        "bodyTransform": "rotate(-7.427408592972077deg) scale(0.9402443335084082,0.9897603907948888);",
+        "meterBarHeightsPx": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ]
+      }
+    }
+  ],
+  "mixedFrames": [
+    {
+      "endMs": 2048,
+      "rms": 0.015268,
+      "from": "silence",
+      "to": "quiet"
+    },
+    {
+      "endMs": 4032,
+      "rms": 0.160036,
+      "from": "quiet",
+      "to": "normal"
+    }
+  ],
+  "beforeFirstFrame": {
+    "timeMs": 0,
+    "rms": -1,
+    "state": "LISTENING",
+    "sampleCount": 0,
+    "envelopeFromSheenOpacity": 0,
+    "volumeRing": false,
+    "glowStrength": 0.4712,
+    "bodyTransform": "rotate(0deg) scale(0.88,0.88);",
+    "meterBarHeightsPx": []
+  },
+  "attackSamples": [
+    {
+      "timeMs": 2080,
+      "rms": 0.015268,
+      "state": "LISTENING",
+      "sampleCount": 32,
+      "envelopeFromSheenOpacity": 0.108714,
+      "volumeRing": true,
+      "glowStrength": 0.432559,
+      "bodyTransform": "rotate(0.30414530968685205deg) scale(0.8937331468993881,0.8917055115014757);",
+      "meterBarHeightsPx": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        5
+      ]
+    },
+    {
+      "timeMs": 2160,
+      "rms": 0.017658,
+      "state": "LISTENING",
+      "sampleCount": 33,
+      "envelopeFromSheenOpacity": 0.167659,
+      "volumeRing": true,
+      "glowStrength": 0.464008,
+      "bodyTransform": "rotate(1.4826893133504315deg) scale(0.9052821390193658,0.8953975435970296);",
+      "meterBarHeightsPx": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        5,
+        6
+      ]
+    },
+    {
+      "timeMs": 2320,
+      "rms": 0.017701,
+      "state": "LISTENING",
+      "sampleCount": 36,
+      "envelopeFromSheenOpacity": 0.20823,
+      "volumeRing": true,
+      "glowStrength": 0.497837,
+      "bodyTransform": "rotate(3.892895575580134deg) scale(0.919703389062441,0.8937507518919067);",
+      "meterBarHeightsPx": [
+        3,
+        3,
+        5,
+        6,
+        6,
+        7,
+        7
+      ]
+    },
+    {
+      "timeMs": 4080,
+      "rms": 0.160036,
+      "state": "LISTENING",
+      "sampleCount": 63,
+      "envelopeFromSheenOpacity": 0.454396,
+      "volumeRing": true,
+      "glowStrength": 0.557268,
+      "bodyTransform": "rotate(-0.6231764734149061deg) scale(0.929733139041498,0.9338876488642641);",
+      "meterBarHeightsPx": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        11
+      ]
+    },
+    {
+      "timeMs": 4160,
+      "rms": 0.22648,
+      "state": "LISTENING",
+      "sampleCount": 65,
+      "envelopeFromSheenOpacity": 0.630263,
+      "volumeRing": true,
+      "glowStrength": 0.648091,
+      "bodyTransform": "rotate(2.498382318669284deg) scale(0.9625927257681735,0.9459368436437116);",
+      "meterBarHeightsPx": [
+        7,
+        7,
+        7,
+        7,
+        11,
+        14,
+        16
+      ]
+    },
+    {
+      "timeMs": 4320,
+      "rms": 0.226699,
+      "state": "LISTENING",
+      "sampleCount": 67,
+      "envelopeFromSheenOpacity": 0.751839,
+      "volumeRing": true,
+      "glowStrength": 0.75187,
+      "bodyTransform": "rotate(10.036502923591533deg) scale(1.007085426930111,0.9401754074395008);",
+      "meterBarHeightsPx": [
+        7,
+        7,
+        11,
+        14,
+        16,
+        16,
+        16
+      ]
+    }
+  ],
+  "releaseAfterDigitalSilence": [
+    {
+      "timeMs": 6080,
+      "rms": 0,
+      "state": "LISTENING",
+      "sampleCount": 96,
+      "envelopeFromSheenOpacity": 0.606667,
+      "volumeRing": false,
+      "glowStrength": 0.598659,
+      "bodyTransform": "rotate(-2.809143967094044deg) scale(0.9383964170507639,0.9571240434980576);",
+      "meterBarHeightsPx": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        8,
+        5
+      ]
+    },
+    {
+      "timeMs": 6320,
+      "rms": 0,
+      "state": "LISTENING",
+      "sampleCount": 100,
+      "envelopeFromSheenOpacity": 0.279719,
+      "volumeRing": false,
+      "glowStrength": 0.520863,
+      "bodyTransform": "rotate(3.338172375347569deg) scale(0.9256793922544706,0.9034249097521535);",
+      "meterBarHeightsPx": [
+        16,
+        8,
+        5,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "timeMs": 6960,
+      "rms": 0,
+      "state": "LISTENING",
+      "sampleCount": 110,
+      "envelopeFromSheenOpacity": 0.035491,
+      "volumeRing": false,
+      "glowStrength": 0.411003,
+      "bodyTransform": "rotate(1.1384601706405575deg) scale(0.8886894855532492,0.8810997510823122);",
+      "meterBarHeightsPx": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    }
+  ],
+  "afterStopAndLateFrame": {
+    "timeMs": 6960,
+    "rms": -1,
+    "state": "IDLE",
+    "sampleCount": 0,
+    "envelopeFromSheenOpacity": 0,
+    "volumeRing": false,
+    "glowStrength": 0.398058,
+    "bodyTransform": "rotate(0.9000830928988149deg) scale(0.9036431934712571,0.8976426395185984);",
+    "meterBarHeightsPx": []
+  },
+  "recordingWithoutCallbacksForTwoSecondsAfterPositiveInput": {
+    "timeMs": 8960,
+    "rms": -1,
+    "state": "LISTENING",
+    "sampleCount": 0,
+    "envelopeFromSheenOpacity": 0.005759,
+    "volumeRing": false,
+    "glowStrength": 0.563422,
+    "bodyTransform": "rotate(11.930245584784458deg) scale(0.9289513662989746,0.8494163957337448);",
+    "meterBarHeightsPx": []
+  },
+  "unknownReadingAfterGapMs": [
+    512
+  ],
+  "firstFrameAfterGap": {
+    "timeMs": 9040,
+    "rms": 0.225753,
+    "state": "LISTENING",
+    "sampleCount": 1,
+    "envelopeFromSheenOpacity": 0.420721,
+    "volumeRing": true,
+    "glowStrength": 0.620624,
+    "bodyTransform": "rotate(9.377186789037637deg) scale(0.966338195378269,0.9038236167846847);",
+    "meterBarHeightsPx": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      11
+    ]
+  },
+  "buildSha256": {
+    "services/wechat-audio.js": "ddb8d2271b53ebbcc3576636f48a0dcaa847a5292d40febf0344e528687154bb",
+    "stores/guide-audio.js": "02860be8d69fbb060257acdc6e47831989c3c8365f39e333bba28ed8f283d894",
+    "design/motion.js": "9ea7277353961111560bec661e97dd9d7e96795e1c99301ec3525c8186d9bb57",
+    "design/orb-tokens.js": "f72a3a09de8dcbe5015ea1fd5df58b8efd6e928c0a2503ef814018d10873a7eb",
+    "components/sg-ai-ambient-orb/sg-ai-ambient-orb.js": "82d1fc06de98666a37373dfeb34ab02cff3198c4c915de6bd5f3e06dd43eb1ab",
+    "components/guide-level-meter/guide-level-meter.js": "3f02ab9346970a9c19bb272bd4b47d547614cb0e5aaf1e8953bb1cbf9692dcac"
+  }
+}

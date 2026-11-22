@@ -222,7 +222,8 @@ export type TtsSegment = {
 	text : string,
 	audioUrl : string,
 	mimeType : string,
-	durationMs : number
+	durationMs : number,
+	levels80ms ?: number[]
 }
 
 export type TtsResult = {

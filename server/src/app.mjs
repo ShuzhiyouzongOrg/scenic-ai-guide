@@ -174,7 +174,7 @@ const digitalHumanSdkDir = resolve(join(rootDir, "web", "src", "vm-sdk", "avatar
  * @description 数字人页面允许公开的文件白名单。
  * @type {Set<string>}
  */
-const digitalHumanPageFiles = new Set(["index.html", "app.js", "styles.css"]);
+const digitalHumanPageFiles = new Set(["index.html", "app.js", "styles.css", "stage-ui.js", "stage-tokens.css"]);
 /**
  * @description 数字人运行所需 SDK 文件白名单。
  * @type {Set<string>}
@@ -602,7 +602,8 @@ async function route(req, res, url) {
     ok(res, await transcribeAudio({
       audioBase64: body.audioBase64,
       mimeType: body.mimeType,
-      transcript: body.transcript
+      transcript: body.transcript,
+      locale: body.locale
     }));
     return;
   }

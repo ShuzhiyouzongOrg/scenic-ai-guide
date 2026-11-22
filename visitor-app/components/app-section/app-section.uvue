@@ -3,12 +3,12 @@
 		<view class="section-header">
 			<view class="section-heading">
 				<view class="section-title-row">
-					<view class="section-accent"></view>
+
 					<text class="section-title">{{ title }}</text>
 				</view>
 				<text v-if="subtitle.length > 0" class="section-subtitle">{{ subtitle }}</text>
 			</view>
-			<text v-if="actionText.length > 0" class="section-action" @click="emitAction">{{ actionText }}</text>
+			<view v-if="actionText.length > 0" class="action" hover-class="pressed" role="button" tabindex="0" data-sg-keyboard="activate" @click="emitAction"><text class="section-action">{{ actionText }}</text></view>
 		</view>
 		<slot />
 	</view>
@@ -35,52 +35,13 @@
 	}
 </script>
 
-<style>
-	.section {
-		margin-top: 28px;
-	}
-
-	.section-header {
-		flex-direction: row;
-		align-items: flex-end;
-		justify-content: space-between;
-		margin-bottom: 12px;
-	}
-
-	.section-heading {
-		flex: 1;
-	}
-
-	.section-title-row {
-		flex-direction: row;
-		align-items: center;
-	}
-
-	.section-accent {
-		width: 4px;
-		height: 18px;
-		border-radius: 2px;
-		background: linear-gradient(to bottom, #ffb229, #08a8c1);
-		margin-right: 9px;
-	}
-
-	.section-title {
-		font-size: 21px;
-		font-weight: 700;
-		color: #15243c;
-	}
-
-	.section-subtitle {
-		font-size: 12px;
-		color: #748198;
-		margin-top: 5px;
-		margin-left: 13px;
-	}
-
-	.section-action {
-		font-size: 14px;
-		color: #0b68d0;
-		font-weight: 600;
-		padding: 6px 0 6px 12px;
-	}
+<style lang="scss">
+  .section { margin-top: $sg-space-6; }
+  .section-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: $sg-space-3; }
+  .section-heading { flex: 1; }
+  .section-title { font-size: $sg-type-section; font-weight: 700; color: $sg-text; }
+  .section-subtitle { font-size: $sg-type-label; color: $sg-muted; margin-top: $sg-space-1; }
+  .action { padding-left: $sg-space-3; min-height: $sg-touch; justify-content: center; }
+  .section-action { font-size: $sg-type-label; color: $sg-primary; font-weight: 600; }
+  .pressed { opacity: $sg-pressed-opacity; }
 </style>

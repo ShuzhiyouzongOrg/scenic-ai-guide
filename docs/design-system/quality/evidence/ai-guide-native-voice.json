@@ -1,0 +1,16 @@
+{
+  "app": "DCloud standard base on MuMu Android 12; 1080x1920, 480dpi",
+  "device": "Android emulator",
+  "loopback_port": 5264,
+  "test_app_service_sha256": "6539f75a77483ced31b143cb3712c17f4d54ba197a44a8b22555b3a5b7b8ccbd",
+  "api_override": "Only the temporary compiled service redirects the production origin to local QA. The original base bundle is restored and hash-checked after capture.",
+  "capture": "Real recorder start, nine rendered UI frames after LISTENING, followed by cancel. PCM RMS is unavailable in this Android host.",
+  "crop_physical_px": [
+    104,
+    439,
+    342,
+    682
+  ],
+  "changed_pixels_over_12_percent": 34.15,
+  "fatal_exception_observed": false
+}

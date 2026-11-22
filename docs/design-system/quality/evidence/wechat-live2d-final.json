@@ -1,0 +1,191 @@
+{
+  "date": "2026-11-22",
+  "target": "production mp-weixin, HBuilderX 5.24 uni-app x VDOM, style isolation 2.0",
+  "source_sha256": "a4aa3c7750fe211c9ef7891217de9afbd74f72801a4e68c520c6fc0b32b16d7e",
+  "size_method": "DCloud production files grouped by app.json subPackages, metadata and validated packOptions ignore files excluded",
+  "limit_bytes": 2097152,
+  "raw_bytes_by_package": {
+    "main": 2083158,
+    "pages/auth/": 8339,
+    "pages/favorites/": 8638,
+    "pages/feedback/": 7257,
+    "pages/spot/": 318811
+  },
+  "main_remaining_bytes": 13994,
+  "previous_password_fixed_main_bytes": 2078296,
+  "delta_from_previous_bytes": 4862,
+  "wechat_compiler": "WCC/WCSC from WeChat DevTools Stable 1.06.2303220",
+  "pages": {
+    "pages/home/index": {
+      "wcc": {
+        "inputs": 16,
+        "exit": 0,
+        "output_bytes": 79267
+      },
+      "wcsc": {
+        "inputs": 16,
+        "exit": 0,
+        "output_bytes": 5771
+      }
+    },
+    "pages/map/index": {
+      "wcc": {
+        "inputs": 11,
+        "exit": 0,
+        "output_bytes": 76683
+      },
+      "wcsc": {
+        "inputs": 11,
+        "exit": 0,
+        "output_bytes": 7302
+      }
+    },
+    "pages/ai-guide/index": {
+      "wcc": {
+        "inputs": 10,
+        "exit": 0,
+        "output_bytes": 67480
+      },
+      "wcsc": {
+        "inputs": 10,
+        "exit": 0,
+        "output_bytes": 8398
+      }
+    },
+    "pages/trip/index": {
+      "wcc": {
+        "inputs": 15,
+        "exit": 0,
+        "output_bytes": 77394
+      },
+      "wcsc": {
+        "inputs": 15,
+        "exit": 0,
+        "output_bytes": 6003
+      }
+    },
+    "pages/profile/index": {
+      "wcc": {
+        "inputs": 12,
+        "exit": 0,
+        "output_bytes": 69402
+      },
+      "wcsc": {
+        "inputs": 12,
+        "exit": 0,
+        "output_bytes": 5452
+      }
+    },
+    "pages/spot/detail": {
+      "wcc": {
+        "inputs": 12,
+        "exit": 0,
+        "output_bytes": 65909
+      },
+      "wcsc": {
+        "inputs": 12,
+        "exit": 0,
+        "output_bytes": 4853
+      }
+    },
+    "pages/auth/index": {
+      "wcc": {
+        "inputs": 9,
+        "exit": 0,
+        "output_bytes": 59976
+      },
+      "wcsc": {
+        "inputs": 9,
+        "exit": 0,
+        "output_bytes": 5099
+      }
+    },
+    "pages/favorites/index": {
+      "wcc": {
+        "inputs": 13,
+        "exit": 0,
+        "output_bytes": 67952
+      },
+      "wcsc": {
+        "inputs": 13,
+        "exit": 0,
+        "output_bytes": 4684
+      }
+    },
+    "pages/feedback/index": {
+      "wcc": {
+        "inputs": 9,
+        "exit": 0,
+        "output_bytes": 59394
+      },
+      "wcsc": {
+        "inputs": 9,
+        "exit": 0,
+        "output_bytes": 5278
+      }
+    }
+  },
+  "compiled_auth_password_boolean": true,
+  "ai_page_native_component": "../../wxcomponents/scenic-live2d/index",
+  "live2d_adapter_in_package": {
+    "index.js": {
+      "bytes": 6526,
+      "sha256": "951ba262e5d9896bf5ad4a6e3e10f86f0ba0406d4e65d1c7835a8607533e8c06",
+      "matches_input": true
+    },
+    "index.wxml": {
+      "bytes": 704,
+      "sha256": "dcbfc2b422349aa60bfae33031e97f1860274a5ccec1ddbb674e5f64f7dd48a3",
+      "matches_input": true
+    },
+    "index.wxss": {
+      "bytes": 910,
+      "sha256": "999b2845378708ac1e84535f4ca8a678c1662652b7f7518cd4dd39e52e20a18e",
+      "matches_input": true
+    },
+    "runtime/native/index.js": {
+      "bytes": 6766,
+      "sha256": "13cf75346918a15acc9fdb6da33fe47fd9267ce6fe26c8535e64d53706c5e89b",
+      "matches_input": true
+    }
+  },
+  "signed_upload_size_measured": false,
+  "local_gui_record": "../wechat-followup.md",
+  "first_live2d_fix_main_bytes": 2082792,
+  "delta_from_first_live2d_fix_bytes": 366,
+  "previous_build_comparison": {
+    "previous_files": 285,
+    "current_files": 285,
+    "previous_sha256": "2aaad84a09e74e8e3dd12e0d43661d075c68592636f0399407cc55e2d36cf83d",
+    "current_sha256": "ed44a84fc50a0c6739a733839866063d5c4ff5f730aa871fc2049cd8ffa217fb",
+    "changed_files": [
+      "components/empty-state/empty-state.wxml",
+      "components/sg-button/sg-button.wxml",
+      "components/sg-choice/sg-choice.wxml",
+      "components/sg-editorial-card/sg-editorial-card.wxml",
+      "components/sg-icon/sg-icon.wxml",
+      "components/sg-service-row/sg-service-row.wxml",
+      "components/sg-voice-panel/sg-voice-panel.wxml",
+      "components/spot-card/spot-card.wxml",
+      "pages/ai-guide/index.js",
+      "pages/ai-guide/index.wxml",
+      "pages/auth/index.wxml",
+      "pages/favorites/index.js",
+      "pages/favorites/index.wxml",
+      "pages/feedback/index.js",
+      "pages/feedback/index.wxml",
+      "pages/home/index.js",
+      "pages/home/index.wxml",
+      "pages/map/index.js",
+      "pages/map/index.wxml",
+      "pages/profile/index.wxml",
+      "pages/spot/detail.wxml",
+      "pages/trip/index.js",
+      "pages/trip/index.wxml",
+      "wxcomponents/scenic-live2d/index.js",
+      "wxcomponents/scenic-live2d/runtime/native/index.js"
+    ],
+    "identical_content_files": 260
+  },
+  "repeated_mount_callback_guard_in_compiled_runtime": true
+}

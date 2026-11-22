@@ -1,0 +1,133 @@
+{
+  "hbuilderx": "5.24",
+  "source_files": 417,
+  "source_sha256": "00b6bfeb5e7306e9bbe21e9a0a9664139bd52b6fdaef408262ef8f0beb56efe8",
+  "workspace_differences": [],
+  "targets": {
+    "android": {
+      "build": "Vapor debug bytecode",
+      "ready_ms": 57536,
+      "registered_pages": 10,
+      "bytecode_files": 115,
+      "service_sha256": "69a3a37be0f1fbe5a58c21b10936eed62aca3f431281dece88536cbf3b66b6d8",
+      "custom_ai_bar_mic_hide_show_window_insets_in_bundle": true,
+      "explicit_editor_foreground_placeholder_and_keyboard_resize_in_bundle": true
+    },
+    "ios": {
+      "build": "Vapor debug bytecode",
+      "ready_ms": 49320,
+      "registered_pages": 10,
+      "bytecode_files": 77,
+      "service_sha256": "0191a9e353ca9343a1053605e1c25943a5e45fc51fdac00c912fdf653beea155",
+      "custom_ai_bar_mic_hide_show_window_insets_in_bundle": true,
+      "limitation": "Windows compilation verifies application bytecode and UTS JS proxy. For the UIKit system preference and actual iPhone home indicator, a Mac or signed custom iOS base is required.",
+      "explicit_editor_foreground_placeholder_and_keyboard_resize_in_bundle": true
+    },
+    "wechat": {
+      "source_sha256": "00b6bfeb5e7306e9bbe21e9a0a9664139bd52b6fdaef408262ef8f0beb56efe8",
+      "rendered_styles": {
+        "tab_icon_px": 27,
+        "tab_padding_top_px": 8
+      },
+      "build": "production VDOM",
+      "main_and_subpackage_bytes": {
+        "main": 2063999,
+        "pages/auth/": 8339,
+        "pages/favorites/": 8638,
+        "pages/feedback/": 7257,
+        "pages/spot/": 318829
+      },
+      "main_remaining_bytes": 33153,
+      "native_tab_list_count": 5,
+      "compiled_ai_tabbar_contains_slot": true,
+      "local_qa_port": 5264,
+      "signed_upload_size_measured": false,
+      "wcc_wcsc_per_route": {
+        "pages/home/index": {
+          "wcc": 79267,
+          "wcsc": 5771
+        },
+        "pages/trip/index": {
+          "wcc": 77394,
+          "wcsc": 6003
+        },
+        "pages/map/index": {
+          "wcc": 76683,
+          "wcsc": 7302
+        },
+        "pages/ai-guide/index": {
+          "wcc": 92336,
+          "wcsc": 8420
+        },
+        "pages/profile/index": {
+          "wcc": 69402,
+          "wcsc": 5452
+        },
+        "pages/spot/detail": {
+          "wcc": 65909,
+          "wcsc": 4853
+        },
+        "pages/auth/index": {
+          "wcc": 59976,
+          "wcsc": 5099
+        },
+        "pages/favorites/index": {
+          "wcc": 67952,
+          "wcsc": 4684
+        },
+        "pages/feedback/index": {
+          "wcc": 59394,
+          "wcsc": 5278
+        }
+      },
+      "artifact_sha256": "886ada8adb6abee69576fb353a970badbe19bcd6fb8afc55a61f680e9c9585fc",
+      "compiled_files": 327,
+      "qa_main_bytes": 2063992,
+      "qa_artifact_sha256": "c8f8572205dbf1f37621c8925592e67ab46f7102ded43dcfa5052f887db7f3de",
+      "qa_wcc_wcsc_per_route": {
+        "pages/home/index": {
+          "wcc": 79267,
+          "wcsc": 5771
+        },
+        "pages/trip/index": {
+          "wcc": 77394,
+          "wcsc": 6003
+        },
+        "pages/map/index": {
+          "wcc": 76683,
+          "wcsc": 7302
+        },
+        "pages/ai-guide/index": {
+          "wcc": 92336,
+          "wcsc": 8420
+        },
+        "pages/profile/index": {
+          "wcc": 69402,
+          "wcsc": 5452
+        },
+        "pages/spot/detail": {
+          "wcc": 65909,
+          "wcsc": 4853
+        },
+        "pages/auth/index": {
+          "wcc": 59976,
+          "wcsc": 5099
+        },
+        "pages/favorites/index": {
+          "wcc": 67952,
+          "wcsc": 4684
+        },
+        "pages/feedback/index": {
+          "wcc": 59394,
+          "wcsc": 5278
+        }
+      },
+      "local_config_only_source_difference": true,
+      "local_health_status": 200,
+      "app_keyboard_listener_excluded": true,
+      "resolved_foreground_and_placeholder_styles": true
+    }
+  },
+  "workspace_differences_after_wechat_alignment": [],
+  "native_source_comparison": "Final App builds use APP keyboard-height handling and explicit resolved text/placeholder colors on the native editor."
+}

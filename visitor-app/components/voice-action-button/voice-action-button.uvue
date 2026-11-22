@@ -1,0 +1,172 @@
+<template>
+  <!-- #ifdef WEB -->
+  <view class="voice-keyboard" @mousedown="rememberClick" @keydown="rememberKey">
+  <!-- #endif -->
+  <view class="voice-action mic" :class="action == 'none' ? 'voice-disabled' : ''" :style="surfaceStyle"
+    role="button" :tabindex="action == 'none' ? -1 : 0" data-sg-keyboard="activate"
+    :aria-label="label" :aria-disabled="action == 'none'" :aria-pressed="state == 'LISTENING'"
+    :hover-class="action == 'none' || reducedMotion ? 'none' : 'voice-pressed'" :hover-start-time="0" :hover-stay-time="pressDuration"
+    @touchstart="beginTouch" @touchmove="moveTouch" @touchend="endTouch" @touchcancel="cancelTouch" @click="click">
+    <view v-if="showLevel" class="voice-level" :style="levelStyle" aria-hidden="true"></view>
+    <view v-if="state == 'THINKING'" class="voice-dots" aria-hidden="true">
+      <view class="voice-dot" :style="inkStyle"></view><view class="voice-dot" :style="inkStyle"></view><view class="voice-dot" :style="inkStyle"></view>
+    </view>
+    <view v-else-if="state == 'LISTENING' || state == 'SPEAKING'" class="voice-stop" :style="inkStyle" aria-hidden="true"></view>
+    <sg-icon v-else :name="glyph" tone="inverse" :size="24" />
+    <!-- Preserve the original touch target when the microphone changes to a stop icon. -->
+    <view class="voice-hit" aria-hidden="true"></view>
+  </view>
+  <!-- #ifdef WEB -->
+  </view>
+  <!-- #endif -->
+</template>
+
+<script setup lang="uts">
+  import { guideText } from '@/design/guide-locale.uts'
+  import { reducedMotion } from '@/design/motion.uts'
+  import { pressDuration, touchSize } from '@/design/palette.uts'
+  import { themeColor } from '@/design/theme.uts'
+
+  const props = defineProps<{
+    state: string, locale: string, active: boolean, disabled: boolean, pending: boolean,
+    finishing: boolean, host: boolean, elapsed?: string, level?: number
+  }>()
+  const emit = defineEmits(['record','finishhold','cancel','interrupt','resume','holdchange'])
+  const action = computed<string>(() => {
+    if (!props.active || props.disabled) return 'none'
+    if (props.pending || props.finishing) return 'cancel'
+    switch (props.state) {
+      case 'LISTENING': return 'send'
+      case 'SPEAKING':
+      case 'THINKING': return 'interrupt'
+      case 'PAUSED': return props.host ? 'resume' : 'interrupt'
+      case 'IDLE':
+      case 'CANCELLED':
+      case 'DISABLED':
+      case 'ERROR': return 'start'
+      default: return 'none'
+    }
+  })
+  function g(key : string) : string { return guideText(props.locale, key) }
+  const label = computed<string>(() => {
+    if (action.value == 'cancel') return g('取消录音')
+    if (action.value == 'send') return g('发送录音') + (props.elapsed != null ? ' · ' + props.elapsed! : '')
+    if (action.value == 'resume') return g('继续')
+    if (action.value == 'interrupt') return g(props.state == 'THINKING' ? '正在处理提问' : '正在播报') + ' · ' + g('停止')
+    if (props.state == 'RECONNECTING') return g('重新连接中')
+    if (props.state == 'ERROR' || props.state == 'DISABLED') return g('重试') + ' · ' + g('录音')
+    return g('录音') + ' · ' + g('点击或按住说话')
+  })
+  const glyph = computed<string>(() => {
+    if (props.state == 'PAUSED') return 'play'
+    if (props.state == 'ERROR' || props.state == 'DISABLED') return 'replay'
+    if (props.state == 'RECONNECTING') return 'loading'
+    return 'voice'
+  })
+  const surfaceStyle = computed<string>(() => 'background-color:' + themeColor('primary') + ';')
+  const inkStyle = computed<string>(() => 'background-color:' + themeColor('on-primary') + ';')
+  const showLevel = computed<boolean>(() => props.active && !reducedMotion.value &&
+    (props.state == 'LISTENING' || props.state == 'SPEAKING') && (props.level ?? -1) > 0)
+  const levelStyle = computed<string>(() => {
+    const strength = Math.sqrt(Math.min(1, Math.max(0, props.level ?? 0)))
+    return 'border-color:' + themeColor('on-primary') + ';opacity:' + strength + ';transform:scale(' + (0.78 + 0.22 * strength) + ');'
+  })
+
+  // Keep the action the user pressed. A player may finish while their finger
+  // is down; that release must never turn into a microphone permission request.
+  const holdMs = 350
+  const syntheticClickMs = 450
+  let timer : number | null = null
+  let startY = 0
+  let touchAction = ''
+  let clickAction = ''
+  let held = false
+  let moved = false
+  let ignoreClickUntil = 0
+  let lastActivation = 0
+  function setHeld(value : boolean) {
+    if (held == value) return
+    held = value
+    emit('holdchange', value)
+  }
+  function stopTimer() {
+    if (timer != null) clearTimeout(timer!)
+    timer = null
+  }
+  function activate(pressed : string) {
+    if (pressed != action.value || pressed == 'none' || Date.now() - lastActivation < pressDuration * 2) return
+    lastActivation = Date.now()
+    if (pressed == 'start' || pressed == 'send') emit('record')
+    else if (pressed == 'resume') emit('resume')
+    else if (pressed == 'cancel') emit('cancel')
+    else if (pressed == 'interrupt') emit('interrupt')
+  }
+  function beginTouch(event : UniTouchEvent) {
+    if (event.touches.length != 1 || touchAction.length > 0) { cancelTouch(); return }
+    touchAction = action.value
+    startY = event.touches[0].clientY
+    if (touchAction != 'start') return
+    timer = setTimeout(() => {
+      timer = null
+      if (!moved && touchAction == 'start' && action.value == 'start') {
+        setHeld(true)
+        emit('record')
+      }
+    }, holdMs)
+  }
+  function moveTouch(event : UniTouchEvent) {
+    if (touchAction.length == 0 || moved || event.touches.length == 0) return
+    if (startY - event.touches[0].clientY < touchSize) return
+    moved = true
+    stopTimer()
+    if (held) { setHeld(false); emit('cancel') }
+  }
+  function clearTouch() {
+    stopTimer()
+    ignoreClickUntil = Date.now() + syntheticClickMs
+    touchAction = ''
+    clickAction = ''
+    setHeld(false)
+    moved = false
+  }
+  function endTouch() {
+    if (touchAction.length == 0) return
+    if (held) { lastActivation = Date.now(); emit('finishhold') }
+    else if (!moved) activate(touchAction)
+    clearTouch()
+  }
+  function cancelTouch() {
+    if (touchAction.length == 0) return
+    if (held) emit('cancel')
+    clearTouch()
+  }
+  // #ifdef WEB
+  function rememberClick() { clickAction = action.value }
+  function rememberKey(event : KeyboardEvent) {
+    if ((event.key == 'Enter' || event.key == ' ') && !event.repeat) rememberClick()
+  }
+  // #endif
+  function click() {
+    const pressed = clickAction.length > 0 ? clickAction : action.value
+    clickAction = ''
+    if (Date.now() >= ignoreClickUntil) activate(pressed)
+  }
+  watch(() : boolean => props.active, (active : boolean) => { if (!active) { cancelTouch(); clickAction = '' } })
+  onUnmounted(() => { cancelTouch(); stopTimer() })
+</script>
+
+<style lang="scss">
+  .voice-keyboard, .voice-action { width: $sg-space-7 * 2; height: $sg-space-7 * 2; flex-shrink: 0; }
+  .voice-action { position: relative; align-items: center; justify-content: center; border-radius: $sg-radius-pill; }
+  .voice-hit { position: absolute; z-index: 2; top: 0; left: 0; right: 0; bottom: 0; border-radius: $sg-radius-pill; }
+  .voice-pressed { opacity: .82; }
+  .voice-disabled { opacity: .55; }
+  .voice-stop { width: $sg-space-4; height: $sg-space-4; border-radius: $sg-space-1; }
+  .voice-dots { flex-direction: row; align-items: center; }
+  .voice-dot { width: $sg-space-1; height: $sg-space-1; margin: 0 2px; border-radius: $sg-radius-pill; }
+  .voice-level { position: absolute; top: $sg-space-1; left: $sg-space-1; width: $sg-space-6 * 2; height: $sg-space-6 * 2; border-width: 1px; border-style: solid; border-radius: $sg-radius-pill; }
+  /* #ifdef WEB */
+  .voice-action { touch-action: none; }
+  .voice-action:focus-visible { outline: 2px solid $sg-primary; outline-offset: 2px; }
+  /* #endif */
+</style>

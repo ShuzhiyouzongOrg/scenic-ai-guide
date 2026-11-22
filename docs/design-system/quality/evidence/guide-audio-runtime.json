@@ -1,0 +1,115 @@
+{
+  "date": "2026-11-22",
+  "browserSignal": {
+    "device": "Chromium MediaStream using an isolated quiet/soft/loud tone fixture",
+    "audioInput": "Local test audio only. Test flags are not present in the app.",
+    "wav": [
+      "RIFF",
+      16000
+    ],
+    "pauseStable": true,
+    "microphone": {
+      "count": 27,
+      "min": 0,
+      "max": 0.701845801913615
+    },
+    "playback": {
+      "count": 24,
+      "min": 0,
+      "max": 0.42507899224114987
+    },
+    "replay": "python scripts/verify-guide-audio.py"
+  },
+  "page": {
+    "counts": {
+      "ask": 2,
+      "upload": 1,
+      "media": 4
+    },
+    "lateAnswerDiscarded": true,
+    "firstActiveSubtitle": "真实第一段",
+    "observedPlaybackLevels": [
+      -1,
+      0,
+      0,
+      0,
+      0,
+      0.07063884175073042
+    ],
+    "pause": true,
+    "cancelUploadSuppressed": true,
+    "retakeUploadCount": 1,
+    "errors": []
+  },
+  "tabChanges": {
+    "platform": "Chromium H5",
+    "askRequests": 2,
+    "voiceUploads": 1,
+    "delayedTextDroppedAfterTabReturn": true,
+    "delayedVoiceDroppedAfterTabReturn": true,
+    "confirmedHistoryPreserved": true,
+    "pageErrors": []
+  },
+  "firstHistoryRace": {
+    "steps": "Hold the initial GET /api/chat/history. Submit a question, wait for the confirmed answer, then return an older history list.",
+    "newRoundRetained": true,
+    "oldHistoryDisplayed": false,
+    "pageErrors": []
+  },
+  "permission": {
+    "heldReleaseBeforeGrant": "CANCELLED",
+    "lateGrantedTracks": "ended",
+    "uploads": 0,
+    "hostDeniedOrUnsupported": "DISABLED",
+    "unavailableLevel": -1
+  },
+  "live2d": {
+    "requestIds": [
+      101,
+      102
+    ],
+    "formerEmittedNaturalIdle": false,
+    "source": "Live2D WebGL + actual Web Audio signal fixture",
+    "minRms": 0,
+    "maxRms": 0.42599231676363447,
+    "segments": [
+      0,
+      1
+    ],
+    "samples": 32,
+    "completedRequest": 102
+  },
+  "wechatAdapter": {
+    "scope": "isolated adapter unit fixture and compiled MP-Weixin path",
+    "recording": "wx.getRecorderManager(), PCM, 16000 Hz, mono, frameSize=2 KiB",
+    "reference": "https://developers.weixin.qq.com/miniprogram/dev/api/media/recorder/RecorderManager.start.html",
+    "fixtureInputPcm16": [
+      0,
+      3277,
+      19661
+    ],
+    "unitRms": [
+      0,
+      0.100006103515625,
+      0.600006103515625
+    ],
+    "rawHostProbe": "Development and trial consoles expose [guide-recorder] started, first PCM frame, stopped with callback count, valid frame count and peak RMS. No audio contents or transcript are logged.",
+    "unitReplay": "node scripts/verify-wechat-audio.mjs",
+    "hostMeasurement": "Only an actual host recording can validate this microphone. No measured host RMS is asserted here."
+  },
+  "asr": {
+    "server": "real local HTTP + SQLite in memory",
+    "upstream": "signed requests observed using a controlled WebSocket fixture",
+    "rawPcmMultipart": [
+      "zh-CN -> zh_cn",
+      "en -> en_us"
+    ],
+    "payloadBytesIdentical": true,
+    "replay": "cd server && npm run test:voice"
+  },
+  "limits": [
+    "No commercial cloud session or spoken-language recognition score is asserted.",
+    "Android/iOS native recorder has no verified PCM sample callback; unknown input remains -1.",
+    "Unknown is distinct from confirmed silence (0)."
+  ]
+}

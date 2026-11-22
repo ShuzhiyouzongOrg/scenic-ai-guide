@@ -1,0 +1,22 @@
+<template>
+  <view class="choice" :class="[selected ? 'selected' : '', pressFeedbackClass]" hover-class="pressed" :hover-start-time="feedbackDelay" :hover-stay-time="feedbackDelay"
+    role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="label" :aria-pressed="selected" @click="activate">
+    <sg-icon v-if="selected" name="checked" tone="primary" :size="16" />
+    <text class="label" :class="selected ? 'selected-label' : ''">{{ label }}</text>
+  </view>
+</template>
+<script setup lang="uts">
+  import { pressFeedbackClass } from '@/design/motion.uts'
+  import { feedbackDelay } from '@/design/palette.uts'
+  defineProps<{ label : string, selected : boolean }>()
+  const emit = defineEmits(['action'])
+  function activate() { emit('action') }
+</script>
+<style lang="scss">
+  @import '@/design/press.scss';
+  .choice { min-height: $sg-touch; padding: $sg-space-1 $sg-space-3; border-radius: $sg-radius-pill; border: 1px solid $sg-border; background-color: $sg-surface; align-items: center; justify-content: center; flex-direction: row; }
+  .selected { background-color: $sg-inset; border-color: $sg-primary; }
+  .label { font-size: $sg-type-label; color: $sg-text; }
+  .selected-label { margin-left: $sg-space-1; color: $sg-primary; font-weight: 600; }
+  @include sg-press-feedback;
+</style>

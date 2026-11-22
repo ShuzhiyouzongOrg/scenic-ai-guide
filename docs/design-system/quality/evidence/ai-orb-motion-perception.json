@@ -1,0 +1,65 @@
+{
+  "browser": "151.0.7922.34",
+  "dpr": 2,
+  "method": "9 consecutive compositor captures per case, spaced at least 130 ms, including 10 CSS px scene padding; percent of crop pixels whose RGB channel excursion exceeds 12/255.",
+  "states": {
+    "IDLE": 0.0,
+    "LISTENING": 49.68,
+    "THINKING": 7.24,
+    "SPEAKING": 48.37,
+    "RECONNECTING": 2.84,
+    "PAUSED": 0.0,
+    "ERROR": 0.0,
+    "DISABLED": 0.0,
+    "CANCELLED": 0.0,
+    "reduce": 0.0,
+    "toggle active": 0.0
+  },
+  "rms": {
+    "62": {
+      "-1": {
+        "changed_pixels_percent": 22.56,
+        "real_audio_ring": false
+      },
+      "0": {
+        "changed_pixels_percent": 2.15,
+        "real_audio_ring": false
+      },
+      "0.02": {
+        "changed_pixels_percent": 27.13,
+        "real_audio_ring": true
+      },
+      "0.08": {
+        "changed_pixels_percent": 40.11,
+        "real_audio_ring": true
+      },
+      "0.25": {
+        "changed_pixels_percent": 49.35,
+        "real_audio_ring": true
+      }
+    },
+    "76": {
+      "-1": {
+        "changed_pixels_percent": 24.93,
+        "real_audio_ring": false
+      },
+      "0": {
+        "changed_pixels_percent": 2.22,
+        "real_audio_ring": false
+      },
+      "0.02": {
+        "changed_pixels_percent": 29.17,
+        "real_audio_ring": true
+      },
+      "0.08": {
+        "changed_pixels_percent": 43.86,
+        "real_audio_ring": true
+      },
+      "0.25": {
+        "changed_pixels_percent": 54.86,
+        "real_audio_ring": true
+      }
+    }
+  },
+  "uncaught_errors": []
+}

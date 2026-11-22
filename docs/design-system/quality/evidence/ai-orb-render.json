@@ -1,0 +1,41 @@
+{
+  "host": "DCloud 5.24 production H5, temporary component harness",
+  "browser": "Chromium 151.0.7922.34",
+  "viewport": [
+    390,
+    844
+  ],
+  "orb_px": 184,
+  "screenshot_order": [
+    "IDLE",
+    "THINKING",
+    "LISTENING at measured level 1"
+  ],
+  "states": {
+    "changing_transform": [
+      "IDLE",
+      "LISTENING",
+      "THINKING",
+      "SPEAKING",
+      "RECONNECTING"
+    ],
+    "static": [
+      "PAUSED",
+      "ERROR",
+      "DISABLED",
+      "CANCELLED"
+    ]
+  },
+  "verified": {
+    "zero_input_static": true,
+    "measured_audio_halo": true,
+    "unknown_input_no_halo": true,
+    "reduce_motion_stops": true,
+    "inactive_stops": true,
+    "resumed_moves": true,
+    "blue_thought_material_loaded": true
+  },
+  "uncaught_errors": [],
+  "android_independent_visual": "MuMu Android 12 1080×1920 standard base, same size stage with photo and three original diffuse/material/gloss layers observed before adding the optional signal and thought variant. Integrated test separately recorded.",
+  "capture_revision": "First material check before the follow-up increase in responsiveness at 62–76 px. Final silent listening motion, real-signal response, and reduction are measured in ai-orb-motion-perception.json."
+}

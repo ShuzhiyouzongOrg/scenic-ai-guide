@@ -1,0 +1,4838 @@
+{
+ "chromium-320-en-dark": {
+  "engine": "chromium",
+  "case": "chromium-320-en-dark",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "system reduction suppresses the manual override",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+   "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+   "long-press, slide to cancel; zero uploads and released tracks",
+   "second tap finishes recording; multipart voice ask returned 200",
+   "typed question exactly once; history preserves full answer and sources",
+   "host narration pauses, resumes and stops; subtitle retained during pause",
+   "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/voice/ask-upload",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+   ".stage-frame": [
+    16,
+    121,
+    288,
+    334
+   ],
+   ".ambient-orb": [
+    36,
+    252,
+    62,
+    62
+   ],
+   ".renderer": [
+    143,
+    121,
+    161,
+    334
+   ],
+   ".mic": [
+    132,
+    701,
+    56,
+    56
+   ],
+   ".guide-header": [
+    0,
+    0,
+    320,
+    121
+   ],
+   ".guide-tabbar": [
+    0,
+    698,
+    320,
+    62
+   ]
+  },
+  "transitionFrames": [
+   [
+    0,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    37,
+    "/",
+    null,
+    1
+   ],
+   [
+    47,
+    "/",
+    null,
+    1
+   ],
+   [
+    64,
+    "/",
+    null,
+    1
+   ],
+   [
+    79,
+    "/",
+    null,
+    1
+   ],
+   [
+    96,
+    "/",
+    null,
+    1
+   ],
+   [
+    111,
+    "/",
+    null,
+    1
+   ],
+   [
+    167,
+    "/",
+    null,
+    1
+   ],
+   [
+    176,
+    "/",
+    null,
+    1
+   ],
+   [
+    301,
+    "/",
+    null,
+    1
+   ],
+   [
+    306,
+    "/",
+    null,
+    1
+   ],
+   [
+    321,
+    "/",
+    null,
+    1
+   ],
+   [
+    336,
+    "/",
+    null,
+    1
+   ],
+   [
+    352,
+    "/",
+    null,
+    1
+   ],
+   [
+    369,
+    "/",
+    null,
+    1
+   ],
+   [
+    385,
+    "/",
+    null,
+    1
+   ],
+   [
+    400,
+    "/",
+    null,
+    1
+   ],
+   [
+    416,
+    "/",
+    null,
+    1
+   ],
+   [
+    432,
+    "/",
+    null,
+    1
+   ],
+   [
+    448,
+    "/",
+    null,
+    1
+   ],
+   [
+    463,
+    "/",
+    null,
+    1
+   ],
+   [
+    517,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    528,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    544,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    560,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    577,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    593,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    608,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    624,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    641,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    655,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    672,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    688,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    704,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ]
+  ],
+  "navigation": {
+   "guide": {
+    "rect": [
+     0,
+     698,
+     320,
+     62
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       698,
+       64,
+       62
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       17.4,
+       739.5,
+       29.1,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       698,
+       64,
+       62
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       85.2,
+       739.5,
+       21.7,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       698,
+       64,
+       62
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148.8,
+       713.9,
+       22.3,
+       22.3
+      ],
+      "labelRect": [
+       140.8,
+       739,
+       38.4,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       698,
+       64,
+       62
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       212.8,
+       739.5,
+       22.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       698,
+       64,
+       62
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       272.8,
+       739.5,
+       30.4,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "home": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       17.4,
+       739.5,
+       29.1,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-active-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       85.2,
+       739.5,
+       21.7,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       139.4,
+       739.5,
+       41.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       212.8,
+       739.5,
+       22.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       272.8,
+       739.5,
+       30.4,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "map": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       17.4,
+       739.5,
+       29.1,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       85.2,
+       739.5,
+       21.7,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-active-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       139.4,
+       739.5,
+       41.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       212.8,
+       739.5,
+       22.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       272.8,
+       739.5,
+       30.4,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "trip": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       17.4,
+       739.5,
+       29.1,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       85.2,
+       739.5,
+       21.7,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       139.4,
+       739.5,
+       41.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       212.8,
+       739.5,
+       22.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-active-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       272.8,
+       739.5,
+       30.4,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "profile": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       17.4,
+       739.5,
+       29.1,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       85.2,
+       739.5,
+       21.7,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       139.4,
+       739.5,
+       41.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       212.8,
+       739.5,
+       22.3,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       712.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       272.8,
+       739.5,
+       30.4,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-active-dark.png",
+      "loaded": true
+     }
+    ]
+   }
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "capabilities": {
+   "recording": true,
+   "wavPlayback": true
+  },
+  "measuredSignalVisibility": {
+   "soft": true,
+   "medium": true
+  },
+  "orbPerception": {
+   "rawTonePeak": {
+    "silence": 0,
+    "soft": 0.035,
+    "medium": 0.14
+   },
+   "expectedRms": {
+    "silence": 0,
+    "soft": 0.0247,
+    "medium": 0.099
+   },
+   "diameter": 62,
+   "silenceToSoft": {
+    "changedAbove8": 1145,
+    "pixels": 3844,
+    "meanAbsoluteChannelDelta": 6.61
+   },
+   "softToMedium": {
+    "changedAbove8": 1725,
+    "pixels": 3844,
+    "meanAbsoluteChannelDelta": 10.49
+   },
+   "unmetered720ms": {
+    "changedAbove8": 429,
+    "pixels": 3844,
+    "meanAbsoluteChannelDelta": 2.55
+   },
+   "reduced380ms": {
+    "changedAbove8": 0,
+    "pixels": 3844,
+    "meanAbsoluteChannelDelta": 0.0
+   }
+  },
+  "homeRoute": "/",
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  },
+  "version": "151.0.7922.34"
+ },
+ "chromium-390-zh-light": {
+  "engine": "chromium",
+  "case": "chromium-390-zh-light",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "in-page motion switch persists on and off",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+   "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+   "long-press, slide to cancel; zero uploads and released tracks",
+   "second tap finishes recording; multipart voice ask returned 200",
+   "typed question exactly once; history preserves full answer and sources",
+   "host narration pauses, resumes and stops; subtitle retained during pause",
+   "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/voice/ask-upload",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+   ".stage-frame": [
+    16,
+    111,
+    358,
+    360
+   ],
+   ".ambient-orb": [
+    36,
+    273,
+    76,
+    76
+   ],
+   ".renderer": [
+    174,
+    111,
+    200,
+    360
+   ],
+   ".mic": [
+    167,
+    785,
+    56,
+    56
+   ],
+   ".guide-header": [
+    0,
+    0,
+    390,
+    111
+   ],
+   ".guide-tabbar": [
+    0,
+    782,
+    390,
+    62
+   ]
+  },
+  "transitionFrames": [
+   [
+    0,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    15,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    31,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    48,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    64,
+    "/pages/ai-guide/index",
+    0.864588,
+    0
+   ],
+   [
+    79,
+    "/pages/ai-guide/index",
+    0.739823,
+    0
+   ],
+   [
+    96,
+    "/pages/ai-guide/index",
+    0.621787,
+    0
+   ],
+   [
+    112,
+    "/pages/ai-guide/index",
+    0.511368,
+    0
+   ],
+   [
+    127,
+    "/pages/ai-guide/index",
+    0.409433,
+    0
+   ],
+   [
+    144,
+    "/pages/ai-guide/index",
+    0.315298,
+    0
+   ],
+   [
+    162,
+    "/pages/ai-guide/index",
+    0.230566,
+    0
+   ],
+   [
+    176,
+    "/pages/ai-guide/index",
+    0.156124,
+    0
+   ],
+   [
+    192,
+    "/pages/ai-guide/index",
+    0.0934276,
+    0
+   ],
+   [
+    207,
+    "/pages/ai-guide/index",
+    0.0444727,
+    0
+   ],
+   [
+    224,
+    "/pages/ai-guide/index",
+    0.0119569,
+    0
+   ],
+   [
+    240,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    265,
+    "/",
+    null,
+    1
+   ],
+   [
+    272,
+    "/",
+    null,
+    1
+   ],
+   [
+    288,
+    "/",
+    null,
+    1
+   ],
+   [
+    303,
+    "/",
+    null,
+    1
+   ],
+   [
+    320,
+    "/",
+    null,
+    1
+   ],
+   [
+    336,
+    "/",
+    null,
+    1
+   ],
+   [
+    351,
+    "/",
+    null,
+    1
+   ],
+   [
+    397,
+    "/",
+    null,
+    1
+   ],
+   [
+    399,
+    "/",
+    null,
+    1
+   ],
+   [
+    504,
+    "/",
+    null,
+    1
+   ],
+   [
+    511,
+    "/",
+    null,
+    1
+   ],
+   [
+    530,
+    "/",
+    null,
+    1
+   ],
+   [
+    543,
+    "/",
+    null,
+    1
+   ],
+   [
+    560,
+    "/",
+    null,
+    1
+   ],
+   [
+    576,
+    "/",
+    null,
+    1
+   ],
+   [
+    591,
+    "/",
+    null,
+    1
+   ],
+   [
+    607,
+    "/",
+    null,
+    1
+   ],
+   [
+    630,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    640,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    655,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    671,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    688,
+    "/pages/ai-guide/index",
+    0.13535,
+    0
+   ],
+   [
+    704,
+    "/pages/ai-guide/index",
+    0.259871,
+    0
+   ],
+   [
+    719,
+    "/pages/ai-guide/index",
+    0.377926,
+    0
+   ],
+   [
+    735,
+    "/pages/ai-guide/index",
+    0.488364,
+    0
+   ],
+   [
+    751,
+    "/pages/ai-guide/index",
+    0.590909,
+    0
+   ],
+   [
+    767,
+    "/pages/ai-guide/index",
+    0.684477,
+    0
+   ],
+   [
+    783,
+    "/pages/ai-guide/index",
+    0.769396,
+    0
+   ],
+   [
+    799,
+    "/pages/ai-guide/index",
+    0.843983,
+    0
+   ],
+   [
+    816,
+    "/pages/ai-guide/index",
+    0.906431,
+    0
+   ],
+   [
+    831,
+    "/pages/ai-guide/index",
+    0.95526,
+    0
+   ],
+   [
+    848,
+    "/pages/ai-guide/index",
+    0.987894,
+    0
+   ]
+  ],
+  "navigation": {
+   "guide": {
+    "rect": [
+     0,
+     782,
+     390,
+     62
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       782,
+       78,
+       62
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       782,
+       78,
+       62
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       782,
+       78,
+       62
+      ],
+      "label": "AI导游",
+      "icon": [
+       183.8,
+       797.9,
+       22.3,
+       22.3
+      ],
+      "labelRect": [
+       181.1,
+       823,
+       27.9,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       782,
+       78,
+       62
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       782,
+       78,
+       62
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "home": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-active.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       180,
+       823.5,
+       30,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "map": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-active.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       180,
+       823.5,
+       30,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "trip": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       180,
+       823.5,
+       30,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-active.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "profile": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       180,
+       823.5,
+       30,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       796.5,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       823.5,
+       20,
+       14
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-active.png",
+      "loaded": true
+     }
+    ]
+   }
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "capabilities": {
+   "recording": true,
+   "wavPlayback": true
+  },
+  "measuredSignalVisibility": {
+   "soft": true,
+   "medium": true
+  },
+  "stageRecording": {
+   "frames": 27,
+   "cssPixels": [
+    358,
+    360
+   ],
+   "capturedMs": 3860,
+   "peakSeries": [
+    0.035,
+    0.14,
+    0
+   ]
+  },
+  "orbPerception": {
+   "rawTonePeak": {
+    "silence": 0,
+    "soft": 0.035,
+    "medium": 0.14
+   },
+   "expectedRms": {
+    "silence": 0,
+    "soft": 0.0247,
+    "medium": 0.099
+   },
+   "diameter": 76,
+   "silenceToSoft": {
+    "changedAbove8": 1617,
+    "pixels": 5776,
+    "meanAbsoluteChannelDelta": 5.44
+   },
+   "softToMedium": {
+    "changedAbove8": 3397,
+    "pixels": 5776,
+    "meanAbsoluteChannelDelta": 11.13
+   },
+   "unmetered720ms": {
+    "changedAbove8": 1472,
+    "pixels": 5776,
+    "meanAbsoluteChannelDelta": 4.87
+   },
+   "reduced380ms": {
+    "changedAbove8": 0,
+    "pixels": 5776,
+    "meanAbsoluteChannelDelta": 0.2
+   }
+  },
+  "homeRoute": "/",
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  },
+  "version": "151.0.7922.34"
+ },
+ "webkit-320-en-dark": {
+  "engine": "webkit",
+  "case": "webkit-320-en-dark",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "system reduction suppresses the manual override",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "recorder API absent; app shows disabled/error text and offers keyboard",
+   "typed question exactly once; history preserves full answer and sources",
+   "WebKit advertised WAV but returned playback error; localized recovery and caption visible",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+   ".stage-frame": [
+    16,
+    121,
+    288,
+    334
+   ],
+   ".ambient-orb": [
+    36,
+    252,
+    62,
+    62
+   ],
+   ".renderer": [
+    143,
+    121,
+    161,
+    334
+   ],
+   ".mic": [
+    132,
+    701,
+    56,
+    56
+   ],
+   ".guide-header": [
+    0,
+    0,
+    320,
+    121
+   ],
+   ".guide-tabbar": [
+    0,
+    698,
+    320,
+    62
+   ]
+  },
+  "transitionFrames": [
+   [
+    0,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    29,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    48,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    64,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    80,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    97,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    118,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    183,
+    "/",
+    null,
+    1
+   ],
+   [
+    194,
+    "/",
+    null,
+    1
+   ],
+   [
+    214,
+    "/",
+    null,
+    1
+   ],
+   [
+    236,
+    "/",
+    null,
+    1
+   ],
+   [
+    452,
+    "/",
+    null,
+    1
+   ],
+   [
+    480,
+    "/",
+    null,
+    1
+   ],
+   [
+    502,
+    "/",
+    null,
+    1
+   ],
+   [
+    518,
+    "/",
+    null,
+    1
+   ],
+   [
+    539,
+    "/",
+    null,
+    1
+   ],
+   [
+    559,
+    "/",
+    null,
+    1
+   ],
+   [
+    578,
+    "/",
+    null,
+    1
+   ],
+   [
+    601,
+    "/",
+    null,
+    1
+   ],
+   [
+    617,
+    "/",
+    null,
+    1
+   ],
+   [
+    638,
+    "/",
+    null,
+    1
+   ],
+   [
+    658,
+    "/",
+    null,
+    1
+   ],
+   [
+    678,
+    "/",
+    null,
+    1
+   ],
+   [
+    698,
+    "/",
+    null,
+    1
+   ],
+   [
+    718,
+    "/",
+    null,
+    1
+   ],
+   [
+    777,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    782,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    803,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    822,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    842,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    864,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    919,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    951,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    985,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ]
+  ],
+  "navigation": {
+   "guide": {
+    "rect": [
+     0,
+     698,
+     320,
+     62
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       698,
+       64,
+       62
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       19.8,
+       741,
+       24.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       698,
+       64,
+       62
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       86.8,
+       741,
+       18.3,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       698,
+       64,
+       62
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148.8,
+       715.3,
+       22.3,
+       22.3
+      ],
+      "labelRect": [
+       142.6,
+       740.4,
+       34.9,
+       10.2
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       698,
+       64,
+       62
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       213.6,
+       741,
+       20.8,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       698,
+       64,
+       62
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       274.4,
+       741,
+       27.2,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "home": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       19.8,
+       741,
+       24.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-active-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       86.8,
+       741,
+       18.3,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       141.3,
+       741,
+       37.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       213.6,
+       741,
+       20.8,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       274.4,
+       741,
+       27.2,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "map": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       19.8,
+       741,
+       24.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       86.8,
+       741,
+       18.3,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-active-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       141.3,
+       741,
+       37.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       213.6,
+       741,
+       20.8,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       274.4,
+       741,
+       27.2,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "trip": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       19.8,
+       741,
+       24.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       86.8,
+       741,
+       18.3,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       141.3,
+       741,
+       37.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       213.6,
+       741,
+       20.8,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-active-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       274.4,
+       741,
+       27.2,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-dark.png",
+      "loaded": true
+     }
+    ]
+   },
+   "profile": {
+    "rect": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "track": [
+     0,
+     706,
+     320,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       706,
+       64,
+       54
+      ],
+      "label": "Home",
+      "icon": [
+       20,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       19.8,
+       741,
+       24.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       64,
+       706,
+       64,
+       54
+      ],
+      "label": "Map",
+      "icon": [
+       84,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       86.8,
+       741,
+       18.3,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       128,
+       706,
+       64,
+       54
+      ],
+      "label": "AI Guide",
+      "icon": [
+       148,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       141.3,
+       741,
+       37.5,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       192,
+       706,
+       64,
+       54
+      ],
+      "label": "Trips",
+      "icon": [
+       212,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       213.6,
+       741,
+       20.8,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-dark.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       256,
+       706,
+       64,
+       54
+      ],
+      "label": "Profile",
+      "icon": [
+       276,
+       714,
+       24,
+       24
+      ],
+      "labelRect": [
+       274.4,
+       741,
+       27.2,
+       11
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-active-dark.png",
+      "loaded": true
+     }
+    ]
+   }
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "capabilities": {
+   "recording": false,
+   "wavPlayback": true
+  },
+  "homeRoute": "/",
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  },
+  "version": "26.5"
+ },
+ "webkit-390-zh-light": {
+  "engine": "webkit",
+  "case": "webkit-390-zh-light",
+  "checks": [
+   "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+   "stage, portrait region, mic, tab and horizontal bounds",
+   "in-page motion switch persists on and off",
+   "keyboard opens settings, focus is contained, Escape returns to opener",
+   "system reduced motion freezes material",
+   "recorder API absent; app shows disabled/error text and offers keyboard",
+   "typed question exactly once; history preserves full answer and sources",
+   "WebKit advertised WAV but returned playback error; localized recovery and caption visible",
+   "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/visitor/session",
+    201
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/chat/history",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/spots",
+    200
+   ],
+   [
+    "GET",
+    "/api/map-guide/routes",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/map-guide/bootstrap",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "GET",
+    "/api/routes/saved",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/digital-human/web/session",
+    503
+   ],
+   [
+    "POST",
+    "/api/chat/ask",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "POST",
+    "/api/voice/tts",
+    200
+   ],
+   [
+    "GET",
+    "/api/voice/tts/audio/{clip}",
+    200
+   ],
+   [
+    "GET",
+    "/api/digital-human/configs",
+    200
+   ]
+  ],
+  "blocked_hosts": [
+   "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+   ".stage-frame": [
+    16,
+    111,
+    358,
+    360
+   ],
+   ".ambient-orb": [
+    36,
+    273,
+    76,
+    76
+   ],
+   ".renderer": [
+    174,
+    111,
+    200,
+    360
+   ],
+   ".mic": [
+    167,
+    785,
+    56,
+    56
+   ],
+   ".guide-header": [
+    0,
+    0,
+    390,
+    111
+   ],
+   ".guide-tabbar": [
+    0,
+    782,
+    390,
+    62
+   ]
+  },
+  "transitionFrames": [
+   [
+    0,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    16,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    33,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    49,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    66,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    83,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    102,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    122,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    145,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    165,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    182,
+    "/pages/ai-guide/index",
+    1,
+    0
+   ],
+   [
+    202,
+    "/pages/ai-guide/index",
+    0.98309,
+    0
+   ],
+   [
+    227,
+    "/pages/ai-guide/index",
+    0.764131,
+    0
+   ],
+   [
+    246,
+    "/pages/ai-guide/index",
+    0.642508,
+    0
+   ],
+   [
+    267,
+    "/pages/ai-guide/index",
+    0.515911,
+    0
+   ],
+   [
+    291,
+    "/pages/ai-guide/index",
+    0.370676,
+    0
+   ],
+   [
+    312,
+    "/pages/ai-guide/index",
+    0.243514,
+    0
+   ],
+   [
+    330,
+    "/pages/ai-guide/index",
+    0.192022,
+    0
+   ],
+   [
+    350,
+    "/pages/ai-guide/index",
+    0.086818,
+    0
+   ],
+   [
+    371,
+    "/pages/ai-guide/index",
+    0.027976,
+    0
+   ],
+   [
+    428,
+    "/",
+    null,
+    1
+   ],
+   [
+    448,
+    "/",
+    null,
+    1
+   ],
+   [
+    469,
+    "/",
+    null,
+    1
+   ],
+   [
+    489,
+    "/",
+    null,
+    1
+   ],
+   [
+    606,
+    "/",
+    null,
+    1
+   ],
+   [
+    628,
+    "/",
+    null,
+    1
+   ],
+   [
+    656,
+    "/",
+    null,
+    1
+   ],
+   [
+    674,
+    "/",
+    null,
+    1
+   ],
+   [
+    694,
+    "/",
+    null,
+    1
+   ],
+   [
+    714,
+    "/",
+    null,
+    1
+   ],
+   [
+    734,
+    "/",
+    null,
+    1
+   ],
+   [
+    754,
+    "/",
+    null,
+    1
+   ],
+   [
+    774,
+    "/",
+    null,
+    1
+   ],
+   [
+    794,
+    "/",
+    null,
+    1
+   ],
+   [
+    827,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    838,
+    "/pages/ai-guide/index",
+    0,
+    0
+   ],
+   [
+    861,
+    "/pages/ai-guide/index",
+    0.008505,
+    0
+   ],
+   [
+    882,
+    "/pages/ai-guide/index",
+    0.243243,
+    0
+   ],
+   [
+    905,
+    "/pages/ai-guide/index",
+    0.418696,
+    0
+   ],
+   [
+    927,
+    "/pages/ai-guide/index",
+    0.509462,
+    0
+   ],
+   [
+    946,
+    "/pages/ai-guide/index",
+    0.657385,
+    0
+   ],
+   [
+    970,
+    "/pages/ai-guide/index",
+    0.789784,
+    0
+   ],
+   [
+    985,
+    "/pages/ai-guide/index",
+    0.858698,
+    0
+   ],
+   [
+    1006,
+    "/pages/ai-guide/index",
+    0.931901,
+    0
+   ],
+   [
+    1026,
+    "/pages/ai-guide/index",
+    0.965667,
+    0
+   ],
+   [
+    1046,
+    "/pages/ai-guide/index",
+    0.997773,
+    0
+   ]
+  ],
+  "navigation": {
+   "guide": {
+    "rect": [
+     0,
+     782,
+     390,
+     62
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       782,
+       78,
+       62
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       782,
+       78,
+       62
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       782,
+       78,
+       62
+      ],
+      "label": "AI导游",
+      "icon": [
+       183.8,
+       798.4,
+       22.3,
+       22.3
+      ],
+      "labelRect": [
+       180.8,
+       823.5,
+       28.4,
+       12.1
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       782,
+       78,
+       62
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       782,
+       78,
+       62
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "home": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home-active.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       179.7,
+       824,
+       30.6,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "map": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map-active.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       179.7,
+       824,
+       30.6,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "trip": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       179.7,
+       824,
+       30.6,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip-active.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile.png",
+      "loaded": true
+     }
+    ]
+   },
+   "profile": {
+    "rect": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "track": [
+     0,
+     790,
+     390,
+     54
+    ],
+    "cells": [
+     {
+      "rect": [
+       0,
+       790,
+       78,
+       54
+      ],
+      "label": "首页",
+      "icon": [
+       27,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       29,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/home.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       78,
+       790,
+       78,
+       54
+      ],
+      "label": "地图",
+      "icon": [
+       105,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       107,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/map.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       156,
+       790,
+       78,
+       54
+      ],
+      "label": "AI导游",
+      "icon": [
+       183,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       179.7,
+       824,
+       30.6,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/ai.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       234,
+       790,
+       78,
+       54
+      ],
+      "label": "行程",
+      "icon": [
+       261,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       263,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/trip.png",
+      "loaded": true
+     },
+     {
+      "rect": [
+       312,
+       790,
+       78,
+       54
+      ],
+      "label": "我的",
+      "icon": [
+       339,
+       797,
+       24,
+       24
+      ],
+      "labelRect": [
+       341,
+       824,
+       20,
+       13
+      ],
+      "labelFont": "10px",
+      "labelFamily": "-apple-system, HelveticaNeue",
+      "labelLine": "normal",
+      "iconPath": "/static/tabbar/profile-active.png",
+      "loaded": true
+     }
+    ]
+   }
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.CNSlFJHF.js",
+  "guideChunkSha256": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee",
+  "capabilities": {
+   "recording": false,
+   "wavPlayback": true
+  },
+  "homeRoute": "/",
+  "controlledFailures": {
+   "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+   "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+   "switchTab": "guide restored after failure; retry reached profile"
+  },
+  "version": "26.5"
+ }
+}

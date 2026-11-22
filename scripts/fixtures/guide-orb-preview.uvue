@@ -1,0 +1,33 @@
+<template>
+  <view class="preview" :class="themeClass">
+    <sg-guide-stage :height="240" photo="/static/destinations/lingshan.webp" :blend="0.15">
+      <view class="stage-centre">
+        <sg-ai-ambient-orb :state="state" :level="level" :active="active" :size="size" :reduced-motion="reduction" />
+      </view>
+    </sg-guide-stage>
+    <view class="buttons"><view v-for="item in states" :key="item" @click="state = item"><text>{{ item }}</text></view></view>
+    <view class="buttons"><view v-for="n in sizes" :key="n" @click="size = n"><text>{{ n }} pixels</text></view></view>
+    <view class="buttons"><view v-for="v in levels" :key="v" @click="level = v"><text>{{ v }} RMS</text></view></view>
+    <view class="buttons"><view @click="reduction = !reduction"><text>reduce</text></view><view @click="active = !active"><text>toggle active</text></view></view>
+  </view>
+</template>
+
+<script setup lang="uts">
+  import { themeClass } from '@/design/theme.uts'
+  const states = ['IDLE', 'LISTENING', 'THINKING', 'SPEAKING', 'PAUSED', 'ERROR', 'DISABLED', 'CANCELLED', 'RECONNECTING']
+  const sizes = [62, 76]
+  const levels = [-1, 0, 0.02, 0.08, 0.25, 1]
+  const state = ref('IDLE')
+  const size = ref(62)
+  const level = ref(-1.0)
+  const reduction = ref(false)
+  const active = ref(true)
+</script>
+
+<style lang="scss">
+  @include sg-themes;
+  .preview { flex: 1; background-color: $sg-background; }
+  .stage-centre { flex: 1; align-items: center; justify-content: center; }
+  .buttons { flex-direction: row; flex-wrap: wrap; }
+  .buttons view { padding: $sg-space-2; }
+</style>

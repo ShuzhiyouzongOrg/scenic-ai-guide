@@ -1,0 +1,220 @@
+{
+  "engine": "chromium",
+  "case": "chromium-390-zh-light",
+  "checks": [
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "in-page motion switch persists on and off",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+    "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+    "long-press, slide to cancel; zero uploads and released tracks",
+    "second tap finishes recording; multipart voice ask returned 200",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "POST",
+      "/api/visitor/session",
+      201
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "POST",
+      "/api/digital-human/web/session",
+      503
+    ],
+    [
+      "GET",
+      "/api/chat/history",
+      200
+    ],
+    [
+      "POST",
+      "/api/digital-human/web/session",
+      503
+    ],
+    [
+      "POST",
+      "/api/digital-human/web/session",
+      503
+    ],
+    [
+      "POST",
+      "/api/voice/ask-upload",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "POST",
+      "/api/chat/ask",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/spots",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/routes",
+      200
+    ]
+  ],
+  "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+    ".stage-frame": [
+      16,
+      111,
+      358,
+      308
+    ],
+    ".ambient-orb": [
+      36,
+      221,
+      76,
+      76
+    ],
+    ".renderer": [
+      174,
+      111,
+      200,
+      308
+    ],
+    ".mic": [
+      163,
+      694,
+      64,
+      64
+    ],
+    ".guide-header": [
+      0,
+      0,
+      390,
+      111
+    ],
+    "uni-tabbar .uni-tabbar": [
+      0,
+      790,
+      390,
+      54
+    ]
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.DDnq952T.js",
+  "guideChunkSha256": "f2d1df58f322554f67642908299a1c6b792caa35dfb9be5b796f3d21bf45d8d0",
+  "capabilities": {
+    "recording": true,
+    "wavPlayback": true
+  },
+  "measuredSignalVisibility": {
+    "soft": true,
+    "medium": true
+  },
+  "stageRecording": {
+    "frames": 27,
+    "cssPixels": [
+      358,
+      308
+    ],
+    "capturedMs": 3812,
+    "peakSeries": [
+      0.035,
+      0.14,
+      0
+    ]
+  },
+  "orbPerception": {
+    "rawTonePeak": {
+      "silence": 0,
+      "soft": 0.035,
+      "medium": 0.14
+    },
+    "expectedRms": {
+      "silence": 0,
+      "soft": 0.0247,
+      "medium": 0.099
+    },
+    "diameter": 76,
+    "silenceToSoft": {
+      "changedAbove8": 1745,
+      "pixels": 5776,
+      "meanAbsoluteChannelDelta": 5.72
+    },
+    "softToMedium": {
+      "changedAbove8": 2836,
+      "pixels": 5776,
+      "meanAbsoluteChannelDelta": 9.7
+    },
+    "unmetered720ms": {
+      "changedAbove8": 1106,
+      "pixels": 5776,
+      "meanAbsoluteChannelDelta": 3.75
+    },
+    "reduced380ms": {
+      "changedAbove8": 0,
+      "pixels": 5776,
+      "meanAbsoluteChannelDelta": 0.0
+    }
+  },
+  "homeRoute": "/",
+  "version": "151.0.7922.34"
+}

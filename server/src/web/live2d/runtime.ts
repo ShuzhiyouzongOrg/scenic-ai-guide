@@ -17,6 +17,7 @@ declare global {
    * @property {(audioUrls: string[] | string) => Promise<boolean>} [scenicLive2dSpeak] 下载并播放一个或多个合成音频。
    */
   interface Window {
+    scenicStage: {text: (key: string) => string, locale: string}
     /**
      * @description 中断当前 Live2D 语音并清空音频队列。
      */
@@ -28,7 +29,7 @@ declare global {
     /**
      * @description 下载一个或多个后端合成音频并依次播放。
      */
-    scenicLive2dSpeak?: (audioUrls: string[] | string) => Promise<boolean>
+    scenicLive2dSpeak?: (audioUrls: string[] | string, requestId?: number) => Promise<boolean>
   }
 }
 
@@ -102,6 +103,11 @@ let playbackGeneration = 0
  * @type {boolean}
  */
 let destroyed = false
+let modelManager: Live2dManager | null = null
+let modelError: string | null = null
+
+type StageBridge = { postMessage: (message: { data: Record<string, unknown> }) => void }
+const bridgeWindow = window as Window & { uni?: Partial<StageBridge> & { webView?: StageBridge } }
 
 /**
  * @description 通过 uni-app 桥和同源父窗口报告 Live2D 状态事件。
@@ -110,20 +116,46 @@ let destroyed = false
  * @returns {void} 无返回值。
  */
 function post(type: string, detail: Record<string, unknown> = {}): void {
-  const packet = { source: 'scenic-live2d', type, ...detail }
+  const packet = { source: 'scenic-live2d', speechProtocol: 2, type, ...detail }
   try {
-    const uniBridge = (window as unknown as {
-      uni?: { postMessage?: (value: { data: typeof packet }) => void }
-    }).uni
-    uniBridge?.postMessage?.({ data: packet })
+    if (window.parent !== window) {
+      window.parent.postMessage(packet, window.location.origin)
+    } else {
+      const bridge = bridgeWindow.uni?.webView ?? bridgeWindow.uni
+      bridge?.postMessage?.({ data: packet })
+    }
   } catch {
-    // The uni bridge is not present in an ordinary browser preview.
+    // The native host may have already released this document.
   }
-  try {
-    window.parent?.postMessage(packet, window.location.origin)
-  } catch {
-    // Cross-frame messaging is optional for the standalone preview.
+}
+
+function reportModelState(): void {
+  if (destroyed) return
+  if (modelError !== null) {
+    post('error', { model, message: modelError })
+    return
   }
+  post('runtime-state', {
+    model, realModel: true, ready: modelManager?.isReady() ?? false,
+    speaking: modelManager?.isAudioPlaying() ?? false
+  })
+}
+
+function connectAppBridge(): void {
+  if (window.parent !== window || params.get('embed') !== '1') return
+  document.addEventListener('UniAppJSBridgeReady', reportModelState)
+  if (bridgeWindow.uni?.webView?.postMessage) return
+  const script = document.createElement('script')
+  script.src = './vendor/dcloud/uni.webview.1.5.8.js'
+  // A dynamically loaded SDK can arrive after DOMContentLoaded.
+  script.addEventListener('load', reportModelState)
+  document.head.appendChild(script)
+}
+
+function reportModelError(status: string, message: string): void {
+  modelError = message
+  setStatus(status, true)
+  reportModelState()
 }
 
 /**
@@ -133,8 +165,8 @@ function post(type: string, detail: Record<string, unknown> = {}): void {
  * @returns {void} 无返回值。
  */
 function setStatus(message: string, isError = false): void {
-  statusText.textContent = message
-  statusText.style.color = isError ? '#b84545' : '#667b92'
+  statusText.textContent = window.scenicStage.text(message)
+  statusText.classList.toggle('error', isError)
   loading.hidden = false
 }
 
@@ -166,8 +198,7 @@ function waitForModel(manager: Live2dManager, attempts = 0): void {
   if (destroyed) return
   const error = manager.getModelLoadError()
   if (error) {
-    setStatus('Live2D 模型加载失败', true)
-    post('error', { message: error, model })
+    reportModelError('Live2D 模型加载失败', error)
     return
   }
   if (manager.isReady()) {
@@ -176,8 +207,7 @@ function waitForModel(manager: Live2dManager, attempts = 0): void {
     return
   }
   if (attempts >= 200) {
-    setStatus('Live2D 模型加载超时', true)
-    post('error', { message: 'Live2D model loading timed out.', model })
+    reportModelError('Live2D 模型加载超时', 'Live2D model loading timed out.')
     return
   }
   window.setTimeout(() => waitForModel(manager, attempts + 1), 100)
@@ -203,7 +233,7 @@ async function fetchAudio(url: string): Promise<ArrayBuffer> {
  * @example
  * await window.scenicLive2dSpeak?.(['/api/voice/tts/audio/segment-1'])
  */
-async function speak(audioUrls: string[] | string): Promise<boolean> {
+async function speak(audioUrls: string[] | string, requestId = 0): Promise<boolean> {
   const urls = (Array.isArray(audioUrls) ? audioUrls : [audioUrls]).filter(
     (url): url is string => typeof url === 'string' && url.length > 0
   )
@@ -217,16 +247,17 @@ async function speak(audioUrls: string[] | string): Promise<boolean> {
     const audioBuffers = await Promise.all(urls.map(fetchAudio))
     if (generation !== playbackGeneration || destroyed) return false
     const queued = await manager.enqueueAudioBatch(audioBuffers)
-    if (!queued) throw new Error('The supplied audio could not be decoded.')
+    if (!queued || !manager.isAudioPlaying()) throw new Error('The supplied audio did not start playing.')
     audioUnlock.hidden = true
-    post('speaking', { model, segments: queued })
-    monitorPlayback(manager, generation)
+    if (generation !== playbackGeneration || destroyed) return false
+    post('speaking', { model, segments: queued, requestId })
+    monitorPlayback(manager, generation, requestId)
     return true
   } catch (error) {
     if (generation !== playbackGeneration || destroyed) return false
     const message = error instanceof Error ? error.message : 'Live2D audio playback failed.'
     audioUnlock.hidden = false
-    post('audio-blocked', { message, model })
+    post('audio-blocked', { message, model, requestId })
     return false
   }
 }
@@ -237,13 +268,15 @@ async function speak(audioUrls: string[] | string): Promise<boolean> {
  * @param {number} generation 播放任务世代号。
  * @returns {void} 无返回值。
  */
-function monitorPlayback(manager: Live2dManager, generation: number): void {
+function monitorPlayback(manager: Live2dManager, generation: number, requestId: number): void {
   if (destroyed || generation !== playbackGeneration) return
   if (!manager.isAudioPlaying() && !manager.hasQueuedAudio()) {
-    post('idle', { model })
+    post('idle', { model, requestId })
     return
   }
-  window.setTimeout(() => monitorPlayback(manager, generation), 120)
+  const meter = manager.getPlaybackMeter()
+  if (meter.level >= 0) post('level', { ...meter, requestId })
+  window.setTimeout(() => monitorPlayback(manager, generation, requestId), 120)
 }
 
 /**
@@ -265,8 +298,7 @@ function interrupt(): void {
  */
 function start(): void {
   if (!canvas || !window.Live2DCubismCore) {
-    setStatus('当前 WebView 不支持 Live2D Cubism Core', true)
-    post('error', { message: 'Live2D Cubism Core is unavailable.', model })
+    reportModelError('当前 WebView 不支持 Live2D Cubism Core', 'Live2D Cubism Core is unavailable.')
     return
   }
   try {
@@ -274,13 +306,13 @@ function start(): void {
     if (!delegate.initialize(canvas)) throw new Error('Live2D renderer initialization failed.')
     delegate.run()
     const manager = Live2dManager.getInstance()
+    modelManager = manager
     manager.changeCharacter(modelResource(model))
     waitForModel(manager)
     post('page-loaded', { model, realModel: true })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Live2D initialization failed.'
-    setStatus('Live2D 初始化失败', true)
-    post('error', { message, model })
+    reportModelError('Live2D 初始化失败', message)
   }
 }
 
@@ -296,18 +328,16 @@ audioUnlock.addEventListener('click', async () => {
 
 window.scenicLive2dSpeak = speak
 window.scenicLive2dInterrupt = interrupt
-window.scenicLive2dPing = () => post('runtime-state', {
-  model,
-  ready: Live2dManager.getInstance().isReady(),
-  speaking: Live2dManager.getInstance().isAudioPlaying(),
-  realModel: true
-})
+window.scenicLive2dPing = reportModelState
 
 window.addEventListener('beforeunload', () => {
   destroyed = true
-  interrupt()
+  document.removeEventListener('UniAppJSBridgeReady', reportModelState)
+  ++playbackGeneration
+  modelManager?.stopAudio()
   LAppDelegate.releaseInstance()
   Live2dManager.releaseInstance()
 })
 
+connectAppBridge()
 start()

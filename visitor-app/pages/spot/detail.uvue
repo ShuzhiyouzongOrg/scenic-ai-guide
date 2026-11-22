@@ -1,105 +1,114 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view v-if="spot != null">
-			<view class="hero">
-				<image v-if="coverUrl.length > 0" class="hero-image" :src="coverUrl" mode="aspectFill" />
-				<view v-else class="hero-placeholder"><text class="hero-placeholder-text">景</text></view>
-				<view class="hero-overlay"></view>
-				<view class="hero-copy">
-					<text class="hero-category">{{ spot!.categoryName }}</text>
-					<text class="hero-title">{{ spot!.name }}</text>
-				</view>
-			</view>
-			<view class="content">
-				<view class="spot-meta-row">
-					<view class="spot-meta spot-meta-blue"><rice-icon name="chat-fill" size="13" color="#0b68d0" /><text class="spot-meta-text">AI 智慧讲解</text></view>
-					<view class="spot-meta spot-meta-cyan"><rice-icon name="location-fill" size="13" color="#087fbd" /><text class="spot-meta-text">地图定位</text></view>
-					<view class="spot-meta spot-meta-gold"><rice-icon name="star-fill" size="13" color="#d88400" /><text class="spot-meta-text">本地收藏</text></view>
-				</view>
-				<view class="section-heading"><view class="section-accent"></view><text class="section-title">景点介绍</text></view>
-				<text class="description">{{ spot!.detail ?? spot!.description ?? '景点详细内容正在由景区知识库补充。' }}</text>
-				<view class="action-row">
-					<rice-button text="AI 讲解" type="primary" shape="round" @click="openGuide" />
-					<rice-button text="地图定位" shape="round" plain @click="openMap" />
-				</view>
-				<view class="favorite-button">
-					<rice-button :text="favorite ? '已收藏此景点' : '收藏此景点'" :type="favorite ? 'primary' : 'default'" shape="round" plain width="100%" @click="toggleFavorite" />
-				</view>
-			</view>
-		</view>
-		<empty-state v-else icon="!" title="景点未找到" description="请返回地图重新选择景点。" />
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <view v-if="loading"><sg-skeleton variant="card" /><text class="status" role="status">{{ t('正在载入景点…','Loading place…','正在載入景點…') }}</text></view>
+      <view v-else-if="failed">
+        <empty-state icon="!" :title="t('景点暂时无法载入','Couldn’t load this place','景點暫時無法載入')" :description="t('请检查网络后重试。','Check your connection and try again.','請檢查網路後重試。')" />
+        <view class="action"><sg-button :label="t('重新载入','Try again','重新載入')" @action="loadSpot" /></view>
+      </view>
+      <view v-else-if="spot != null">
+        <view v-if="coverUrl.length > 0 && !imageFailed" class="photo-frame"><image class="photo" :src="coverUrl" mode="aspectFit" :aria-label="spot!.name" @error="imageFailed = true" /></view>
+        <view class="category"><sg-badge :label="guideText(locale, spot!.categoryName)" /></view>
+        <sg-page-header :title="spot!.name" />
+        <sg-button :label="t('听 AI 讲解','Ask the AI guide','聽 AI 講解')" @action="openGuide" />
+        <view class="action"><sg-button kind="secondary" :label="t('在地图上查看','View on map','在地圖上查看')" @action="openMap" /></view>
+        <view class="action"><sg-button kind="quiet" :label="favorite ? t('已收藏 · 取消收藏','Remove favorite','已收藏 · 取消收藏') : t('收藏此景点','Save to favorites','收藏此景點')" @action="toggleFavorite" /></view>
+        <view class="action"><sg-button kind="quiet" :label="visited ? t('已到访 · 撤销标记','Remove visit','已到訪 · 撤銷標記') : t('标记我已到访','Mark as visited','標記我已到訪')" @action="toggleVisit" /></view>
+        <app-section :title="t('景点介绍','About this place','景點介紹')">
+          <view class="card"><text class="description">{{ spot!.detail ?? spot!.description ?? t('景区资料正在补充。','The park is preparing more information.','景區資料正在補充。') }}</text></view>
+        </app-section>
+      </view>
+      <view v-else>
+        <empty-state icon="⌖" :title="t('景点未找到','Place not found','找不到景點')" :description="t('请在地图中重新选择景点。','Choose another place on the map.','請在地圖中重新選擇景點。')" />
+        <view class="action"><sg-button :label="t('打开地图','Open map','開啟地圖')" @action="openMap" /></view>
+      </view>
+    </view>
+  </scroll-view>
 </template>
 
 <script setup lang="uts">
-	import type { ScenicSpot } from '@/domain/types.uts'
-	import { fetchScenicSpots } from '@/services/guide-api.uts'
-	import { resolveAssetUrl } from '@/services/http.uts'
-	import { queueGuidePrompt, queueMapSpot } from '@/stores/navigation-context.uts'
-	import { isFavoriteSpot, recordSpotFootprint, toggleFavoriteSpot } from '@/stores/visitor-activity.uts'
+  import type { ScenicAreaId, ScenicSpot } from '@/domain/types.uts'
+  import { guideText } from '@/design/guide-locale.uts'
+  import { fetchScenicSpots } from '@/services/guide-api.uts'
+  import { spotPhoto } from '@/design/scenic-media.uts'
+  import { getPreferredScenicArea, normalizeScenicAreaId, setPreferredScenicArea } from '@/stores/guide-preferences.uts'
+  import { queueGuidePrompt, queueMapSpot } from '@/stores/navigation-context.uts'
+  import { getVisitedSpotIds, isFavoriteSpot, recordSpotFootprint, toggleFavoriteSpot, toggleVisitedSpot } from '@/stores/visitor-activity.uts'
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  const locale = ref<string>(getAppLocale())
+  function t(zh : string, en : string, traditional : string) : string {
+    return localize(locale.value, zh, en, traditional)
+  }
+  const spotId = ref<string>('')
+  const area = ref<ScenicAreaId>('lingshan')
+  const spot = ref<ScenicSpot | null>(null)
+  const favorite = ref(false)
+  const visited = ref(false)
+  const loading = ref(false)
+  const failed = ref(false)
+  const imageFailed = ref(false)
+  const coverUrl = computed<string>(() => spot.value == null ? '' : spotPhoto(spot.value!.id, true))
 
-	const spotId = ref<string>('')
-	const spot = ref<ScenicSpot | null>(null)
-	const favorite = ref<boolean>(false)
-	const coverUrl = computed<string>(() => {
-		if (spot.value == null) return ''
-		const path = spot.value!.media.getString('coverUrl', spot.value!.media.getString('sourceCoverUrl', ''))
-		return path.length > 0 ? resolveAssetUrl(path) : ''
-	})
-
-	async function loadSpot() {
-		try {
-			const spots = await fetchScenicSpots()
-			spot.value = spots.find((item : ScenicSpot) : boolean => item.id == spotId.value) ?? null
-			if (spot.value != null) {
-				favorite.value = isFavoriteSpot(spot.value!.id)
-				recordSpotFootprint(spot.value!.id)
-			}
-		} catch (error) { console.error(error) }
-	}
-	function toggleFavorite() {
-		if (spot.value == null) return
-		favorite.value = toggleFavoriteSpot(spot.value!.id)
-		uni.showToast({ title: favorite.value ? '已收藏' : '已取消收藏', icon: 'none' })
-	}
-	function openGuide() {
-		if (spot.value == null) return
-		queueGuidePrompt('请详细讲解' + spot.value!.name + '的历史、主要看点和游览建议。')
-		uni.switchTab({ url: '/pages/ai-guide/index' })
-	}
-	function openMap() {
-		if (spot.value == null) return
-		queueMapSpot(spot.value!.id)
-		uni.switchTab({ url: '/pages/map/index' })
-	}
-
-	onLoad((options : OnLoadOptions) => {
-		spotId.value = options['id'] ?? ''
-		loadSpot()
-	})
+  async function loadSpot() {
+    if (loading.value || spotId.value.length == 0) return
+    loading.value = true
+    failed.value = false
+    try {
+      const spots = await fetchScenicSpots(area.value)
+      spot.value = spots.find((item : ScenicSpot) : boolean => item.id == spotId.value) ?? null
+      if (spot.value != null) {
+        favorite.value = isFavoriteSpot(spotId.value)
+        visited.value = getVisitedSpotIds().includes(spotId.value)
+        recordSpotFootprint(spotId.value)
+      }
+    } catch (error) { failed.value = true }
+    finally { loading.value = false }
+  }
+  function toggleFavorite() {
+    if (spot.value == null) return
+    favorite.value = toggleFavoriteSpot(spotId.value)
+    uni.showToast({title: favorite.value ? t('已收藏','Saved','已收藏') : t('已取消收藏','Removed','已取消收藏'), icon:'none'})
+  }
+  function toggleVisit() {
+    if (spot.value != null) visited.value = toggleVisitedSpot(spotId.value)
+  }
+  function openGuide() {
+    if (spot.value == null) return
+    const name = spot.value!.name
+    setPreferredScenicArea(area.value)
+    queueGuidePrompt(t('请讲解' + name + '的历史、主要看点和游览建议。','Tell me about the history, highlights and visiting tips for ' + name + '.','請講解' + name + '的歷史、主要看點和遊覽建議。'), area.value, spotId.value, name)
+    uni.switchTab({url:'/pages/ai-guide/index'})
+  }
+  function openMap() {
+    setPreferredScenicArea(area.value)
+    if (spot.value != null) queueMapSpot(spotId.value)
+    uni.switchTab({url:'/pages/map/index'})
+  }
+  onLoad((options : OnLoadOptions) => {
+    spotId.value = options['id'] ?? ''
+    area.value = options['area'] == null ? (spotId.value.startsWith('nianhuawan-') ? 'nianhuawan' : getPreferredScenicArea()) : normalizeScenicAreaId(options['area']!)
+    loadSpot()
+  })
+  onShow(() => {
+    locale.value = getAppLocale()
+    uni.setNavigationBarTitle({title:t('景点详情','Place details','景點詳情')})
+    if (spot.value != null) {
+      favorite.value = isFavoriteSpot(spotId.value)
+      visited.value = getVisitedSpotIds().includes(spotId.value)
+    }
+  })
 </script>
 
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.hero { height: 340px; position: relative; }
-	.hero-image, .hero-placeholder { width: 100%; height: 340px; }
-	.hero-placeholder { background: linear-gradient(to bottom right, #d9eaff, #d7f3f7); align-items: center; justify-content: center; }
-	.hero-placeholder-text { font-size: 64px; color: #0b68d0; }
-	.hero-overlay { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(transparent, rgba(4,25,64,0.82)); }
-	.hero-copy { position: absolute; left: 20px; right: 20px; bottom: 40px; }
-	.hero-category { align-self: flex-start; font-size: 10px; color: #fff4d9; background-color: rgba(255,173,36,0.24); padding: 5px 9px; border-radius: 10px; border: 1px solid rgba(255,210,121,0.24); }
-	.hero-title { font-size: 32px; font-weight: 800; color: #ffffff; margin-top: 9px; }
-	.content { margin: -22px 14px 30px; padding: 18px 18px 24px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 25px; box-shadow: 0 12px 30px rgba(17,65,120,0.10); }
-	.spot-meta-row { flex-direction: row; align-items: center; justify-content: space-between; padding-bottom: 17px; border-bottom: 1px solid #e9eff7; }
-	.spot-meta { flex-direction: row; align-items: center; padding: 7px 8px; border-radius: 11px; }
-	.spot-meta-blue { background-color: #eaf3ff; }
-	.spot-meta-cyan { background-color: #e8f8fb; }
-	.spot-meta-gold { background-color: #fff6e5; }
-	.spot-meta-text { font-size: 9px; color: #53657c; margin-left: 4px; }
-	.section-heading { flex-direction: row; align-items: center; margin-top: 20px; }
-	.section-accent { width: 4px; height: 18px; border-radius: 2px; background-color: #d6a149; margin-right: 9px; }
-	.section-title { font-size: 20px; font-weight: 800; color: #15243c; }
-	.description { font-size: 15px; line-height: 25px; color: #607087; margin-top: 12px; }
-	.action-row { flex-direction: row; justify-content: space-between; margin-top: 26px; }
-	.favorite-button { margin-top: 12px; }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: $sg-space-4 $sg-space-4 $sg-space-8; }
+  .card { padding: $sg-space-4; border-radius: $sg-radius-lg; background-color: $sg-surface; border: 1px solid $sg-divider; }
+  .action { margin-top: $sg-space-4; }
+  .photo-frame { border-radius: $sg-radius-lg; overflow: hidden; background-color: $sg-inset; margin-bottom: $sg-space-4; }
+  .photo { width: 100%; height: 184px; }
+  .category { align-items: flex-start; }
+  .description { color: $sg-text; font-size: $sg-type-body; }
+  .status { color: $sg-muted; font-size: $sg-type-label; margin-top: $sg-space-2; }
 </style>

@@ -1,0 +1,13 @@
+{
+  "platform": "Chromium H5 integrated stage",
+  "state": "待机",
+  "frames": 19,
+  "seconds": 10.03,
+  "size": [
+    76,
+    76
+  ],
+  "distinctTransforms": 19,
+  "excursionAbove8": 560,
+  "excursionAbove12": 312
+}

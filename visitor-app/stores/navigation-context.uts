@@ -4,12 +4,36 @@ const GUIDE_PROMPT_KEY = 'scenic-guide-pending-prompt'
 const MAP_SPOT_KEY = 'scenic-map-pending-spot'
 const ACTIVE_ROUTE_KEY = 'scenic-current-route'
 
-export function queueGuidePrompt(prompt : string) {
+function readString(key : string) : string {
+	const value = uni.getStorageSync(key)
+	return value == null ? '' : value as string
+}
+
+export function queueGuidePrompt(prompt : string, area : string = '', spotId : string = '', name : string = '') {
 	uni.setStorageSync(GUIDE_PROMPT_KEY, prompt)
+	uni.setStorageSync('scenic-guide-place-area', area)
+	uni.setStorageSync('scenic-guide-place-id', spotId)
+	uni.setStorageSync('scenic-guide-place-name', name)
+}
+
+export function currentGuidePlace(area : string) : string[] {
+	if (readString('scenic-guide-place-area') != area) return ['', '']
+	return [readString('scenic-guide-place-id'), readString('scenic-guide-place-name')]
+}
+
+export function openGuideHistory() {
+	uni.setStorageSync('scenic-guide-open-history', 'yes')
+	uni.switchTab({ url: '/pages/ai-guide/index' })
+}
+
+export function consumeHistoryIntent() : boolean {
+	if (readString('scenic-guide-open-history') != 'yes') return false
+	uni.removeStorageSync('scenic-guide-open-history')
+	return true
 }
 
 export function consumeGuidePrompt() : string {
-	const prompt = uni.getStorageSync(GUIDE_PROMPT_KEY) as string
+	const prompt = readString(GUIDE_PROMPT_KEY)
 	if (prompt.length > 0) uni.removeStorageSync(GUIDE_PROMPT_KEY)
 	return prompt
 }
@@ -19,7 +43,7 @@ export function queueMapSpot(spotId : string) {
 }
 
 export function consumeMapSpot() : string {
-	const spotId = uni.getStorageSync(MAP_SPOT_KEY) as string
+	const spotId = readString(MAP_SPOT_KEY)
 	if (spotId.length > 0) uni.removeStorageSync(MAP_SPOT_KEY)
 	return spotId
 }
@@ -29,7 +53,7 @@ export function setActiveRoute(route : RouteRecommendation) {
 }
 
 export function getActiveRoute() : RouteRecommendation | null {
-	const raw = uni.getStorageSync(ACTIVE_ROUTE_KEY) as string
+	const raw = readString(ACTIVE_ROUTE_KEY)
 	if (raw.length == 0) return null
 	try {
 		return JSON.parse<RouteRecommendation>(raw) as RouteRecommendation

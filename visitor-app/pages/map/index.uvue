@@ -1,48 +1,33 @@
 <template>
-	<view class="page" :style="pageBackgroundStyle">
-		<view class="map-header" :class="headerExpanded ? 'map-header-expanded' : 'map-header-collapsed'">
-			<view class="map-title-row" :class="headerExpanded ? '' : 'map-title-row-collapsed'">
-				<view v-if="headerExpanded" class="map-title-group">
-					<view class="map-brand-icon"><image class="map-brand-image" src="/static/logo.png" mode="aspectFit" /></view>
-					<view>
-						<text class="map-eyebrow">SCENIC GUIDE</text>
-						<text class="map-title">{{ activeAreaName }}</text>
-					</view>
+	<view class="page" :class="themeClass" :style="pageBackgroundStyle">
+		<view class="map-header" :style="mapTopStyle">
+			<view class="map-title-row">
+				<view class="map-title-group"><text class="map-title">{{ activeAreaName }}</text><text class="map-meta">{{ mapMode == 'artwork' ? g('手绘导览') : g('导航地图') }} · {{ spotCountLabel }}</text></view>
+				<sg-button :label="g('定位')" kind="quiet" @action="locateMe" />
+				<sg-button :label="headerExpanded ? g('收起') : g('筛选')" kind="secondary" @action="toggleHeader" />
+			</view>
+			<scroll-view v-if="headerExpanded" class="map-filters" direction="vertical">
+				<view class="filter-row">
+					<sg-choice :label="g('灵山胜境')" :selected="activeAreaId == 'lingshan'" @action="switchScenicArea('lingshan')" />
+					<sg-choice :label="g('拈花湾')" :selected="activeAreaId == 'nianhuawan'" @action="switchScenicArea('nianhuawan')" />
 				</view>
-				<view class="map-header-actions">
-					<view class="location-button" @click="locateMe"><rice-icon name="location-fill" size="14" color="#ffffff" /><text class="location-button-text">定位</text></view>
-					<view class="header-toggle-button" @click="toggleHeader">
-						<text class="header-toggle-symbol">{{ headerExpanded ? '⌃' : '⌄' }}</text>
-						<text class="header-toggle-text">{{ headerExpanded ? '收起' : '展开' }}</text>
-					</view>
+				<rice-search :model-value="keyword" :placeholder="g('搜索景点或类别')" shape="round" @input="onSearchInput" @search="submitSearch" @clear="clearSearch" />
+				<view v-if="keyword.trim().length > 0" class="search-results">
+					<text v-if="visibleSpots.length == 0" class="map-meta">{{ g('没有匹配景点，试试别称或清空搜索') }}</text>
+					<sg-button v-for="spot in visibleSpots" :key="spot.id" :label="spot.name" kind="quiet" @action="selectSearchSpot(spot)" />
 				</view>
-			</view>
-
-			<view v-if="headerExpanded" class="area-switch">
-				<view class="area-switch-item" :class="activeAreaId == 'lingshan' ? 'area-switch-item-active' : ''" @click="switchScenicArea('lingshan')"><text class="area-switch-text" :class="activeAreaId == 'lingshan' ? 'area-switch-text-active' : ''">灵山胜境</text></view>
-				<view class="area-switch-item" :class="activeAreaId == 'nianhuawan' ? 'area-switch-item-active' : ''" @click="switchScenicArea('nianhuawan')"><text class="area-switch-text" :class="activeAreaId == 'nianhuawan' ? 'area-switch-text-active' : ''">拈花湾</text></view>
-			</view>
-
-			<rice-search v-if="headerExpanded" v-model="keyword" placeholder="搜索景点" shape="round" @change="filterSpots" />
-			<view v-if="headerExpanded" class="map-mode-switch">
-				<view class="map-mode-item" :class="mapMode == 'artwork' ? 'map-mode-item-active' : ''" @click="setMapMode('artwork')"><text class="map-mode-text" :class="mapMode == 'artwork' ? 'map-mode-text-active' : ''">手绘导览</text></view>
-				<view class="map-mode-item" :class="mapMode == 'native' ? 'map-mode-item-active' : ''" @click="setMapMode('native')"><text class="map-mode-text" :class="mapMode == 'native' ? 'map-mode-text-active' : ''">导航地图</text></view>
-			</view>
-			<scroll-view v-if="headerExpanded && routeOptions.length > 0" class="route-switch" direction="horizontal" :show-scrollbar="false">
-				<view v-for="(route, routeIndex) in routeOptions" :key="route.id" class="route-switch-item" :class="[activeGuideRoute?.id == route.id ? 'route-switch-item-active' : '', routeIndex == routeOptions.length - 1 ? 'route-switch-item-tail' : '']" @click="selectGuideRoute(route.id)">
-					<text class="route-switch-item-text" :class="activeGuideRoute?.id == route.id ? 'route-switch-item-text-active' : ''">{{ route.name }}</text>
+				<view class="filter-row">
+					<sg-choice :label="g('手绘导览')" :selected="mapMode == 'artwork'" @action="setMapMode('artwork')" />
+					<sg-choice :label="g('导航地图')" :selected="mapMode == 'native'" @action="setMapMode('native')" />
+				</view>
+				<view class="filter-row">
+					<sg-choice v-for="route in routeOptions" :key="route.id" :label="route.name" :selected="activeGuideRoute?.id == route.id" @action="selectGuideRoute(route.id)" />
 				</view>
 			</scroll-view>
-			<view v-if="headerExpanded" class="map-meta-row">
-				<text class="map-meta">{{ visibleSpots.length }} / {{ scenicSpotCount }} 个景点</text>
-				<view class="map-meta-right">
-					<text class="digital-provider-meta">{{ digitalHumanProviderStatus }}</text>
-					<text v-if="activeGuideRoute != null" class="route-meta">{{ activeGuideRoute.name }}</text>
-				</view>
-			</view>
+			<text v-if="activeGuideRoute != null" class="route-caption">{{ activeGuideRoute!.name }}{{ routeNote }}</text>
+			<text v-if="loading" class="map-meta">{{ g('正在载入景区导览') }}</text>
+			<view v-if="failedArea.length > 0" class="retry-row"><text class="map-meta">{{ g('景区数据载入失败') }}</text><sg-button :label="g('重试')" kind="quiet" @action="retryMap" /></view>
 		</view>
-
-		<view v-if="loading" class="map-loading" :class="headerExpanded ? '' : 'map-loading-header-collapsed'"><view class="map-loading-dot"></view><text class="map-loading-text">正在载入 {{ activeAreaName }} 导览</text></view>
 
 		<map
 			v-if="mapMode == 'native'"
@@ -69,7 +54,7 @@
 				class="artwork-stage"
 				:style="artworkMovableStageStyle"
 				direction="all"
-				inertia
+				:inertia="!reducedMotion"
 				scale
 				:scale-min="0.72"
 				:scale-max="2.4"
@@ -91,13 +76,10 @@
 						:style="artworkMarkerStyle(marker, 1.0)"
 						@click="selectArtworkSpot(marker.spotId)"
 					>
-						<text v-if="marker.routeOrder > 0" class="artwork-route-number">{{ marker.routeOrder }}</text>
-						<view v-else class="artwork-marker-dot" :class="marker.kind == 'facility' ? 'artwork-marker-facility' : (selectedSpot?.id == marker.spotId ? 'artwork-marker-dot-active' : '')"></view>
-						<text v-if="selectedSpot?.id == marker.spotId" class="artwork-marker-label">{{ marker.name }}</text>
+						<sg-map-marker :rotation="artworkRotation" :label="marker.name" :order="marker.routeOrder" :selected="selectedSpot?.id == marker.spotId" />
 					</view>
 				</view>
 			</movable-view>
-			<view class="artwork-tip" :class="sheetExpanded ? 'artwork-tip-sheet-expanded' : 'artwork-tip-sheet-collapsed'"><text class="artwork-tip-text">双指缩放 · 拖动探索 · 点击点位讲解</text></view>
 		</movable-area>
 		<!-- #endif -->
 
@@ -123,59 +105,43 @@
 								:style="artworkMarkerStyle(marker, artworkScale)"
 								@click="selectArtworkSpot(marker.spotId)"
 							>
-								<text v-if="marker.routeOrder > 0" class="artwork-route-number">{{ marker.routeOrder }}</text>
-								<view v-else class="artwork-marker-dot" :class="marker.kind == 'facility' ? 'artwork-marker-facility' : (selectedSpot?.id == marker.spotId ? 'artwork-marker-dot-active' : '')"></view>
-								<text v-if="selectedSpot?.id == marker.spotId" class="artwork-marker-label">{{ marker.name }}</text>
+								<sg-map-marker :rotation="artworkRotation" :label="marker.name" :order="marker.routeOrder" :selected="selectedSpot?.id == marker.spotId" />
 							</view>
 						</view>
 				</view>
 			</view>
-			<view class="artwork-tip" :class="sheetExpanded ? 'artwork-tip-sheet-expanded' : 'artwork-tip-sheet-collapsed'"><text class="artwork-tip-text">上下左右拖动 · 双指或 ± 缩放 · 点击点位讲解</text></view>
 		</view>
 		<!-- #endif -->
 
-		<view class="map-controls" :class="headerExpanded ? '' : 'map-controls-header-collapsed'">
-			<view class="map-control" @click="zoomIn"><rice-icon name="plus" size="21" color="#24517f" /></view>
-			<view class="map-control" @click="zoomOut"><rice-icon name="minus" size="21" color="#24517f" /></view>
+		<view v-if="!sheetExpanded && !headerExpanded" class="map-controls">
+			<view class="map-control" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="g('放大地图')" hover-class="pressed" @click="zoomIn"><sg-icon name="plus" /></view>
+			<view class="map-control" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="g('缩小地图')" hover-class="pressed" @click="zoomOut"><sg-icon name="minus" /></view>
 		</view>
 
-		<view class="spot-sheet" :class="sheetExpanded ? 'spot-sheet-expanded' : 'spot-sheet-peek'">
-			<view class="sheet-handle-area" @click="toggleSheet">
-				<view class="sheet-handle-copy">
-					<view class="sheet-handle"></view>
-					<text v-if="!sheetExpanded" class="sheet-collapsed-title">{{ selectedSpot?.name ?? '景点卡片' }}</text>
-				</view>
-				<view class="sheet-toggle-button">
-					<text class="sheet-toggle-symbol">{{ sheetExpanded ? '⌄' : '⌃' }}</text>
-					<text class="sheet-toggle-text">{{ sheetExpanded ? '收起景点卡' : '展开景点卡' }}</text>
-				</view>
+		<view v-if="!headerExpanded" class="spot-sheet">
+			<view class="sheet-handle-area" role="button" tabindex="0" data-sg-keyboard="activate" :aria-expanded="sheetExpanded" @click="toggleSheet">
+				<view class="sheet-handle-copy"><text class="sheet-title">{{ selectedSpot?.name ?? g('景点导览') }}</text><text v-if="selectedSpot != null" class="map-meta">{{ g(selectedSpot!.categoryName) }}</text></view>
+				<text class="sheet-toggle-text">{{ sheetExpanded ? g('收起') : g('展开') }}</text>
 			</view>
-			<template v-if="sheetExpanded && selectedSpot != null">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" :avatar-source="digitalHumanAvatarSource" @click="openLiveAvatar" />
-				<view class="sheet-heading">
-					<view class="sheet-heading-copy">
-						<text class="sheet-label">{{ selectedSpot!.categoryName }}</text>
-						<text class="sheet-title">{{ selectedSpot!.name }}</text>
-					</view>
-					<text class="sheet-distance">景区内</text>
+			<scroll-view v-if="sheetExpanded" class="sheet-body" direction="vertical">
+				<view v-if="selectedSpot != null">
+					<text class="sheet-copy">{{ selectedSpot!.description ?? selectedSpot!.detail ?? g('查看景点详情或听导游讲解。') }}</text>
+					<text v-if="locale != 'zh-Hans'" class="map-meta">{{ g('图名和景点资料沿用景区原文。') }}</text>
+					<view class="sheet-actions"><sg-button :label="g(selectedSpot!.kind == 'scenic' ? '景点详情' : '设施详情')" @action="openSpot" /><sg-button :label="g('问导游')" kind="quiet" @action="askGuide" /><sg-button :label="g('取消选点')" kind="quiet" @action="clearSelection" /></view>
 				</view>
-				<text v-if="sheetExpanded" class="sheet-copy">{{ selectedSpot!.description ?? selectedSpot!.detail ?? '点击查看景点详情与智能讲解。' }}</text>
-				<view class="sheet-actions">
-					<view class="sheet-action-primary" @click="openSpot"><text class="sheet-action-primary-text">景点详情</text></view>
-					<view class="sheet-action-secondary" @click="askGuide"><text class="sheet-action-secondary-text">问问我</text></view>
-				</view>
-			</template>
-			<view v-if="sheetExpanded && selectedSpot == null" class="sheet-empty">
-				<digital-human-guide v-if="sheetExpanded" class="sheet-guide" compact :title="digitalHumanTitle" state="idle" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" :avatar-source="digitalHumanAvatarSource" @click="openLiveAvatar" />
-				<text class="sheet-empty-title">点击地图标记查看景点</text>
-				<text v-if="sheetExpanded" class="sheet-empty-copy">低缩放优先显示景点，放大后展示服务设施</text>
-				<view v-if="sheetExpanded" class="sheet-single-action" @click="askGuide"><text class="sheet-action-primary-text">问问我 · 规划游览</text></view>
-			</view>
+				<view v-else><text class="sheet-copy">{{ g('点击景点标记或在筛选中搜索名称。') }}</text><sg-button :label="g('请导游规划游览')" kind="quiet" @action="askGuide" /></view>
+				<digital-human-guide :locale="locale" class="sheet-guide" compact :title="digitalHumanTitle" state="guiding" :engine="digitalHumanRenderEngine" :service-status="digitalHuman?.serviceStatus ?? 'online'" :action-text="digitalHumanActionText" :avatar-source="digitalHumanAvatarSource" @click="openLiveAvatar" />
+			</scroll-view>
 		</view>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { useGuideLanguage } from '@/design/guide-locale.uts'
+	const { locale, g } = useGuideLanguage()
+	import { useScenicInsets } from '@/design/layout.uts'
+	import { themeClass, themeColor } from '@/design/theme.uts'
+	import { reducedMotion } from '@/design/motion.uts'
 	import type { DigitalHumanConfig, GuideRoute, GuideRouteNode, MapGuideBootstrap, MapPoint, ScenicAreaId, ScenicSpot } from '@/domain/types.uts'
 	import { createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, fetchMapGuideBootstrap } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
@@ -223,7 +189,11 @@
 	const mapScale = ref<number>(15)
 	const keyword = ref<string>('')
 	const mapMode = ref<string>('artwork')
-	const headerExpanded = ref<boolean>(true)
+	const headerExpanded = ref<boolean>(false)
+	const failedArea = ref<string>('')
+	const tripLayer = ref<GuideRoute | null>(null)
+	const headerOffset = ref<number>(0)
+	const { mapTopStyle } = useScenicInsets()
 	const artworkScale = ref<number>(1.0)
 	const artworkX = ref<number>(-120)
 	const artworkY = ref<number>(-72)
@@ -231,17 +201,25 @@
 	const artworkViewportHeight = ref<number>(720)
 	const spots = ref<ScenicSpot[]>([])
 	const visibleSpots = ref<ScenicSpot[]>([])
-	const scenicSpotCount = computed<number>(() => spots.value.filter((spot : ScenicSpot) : boolean => spot.kind == 'scenic').length)
 	const routes = ref<GuideRoute[]>([])
 	const activeGuideRoute = ref<GuideRoute | null>(null)
 	const routeOptions = computed<GuideRoute[]>(() => {
 		const officialRoutes = routes.value.filter((route : GuideRoute) : boolean => route.source == 'official' || route.isOfficial)
-		return officialRoutes.length > 0 ? officialRoutes : routes.value
+		const result = officialRoutes.length > 0 ? officialRoutes.slice() : routes.value.slice()
+		if (tripLayer.value != null && !result.some((route : GuideRoute) : boolean => route.id == tripLayer.value!.id)) result.unshift(tripLayer.value!)
+		return result
 	})
 	const markers = ref<Marker[]>([])
 	const markerBindings = ref<MarkerSpotBinding[]>([])
 	const polylines = ref<Polyline[]>([])
 	const selectedSpot = ref<ScenicSpot | null>(null)
+	// A facility opened from its detail page is temporarily pinned alongside the
+	// filtered attractions. Clearing it restores the normal inventory and count.
+	const markerSpots = computed<ScenicSpot[]>(() => {
+		const selected = selectedSpot.value
+		if (selected != null && selected.kind != 'scenic') return visibleSpots.value.concat([selected])
+		return visibleSpots.value
+	})
 	const sheetExpanded = ref<boolean>(false)
 	const digitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
 	let artworkTouchMode = ''
@@ -254,11 +232,16 @@
 	let artworkTouchMoved = false
 	let artworkLastDragAt = 0
 
-	const activeAreaName = computed<string>(() => activeAreaId.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
-	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
+	const activeAreaName = computed<string>(() => g(activeAreaId.value == 'nianhuawan' ? '拈花湾' : '灵山胜境'))
+	const spotCountLabel = computed<string>(() => {
+		const count = visibleSpots.value.length
+		if (locale.value == 'en') return count.toString() + (count == 1 ? ' place' : ' places')
+		return count.toString() + (locale.value == 'zh-Hant' ? ' 個景點' : ' 个景点')
+	})
+	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? g('灵小游'))
 	const digitalHumanAvatarSource = computed<string>(() => {
 		if (getDigitalHumanRenderMode() == 'xfyun' || digitalHuman.value?.engine == 'xfyun') return '/static/digital-human/guide-xfyun.webp'
-		return '/static/digital-human/guide-haru-transparent.png'
+		return '/static/digital-human/guide-haru-transparent.webp'
 	})
 	const digitalHumanRenderEngine = computed<string>(() => {
 		let engine = digitalHuman.value?.engine ?? 'xfyun'
@@ -272,13 +255,7 @@
 		// #ifdef MP-WEIXIN
 		text = 'Live2D模型'
 		// #endif
-		return text
-	})
-	const digitalHumanProviderStatus = computed<string>(() => {
-		// #ifdef MP-WEIXIN
-		return digitalHuman.value?.serviceStatus == 'online' ? 'Live2D模型 · 讯飞音色' : '数字人降级'
-		// #endif
-		return digitalHuman.value?.engine == 'xfyun' && digitalHuman.value?.serviceStatus == 'online' ? '讯飞数字人在线' : '数字人降级'
+		return g(text)
 	})
 	const activeArtworkSource = computed<string>(() => activeAreaId.value == 'nianhuawan' ? '/static/map/nianhuawan-artwork.webp' : '/static/map/lingshan-artwork.webp')
 	const artworkBackgroundColor = computed<string>(() => bootstrap.value?.config.artworkBackgroundColor ?? (activeAreaId.value == 'nianhuawan' ? '#90d070' : '#b0d8b8'))
@@ -317,7 +294,10 @@
 	const artworkScaledLayout = computed<ArtworkLayout>(() => buildArtworkLayout(artworkScale.value))
 	const artworkMovableStageStyle = computed<string>(() => {
 		const layout = artworkBaseLayout.value
-		return 'width:' + layout.frameWidth + 'px;height:' + layout.frameHeight + 'px;'
+		// movable-view clamps to its own bounds. Allow southern POIs to scroll
+		// above the expanded card, including at the bottom edge of the artwork.
+		const sheetClearance = sheetExpanded.value ? 252 / artworkScale.value : 0
+		return 'width:' + layout.frameWidth + 'px;height:' + (layout.frameHeight + sheetClearance) + 'px;'
 	})
 	const artworkAppStageStyle = computed<string>(() => {
 		const layout = artworkScaledLayout.value
@@ -370,27 +350,45 @@
 		return node.sourceRouteAnchor ?? null
 	}
 
-	function resolvedRoutePath(route : GuideRoute | null) : MapPoint[] {
+	// A missing coordinate breaks a line. Never bridge across an unregistered waypoint.
+	function routePaths(route : GuideRoute | null) : MapPoint[][] {
 		if (route == null) return []
 		const authored = route.polyline.filter((point : MapPoint) : boolean => Number.isFinite(point.latitude) && Number.isFinite(point.longitude))
-		if (authored.length > 1) return authored
-		return route.nodes.map<MapPoint | null>((node : GuideRouteNode) : MapPoint | null => resolveRouteNode(node))
-			.filter((point : MapPoint | null) : boolean => point != null)
-			.map<MapPoint>((point : MapPoint | null) : MapPoint => point!)
+		if (authored.length > 1) return [authored]
+		const sections : MapPoint[][] = []
+		let run : MapPoint[] = []
+		route.nodes.forEach((node : GuideRouteNode) => {
+			const point = resolveRouteNode(node)
+			if (point != null) run.push(point)
+			else {
+				if (run.length > 1) sections.push(run)
+				run = []
+			}
+		})
+		if (run.length > 1) sections.push(run)
+		return sections
 	}
+
+	const routeNote = computed<string>(() => {
+		const route = activeGuideRoute.value
+		if (route == null || route.geometryKind != 'visit-order') return ''
+		const missing = route.nodes.some((node : GuideRouteNode) : boolean => resolveRouteNode(node) == null)
+		return ' · ' + g(missing ? '顺序示意，部分站点暂无坐标' : '游览顺序示意')
+	})
 
 	const artworkMarkers = computed<ArtworkMarkerItem[]>(() => {
 		const routeNodes = activeGuideRoute.value?.nodes ?? []
-		return visibleSpots.value.map<ArtworkMarkerItem>((spot : ScenicSpot) : ArtworkMarkerItem => {
+		return markerSpots.value.map<ArtworkMarkerItem>((spot : ScenicSpot) : ArtworkMarkerItem => {
 			const routeIndex = routeNodes.findIndex((node : GuideRouteNode) : boolean => ((node.spotId ?? '').length > 0 && node.spotId == spot.id) || node.name == spot.name)
 			const pixel = pointToArtwork({ latitude: spot.latitude, longitude: spot.longitude } as MapPoint)
-			return { spotId: spot.id, name: spot.name, kind: spot.kind, x: pixel[0] - 12, y: pixel[1] - 12, routeOrder: routeIndex >= 0 ? routeIndex + 1 : 0 } as ArtworkMarkerItem
+			return { spotId: spot.id, name: spot.name, kind: spot.kind, x: pixel[0], y: pixel[1], routeOrder: routeIndex >= 0 ? routeIndex + 1 : 0 } as ArtworkMarkerItem
 		})
 	})
 
 	const artworkRouteSegments = computed<ArtworkRouteSegment[]>(() => {
-		const path = resolvedRoutePath(activeGuideRoute.value)
+		const paths = routePaths(activeGuideRoute.value)
 		const result : ArtworkRouteSegment[] = []
+		paths.forEach((path : MapPoint[], section : number) => {
 		for (let index = 1; index < path.length; index++) {
 			const start = pointToArtwork(path[index - 1])
 			const end = pointToArtwork(path[index])
@@ -398,13 +396,14 @@
 			const deltaY = end[1] - start[1]
 			const width = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
 			if (width < 0.5) continue
-			result.push({ id: 'route-' + index, x: start[0], y: start[1], width, angle: Math.atan2(deltaY, deltaX) * 180 / Math.PI } as ArtworkRouteSegment)
+			result.push({ id: 'route-' + section + '-' + index, x: start[0], y: start[1], width, angle: Math.atan2(deltaY, deltaX) * 180 / Math.PI } as ArtworkRouteSegment)
 		}
+		})
 		return result
 	})
 
 	function artworkMarkerStyle(marker : ArtworkMarkerItem, scale : number) : string {
-		return 'left:' + Math.round(marker.x * scale) + 'px;top:' + Math.round(marker.y * scale) + 'px;'
+		return 'left:' + Math.round(marker.x * scale - 22) + 'px;top:' + Math.round(marker.y * scale - 22) + 'px;'
 	}
 
 	function artworkSegmentStyle(segment : ArtworkRouteSegment, scale : number, halo : boolean) : string {
@@ -418,16 +417,11 @@
 		return hash + 1
 	}
 
-	function detailLevel() : number {
-		if (mapMode.value == 'native') return mapScale.value
-		const progress = (artworkScale.value - 0.72) / (2.4 - 0.72)
-		return 15 + Math.floor(Math.max(0, Math.min(1, progress)) * 5)
-	}
-
 	function spotMatchesQuery(spot : ScenicSpot, query : string) : boolean {
 		if (query.length == 0) return true
-		if (spot.name.includes(query) || spot.categoryName.includes(query)) return true
-		return spot.aliases.some((alias : string) : boolean => alias.includes(query))
+		const text = query.toLowerCase()
+		if (spot.name.toLowerCase().includes(text) || spot.categoryName.includes(query) || g(spot.categoryName).toLowerCase().includes(text)) return true
+		return spot.aliases.some((alias : string) : boolean => alias.toLowerCase().includes(text))
 	}
 
 	function refreshVisibleSpots() {
@@ -449,28 +443,30 @@
 	function buildNativeMarkers() {
 		const usedIds : number[] = []
 		const bindings : MarkerSpotBinding[] = []
-		markers.value = visibleSpots.value.map<Marker>((spot : ScenicSpot) : Marker => {
+		markers.value = markerSpots.value.map<Marker>((spot : ScenicSpot) : Marker => {
 			let markerId = stableMarkerId(activeAreaId.value + ':' + spot.id)
 			while (usedIds.includes(markerId)) markerId = markerId >= 900000000 ? 1 : markerId + 1
 			usedIds.push(markerId)
 			bindings.push({ markerId, spotId: spot.id } as MarkerSpotBinding)
 			const selected = selectedSpot.value?.id == spot.id
-			const markerSize = selected ? 32 : (spot.kind == 'facility' ? 18 : 24)
+			const markerSize = selected ? 32 : 24
+			const suffix = themeClass.value.startsWith('sg-dark') ? '-dark' : ''
+			const order = activeGuideRoute.value?.nodes.findIndex((node : GuideRouteNode) : boolean => node.spotId == spot.id || node.name == spot.name) ?? -1
 			return {
 				id: markerId,
 				latitude: spot.latitude,
 				longitude: spot.longitude,
 				title: spot.name,
-				iconPath: '/static/logo.png',
+				iconPath: '/static/map/map-point' + (selected ? '-active' : '') + suffix + '.png',
 				width: markerSize,
 				height: markerSize,
-				anchor: { x: 0.5, y: 1.0 },
+				anchor: { x: 0.5, y: 0.5 },
 				callout: {
-					content: spot.name,
-					color: '#164473',
+					content: order >= 0 ? (order + 1).toString() + '. ' + spot.name : spot.name,
+					color: themeColor('text'),
 					fontSize: 12,
 					borderRadius: 8,
-					bgColor: '#ffffff',
+					bgColor: themeColor('surface'),
 					padding: 6,
 					display: selected ? 'ALWAYS' : 'BYCLICK'
 				} as MapMarkerCallout
@@ -480,26 +476,27 @@
 	}
 
 	function rebuildRoute() {
-		const path = resolvedRoutePath(activeGuideRoute.value)
-		polylines.value = path.length > 1 ? [{
-			points: path,
-			color: '#9c6722e8',
-			width: 6,
-			arrowLine: true,
-			borderColor: '#fffdf2',
-			borderWidth: 3
-		} as Polyline] : []
+		polylines.value = routePaths(activeGuideRoute.value).map<Polyline>((points : MapPoint[]) : Polyline => ({
+			points, color: themeColor('accent'), width: 4, arrowLine: true, borderColor: themeColor('surface'), borderWidth: 2
+		} as Polyline))
 	}
 
 	function chooseGuideRoute() {
 		const recommendation = getActiveRoute()
-		let chosen : GuideRoute | null = null
+		tripLayer.value = null
 		if (recommendation != null) {
-			const curatedId = 'curated-' + recommendation.id
-			chosen = routeOptions.value.find((route : GuideRoute) : boolean => route.id == curatedId || route.id == recommendation.id || route.baseRouteId == recommendation.id) ?? null
+			const base = routes.value.find((route : GuideRoute) : boolean => route.id == 'curated-' + recommendation.id || route.id == recommendation.id || route.baseRouteId == recommendation.id) ?? null
+			if (base != null) {
+				const nodes = recommendation.nodes
+				const sameOrder = nodes.length == base.nodes.length && nodes.every((node : GuideRouteNode, index : number) : boolean => node.name == base.nodes[index].name || ((node.spotId ?? '').length > 0 && node.spotId == base.nodes[index].spotId))
+				if (sameOrder && base.polyline.length > 1) tripLayer.value = base
+				else if (nodes.length > 0) {
+					const resolved = nodes.map<GuideRouteNode>((node : GuideRouteNode) : GuideRouteNode => base.nodes.find((entry : GuideRouteNode) : boolean => entry.name == node.name || ((node.spotId ?? '').length > 0 && entry.spotId == node.spotId)) ?? node)
+					tripLayer.value = { id: 'trip-order-' + base.id, name: recommendation.name, tags: recommendation.tags, polyline: [], nodes: resolved, isOfficial: false, geometryKind: 'visit-order' } as GuideRoute
+				}
+			}
 		}
-		if (chosen == null) chosen = routeOptions.value[0] ?? null
-		activeGuideRoute.value = chosen
+		activeGuideRoute.value = tripLayer.value ?? routeOptions.value[0] ?? null
 		rebuildRoute()
 	}
 
@@ -515,6 +512,7 @@
 		const generation = loadGeneration.value + 1
 		loadGeneration.value = generation
 		loading.value = true
+		failedArea.value = ''
 		try {
 			const data = await fetchMapGuideBootstrap(areaId)
 			if (generation != loadGeneration.value) return
@@ -537,7 +535,7 @@
 		} catch (error) {
 			if (generation != loadGeneration.value) return
 			console.error('load map bootstrap failed', error)
-			uni.showToast({ title: '景区导览数据连接失败', icon: 'none' })
+			failedArea.value = areaId
 		} finally {
 			if (generation == loadGeneration.value) loading.value = false
 		}
@@ -561,35 +559,65 @@
 		if (spotId.length == 0) return
 		const target = spots.value.find((spot : ScenicSpot) : boolean => spot.id == spotId) ?? null
 		if (target == null) return
-		selectedSpot.value = target
-		centerLatitude.value = target.latitude
-		centerLongitude.value = target.longitude
 		mapScale.value = 18
-		sheetExpanded.value = true
-		refreshVisibleSpots()
+		selectSearchSpot(target)
 	}
 
-	function filterSpots() {
-		refreshVisibleSpots()
-		const query = keyword.value.trim()
-		if (query.length == 0 || visibleSpots.value.length == 0) return
-		const target = visibleSpots.value[0]
-		selectedSpot.value = target
-		centerLatitude.value = target.latitude
-		centerLongitude.value = target.longitude
-		sheetExpanded.value = true
-		refreshVisibleSpots()
+	function clearSelection() {
+		selectedSpot.value = null
+		sheetExpanded.value = false
+		buildNativeMarkers()
+		clampArtworkPan()
 	}
+
+	function centerArtworkOnSpot(spot : ScenicSpot) {
+		if (mapMode.value != 'artwork') return
+		const point = pointToArtwork({ latitude: spot.latitude, longitude: spot.longitude } as MapPoint)
+		const layout = artworkScaledLayout.value
+		const radians = layout.rotation * Math.PI / 180
+		const dx = point[0] * artworkScale.value - layout.imageWidth / 2
+		const dy = point[1] * artworkScale.value - layout.imageHeight / 2
+		const markerX = layout.frameWidth / 2 + dx * Math.cos(radians) - dy * Math.sin(radians)
+		const markerY = layout.frameHeight / 2 + dx * Math.sin(radians) + dy * Math.cos(radians)
+		const visibleMidpoint = (headerOffset.value + 76 + artworkViewportHeight.value - 240) / 2
+		artworkX.value = artworkViewportWidth.value / 2 - markerX
+		artworkY.value = visibleMidpoint - markerY
+		clampArtworkPan()
+	}
+
+	function selectSearchSpot(spot : ScenicSpot) {
+		selectedSpot.value = spot
+		centerLatitude.value = spot.latitude
+		centerLongitude.value = spot.longitude
+		headerExpanded.value = false
+		sheetExpanded.value = true
+		buildNativeMarkers()
+		centerArtworkOnSpot(spot)
+	}
+
+	function onSearchInput(value : string) {
+		keyword.value = value
+		refreshVisibleSpots()
+		if (selectedSpot.value != null && !visibleSpots.value.some((spot : ScenicSpot) : boolean => spot.id == selectedSpot.value!.id)) clearSelection()
+	}
+
+	function submitSearch(value : string) {
+		onSearchInput(value)
+		if (visibleSpots.value.length > 0) selectSearchSpot(visibleSpots.value[0])
+	}
+
+	function clearSearch() { onSearchInput('') }
 
 	function switchScenicArea(areaId : ScenicAreaId) {
-		if (areaId == activeAreaId.value || loading.value) return
-		activeAreaId.value = areaId
-		setPreferredScenicArea(areaId)
+		if (areaId == activeAreaId.value && !loading.value && failedArea.value.length == 0) return
 		loadMapData(areaId)
 	}
 
+	function retryMap() { loadMapData(failedArea.value == 'nianhuawan' ? 'nianhuawan' : 'lingshan') }
+
 	function setMapMode(mode : string) {
 		mapMode.value = mode
+		headerExpanded.value = false
 		if (mode == 'artwork') clampArtworkPan()
 		refreshVisibleSpots()
 	}
@@ -601,6 +629,10 @@
 
 	function updateArtworkViewport() {
 		const info = uni.getWindowInfo()
+		headerOffset.value = info.statusBarHeight + 8
+		// #ifdef MP-WEIXIN
+		headerOffset.value = uni.getMenuButtonBoundingClientRect().bottom + 4
+		// #endif
 		artworkViewportWidth.value = info.windowWidth
 		artworkViewportHeight.value = info.windowHeight
 	}
@@ -608,15 +640,16 @@
 	function artworkVisibleTop() : number {
 		let top = 0
 		// #ifdef APP
-		top = headerExpanded.value ? 280 : 104
+		top = headerOffset.value + (headerExpanded.value ? 280 : 76)
 		// #endif
 		return top
 	}
 
 	function artworkVisibleBottom() : number {
 		let bottom = artworkViewportHeight.value
+		if (sheetExpanded.value) bottom -= 252
 		// #ifdef APP
-		bottom -= sheetExpanded.value ? 176 : 78
+		else bottom -= 76
 		// #endif
 		return Math.max(artworkVisibleTop() + 1, bottom)
 	}
@@ -667,13 +700,9 @@
 	}
 
 	const onArtworkMovableScale = (event) => {
-		const previousLevel = detailLevel()
 		const nextScale = Math.max(0.72, Math.min(2.4, event.detail.scale))
 		syncArtworkMovablePosition(event.detail.x, event.detail.y)
 		if (Math.abs(artworkScale.value - nextScale) > 0.001) artworkScale.value = nextScale
-		// Point visibility is scale-dependent. Rebuild only when crossing a
-		// detail-level boundary to avoid re-rendering markers on every frame.
-		if (detailLevel() != previousLevel) refreshVisibleSpots()
 	}
 	// #endif
 
@@ -751,11 +780,8 @@
 		if (Date.now() - artworkLastDragAt < 180) return
 		const target = spots.value.find((spot : ScenicSpot) : boolean => spot.id == spotId) ?? null
 		if (target == null) return
-		selectedSpot.value = target
-		centerLatitude.value = target.latitude
-		centerLongitude.value = target.longitude
-		sheetExpanded.value = true
-		refreshVisibleSpots()
+		if (selectedSpot.value?.id == spotId) { clearSelection(); return }
+		selectSearchSpot(target)
 	}
 
 	function onMarkerTap(event : UniMapMarkerTapEvent) {
@@ -765,9 +791,8 @@
 		if (binding == null) return
 		const target = spots.value.find((spot : ScenicSpot) : boolean => spot.id == binding.spotId) ?? null
 		if (target == null) return
-		selectedSpot.value = target
-		sheetExpanded.value = true
-		refreshVisibleSpots()
+		if (selectedSpot.value?.id == target.id) { clearSelection(); return }
+		selectSearchSpot(target)
 	}
 
 	function distanceMeters(left : MapPoint, right : MapPoint) : number {
@@ -781,7 +806,7 @@
 	}
 
 	function locateMe() {
-		uni.showLoading({ title: '定位中' })
+		uni.showLoading({ title: g('定位中') })
 		uni.getLocation({
 			type: 'gcj02',
 			isHighAccuracy: true,
@@ -796,13 +821,11 @@
 						const distance = distanceMeters(current, { latitude: spot.latitude, longitude: spot.longitude } as MapPoint)
 						if (distance < nearestDistance) { nearest = spot; nearestDistance = distance }
 					})
-					selectedSpot.value = nearest
-					sheetExpanded.value = true
-					refreshVisibleSpots()
-					uni.showToast({ title: '已定位到附近点位', icon: 'none' })
+					selectSearchSpot(nearest)
+					uni.showToast({ title: g('已定位到附近点位'), icon: 'none' })
 				}
 			},
-			fail: (error) => uni.showToast({ title: error.errMsg, icon: 'none' }),
+			fail: () => uni.showToast({ title: g('无法获取位置，请检查定位权限'), icon: 'none' }),
 			complete: () => uni.hideLoading()
 		})
 	}
@@ -830,9 +853,12 @@
 	}
 
 	function askGuide() {
-		const areaName = activeAreaName.value
-		if (selectedSpot.value != null) queueGuidePrompt('请作为数字人导游介绍' + selectedSpot.value!.name + '，并告诉我现在最值得看的内容。')
-		else queueGuidePrompt('请作为数字人导游介绍' + areaName + '，并推荐一条适合首次到访的游览路线。')
+		const name = selectedSpot.value?.name ?? activeAreaName.value
+		const withSpot = selectedSpot.value != null
+		let question = withSpot ? '请作为数字人导游介绍' + name + '，并告诉我现在最值得看的内容。' : '请作为数字人导游介绍' + name + '，并推荐一条适合首次到访的游览路线。'
+		if (locale.value == 'zh-Hant') question = withSpot ? '請介紹' + name + '，並告訴我有哪些值得看的地方。' : '請介紹' + name + '，並推薦一條適合初次來訪的遊覽路線。'
+		if (locale.value == 'en') question = withSpot ? 'What should I see at ' + name + '?' : 'Please suggest a route for a first visit to ' + name + '.'
+		queueGuidePrompt(question, activeAreaId.value, selectedSpot.value?.id ?? '', selectedSpot.value?.name ?? '')
 		const targetUrl = '/pages/ai-guide/index'
 		uni.switchTab({
 			url: targetUrl,
@@ -850,21 +876,23 @@
 		// #ifndef MP-WEIXIN
 		const config = digitalHuman.value
 		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
-			uni.showToast({ title: '当前数字人形象不支持云端动态渲染', icon: 'none' })
+			uni.showToast({ title: g('当前数字人形象不支持云端动态渲染'), icon: 'none' })
 			return
 		}
-		uni.showLoading({ title: '创建动态会话' })
+		uni.showLoading({ title: g('创建动态会话') })
 		try {
 			const session = await createDigitalHumanWebSession(config.id)
 			uni.navigateTo({ url: '/pages/digital-human/index?src=' + encodeURIComponent(resolveAssetUrl(session.pageUrl)) })
 		} catch (error) {
 			console.error('open digital human failed', error)
-			uni.showToast({ title: '动态数字人暂时不可用', icon: 'none' })
+			uni.showToast({ title: g('动态数字人暂时不可用'), icon: 'none' })
 		} finally {
 			uni.hideLoading()
 		}
 		// #endif
 	}
+
+	watch(themeClass, () => { buildNativeMarkers(); rebuildRoute() })
 
 	onLoad(() => {
 		updateArtworkViewport()
@@ -875,6 +903,8 @@
 		updateArtworkViewport()
 		clampArtworkPan()
 		loadDigitalHumanPreference()
+		const desiredArea = getPreferredScenicArea()
+		if (desiredArea != activeAreaId.value) { loadMapData(desiredArea); return }
 		if (spots.value.length > 0) {
 			chooseGuideRoute()
 			refreshVisibleSpots()
@@ -883,97 +913,35 @@
 	})
 </script>
 
-<style>
-	.page { position: relative; flex: 1; width: 100%; height: 100%; overflow: hidden; background-color: #b0d8b8; }
-	.map-header { position: absolute; left: 14px; right: 14px; top: 48px; z-index: 10; padding: 13px 13px 10px; background-color: rgba(255,255,255,0.97); border-radius: 22px; border: 1px solid #dfe7f2; box-shadow: 0 12px 30px rgba(18,61,115,0.15); }
-	.map-header-expanded { min-height: 196px; }
-	.map-header-collapsed { left: auto; width: 184px; padding: 8px; border-radius: 20px; }
-	.map-title-row { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 9px; }
-	.map-title-row-collapsed { justify-content: flex-end; margin-bottom: 0; }
-	.map-title-group { flex-direction: row; align-items: center; }
-	.map-header-actions { flex-direction: row; align-items: center; justify-content: flex-end; }
-	.map-brand-icon { width: 42px; height: 42px; border-radius: 14px; align-items: center; justify-content: center; overflow: hidden; background-color: #e7f2ff; margin-right: 10px; }
-	.map-brand-image { width: 40px; height: 40px; }
-	.map-eyebrow { font-size: 8px; color: #d58000; letter-spacing: 1px; }
-	.map-title { font-size: 21px; font-weight: 800; color: #15243c; margin-top: 2px; }
-	.location-button { height: 34px; padding: 0 13px; border-radius: 17px; flex-direction: row; align-items: center; justify-content: center; background: linear-gradient(to right, #0b68d0, #099fbd); }
-	.location-button-text { font-size: 12px; font-weight: 600; color: #ffffff; margin-left: 4px; }
-	.header-toggle-button { height: 34px; margin-left: 6px; padding: 0 10px; border-radius: 17px; flex-direction: row; align-items: center; justify-content: center; background-color: #edf4fb; border: 1px solid #d7e4f1; }
-	.header-toggle-symbol { font-size: 14px; line-height: 15px; font-weight: 800; color: #24517f; margin-right: 3px; }
-	.header-toggle-text { font-size: 10px; font-weight: 700; color: #24517f; }
-	.area-switch { height: 34px; flex-direction: row; align-items: center; padding: 3px; margin-bottom: 8px; border-radius: 12px; background-color: #f5f0e4; }
-	.area-switch-item { flex: 1; height: 28px; align-items: center; justify-content: center; border-radius: 9px; }
-	.area-switch-item-active { background-color: #ffffff; box-shadow: 0 3px 9px rgba(91,70,36,0.12); }
-	.area-switch-text { font-size: 11px; color: #8a7b66; }
-	.area-switch-text-active { color: #8d5f16; font-weight: 700; }
-	.map-meta-row { flex-direction: row; align-items: center; justify-content: space-between; padding: 7px 3px 0; }
-	.map-mode-switch { height: 34px; flex-direction: row; align-items: center; padding: 3px; margin-top: 8px; border-radius: 12px; background-color: #eef3f9; }
-	.map-mode-item { flex: 1; height: 28px; align-items: center; justify-content: center; border-radius: 9px; }
-	.map-mode-item-active { background-color: #ffffff; box-shadow: 0 4px 10px rgba(22,67,117,0.10); }
-	.map-mode-text { font-size: 11px; color: #76849a; }
-	.map-mode-text-active { color: #0b68d0; font-weight: 700; }
-	.route-switch { width: 100%; height: 34px; margin-top: 8px; flex-direction: row; }
-	.route-switch-item { flex-shrink: 0; height: 30px; margin-right: 7px; padding: 0 11px; border-radius: 15px; align-items: center; justify-content: center; background-color: #fbf5ea; border: 1px solid #ead9b8; }
-	.route-switch-item-tail { margin-right: 20px; }
-	.route-switch-item-active { background-color: #9c6722; border-color: #9c6722; box-shadow: 0 4px 10px rgba(156,103,34,0.18); }
-	.route-switch-item-text { font-size: 10px; color: #966721; font-weight: 700; }
-	.route-switch-item-text-active { color: #ffffff; }
-	.map-meta { font-size: 9px; color: #7b879b; }
-	.map-meta-right { flex: 1; min-width: 0; flex-direction: row; align-items: center; justify-content: flex-end; }
-	.digital-provider-meta { font-size: 9px; color: #087f87; font-weight: 700; margin-right: 8px; }
-	.route-meta { max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; color: #9c6722; font-weight: 700; }
-	.map-view { width: 100%; height: 100%; }
-	.map-loading { position: absolute; left: 50%; top: 286px; z-index: 20; transform: translateX(-50%); height: 34px; padding: 0 14px; flex-direction: row; align-items: center; border-radius: 17px; background-color: rgba(20,55,88,0.88); }
-	.map-loading-header-collapsed { top: 108px; }
-	.map-loading-dot { width: 7px; height: 7px; margin-right: 7px; border-radius: 4px; background-color: #70d4c7; }
-	.map-loading-text { font-size: 11px; color: #ffffff; }
-	.artwork-area { width: 100%; height: 100%; overflow: hidden; background-color: #b0d8b8; }
-	.artwork-app-area { width: 100%; height: 100%; overflow: hidden; background-color: #b0d8b8; }
-	.artwork-app-viewport { position: relative; width: 100%; height: 100%; overflow: hidden; }
-	.artwork-stage { position: relative; overflow: visible; }
-	.artwork-app-stage { position: absolute; }
-	.artwork-rotator { position: absolute; overflow: visible; transform-origin: center center; }
-	.artwork-image { position: absolute; left: 0; top: 0; }
-	.artwork-route-halo { position: absolute; z-index: 2; border-radius: 5px; background-color: rgba(255,253,242,0.94); transform-origin: left center; }
-	.artwork-route-line { position: absolute; z-index: 3; border-radius: 4px; background-color: #9c6722; transform-origin: left center; }
-	.artwork-marker { position: absolute; width: 28px; min-height: 30px; align-items: center; z-index: 4; }
-	.artwork-marker-dot { width: 14px; height: 14px; border-radius: 7px; background-color: #0b68d0; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(12,57,105,0.30); }
-	.artwork-marker-facility { width: 10px; height: 10px; border-radius: 5px; background-color: #168b82; border-width: 2px; }
-	.artwork-route-number { min-width: 22px; height: 22px; padding: 0 4px; border-radius: 11px; text-align: center; line-height: 22px; font-size: 10px; font-weight: 800; color: #ffffff; background-color: #df8b11; border: 2px solid #ffffff; }
+<style lang="scss">
+	@include sg-themes;
+	.page { position: relative; flex: 1; width: 100%; height: 100%; overflow: hidden; }
+	.map-header, .spot-sheet { position: absolute; left: $sg-space-3; right: $sg-space-3; z-index: 10; padding: $sg-space-3; background-color: $sg-surface; border: 1px solid $sg-border; border-radius: $sg-radius-lg; }
+	.map-title-row, .filter-row, .sheet-handle-area, .sheet-actions, .retry-row { flex-direction: row; align-items: center; }
+	.map-title-group, .sheet-handle-copy { flex: 1; min-width: 0; }
+	.map-title, .sheet-title { color: $sg-text; font-size: $sg-type-card; font-weight: 700; }
+	.map-meta, .route-caption { font-size: $sg-type-caption; color: $sg-muted; }
+	.route-caption { margin-top: $sg-space-1; }
+	.map-filters { height: 188px; margin-top: $sg-space-2; }
+	.filter-row, .sheet-actions { flex-wrap: wrap; margin: $sg-space-1 0; }
+	.map-view, .artwork-area, .artwork-app-area, .artwork-app-viewport { width: 100%; height: 100%; overflow: hidden; }
+	.artwork-app-viewport, .artwork-stage { position: relative; }
+	.artwork-stage { overflow: visible; }
+	.artwork-app-stage, .artwork-rotator, .artwork-image, .artwork-marker { position: absolute; }
+	.artwork-rotator { overflow: visible; transform-origin: center center; }
+	.artwork-image { left: 0; top: 0; }
+	.artwork-route-halo, .artwork-route-line { position: absolute; border-radius: $sg-radius-sm; transform-origin: left center; }
+	.artwork-route-halo { z-index: 2; background-color: $sg-surface; }
+	.artwork-route-line { z-index: 3; background-color: $sg-accent; }
+	.artwork-marker { overflow: visible; width: $sg-touch; height: $sg-touch; align-items: center; justify-content: center; z-index: 4; }
 	.artwork-marker-active { z-index: 8; }
-	.artwork-marker-dot-active { width: 20px; height: 20px; border-radius: 10px; background-color: #e05f55; }
-	.artwork-marker-label { position: absolute; top: 25px; min-width: 72px; max-width: 124px; padding: 5px 7px; border-radius: 9px; text-align: center; font-size: 9px; color: #174674; background-color: rgba(255,255,255,0.96); box-shadow: 0 4px 10px rgba(18,55,94,0.18); }
-	.artwork-tip { position: absolute; left: 50%; transform: translateX(-50%); padding: 7px 11px; border-radius: 13px; background-color: rgba(7,48,91,0.76); }
-	.artwork-tip-sheet-expanded { bottom: 178px; }
-	.artwork-tip-sheet-collapsed { bottom: 82px; }
-	.artwork-tip-text { font-size: 9px; color: #ffffff; }
-	.map-controls { position: absolute; right: 16px; top: 330px; z-index: 10; border-radius: 15px; overflow: hidden; border: 1px solid #dfe7f2; box-shadow: 0 8px 20px rgba(26,68,120,0.16); }
-	.map-controls-header-collapsed { top: 112px; }
-	.map-control { width: 42px; height: 42px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.98); border-bottom: 1px solid #edf1f6; }
-	.spot-sheet { position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 12; background-color: rgba(255,255,255,0.98); border: 1px solid #dfe7f2; border-radius: 25px; box-shadow: 0 16px 40px rgba(16,56,108,0.20); }
-	.spot-sheet-peek { padding: 6px 13px; }
-	.spot-sheet-expanded { padding: 7px 18px 19px; }
-	.sheet-handle-area { min-height: 38px; flex-direction: row; align-items: center; justify-content: space-between; }
-	.sheet-handle-copy { min-width: 0; flex: 1; flex-direction: row; align-items: center; }
-	.sheet-handle { width: 38px; height: 4px; border-radius: 2px; background-color: #d5deeb; }
-	.sheet-collapsed-title { min-width: 0; max-width: 170px; margin-left: 10px; font-size: 12px; font-weight: 700; color: #314967; overflow: hidden; text-overflow: ellipsis; }
-	.sheet-toggle-button { height: 30px; margin-left: 8px; padding: 0 10px; border-radius: 15px; flex-direction: row; align-items: center; justify-content: center; background-color: #edf5ff; border: 1px solid #d8e8fa; }
-	.sheet-toggle-symbol { margin-right: 4px; font-size: 12px; font-weight: 800; color: #0b68d0; }
-	.sheet-toggle-text { font-size: 10px; font-weight: 700; color: #0b68d0; }
-	.sheet-guide { width: 100%; margin-bottom: 11px; }
-	.sheet-heading { flex-direction: row; justify-content: space-between; align-items: center; }
-	.sheet-heading-copy { flex: 1; min-width: 0; }
-	.sheet-label { font-size: 9px; color: #d17d00; letter-spacing: 1px; }
-	.sheet-title { max-width: 250px; font-size: 20px; font-weight: 800; color: #172741; margin-top: 2px; }
-	.sheet-distance { font-size: 10px; color: #087eb5; background-color: #e4f7fb; padding: 5px 9px; border-radius: 13px; }
-	.sheet-copy { font-size: 12px; color: #738198; line-height: 19px; margin-top: 9px; max-height: 57px; overflow: hidden; }
-	.sheet-actions { flex-direction: row; margin-top: 11px; }
-	.sheet-action-primary { flex: 1; height: 38px; margin-right: 7px; border-radius: 19px; align-items: center; justify-content: center; background-color: #0b68d0; }
-	.sheet-action-primary-text { font-size: 12px; font-weight: 700; color: #ffffff; }
-	.sheet-action-secondary { flex: 1; height: 38px; margin-left: 7px; border-radius: 19px; align-items: center; justify-content: center; border: 1px solid #0b68d0; background-color: #ffffff; }
-	.sheet-action-secondary-text { font-size: 12px; font-weight: 700; color: #0b68d0; }
-	.sheet-empty { width: 100%; align-items: center; padding: 1px 0 4px; }
-	.sheet-empty-title { font-size: 15px; font-weight: 700; color: #1c2d46; }
-	.sheet-empty-copy { font-size: 11px; color: #8491a4; margin-top: 5px; }
-	.sheet-single-action { height: 38px; margin-top: 11px; padding: 0 20px; border-radius: 19px; align-items: center; justify-content: center; background-color: #0b68d0; }
+	.map-controls { position: absolute; right: $sg-space-3; bottom: 96px; z-index: 8; background-color: $sg-surface; border: 1px solid $sg-border; border-radius: $sg-radius-md; overflow: hidden; }
+	.map-control { width: $sg-touch; height: $sg-touch; align-items: center; justify-content: center; }
+	.pressed { opacity: $sg-pressed-opacity; }
+	.spot-sheet { bottom: $sg-space-3; padding-top: $sg-space-1; padding-bottom: $sg-space-1; }
+	.sheet-handle-area { min-height: $sg-touch; }
+	.sheet-toggle-text { font-size: $sg-type-label; color: $sg-primary; font-weight: 600; }
+	.sheet-body { height: 182px; }
+	.sheet-copy { color: $sg-text; font-size: $sg-type-label; }
+	.sheet-guide { margin-top: $sg-space-2; }
 </style>

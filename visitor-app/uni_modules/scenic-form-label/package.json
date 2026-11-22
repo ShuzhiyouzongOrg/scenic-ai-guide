@@ -1,0 +1,7 @@
+{
+  "id": "scenic-form-label",
+  "displayName": "Scenic form label",
+  "version": "1.0.0",
+  "description": "Associate visible visitor form labels with Android edit controls.",
+  "uni_modules": { "dependencies": [] }
+}

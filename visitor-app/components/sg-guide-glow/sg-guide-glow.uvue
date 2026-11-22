@@ -1,0 +1,17 @@
+<template>
+  <image class="guide-glow" :style="style" src="/static/guide-stage/glow.webp" mode="aspectFit" aria-hidden="true" />
+</template>
+
+<script setup lang="uts">
+  import { orbSize } from '@/design/orb-tokens.uts'
+  const props = defineProps<{ size ?: number, strength ?: number }>()
+  const style = computed<string>(() => {
+    const size = Math.max(1, props.size ?? orbSize)
+    const opacity = Math.max(0, Math.min(1, props.strength ?? 0.48))
+    return 'width:' + size + 'px;height:' + size + 'px;opacity:' + opacity + ';'
+  })
+</script>
+
+<style lang="scss">
+  .guide-glow { flex-shrink: 0; }
+</style>

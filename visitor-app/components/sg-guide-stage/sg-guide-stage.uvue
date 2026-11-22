@@ -1,0 +1,19 @@
+<template>
+  <view class="guide-stage" :style="stageStyle">
+    <image v-if="photo.length > 0" class="stage-photo" :src="photo" :style="photoStyle" mode="aspectFill" aria-hidden="true" />
+    <view class="stage-content"><slot /></view>
+  </view>
+</template>
+
+<script setup lang="uts">
+  import { orbStageHeight } from '@/design/orb-tokens.uts'
+  const props = defineProps<{ height ?: number, photo ?: string, blend ?: number }>()
+  const photo = computed<string>(() => props.photo ?? '')
+  const stageStyle = computed<string>(() => 'height:' + Math.max(1, props.height ?? orbStageHeight) + 'px;')
+  const photoStyle = computed<string>(() => 'opacity:' + Math.max(0, Math.min(1, props.blend ?? 0.18)) + ';')
+</script>
+
+<style lang="scss">
+  .guide-stage { width: 100%; position: relative; overflow: hidden; flex-shrink: 0; background-color: $sg-inset; }
+  .stage-photo, .stage-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+</style>

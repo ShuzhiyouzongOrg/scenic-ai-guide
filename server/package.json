@@ -44,7 +44,7 @@
     "test:static-path": "node scripts/test-static-path.mjs",
     "test:pagespeed-static": "node scripts/test-pagespeed-static.mjs",
     "test:web-vitals": "node scripts/test-web-vitals.mjs",
-    "test:voice": "node scripts/test-voice.mjs",
+    "test:voice": "node scripts/test-voice.mjs && node scripts/test-voice-locale.mjs",
     "test:profile-avatar": "node scripts/test-profile-avatar.mjs",
     "test:digital-human": "node scripts/test-digital-human.mjs",
     "test:analytics": "node scripts/test-analytics.mjs",

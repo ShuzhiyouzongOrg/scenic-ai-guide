@@ -1,0 +1,29 @@
+// Web-only adapter for actionable non-button uni-view elements.
+// H5 moves uni-input / uni-textarea attributes to a wrapper around the actual control.
+export function nameWebField(wrapperId : string, name : string) {
+  const wrapper = document.getElementById(wrapperId)
+  const field = wrapper?.querySelector('input, textarea')
+  if (field == null) return
+  field.setAttribute('id', wrapperId + '-control')
+  field.setAttribute('aria-label', name)
+  const label = document.getElementById(wrapperId + '-label')
+  if (label != null) {
+    label.setAttribute('for', wrapperId + '-control')
+    field.setAttribute('aria-labelledby', wrapperId + '-label')
+  }
+}
+
+export function installActionKeys() {
+  function handle(event : KeyboardEvent) {
+    if (event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return
+    const el = event.target as HTMLElement | null
+    if (el == null || !el.matches('[data-sg-keyboard="activate"]') || el.getAttribute('aria-disabled') == 'true') return
+    const space = event.key == ' '
+    if (event.key != 'Enter' && !space) return
+    event.preventDefault()
+    if (event.repeat) return
+    if ((space && event.type == 'keyup') || (!space && event.type == 'keydown')) el.click()
+  }
+  document.addEventListener('keydown', handle)
+  document.addEventListener('keyup', handle)
+}

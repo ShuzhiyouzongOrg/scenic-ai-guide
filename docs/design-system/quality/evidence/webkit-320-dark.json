@@ -1,0 +1,155 @@
+{
+  "engine": "webkit",
+  "version": "26.5",
+  "api": [
+    [
+      "GET",
+      "/api/map-guide/spots",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/bootstrap",
+      200
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "POST",
+      "/api/visitor/session",
+      201
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "POST",
+      "/api/digital-human/web/session",
+      503
+    ],
+    [
+      "GET",
+      "/api/chat/history",
+      200
+    ],
+    [
+      "GET",
+      "/api/routes/saved",
+      200
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "GET",
+      "/api/routes/saved",
+      200
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "GET",
+      "/api/routes/saved",
+      200
+    ]
+  ],
+  "blocked_hosts": [],
+  "errors": [],
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "create embedded digital human failed Error: 请求失败（503）"
+  ],
+  "pages": {
+    "home": {
+      "width": 320,
+      "pageBottom": 636,
+      "tabTop": 636,
+      "bg": "rgb(17, 26, 22)",
+      "mediaDark": true,
+      "mediaReduced": true,
+      "icons": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "map": {
+      "width": 320,
+      "pageBottom": 636,
+      "tabTop": 636,
+      "bg": "rgb(176, 216, 184)",
+      "mediaDark": true,
+      "mediaReduced": true,
+      "icons": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "ai-guide": {
+      "width": 320,
+      "pageBottom": 636,
+      "tabTop": 636,
+      "bg": "rgb(17, 26, 22)",
+      "mediaDark": true,
+      "mediaReduced": true,
+      "icons": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "trip": {
+      "width": 320,
+      "pageBottom": 636,
+      "tabTop": 636,
+      "bg": "rgb(17, 26, 22)",
+      "mediaDark": true,
+      "mediaReduced": true,
+      "icons": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "profile": {
+      "width": 320,
+      "pageBottom": 636,
+      "tabTop": 636,
+      "bg": "rgb(17, 26, 22)",
+      "mediaDark": true,
+      "mediaReduced": true,
+      "icons": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "largeTextPersistenceChecked": true
+}

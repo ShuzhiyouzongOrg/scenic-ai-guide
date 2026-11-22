@@ -1,129 +1,35 @@
 <template>
-	<view class="spot-card" @click="openSpot">
-		<view class="spot-media">
-			<image v-if="coverUrl.length > 0" class="spot-image" :src="coverUrl" mode="aspectFill" />
-			<view v-else class="spot-placeholder">
-				<text class="spot-placeholder-text">景</text>
-			</view>
-			<view class="spot-badge">
-				<text class="spot-badge-text">{{ spot.categoryName }}</text>
-			</view>
-		</view>
-		<view class="spot-content">
-			<text class="spot-name">{{ spot.name }}</text>
-			<text class="spot-description">{{ description }}</text>
-			<view class="spot-footer">
-				<text class="spot-capability">AI 讲解 · 地图定位</text>
-				<text class="spot-link">去看看 →</text>
-			</view>
-		</view>
-	</view>
+  <view class="spot" :class="pressFeedbackClass" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="spot.name" hover-class="pressed" :hover-start-time="feedbackDelay" :hover-stay-time="feedbackDelay" @click="openSpot">
+    <view class="media">
+      <image v-if="photo.length > 0 && !imageFailed" :src="photo" class="image" mode="aspectFill" @error="imageFailed = true" />
+      <sg-icon v-else name="location" tone="primary" :size="22" />
+    </view>
+    <view class="copy">
+      <text class="name">{{ spot.name }}</text>
+      <text class="category">{{ detail.length > 0 ? detail : spot.categoryName }}</text>
+    </view>
+    <sg-icon name="right" tone="muted" :size="16" />
+  </view>
 </template>
-
 <script setup lang="uts">
-	import type { ScenicSpot } from '@/domain/types.uts'
-	import { resolveAssetUrl } from '@/services/http.uts'
-
-	type SpotCardProps = {
-		spot : ScenicSpot
-	}
-
-	const props = defineProps<SpotCardProps>()
-	const description = computed<string>(() => props.spot.description ?? props.spot.detail ?? '发现灵山胜境的人文故事与游览看点。')
-	const coverUrl = computed<string>(() => {
-		const path = props.spot.media.getString('coverUrl', props.spot.media.getString('sourceCoverUrl', ''))
-		return path.length > 0 ? resolveAssetUrl(path) : ''
-	})
-
-	function openSpot() {
-		uni.navigateTo({
-			url: '/pages/spot/detail?id=' + encodeURIComponent(props.spot.id)
-		})
-	}
+  import type { ScenicSpot } from '@/domain/types.uts'
+  import { spotPhoto } from '@/design/scenic-media.uts'
+  import { pressFeedbackClass } from '@/design/motion.uts'
+  import { feedbackDelay } from '@/design/palette.uts'
+  const props = withDefaults(defineProps<{ spot : ScenicSpot, area ?: string, detail ?: string }>(), { area: 'lingshan', detail: '' })
+  const photo = computed<string>(() => spotPhoto(props.spot.id))
+  const imageFailed = ref(false)
+  function openSpot() {
+    uni.navigateTo({url: '/pages/spot/detail?id=' + encodeURIComponent(props.spot.id) + '&area=' + props.area})
+  }
 </script>
-
-<style>
-	.spot-card {
-		width: 248px;
-		background-color: #ffffff;
-		border-radius: 24px;
-		overflow: hidden;
-		margin-right: 12px;
-		border: 1px solid #e1e8f3;
-		box-shadow: 0 12px 30px rgba(17, 66, 126, 0.11);
-	}
-
-	.spot-media {
-		height: 148px;
-		position: relative;
-	}
-
-	.spot-image,
-	.spot-placeholder {
-		width: 248px;
-		height: 148px;
-	}
-
-	.spot-placeholder {
-		background: linear-gradient(to bottom right, #dcecff, #e4faf7);
-		align-items: center;
-		justify-content: center;
-	}
-
-	.spot-placeholder-text {
-		font-size: 40px;
-		font-weight: 700;
-		color: #0b68d0;
-	}
-
-	.spot-badge {
-		position: absolute;
-		left: 12px;
-		top: 12px;
-		padding: 5px 9px;
-		border-radius: 12px;
-		background-color: rgba(4, 75, 150, 0.92);
-	}
-
-	.spot-badge-text {
-		font-size: 11px;
-		color: #ffffff;
-	}
-
-	.spot-content {
-		padding: 16px;
-	}
-
-	.spot-name {
-		font-size: 18px;
-		font-weight: 700;
-		color: #15243c;
-	}
-
-	.spot-description {
-		font-size: 13px;
-		line-height: 19px;
-		color: #748198;
-		margin-top: 7px;
-		height: 40px;
-		overflow: hidden;
-	}
-
-	.spot-footer {
-		margin-top: 14px;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-	}
-
-	.spot-capability {
-		font-size: 10px;
-		color: #8995a7;
-	}
-
-	.spot-link {
-		font-size: 12px;
-		font-weight: 700;
-		color: #0b68d0;
-	}
+<style lang="scss">
+  @import '@/design/press.scss';
+  .spot { flex-direction: row; align-items: center; padding: $sg-space-3; min-height: $sg-touch; background-color: $sg-surface; }
+  .media { width: 64px; height: 52px; background-color: $sg-inset; overflow: hidden; border-radius: $sg-radius-sm; align-items: center; justify-content: center; }
+  .image { width: 100%; height: 100%; }
+  .copy { flex: 1; margin: 0 $sg-space-3; }
+  .name { color: $sg-text; font-size: $sg-type-body; font-weight: 600; }
+  .category { color: $sg-muted; font-size: $sg-type-label; margin-top: $sg-space-1; }
+  @include sg-press-feedback;
 </style>

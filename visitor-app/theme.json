@@ -1,0 +1,38 @@
+{
+  "light": {
+    "tabMuted": "#52665B",
+    "tabActive": "#176449",
+    "surface": "#FFFFFF",
+    "background": "#F5F6F1",
+    "navText": "black",
+    "tabBorder": "black",
+    "homeIcon": "static/tabbar/home.png",
+    "homeSelected": "static/tabbar/home-active.png",
+    "mapIcon": "static/tabbar/map.png",
+    "mapSelected": "static/tabbar/map-active.png",
+    "aiIcon": "static/tabbar/ai.png",
+    "aiSelected": "static/tabbar/ai-active.png",
+    "tripIcon": "static/tabbar/trip.png",
+    "tripSelected": "static/tabbar/trip-active.png",
+    "profileIcon": "static/tabbar/profile.png",
+    "profileSelected": "static/tabbar/profile-active.png"
+  },
+  "dark": {
+    "tabMuted": "#B5C6BC",
+    "tabActive": "#96DABC",
+    "surface": "#1B2822",
+    "background": "#111A16",
+    "navText": "white",
+    "tabBorder": "white",
+    "homeIcon": "static/tabbar/home-dark.png",
+    "homeSelected": "static/tabbar/home-active-dark.png",
+    "mapIcon": "static/tabbar/map-dark.png",
+    "mapSelected": "static/tabbar/map-active-dark.png",
+    "aiIcon": "static/tabbar/ai-dark.png",
+    "aiSelected": "static/tabbar/ai-active-dark.png",
+    "tripIcon": "static/tabbar/trip-dark.png",
+    "tripSelected": "static/tabbar/trip-active-dark.png",
+    "profileIcon": "static/tabbar/profile-dark.png",
+    "profileSelected": "static/tabbar/profile-active-dark.png"
+  }
+}

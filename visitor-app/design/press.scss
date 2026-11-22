@@ -1,0 +1,9 @@
+// The host supplies the pressed class for a touch gesture. A new touch interrupts release.
+@mixin sg-press-feedback {
+  .sg-press-release { @include sg-transition-press-release; }
+  .sg-press-static { @include sg-transition-instant; }
+  .pressed {
+    opacity: $sg-pressed-opacity;
+    @include sg-transition-instant;
+  }
+}

@@ -26,7 +26,12 @@ export function setAppLocale(value : string) {
 	const locale = normalizeAppLocale(value)
 	try { uni.setStorageSync(APP_LOCALE_KEY, locale) } catch (error) { }
 	try { uni.setLocale(locale) } catch (error) { }
+	// #ifdef WEB
+	syncWebTabLocale()
+	// #endif
+	// #ifndef WEB
 	applyLocalizedTabBar(locale)
+	// #endif
 }
 
 export function getAppLanguageName(value : string) : string {
@@ -43,18 +48,42 @@ export function localize(value : string, simplified : string, english : string, 
 	return simplified
 }
 
-export function applyLocalizedTabBar(value : string) {
+export function tabLabels(value : string) : string[] {
 	const locale = normalizeAppLocale(value)
-	const labels = locale == 'en'
+	return locale == 'en'
 		? ['Home', 'Map', 'AI Guide', 'Trips', 'Profile']
 		: (locale == 'zh-Hant' ? ['首頁', '地圖', 'AI導遊', '行程', '我的'] : ['首页', '地图', 'AI导游', '行程', '我的'])
-	labels.forEach((label : string, index : number) => {
+}
+
+export function applyLocalizedTabBar(value : string) {
+	tabLabels(value).forEach((label : string, index : number) => {
 		try { uni.setTabBarItem({ index, text: label }) } catch (error) { }
 	})
 }
 
+export const tabRoutes = ['pages/home/index', 'pages/map/index', 'pages/ai-guide/index', 'pages/trip/index', 'pages/profile/index']
+// #ifdef WEB
+let appliedTabLocale = ''
+
+export function syncWebTabLocale() {
+	const pages = getCurrentPages()
+	if (pages.length == 0 || !tabRoutes.includes(pages[pages.length - 1].route)) return
+	const locale = getAppLocale()
+	if (appliedTabLocale == locale) return
+	applyLocalizedTabBar(locale)
+	appliedTabLocale = locale
+}
+// #endif
+
+// #ifndef WEB
+export function restoreNativeTabLocale() {
+	const pages = getCurrentPages()
+	if (pages.length == 0 || !tabRoutes.includes(pages[pages.length - 1].route)) return
+	applyLocalizedTabBar(getAppLocale())
+}
+// #endif
+
 export function initializeAppLocale() {
 	const locale = getAppLocale()
 	try { uni.setLocale(locale) } catch (error) { }
-	applyLocalizedTabBar(locale)
 }

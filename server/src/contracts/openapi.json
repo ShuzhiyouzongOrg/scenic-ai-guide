@@ -235,7 +235,8 @@
     },
     "/api/voice/asr": {
       "post": {
-        "summary": "Transcribe visitor audio or provided transcript through the configured ASR provider"
+        "summary": "Transcribe visitor audio or provided transcript through the configured ASR provider",
+        "description": "Optional JSON locale selects English IAT for en or an en-* locale. Chinese locales and omitted locales use Mandarin. A provided transcript bypasses recognition."
       }
     },
     "/api/voice/tts": {
@@ -245,12 +246,14 @@
     },
     "/api/voice/ask": {
       "post": {
-        "summary": "Voice pipeline: ASR, RAG answer, segmented TTS and latency breakdown"
+        "summary": "Voice pipeline: ASR, RAG answer, segmented TTS and latency breakdown",
+        "description": "Optional JSON locale selects the recognition language and answer locale. Narration uses the configured guide voice."
       }
     },
     "/api/voice/ask-upload": {
       "post": {
-        "summary": "Voice pipeline accepting a multipart audio file from mobile and mini-program clients"
+        "summary": "Voice pipeline accepting a multipart audio file from mobile and mini-program clients",
+        "description": "The locale form field applies to both IAT and the answer. Mobile locales are en, zh-CN and zh-TW. Omitting the field retains the existing zh-CN default."
       }
     },
     "/api/voice/tts/audio/{id}": {

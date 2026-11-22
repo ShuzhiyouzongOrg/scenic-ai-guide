@@ -1,0 +1,10618 @@
+{
+ "date": "2026-11-22",
+ "compiler": "HBuilderX 5.24 uni-app x H5 VDOM production / style isolation 2.0",
+ "sourceChanges": {
+  "components/guide-bottom-navigation/guide-bottom-navigation.uvue": {
+   "previousSha256": "2e7a11e34f21c79d9890bfddb4301d97f9c9d443912acc4661b4db833bf2fe9e",
+   "currentSha256": "e2912c7cff009cb013664e257e8ce42d37d946828669e2aaa2b4abe5432d87ea"
+  },
+  "design/tokens.json": {
+   "previousSha256": "53949af83968fec9e866f58a12ae609070fd0494e0511c7c76774ae57852c54c",
+   "currentSha256": "ae6010fb7fde13c72559e25e70813d93a67c6a83e1e1904c322383f77e3fc73a"
+  },
+  "design/tokens.scss": {
+   "previousSha256": "6e09738d6d696ce75ab65f4cfc3da6e759eb788b4631ebf849914095e375549f",
+   "currentSha256": "1af68bff08347256c8f41478b1e32e81192e637d36ea6eec5dc01ecaa106beba"
+  },
+  "pages/ai-guide/index.uvue": {
+   "previousSha256": "cd71b624dbbc669fa25a04ca886b6b83ee893596df90ef35a52ac4265ca2be44",
+   "currentSha256": "62a6228f7d5c71835efd24d6f078a83aff0c9a08e97289d4338d36370b264a8d"
+  }
+ },
+ "outputFileComparison": {
+  "oldFiles": 110,
+  "newFiles": 110,
+  "sameNameAndBytes": 77,
+  "sameNameChanged": [
+   "index.html"
+  ],
+  "retiredNames": [
+   "assets/app-section.CAlSjH67.js",
+   "assets/auth.DEIqAHJL.js",
+   "assets/empty-state.CftLYUFh.js",
+   "assets/env.CXmcoCqt.js",
+   "assets/guide-api.BnRm34yu.js",
+   "assets/guide-locale.k0YcSARd.js",
+   "assets/guide-preferences.dVXLH5QR.js",
+   "assets/index-Dq_bj1Or.css",
+   "assets/index-kXO-puae.js",
+   "assets/layout.DIJDFcDD.js",
+   "assets/navigation-context.DJMaygp3.js",
+   "assets/pages-ai-guide-index.CNSlFJHF.js",
+   "assets/pages-auth-index.CqVZVEgV.js",
+   "assets/pages-digital-human-index.BkQvu8iC.js",
+   "assets/pages-favorites-index.Dt8flnTY.js",
+   "assets/pages-feedback-index.BSB4n6gR.js",
+   "assets/pages-home-index.mYK5pXV8.js",
+   "assets/pages-map-index.uVOIQ68Y.js",
+   "assets/pages-profile-index.BVn0VhSL.js",
+   "assets/pages-spot-detail.CMTbqJnJ.js",
+   "assets/pages-trip-index.CY_oQHAv.js",
+   "assets/scenic-media.C8AJs4R2.js",
+   "assets/session.C2011c8P.js",
+   "assets/sg-badge.Cjhm6rfA.js",
+   "assets/sg-choice.07DojJZ0.js",
+   "assets/sg-divider.B_zyRiXE.js",
+   "assets/sg-page-header.C1DRi5Od.js",
+   "assets/sg-service-row.vAZVbcKb.js",
+   "assets/sg-skeleton.k57YcM6c.js",
+   "assets/spot-card.KvnrFRtb.js",
+   "assets/stage-presentation.CsJDnPZ6.js",
+   "assets/visitor-activity.CN7dFnEx.js"
+  ],
+  "newNames": [
+   "assets/app-section._2m2GTYf.js",
+   "assets/auth.Bm6NbwUb.js",
+   "assets/empty-state.CrTUljge.js",
+   "assets/env.xZMax7Uo.js",
+   "assets/guide-api.BYWhTb-K.js",
+   "assets/guide-locale.Bhv3n2HF.js",
+   "assets/guide-preferences.BuBLEvOu.js",
+   "assets/index-CVe92pKL.css",
+   "assets/index-CxvKPgor.js",
+   "assets/layout.CdGgeTTW.js",
+   "assets/navigation-context.BTv92xJ9.js",
+   "assets/pages-ai-guide-index.C70AWfnv.js",
+   "assets/pages-auth-index.DFA7Fkz0.js",
+   "assets/pages-digital-human-index.sVQslgXB.js",
+   "assets/pages-favorites-index.Nl20Zls3.js",
+   "assets/pages-feedback-index.DnqJHMYW.js",
+   "assets/pages-home-index.BbRJaGUx.js",
+   "assets/pages-map-index.CVPfKzLE.js",
+   "assets/pages-profile-index.Bp6kIQkH.js",
+   "assets/pages-spot-detail.DiAC46J-.js",
+   "assets/pages-trip-index.BLT7I-pY.js",
+   "assets/scenic-media.DxKd0EKv.js",
+   "assets/session.D5P8WVdL.js",
+   "assets/sg-badge.B4wGM5tq.js",
+   "assets/sg-choice.BKZBJTd2.js",
+   "assets/sg-divider.BdV7TQBr.js",
+   "assets/sg-page-header.CZuCTLwi.js",
+   "assets/sg-service-row.yt4CWsvC.js",
+   "assets/sg-skeleton.CT8fqD7O.js",
+   "assets/spot-card.CbdtgFbA.js",
+   "assets/stage-presentation.BY-jyhll.js",
+   "assets/visitor-activity.AvVI-vNw.js"
+  ],
+  "guideChunks": {
+   "previous": {
+    "assets/pages-ai-guide-index.CNSlFJHF.js": "9e1ba83949a6343510711748a61c84a24c11d2490596560abce0cbf7b40c16ee"
+   },
+   "rebuild": {
+    "assets/pages-ai-guide-index.C70AWfnv.js": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda"
+   }
+  },
+  "guideStyles": {
+   "previous": {},
+   "rebuild": {}
+  }
+ },
+ "capture": "Chromium MediaStream from injected calibration oscillator; app audio and upload unchanged. WebKit recorder absent.",
+ "network": "production redirects only the bundled API origin to the isolated loopback mock ASR/TTS/LLM; sameOrigin runs through loopback gateway.",
+ "production": {
+  "chromium-320-en-dark": {
+   "version": "151.0.7922.34",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "system reduction suppresses the manual override",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+    "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+    "long-press, slide to cancel; zero uploads and released tracks",
+    "second tap finishes recording; multipart voice ask returned 200",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/voice/ask-upload",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(242, 245, 236)",
+    "placeholder": "rgb(181, 198, 188)",
+    "background": "rgb(43, 60, 50)",
+    "textContrast": 10.61,
+    "placeholderContrast": 6.56
+   },
+   "capabilities": {
+    "recording": true,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   },
+   "bounds": {
+    ".stage-frame": [
+     16,
+     121,
+     288,
+     334
+    ],
+    ".ambient-orb": [
+     36,
+     252,
+     62,
+     62
+    ],
+    ".renderer": [
+     143,
+     121,
+     161,
+     334
+    ],
+    ".mic": [
+     132,
+     701,
+     56,
+     56
+    ],
+    ".guide-header": [
+     0,
+     0,
+     320,
+     121
+    ],
+    ".guide-tabbar": [
+     0,
+     698,
+     320,
+     62
+    ]
+   },
+   "transitionFrames": [
+    [
+     0,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     16,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     31,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     47,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     64,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     110,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     129,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     143,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     160,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     176,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     191,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     207,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     223,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     240,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     255,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     272,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     287,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     303,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     320,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     335,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     352,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     367,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     384,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     399,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     416,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     432,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     449,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     464,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     480,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     496,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     512,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     528,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     543,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     602,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     608,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     623,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     640,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     764,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     778,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     784,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     800,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     816,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     832,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     849,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     864,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     880,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     895,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     912,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     927,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     946,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     959,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     976,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     992,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1008,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1023,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1039,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1058,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1072,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1088,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1103,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1119,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1136,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1151,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1168,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1183,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1200,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1234,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1247,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1264,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1280,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1296,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1312,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1329,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1343,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1360,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1376,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1392,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1407,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     1428,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ]
+   ],
+   "navigation": {
+    "guide": {
+     "rect": [
+      0,
+      698,
+      320,
+      62
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        698,
+        64,
+        62
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        17.4,
+        739.5,
+        29.1,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        698,
+        64,
+        62
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        85.2,
+        739.5,
+        21.7,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        698,
+        64,
+        62
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148.8,
+        713.9,
+        22.3,
+        22.3
+       ],
+       "labelRect": [
+        140.8,
+        739,
+        38.4,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        698,
+        64,
+        62
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        212.8,
+        739.5,
+        22.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        698,
+        64,
+        62
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        272.8,
+        739.5,
+        30.4,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "home": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        17.4,
+        739.5,
+        29.1,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-active-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        85.2,
+        739.5,
+        21.7,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        139.4,
+        739.5,
+        41.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        212.8,
+        739.5,
+        22.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        272.8,
+        739.5,
+        30.4,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "map": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        17.4,
+        739.5,
+        29.1,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        85.2,
+        739.5,
+        21.7,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-active-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        139.4,
+        739.5,
+        41.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        212.8,
+        739.5,
+        22.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        272.8,
+        739.5,
+        30.4,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "trip": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        17.4,
+        739.5,
+        29.1,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        85.2,
+        739.5,
+        21.7,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        139.4,
+        739.5,
+        41.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        212.8,
+        739.5,
+        22.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-active-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        272.8,
+        739.5,
+        30.4,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "profile": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        17.4,
+        739.5,
+        29.1,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        85.2,
+        739.5,
+        21.7,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        139.4,
+        739.5,
+        41.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        212.8,
+        739.5,
+        22.3,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        712.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        272.8,
+        739.5,
+        30.4,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-active-dark.png",
+       "loaded": true
+      }
+     ]
+    }
+   },
+   "orbPerception": {
+    "rawTonePeak": {
+     "silence": 0,
+     "soft": 0.035,
+     "medium": 0.14
+    },
+    "expectedRms": {
+     "silence": 0,
+     "soft": 0.0247,
+     "medium": 0.099
+    },
+    "diameter": 62,
+    "silenceToSoft": {
+     "changedAbove8": 1119,
+     "pixels": 3844,
+     "meanAbsoluteChannelDelta": 6.48
+    },
+    "softToMedium": {
+     "changedAbove8": 1549,
+     "pixels": 3844,
+     "meanAbsoluteChannelDelta": 9.68
+    },
+    "unmetered720ms": {
+     "changedAbove8": 600,
+     "pixels": 3844,
+     "meanAbsoluteChannelDelta": 3.5
+    },
+    "reduced380ms": {
+     "changedAbove8": 0,
+     "pixels": 3844,
+     "meanAbsoluteChannelDelta": 0.0
+    }
+   }
+  },
+  "chromium-390-zh-light": {
+   "version": "151.0.7922.34",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "in-page motion switch persists on and off",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+    "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+    "long-press, slide to cancel; zero uploads and released tracks",
+    "second tap finishes recording; multipart voice ask returned 200",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/voice/ask-upload",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(23, 42, 34)",
+    "placeholder": "rgb(82, 102, 91)",
+    "background": "rgb(231, 240, 233)",
+    "textContrast": 12.97,
+    "placeholderContrast": 5.29
+   },
+   "capabilities": {
+    "recording": true,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   },
+   "bounds": {
+    ".stage-frame": [
+     16,
+     111,
+     358,
+     360
+    ],
+    ".ambient-orb": [
+     36,
+     273,
+     76,
+     76
+    ],
+    ".renderer": [
+     174,
+     111,
+     200,
+     360
+    ],
+    ".mic": [
+     167,
+     785,
+     56,
+     56
+    ],
+    ".guide-header": [
+     0,
+     0,
+     390,
+     111
+    ],
+    ".guide-tabbar": [
+     0,
+     782,
+     390,
+     62
+    ]
+   },
+   "transitionFrames": [
+    [
+     0,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     17,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     32,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     49,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     64,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     82,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     104,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     112,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     128,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     145,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     164,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     177,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     192,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     211,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     225,
+     "/pages/ai-guide/index",
+     0.865093,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     243,
+     "/pages/ai-guide/index",
+     0.739334,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     261,
+     "/pages/ai-guide/index",
+     0.622012,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     273,
+     "/pages/ai-guide/index",
+     0.622012,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     289,
+     "/pages/ai-guide/index",
+     0.511579,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     305,
+     "/pages/ai-guide/index",
+     0.409038,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     320,
+     "/pages/ai-guide/index",
+     0.315475,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     338,
+     "/pages/ai-guide/index",
+     0.230561,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     353,
+     "/pages/ai-guide/index",
+     0.155979,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     368,
+     "/pages/ai-guide/index",
+     0.0935389,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     386,
+     "/pages/ai-guide/index",
+     0.0445544,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     401,
+     "/pages/ai-guide/index",
+     0.0120939,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     437,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     449,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     464,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     480,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     497,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     512,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     529,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     545,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     560,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     576,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     592,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     608,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     624,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     640,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     656,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     672,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     689,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     705,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     722,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     737,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     752,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     769,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     784,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     801,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     844,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     851,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     865,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     881,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     962,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     976,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     992,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1010,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1026,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1041,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1056,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1072,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1090,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1104,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1122,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1137,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1153,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1170,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1185,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1201,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1217,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1232,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1248,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1265,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1281,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1299,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1313,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1328,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1346,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1360,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1379,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1392,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1409,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1424,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1441,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1456,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1472,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1489,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1505,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1536,
+     "/pages/ai-guide/index",
+     0,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1553,
+     "/pages/ai-guide/index",
+     0,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1569,
+     "/pages/ai-guide/index",
+     0,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1585,
+     "/pages/ai-guide/index",
+     0.135062,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1600,
+     "/pages/ai-guide/index",
+     0.260564,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1616,
+     "/pages/ai-guide/index",
+     0.378343,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1633,
+     "/pages/ai-guide/index",
+     0.488128,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1649,
+     "/pages/ai-guide/index",
+     0.590691,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1665,
+     "/pages/ai-guide/index",
+     0.684633,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1680,
+     "/pages/ai-guide/index",
+     0.769698,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1696,
+     "/pages/ai-guide/index",
+     0.843831,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1713,
+     "/pages/ai-guide/index",
+     0.906643,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1728,
+     "/pages/ai-guide/index",
+     0.955663,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1744,
+     "/pages/ai-guide/index",
+     0.987981,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1761,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ]
+   ],
+   "navigation": {
+    "guide": {
+     "rect": [
+      0,
+      782,
+      390,
+      62
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        782,
+        78,
+        62
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        782,
+        78,
+        62
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        782,
+        78,
+        62
+       ],
+       "label": "AI导游",
+       "icon": [
+        183.8,
+        797.9,
+        22.3,
+        22.3
+       ],
+       "labelRect": [
+        181.1,
+        823,
+        27.9,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        782,
+        78,
+        62
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        782,
+        78,
+        62
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "home": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-active.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        180,
+        823.5,
+        30,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "map": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-active.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        180,
+        823.5,
+        30,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "trip": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        180,
+        823.5,
+        30,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-active.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "profile": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        180,
+        823.5,
+        30,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        796.5,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        823.5,
+        20,
+        14
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-active.png",
+       "loaded": true
+      }
+     ]
+    }
+   },
+   "orbPerception": {
+    "rawTonePeak": {
+     "silence": 0,
+     "soft": 0.035,
+     "medium": 0.14
+    },
+    "expectedRms": {
+     "silence": 0,
+     "soft": 0.0247,
+     "medium": 0.099
+    },
+    "diameter": 76,
+    "silenceToSoft": {
+     "changedAbove8": 1534,
+     "pixels": 5776,
+     "meanAbsoluteChannelDelta": 5.13
+    },
+    "softToMedium": {
+     "changedAbove8": 2887,
+     "pixels": 5776,
+     "meanAbsoluteChannelDelta": 9.18
+    },
+    "unmetered720ms": {
+     "changedAbove8": 137,
+     "pixels": 5776,
+     "meanAbsoluteChannelDelta": 1.01
+    },
+    "reduced380ms": {
+     "changedAbove8": 0,
+     "pixels": 5776,
+     "meanAbsoluteChannelDelta": 0.0
+    }
+   },
+   "stageRecording": {
+    "frames": 27,
+    "cssPixels": [
+     358,
+     360
+    ],
+    "capturedMs": 5250,
+    "peakSeries": [
+     0.035,
+     0.14,
+     0
+    ]
+   }
+  },
+  "webkit-320-en-dark": {
+   "version": "26.5",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "system reduction suppresses the manual override",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "recorder API absent; app shows disabled/error text and offers keyboard",
+    "typed question exactly once; history preserves full answer and sources",
+    "WebKit advertised WAV but returned playback error; localized recovery and caption visible",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(242, 245, 236)",
+    "placeholder": "rgb(181, 198, 188)",
+    "background": "rgb(43, 60, 50)",
+    "textContrast": 10.61,
+    "placeholderContrast": 6.56
+   },
+   "capabilities": {
+    "recording": false,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   },
+   "bounds": {
+    ".stage-frame": [
+     16,
+     121,
+     288,
+     334
+    ],
+    ".ambient-orb": [
+     36,
+     252,
+     62,
+     62
+    ],
+    ".renderer": [
+     143,
+     121,
+     161,
+     334
+    ],
+    ".mic": [
+     132,
+     701,
+     56,
+     56
+    ],
+    ".guide-header": [
+     0,
+     0,
+     320,
+     121
+    ],
+    ".guide-tabbar": [
+     0,
+     698,
+     320,
+     62
+    ]
+   },
+   "transitionFrames": [
+    [
+     0,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     16,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     32,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     49,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     65,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     82,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     102,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     122,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     205,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     222,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     243,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     275,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     301,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     322,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     342,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     363,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     381,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     401,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     422,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     441,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     461,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     482,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     501,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     549,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     577,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     605,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     630,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     655,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     687,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     726,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     743,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     762,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     783,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     802,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     824,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     842,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     861,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     882,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     906,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     927,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     959,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     993,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     null
+    ],
+    [
+     1099,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1141,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1158,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1178,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1433,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1617,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1644,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1667,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1688,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1716,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1752,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1778,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1810,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1839,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1887,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1908,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1929,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     1967,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2009,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2031,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2054,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2086,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2106,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2130,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2182,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2207,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2241,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2294,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2339,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2368,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2396,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2422,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2442,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2587,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2609,
+     "/",
+     null,
+     1,
+     null,
+     [
+      706,
+      760
+     ],
+     [
+      0,
+      706
+     ]
+    ],
+    [
+     2683,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     2707,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     2728,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     2809,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     2842,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     2905,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ],
+    [
+     2956,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      706,
+      760
+     ],
+     null,
+     [
+      0,
+      760
+     ]
+    ]
+   ],
+   "navigation": {
+    "guide": {
+     "rect": [
+      0,
+      698,
+      320,
+      62
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        698,
+        64,
+        62
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        19.8,
+        741,
+        24.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        698,
+        64,
+        62
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        86.8,
+        741,
+        18.3,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        698,
+        64,
+        62
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148.8,
+        715.3,
+        22.3,
+        22.3
+       ],
+       "labelRect": [
+        142.6,
+        740.4,
+        34.9,
+        10.2
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        698,
+        64,
+        62
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        213.6,
+        741,
+        20.8,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        698,
+        64,
+        62
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        274.4,
+        741,
+        27.2,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "home": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        19.8,
+        741,
+        24.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-active-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        86.8,
+        741,
+        18.3,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        141.3,
+        741,
+        37.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        213.6,
+        741,
+        20.8,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        274.4,
+        741,
+        27.2,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "map": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        19.8,
+        741,
+        24.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        86.8,
+        741,
+        18.3,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-active-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        141.3,
+        741,
+        37.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        213.6,
+        741,
+        20.8,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        274.4,
+        741,
+        27.2,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "trip": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        19.8,
+        741,
+        24.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        86.8,
+        741,
+        18.3,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        141.3,
+        741,
+        37.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        213.6,
+        741,
+        20.8,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-active-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        274.4,
+        741,
+        27.2,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-dark.png",
+       "loaded": true
+      }
+     ]
+    },
+    "profile": {
+     "rect": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "track": [
+      0,
+      706,
+      320,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        706,
+        64,
+        54
+       ],
+       "label": "Home",
+       "icon": [
+        20,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        19.8,
+        741,
+        24.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        64,
+        706,
+        64,
+        54
+       ],
+       "label": "Map",
+       "icon": [
+        84,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        86.8,
+        741,
+        18.3,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        128,
+        706,
+        64,
+        54
+       ],
+       "label": "AI Guide",
+       "icon": [
+        148,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        141.3,
+        741,
+        37.5,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        192,
+        706,
+        64,
+        54
+       ],
+       "label": "Trips",
+       "icon": [
+        212,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        213.6,
+        741,
+        20.8,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-dark.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        256,
+        706,
+        64,
+        54
+       ],
+       "label": "Profile",
+       "icon": [
+        276,
+        714,
+        24,
+        24
+       ],
+       "labelRect": [
+        274.4,
+        741,
+        27.2,
+        11
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-active-dark.png",
+       "loaded": true
+      }
+     ]
+    }
+   }
+  },
+  "webkit-390-zh-light": {
+   "version": "26.5",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "in-page motion switch persists on and off",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "recorder API absent; app shows disabled/error text and offers keyboard",
+    "typed question exactly once; history preserves full answer and sources",
+    "WebKit advertised WAV but returned playback error; localized recovery and caption visible",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(23, 42, 34)",
+    "placeholder": "rgb(82, 102, 91)",
+    "background": "rgb(231, 240, 233)",
+    "textContrast": 12.97,
+    "placeholderContrast": 5.29
+   },
+   "capabilities": {
+    "recording": false,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   },
+   "bounds": {
+    ".stage-frame": [
+     16,
+     111,
+     358,
+     360
+    ],
+    ".ambient-orb": [
+     36,
+     273,
+     76,
+     76
+    ],
+    ".renderer": [
+     174,
+     111,
+     200,
+     360
+    ],
+    ".mic": [
+     167,
+     785,
+     56,
+     56
+    ],
+    ".guide-header": [
+     0,
+     0,
+     390,
+     111
+    ],
+    ".guide-tabbar": [
+     0,
+     782,
+     390,
+     62
+    ]
+   },
+   "transitionFrames": [
+    [
+     0,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     23,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     47,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     62,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     83,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     153,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     229,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     256,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     280,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     313,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     361,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     382,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     403,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     422,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     445,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     483,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     516,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     542,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     575,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     641,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     658,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     691,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     711,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     732,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     749,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     772,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     790,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     810,
+     "/pages/ai-guide/index",
+     0.886035,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     829,
+     "/pages/ai-guide/index",
+     0.886035,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     852,
+     "/pages/ai-guide/index",
+     0.621862,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     894,
+     "/pages/ai-guide/index",
+     0.621862,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     939,
+     "/pages/ai-guide/index",
+     0.20561,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     958,
+     "/pages/ai-guide/index",
+     0.062282,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     1027,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1047,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1072,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1094,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1114,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1145,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1166,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1201,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1228,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1254,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1343,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1365,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1385,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1418,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1437,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1454,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1473,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1508,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1525,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1548,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1571,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1592,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1610,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1630,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     null
+    ],
+    [
+     1964,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     1981,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     2016,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     2047,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     2072,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     2090,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     2117,
+     "/",
+     null,
+     1,
+     null,
+     [
+      790,
+      844
+     ],
+     [
+      0,
+      790
+     ]
+    ],
+    [
+     2158,
+     "/pages/ai-guide/index",
+     0,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2200,
+     "/pages/ai-guide/index",
+     0,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2281,
+     "/pages/ai-guide/index",
+     0,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2303,
+     "/pages/ai-guide/index",
+     0.594622,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2326,
+     "/pages/ai-guide/index",
+     0.594622,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2374,
+     "/pages/ai-guide/index",
+     0.812429,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2403,
+     "/pages/ai-guide/index",
+     0.982973,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2442,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2463,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2489,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2536,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2573,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2604,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2628,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2645,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2667,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2685,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2713,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2771,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2794,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2826,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2855,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2880,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ],
+    [
+     2945,
+     "/pages/ai-guide/index",
+     1,
+     0,
+     [
+      790,
+      844
+     ],
+     null,
+     [
+      0,
+      844
+     ]
+    ]
+   ],
+   "navigation": {
+    "guide": {
+     "rect": [
+      0,
+      782,
+      390,
+      62
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        782,
+        78,
+        62
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        782,
+        78,
+        62
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        782,
+        78,
+        62
+       ],
+       "label": "AI导游",
+       "icon": [
+        183.8,
+        798.4,
+        22.3,
+        22.3
+       ],
+       "labelRect": [
+        180.8,
+        823.5,
+        28.4,
+        12.1
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        782,
+        78,
+        62
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        782,
+        78,
+        62
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "home": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home-active.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        179.7,
+        824,
+        30.6,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "map": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map-active.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        179.7,
+        824,
+        30.6,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "trip": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        179.7,
+        824,
+        30.6,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip-active.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile.png",
+       "loaded": true
+      }
+     ]
+    },
+    "profile": {
+     "rect": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "track": [
+      0,
+      790,
+      390,
+      54
+     ],
+     "cells": [
+      {
+       "rect": [
+        0,
+        790,
+        78,
+        54
+       ],
+       "label": "首页",
+       "icon": [
+        27,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        29,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/home.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        78,
+        790,
+        78,
+        54
+       ],
+       "label": "地图",
+       "icon": [
+        105,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        107,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/map.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        156,
+        790,
+        78,
+        54
+       ],
+       "label": "AI导游",
+       "icon": [
+        183,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        179.7,
+        824,
+        30.6,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/ai.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        234,
+        790,
+        78,
+        54
+       ],
+       "label": "行程",
+       "icon": [
+        261,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        263,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/trip.png",
+       "loaded": true
+      },
+      {
+       "rect": [
+        312,
+        790,
+        78,
+        54
+       ],
+       "label": "我的",
+       "icon": [
+        339,
+        797,
+        24,
+        24
+       ],
+       "labelRect": [
+        341,
+        824,
+        20,
+        13
+       ],
+       "labelFont": "10px",
+       "labelFamily": "-apple-system, HelveticaNeue",
+       "labelLine": "normal",
+       "iconPath": "/static/tabbar/profile-active.png",
+       "loaded": true
+      }
+     ]
+    }
+   }
+  }
+ },
+ "sameOrigin": {
+  "chromium-320-en-dark": {
+   "version": "151.0.7922.34",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "system reduction suppresses the manual override",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+    "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+    "long-press, slide to cancel; zero uploads and released tracks",
+    "second tap finishes recording; multipart voice ask returned 200",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/voice/ask-upload",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(242, 245, 236)",
+    "placeholder": "rgb(181, 198, 188)",
+    "background": "rgb(43, 60, 50)",
+    "textContrast": 10.61,
+    "placeholderContrast": 6.56
+   },
+   "capabilities": {
+    "recording": true,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   }
+  },
+  "chromium-390-zh-light": {
+   "version": "151.0.7922.34",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "in-page motion switch persists on and off",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+    "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+    "long-press, slide to cancel; zero uploads and released tracks",
+    "second tap finishes recording; multipart voice ask returned 200",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/voice/ask-upload",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(23, 42, 34)",
+    "placeholder": "rgb(82, 102, 91)",
+    "background": "rgb(231, 240, 233)",
+    "textContrast": 12.97,
+    "placeholderContrast": 5.29
+   },
+   "capabilities": {
+    "recording": true,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   }
+  },
+  "webkit-320-en-dark": {
+   "version": "26.5",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "system reduction suppresses the manual override",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "recorder API absent; app shows disabled/error text and offers keyboard",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(242, 245, 236)",
+    "placeholder": "rgb(181, 198, 188)",
+    "background": "rgb(43, 60, 50)",
+    "textContrast": 10.61,
+    "placeholderContrast": 6.56
+   },
+   "capabilities": {
+    "recording": false,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   }
+  },
+  "webkit-390-zh-light": {
+   "version": "26.5",
+   "guideChunk": "/assets/pages-ai-guide-index.C70AWfnv.js",
+   "guideChunkSha256": "a58a1f86fea868535991c3f8a977970a6f46f45df7a16ce1ea836d9893119cda",
+   "checks": [
+    "four guide exits and four system-tab returns; four ordinary destinations align with system icon, center, label and font",
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "in-page motion switch persists on and off",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "recorder API absent; app shows disabled/error text and offers keyboard",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "POST",
+     "/api/chat/ask",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "POST",
+     "/api/voice/tts",
+     200
+    ],
+    [
+     "GET",
+     "/api/voice/tts/audio/{clip}",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ]
+   ],
+   "draftColors": {
+    "text": "rgb(23, 42, 34)",
+    "placeholder": "rgb(82, 102, 91)",
+    "background": "rgb(231, 240, 233)",
+    "textContrast": 12.97,
+    "placeholderContrast": 5.29
+   },
+   "capabilities": {
+    "recording": false,
+    "wavPlayback": true
+   },
+   "pageErrors": [],
+   "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+   ],
+   "controlledFailures": {
+    "adapter": "HBuilderX 5.24 public API reject callback (test injection)",
+    "hideTabBar": "native five items, one in-page mic; following visit used central slot",
+    "switchTab": "guide restored after failure; retry reached profile"
+   }
+  }
+ },
+ "fivePages": {
+  "chromium/browser-320-dark": {
+   "version": "151.0.7922.34",
+   "pages": {
+    "home": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "map": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(176, 216, 184)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "ai-guide": {
+     "width": 320,
+     "pageBottom": 690,
+     "tabTop": 628,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "trip": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "profile": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    }
+   },
+   "errors": [],
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+   ],
+   "injectedFailures": [
+    [
+     "GET",
+     "/api/map-guide/routes",
+     503
+    ]
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ]
+   ]
+  },
+  "chromium/browser-390-light": {
+   "version": "151.0.7922.34",
+   "pages": {
+    "home": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "map": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(176, 216, 184)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "ai-guide": {
+     "width": 390,
+     "pageBottom": 844,
+     "tabTop": 782,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "trip": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "profile": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    }
+   },
+   "errors": [],
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "create embedded digital human failed Error: 请求失败（503）",
+    "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+   ],
+   "injectedFailures": [
+    [
+     "GET",
+     "/api/map-guide/routes",
+     503
+    ]
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "POST",
+     "/api/routes/recommend",
+     200
+    ],
+    [
+     "POST",
+     "/api/routes/recommend",
+     200
+    ],
+    [
+     "POST",
+     "/api/routes/save",
+     201
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ]
+   ]
+  },
+  "webkit/browser-320-dark": {
+   "version": "26.5",
+   "pages": {
+    "home": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "map": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(176, 216, 184)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "ai-guide": {
+     "width": 320,
+     "pageBottom": 690,
+     "tabTop": 628,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "trip": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "profile": {
+     "width": 320,
+     "pageBottom": 636,
+     "tabTop": 636,
+     "bg": "rgb(17, 26, 22)",
+     "mediaDark": true,
+     "mediaReduced": true,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    }
+   },
+   "errors": [],
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+   ],
+   "injectedFailures": [
+    [
+     "GET",
+     "/api/map-guide/routes",
+     503
+    ]
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ]
+   ]
+  },
+  "webkit/browser-390-light": {
+   "version": "26.5",
+   "pages": {
+    "home": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "map": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(176, 216, 184)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "ai-guide": {
+     "width": 390,
+     "pageBottom": 844,
+     "tabTop": 782,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "trip": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    "profile": {
+     "width": 390,
+     "pageBottom": 790,
+     "tabTop": 790,
+     "bg": "rgb(245, 246, 241)",
+     "mediaDark": false,
+     "mediaReduced": false,
+     "icons": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    }
+   },
+   "errors": [],
+   "console_errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "create embedded digital human failed Error: 请求失败（503）",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+   ],
+   "injectedFailures": [
+    [
+     "GET",
+     "/api/map-guide/routes",
+     503
+    ]
+   ],
+   "api": [
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/bootstrap",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/visitor/session",
+     201
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "POST",
+     "/api/digital-human/web/session",
+     503
+    ],
+    [
+     "GET",
+     "/api/chat/history",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/digital-human/configs",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "POST",
+     "/api/routes/recommend",
+     200
+    ],
+    [
+     "POST",
+     "/api/routes/recommend",
+     200
+    ],
+    [
+     "POST",
+     "/api/routes/save",
+     201
+    ],
+    [
+     "GET",
+     "/api/routes/saved",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/routes",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ],
+    [
+     "GET",
+     "/api/map-guide/spots",
+     200
+    ]
+   ]
+  }
+ },
+ "voiceActionRegression": "56px; slide cancel, tap/send, interruption, hold touch/mouse/Space through natural playback end, Enter resume; two microphone calls/one upload"
+}

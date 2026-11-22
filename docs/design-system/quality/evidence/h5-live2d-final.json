@@ -1,0 +1,198 @@
+{
+  "date": "2026-11-22",
+  "target": "uni-app x VDOM production H5, HBuilderX 5.24",
+  "source_sha256": "a4aa3c7750fe211c9ef7891217de9afbd74f72801a4e68c520c6fc0b32b16d7e",
+  "compiler_completed": true,
+  "test": "scripts/verify-visitor-web.py",
+  "api": "loopback demo with route failure injection and digital human fallback",
+  "cases": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "case": "320-dark",
+      "page_checks": [
+        "home",
+        "map",
+        "ai-guide",
+        "trip",
+        "profile"
+      ],
+      "requests": 26,
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      ],
+      "unexpected_http_errors": [],
+      "injected_route_failures": [
+        [
+          "GET",
+          "/api/map-guide/routes",
+          503
+        ]
+      ],
+      "destinations_and_state_images": true,
+      "largeTextPersistenceChecked": true
+    },
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "case": "390-light",
+      "page_checks": [
+        "home",
+        "map",
+        "ai-guide",
+        "trip",
+        "profile"
+      ],
+      "requests": 30,
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+        "create embedded digital human failed Error: 请求失败（503）",
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      ],
+      "unexpected_http_errors": [],
+      "injected_route_failures": [
+        [
+          "GET",
+          "/api/map-guide/routes",
+          503
+        ]
+      ],
+      "destinations_and_state_images": true,
+      "keyboardActivationChecked": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "case": "320-dark",
+      "page_checks": [
+        "home",
+        "map",
+        "ai-guide",
+        "trip",
+        "profile"
+      ],
+      "requests": 26,
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      ],
+      "unexpected_http_errors": [],
+      "injected_route_failures": [
+        [
+          "GET",
+          "/api/map-guide/routes",
+          503
+        ]
+      ],
+      "destinations_and_state_images": true,
+      "largeTextPersistenceChecked": true
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "case": "390-light",
+      "page_checks": [
+        "home",
+        "map",
+        "ai-guide",
+        "trip",
+        "profile"
+      ],
+      "requests": 30,
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+        "create embedded digital human failed Error: 请求失败（503）",
+        "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      ],
+      "unexpected_http_errors": [],
+      "injected_route_failures": [
+        [
+          "GET",
+          "/api/map-guide/routes",
+          503
+        ]
+      ],
+      "destinations_and_state_images": true,
+      "keyboardActivationChecked": true
+    }
+  ],
+  "previous_build_comparison": {
+    "previous_files": 105,
+    "current_files": 105,
+    "previous_sha256": "4256a51d3908f836876e0a1955dba3e12157514d0770752d4199f060626b14d1",
+    "current_sha256": "ab149d22f7b28cc4d5aed664a669c6c155fdd8ab6d7eb851233795be63d2448f",
+    "changed_files": [
+      "assets/app-section.DEjib0E1.js",
+      "assets/app-section.DIvNQZf6.js",
+      "assets/auth.CGBh8lDQ.js",
+      "assets/auth.D-D4IVwS.js",
+      "assets/empty-state.BIuQBSNh.js",
+      "assets/empty-state.cOAGPK6b.js",
+      "assets/env.C33nUx_0.js",
+      "assets/env.hWyJVCvi.js",
+      "assets/guide-api.SbkyKrh8.js",
+      "assets/guide-api.gUESDhdt.js",
+      "assets/guide-locale.CnX_BRhx.js",
+      "assets/guide-locale.aCpOq2d1.js",
+      "assets/guide-preferences.BcNK4Kpi.js",
+      "assets/guide-preferences.Cey2c-s5.js",
+      "assets/index-DDZRAF4u.js",
+      "assets/index-DgKGhmGI.js",
+      "assets/index-F1hbGkzW.css",
+      "assets/index-R8sXXuC7.css",
+      "assets/layout.BggzcOGd.js",
+      "assets/layout.CuAZOFdz.js",
+      "assets/navigation-context.4s_CNnpD.js",
+      "assets/navigation-context.DGlSnyKm.js",
+      "assets/pages-ai-guide-index.B56R0Mmj.js",
+      "assets/pages-ai-guide-index.BhxmsOtq.js",
+      "assets/pages-auth-index.BxhPeSCP.js",
+      "assets/pages-auth-index.l7cFFDZ0.js",
+      "assets/pages-digital-human-index.B5-uGgAk.js",
+      "assets/pages-digital-human-index.CcEEvZhU.js",
+      "assets/pages-favorites-index.CO9zxjWY.js",
+      "assets/pages-favorites-index.Da4geHA9.js",
+      "assets/pages-feedback-index.BpHRUv6G.js",
+      "assets/pages-feedback-index.DWWSN8Ys.js",
+      "assets/pages-home-index.B9Eziyx4.js",
+      "assets/pages-home-index.CUsr3UOI.js",
+      "assets/pages-map-index.CyDboeLq.js",
+      "assets/pages-map-index.DKLqg_KW.js",
+      "assets/pages-profile-index.5MFwGidn.js",
+      "assets/pages-profile-index.DmudDFdi.js",
+      "assets/pages-spot-detail.BDTkc0uR.js",
+      "assets/pages-spot-detail.BfzAaDFj.js",
+      "assets/pages-trip-index.CEdFIaLp.js",
+      "assets/pages-trip-index.Cef6TYlY.js",
+      "assets/scenic-media.DJ8LQfCN.js",
+      "assets/scenic-media.DSwY_j_F.js",
+      "assets/session.DDfUtrHH.js",
+      "assets/session.DdVXkEx4.js",
+      "assets/sg-badge.CNTHGesa.js",
+      "assets/sg-badge.PmJHCm5Z.js",
+      "assets/sg-choice.BSvnpjJn.js",
+      "assets/sg-choice.Bub-Tljp.js",
+      "assets/sg-divider.CYE-5iYx.js",
+      "assets/sg-divider.CawVaWzK.js",
+      "assets/sg-page-header.DdivhOQh.js",
+      "assets/sg-page-header.L-Ko7B2V.js",
+      "assets/sg-service-row.DRD8obUH.js",
+      "assets/sg-service-row.DhMa_T-8.js",
+      "assets/sg-skeleton.DSEG8Sbv.js",
+      "assets/sg-skeleton.DSuYHPrz.js",
+      "assets/spot-card.Ci5gwOR9.js",
+      "assets/spot-card.Cl2IC2Bv.js",
+      "assets/stage-presentation.BAaA8RPh.js",
+      "assets/stage-presentation.DFCklT2-.js",
+      "assets/visitor-activity.C1TWqwZd.js",
+      "assets/visitor-activity.DWEGfNzb.js",
+      "index.html"
+    ],
+    "identical_content_files": 72
+  }
+}

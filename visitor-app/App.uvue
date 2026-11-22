@@ -1,16 +1,39 @@
 <script setup lang="uts">
+	import { initializeDesignTheme } from '@/design/theme.uts'
+	// #ifdef APP
+	import { refreshAppTheme } from '@/design/theme.uts'
+	// #endif
+	import { initializeDesignMotion, refreshSystemMotion } from '@/design/motion.uts'
 	import { initializeAppLocale } from '@/stores/locale.uts'
+	// #ifndef WEB
+	import { restoreNativeTabLocale } from '@/stores/locale.uts'
+	// #endif
 
 	// #ifdef APP-ANDROID || APP-HARMONY
 	let firstBackTime = 0
 	// #endif
 
 	onLaunch(() => {
+		initializeDesignTheme()
+		initializeDesignMotion()
 		initializeAppLocale()
+		// #ifdef APP
+		uni.onAppThemeChange(() => { setTimeout(() => { restoreNativeTabLocale() }, 0) })
+		// #endif
+		// #ifdef MP-WEIXIN
+		uni.onHostThemeChange(() => { setTimeout(() => { restoreNativeTabLocale() }, 0) })
+		// #endif
 		console.log('App Launch')
 	})
 
 	onAppShow(() => {
+		// #ifdef APP
+		refreshAppTheme()
+		// #endif
+		refreshSystemMotion()
+		// #ifndef WEB
+		nextTick(() => { restoreNativeTabLocale() })
+		// #endif
 		console.log('App Show')
 	})
 
@@ -42,23 +65,21 @@
 	// #endif
 </script>
 
-<style>
+<style lang="scss">
 	@import '@/uni_modules/rice-ui/libs/style/index.css';
 
 	page {
-		background-color: #f3f6fb;
-		color: #15243c;
+		background-color: $sg-background;
+		color: $sg-text;
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
 	}
 
-	.rice-theme-light {
-		--rice-primary-color: #0b68d0;
-		--rice-primary-color-1: #e8f2ff;
-		--rice-primary-color-7: #084f9f;
-		--rice-text-color: #15243c;
-		--rice-text-color-2: #738198;
-		--rice-border-color: #e2e8f2;
-		--rice-background: #f3f6fb;
+	.rice-theme-light, .rice-theme-dark {
+		--rice-primary-color: #{$sg-primary};
+		--rice-primary-color-1: #{$sg-inset};
+		--rice-text-color: #{$sg-text};
+		--rice-text-color-2: #{$sg-muted};
+		--rice-border-color: #{$sg-border};
 	}
 
 	.uni-row {

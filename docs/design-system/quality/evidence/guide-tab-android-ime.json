@@ -1,0 +1,117 @@
+{
+  "device": "MuMu 12 (Android 12), 1080×1920 at 480 dpi; app QA base, local backend port 5264",
+  "stock": {
+    "ime": "preinstalled Sogou",
+    "reported_shown": true,
+    "framework_window_bounds": [
+      0,
+      1920,
+      1080,
+      1920
+    ]
+  },
+  "controlled": {
+    "ime": "local InputMethodService introduced in QA only via the public Android keyboard settings and picker; shows UI only for io.dcloud.uniappx. No Internet or storage permissions.",
+    "system_framework_window_bounds": [
+      0,
+      1242,
+      1080,
+      1920
+    ],
+    "height_dp": 226,
+    "reported_shown": true,
+    "fixed_input_word": "Scenic",
+    "fixed_input_in_android_edittext": true
+  },
+  "before_fix": {
+    "local_service_sha256": "cab7e114e7999f9f0472b0fe820186888956a5ce598b8f7488bf83412da12516",
+    "screenshots": [
+      "guide-tab-android-ime-stock.webp",
+      "guide-tab-android-ime-before-fix.webp"
+    ],
+    "screenshot_size_px": [
+      432,
+      768
+    ],
+    "full_size_factor": 2.5,
+    "ime_top_screenshot_y": 497,
+    "stock_send_vertical_px": [
+      481,
+      534
+    ],
+    "send_label_occluded_with_positive_ime": true,
+    "stock_input_remains_editable": true,
+    "restored_original_ime_and_enabled_methods": true,
+    "temporary_service_uninstalled": true
+  },
+  "physical_phone_and_oem_keyboard_verified": false,
+  "after_keyboard_offset": {
+    "local_service_sha256": "61b7005226cbf644054f375429fe96325c9308f6b14019be3f63a1b1543e9e24",
+    "ime_window_bounds_fullscreen_px": [
+      0,
+      1242,
+      1080,
+      1920
+    ],
+    "edit_accessibility_value_matches_fixed_test_word": true,
+    "send_button_band_fullscreen_px": [
+      1025,
+      1156
+    ],
+    "send_tap_fullscreen_px": [
+      540,
+      1090
+    ],
+    "gap_below_send_dp": 28.3,
+    "tap_while_ime_open": true,
+    "back_key_before_send": false,
+    "platform_ime_reports_closed_after_send": true,
+    "local_mock_response_rendered": true,
+    "local_llm_asr_tts": "mock",
+    "entered_glyphs_visible": false,
+    "input_method_and_host_bundle_restored": true,
+    "screenshots": [
+      "guide-tab-android-ime-before-text-fix.webp"
+    ]
+  },
+  "final_verified": {
+    "dedicated_host": "local-only MuMu Android 12, 360×640dp, 480dpi",
+    "local_service_sha256": "a76dad77026ccf02b3b91f29aaa424e8650426dbd51c56e16b2777c73fb51cc6",
+    "typed_fixed_word": "Scenic",
+    "native_edittext_bounds_fullscreen_px": [
+      96,
+      575,
+      984,
+      953
+    ],
+    "typed_word_dark_pixels_in_60x30_evidence_region": 332,
+    "input_text_legible": true,
+    "app_viewport": {
+      "ime_physical_window_bounds_px": [
+        0,
+        1242,
+        1080,
+        1920
+      ],
+      "native_send_button_band_px": [
+        1025,
+        1156
+      ],
+      "gap_below_send_dp": 28.3
+    },
+    "tap_before_dismissing_ime_px": [
+      540,
+      1090
+    ],
+    "framework_ime_closed_after_tap": true,
+    "mock_llm_answer_visible_after_tap": true,
+    "temporary_ime_uninstalled": true,
+    "previous_default_and_enabled_ime_restored": true,
+    "original_app_service_checksum_restored": true,
+    "screenshots": [
+      "guide-tab-android-ime-visible.webp",
+      "guide-tab-android-ime-sent.webp"
+    ],
+    "runtime_observation": "The intermittently overlapping static and Live2D artwork also occurs in the preceding release. Timing evidence is in guide-tab-android-avatar-return.json."
+  }
+}

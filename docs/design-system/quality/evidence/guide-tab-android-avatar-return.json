@@ -1,0 +1,80 @@
+{
+  "before": {
+    "source": "scenic-ai-orb-voice-release",
+    "app_service_sha256": "bf8ee55a0b82178803d414cb35b90097c862e3217d50ab31fc986aaf6711d915",
+    "custom_navigation_present": false,
+    "resumed_elapsed_seconds": [
+      0.0,
+      2.02,
+      5.0,
+      10.03,
+      17.03
+    ],
+    "submitted_elapsed_seconds": [],
+    "typed_in_confirmed_guide_composer": false,
+    "count_dark_pixels_at_top_of_hair": {
+      "Before Settings": 491,
+      "2 seconds": 493,
+      "5 seconds": 494,
+      "10 seconds": 494,
+      "17 seconds": 494
+    }
+  },
+  "current": {
+    "source": "scenic-ai-navigation-release",
+    "app_service_sha256": "69a3a37be0f1fbe5a58c21b10936eed62aca3f431281dece88536cbf3b66b6d8",
+    "custom_navigation_present": true,
+    "resumed_elapsed_seconds": [
+      0.0,
+      2.0,
+      5.0,
+      10.0,
+      17.0
+    ],
+    "submitted_elapsed_seconds": [
+      0.0,
+      2.0,
+      5.0,
+      10.0,
+      17.02,
+      26.0
+    ],
+    "typed_in_confirmed_guide_composer": true,
+    "count_dark_pixels_at_top_of_hair": {
+      "Before Settings": 0,
+      "2 seconds": 0,
+      "5 seconds": 0,
+      "10 seconds": 0,
+      "17 seconds": 0
+    },
+    "direct_send_after_settings": {
+      "2": 0,
+      "5": 0,
+      "10": 0,
+      "17": 0,
+      "26": 0
+    },
+    "additional_positive_height_ime_after_send": {
+      "2 seconds": 0,
+      "5 seconds": 0,
+      "10 seconds": 0,
+      "17 seconds": 0,
+      "26 seconds": 0
+    }
+  },
+  "prior_current_positive_example": {
+    "file": "guide-tab-android-ime-sent.webp",
+    "capture_approx_seconds_after_send": 4.75,
+    "dark_pixels": 494
+  },
+  "method": "Side-by-side app-local releases on the same MuMu 12 device. Inspect the original screenshots and measure dark hair pixels in x 277–314, y 165–177 of their 432×768 images. The normal single portrait starts below this region, while the additional larger head reaches the clipped stage top. Classify only visible stage frames; a covered/exiting keyboard panel is not a model observation.",
+  "pixel_capacity": 494,
+  "previous_release_result": "The two head silhouettes were visible at cold display and still present 17 seconds after returning from OS settings. This predates the page-owned microphone navigation.",
+  "current_result": "Current remained single for 17 seconds after a direct Settings round trip and for 26 seconds after Send. A repeated positive-height IME run also remained single at 2, 5, 10, 17 and 26 seconds after Send. A separate current run has a double portrait at approximately 4.75 seconds. A guaranteed recovery time is not inferable.",
+  "qa_host_restored": {
+    "original_base_sha256_verified": true,
+    "temporary_ime_uninstalled": true,
+    "stock_default_and_enabled_methods_restored": true,
+    "test_port_5264_reverse_removed": true
+  }
+}

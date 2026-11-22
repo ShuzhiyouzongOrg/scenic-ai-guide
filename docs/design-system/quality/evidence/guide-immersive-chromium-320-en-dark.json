@@ -1,0 +1,202 @@
+{
+  "engine": "chromium",
+  "case": "chromium-320-en-dark",
+  "checks": [
+    "stage, portrait region, mic, tab and horizontal bounds",
+    "system reduction suppresses the manual override",
+    "keyboard opens settings, focus is contained, Escape returns to opener",
+    "system reduced motion freezes material",
+    "in-place orb pixels measured using silence, soft, medium, unmetered and reduced motion",
+    "click to record; actual analyser receives injected MediaStream; cancel skips upload",
+    "long-press, slide to cancel; zero uploads and released tracks",
+    "second tap finishes recording; multipart voice ask returned 200",
+    "typed question exactly once; history preserves full answer and sources",
+    "host narration pauses, resumes and stops; subtitle retained during pause",
+    "injected NotAllowedError keeps microphone idle and presents a keyboard alternative",
+    "tab leaves and returns to a non-recording guide; no unexpected upload"
+  ],
+  "api": [
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "POST",
+      "/api/visitor/session",
+      201
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ],
+    [
+      "GET",
+      "/api/chat/history",
+      200
+    ],
+    [
+      "POST",
+      "/api/digital-human/web/session",
+      503
+    ],
+    [
+      "POST",
+      "/api/voice/ask-upload",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "POST",
+      "/api/chat/ask",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "POST",
+      "/api/voice/tts",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/voice/tts/audio/{clip}",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/spots",
+      200
+    ],
+    [
+      "GET",
+      "/api/map-guide/routes",
+      200
+    ],
+    [
+      "GET",
+      "/api/digital-human/configs",
+      200
+    ]
+  ],
+  "blocked_hosts": [
+    "cdn1000.dcloud.net.cn"
+  ],
+  "pageErrors": [],
+  "bounds": {
+    ".stage-frame": [
+      16,
+      121,
+      288,
+      275
+    ],
+    ".ambient-orb": [
+      36,
+      193,
+      62,
+      62
+    ],
+    ".renderer": [
+      143,
+      121,
+      161,
+      275
+    ],
+    ".mic": [
+      128,
+      586,
+      64,
+      64
+    ],
+    ".guide-header": [
+      0,
+      0,
+      320,
+      121
+    ],
+    "uni-tabbar .uni-tabbar": [
+      0,
+      706,
+      320,
+      54
+    ]
+  },
+  "guideChunk": "/assets/pages-ai-guide-index.DDnq952T.js",
+  "guideChunkSha256": "f2d1df58f322554f67642908299a1c6b792caa35dfb9be5b796f3d21bf45d8d0",
+  "capabilities": {
+    "recording": true,
+    "wavPlayback": true
+  },
+  "measuredSignalVisibility": {
+    "soft": true,
+    "medium": true
+  },
+  "orbPerception": {
+    "rawTonePeak": {
+      "silence": 0,
+      "soft": 0.035,
+      "medium": 0.14
+    },
+    "expectedRms": {
+      "silence": 0,
+      "soft": 0.0247,
+      "medium": 0.099
+    },
+    "diameter": 62,
+    "silenceToSoft": {
+      "changedAbove8": 1192,
+      "pixels": 3844,
+      "meanAbsoluteChannelDelta": 6.87
+    },
+    "softToMedium": {
+      "changedAbove8": 1849,
+      "pixels": 3844,
+      "meanAbsoluteChannelDelta": 11.73
+    },
+    "unmetered720ms": {
+      "changedAbove8": 847,
+      "pixels": 3844,
+      "meanAbsoluteChannelDelta": 5.13
+    },
+    "reduced380ms": {
+      "changedAbove8": 0,
+      "pixels": 3844,
+      "meanAbsoluteChannelDelta": 0.0
+    }
+  },
+  "homeRoute": "/",
+  "version": "151.0.7922.34"
+}

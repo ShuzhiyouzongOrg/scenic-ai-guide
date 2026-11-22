@@ -1,0 +1,24 @@
+<template>
+  <view class="entry" :class="user ? 'question' : 'answer'">
+    <view class="meta"><sg-icon v-if="!user" :name="kind == '路线推荐' ? 'location' : 'headset'" :size="16" /><text class="byline">{{ user ? g('你') : g(kind == '路线推荐' ? '路线推荐' : (kind == '景点介绍' ? '景点讲解' : 'AI 导游')) }}</text></view>
+    <text class="body" :selectable="true">{{ content }}</text>
+    <text v-for="(source,i) in sources" :key="i" class="source">{{ g('资料') }} · {{ source.length > 0 ? source : g('景区知识库') }}</text>
+    <view v-if="!user" class="read"><sg-button :label="g('语音朗读')" kind="quiet" :disabled="busy" @action="emit('read')" /></view>
+  </view>
+</template>
+<script setup lang="uts">
+  import {guideText} from '@/design/guide-locale.uts'
+  const props=defineProps<{user:boolean,locale:string,kind:string,content:string,sources:string[],busy:boolean}>()
+  const emit=defineEmits(['read'])
+  function g(k:string):string {return guideText(props.locale,k)}
+</script>
+<style lang="scss">
+  .entry { padding: $sg-space-4; margin-bottom: $sg-space-3; border-radius: $sg-radius-md; }
+  .question { background-color: $sg-inset; }
+  .answer { background-color: $sg-background; }
+  .meta { flex-direction: row; align-items: center; }
+  .byline { font-size: $sg-type-caption; font-weight: 600; color: $sg-secondary; }
+  .body { margin-top: $sg-space-2; color: $sg-text; font-size: $sg-type-body; }
+  .source { margin-top: $sg-space-1; font-size: $sg-type-caption; color: $sg-muted; }
+  .read { align-self: flex-start; margin-top: $sg-space-2; }
+</style>

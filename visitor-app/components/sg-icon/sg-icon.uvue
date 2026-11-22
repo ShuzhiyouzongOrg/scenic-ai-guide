@@ -1,0 +1,8 @@
+<template>
+  <rice-icon :name="name" :size="size" :color="color" />
+</template>
+<script setup lang="uts">
+  import { themeColor } from '@/design/theme.uts'
+  const props = withDefaults(defineProps<{ name : string, size ?: number, tone ?: string }>(), {size: 20, tone: 'primary'})
+  const color = computed<string>(() => themeColor(props.tone == 'inverse' ? 'on-primary' : props.tone))
+</script>

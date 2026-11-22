@@ -1,0 +1,1 @@
+export type BindFormLabel = (fieldId : string, name : string) => boolean

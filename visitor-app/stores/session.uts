@@ -1,15 +1,24 @@
 import { createVisitorSession } from '@/services/guide-api.uts'
 
 const SESSION_KEY = 'scenic-visitor-session-id'
+let pendingSession : Promise<string> | null = null
+
+async function createAndStoreSession() : Promise<string> {
+	try {
+		const session = await createVisitorSession()
+		uni.setStorageSync(SESSION_KEY, session.id)
+		return session.id
+	} finally { pendingSession = null }
+}
 
 export async function ensureVisitorSession() : Promise<string> {
-	const cached = uni.getStorageSync(SESSION_KEY) as string
+	const cached = getCachedSessionId()
 	if (cached.length > 0) return cached
-	const session = await createVisitorSession()
-	uni.setStorage({ key: SESSION_KEY, data: session.id })
-	return session.id
+	if (pendingSession == null) pendingSession = createAndStoreSession()
+	return await pendingSession!
 }
 
 export function getCachedSessionId() : string {
-	return uni.getStorageSync(SESSION_KEY) as string
+	const value = uni.getStorageSync(SESSION_KEY)
+	return value == null ? '' : value as string
 }

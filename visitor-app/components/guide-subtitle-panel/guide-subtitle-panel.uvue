@@ -1,0 +1,47 @@
+<template>
+  <view class="subtitles">
+    <view class="subtitle-heading">
+      <text class="eyebrow">{{ label }}</text>
+      <view class="text-entry" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="textLabel" @click="emit('text')">
+        <sg-icon name="edit" :size="16" /><text class="text-entry-label">{{ shortTextLabel }}</text>
+      </view>
+    </view>
+    <text v-if="question.length > 0" class="question">{{ question }}</text>
+    <text class="caption" :class="[welcome ? 'welcome' : '', arriving ? 'caption-arriving' : '', reducedMotion ? 'caption-static' : '']" :aria-live="active ? 'polite' : 'off'">{{ text }}</text>
+    <view v-if="hasMore" class="more" role="button" tabindex="0" data-sg-keyboard="activate" @click="emit('history')"><text class="link">{{ moreLabel }}</text><sg-icon name="right" :size="14" /></view>
+  </view>
+</template>
+<script setup lang="uts">
+  import { reducedMotion } from '@/design/motion.uts'
+  import { pressDuration } from '@/design/palette.uts'
+  const props = defineProps<{label:string, text:string, question:string, welcome:boolean, active:boolean, hasMore:boolean, moreLabel:string, textLabel:string, shortTextLabel:string}>()
+  const emit=defineEmits(['history','text'])
+  const arriving = ref(false)
+  let timer : number | null = null
+  function settle() {
+    if (timer != null) clearTimeout(timer!)
+    timer = null
+    arriving.value = false
+  }
+  watch(() : string => props.text, () => {
+    settle()
+    if (reducedMotion.value || !props.active) return
+    arriving.value = true
+    timer = setTimeout(settle, pressDuration)
+  })
+  watch(() : boolean => props.active && !reducedMotion.value, (enabled : boolean) => { if (!enabled) settle() })
+  onUnmounted(settle)
+</script>
+<style lang="scss">
+  .eyebrow, .question { color: $sg-muted; font-size: $sg-type-label; }
+  .subtitle-heading { flex-direction: row; align-items: center; justify-content: space-between; }
+  .text-entry { flex-direction: row; align-items: center; justify-content: center; min-height: $sg-touch; min-width: $sg-touch; }
+  .text-entry-label { color: $sg-primary; margin-left: $sg-space-1; font-size: $sg-type-label; }
+  .question { margin-top: $sg-space-2; }
+  .caption { color: $sg-text; font-size: $sg-type-card; margin-top: $sg-space-2; transition-property: opacity; transition-duration: $sg-duration-fast; }
+  .caption-arriving { opacity: .85; }
+  .caption-static { transition-duration: $sg-duration-immediate; }
+  .welcome { font-size: $sg-type-section; font-weight: 600; }
+  .more { flex-direction: row; align-items: center; min-height: $sg-touch; }
+  .link { color: $sg-primary; font-size: $sg-type-label; margin-right: $sg-space-1; }
+</style>

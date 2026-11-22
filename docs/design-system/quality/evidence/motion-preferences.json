@@ -1,0 +1,78 @@
+[
+  {
+    "engine": "chromium",
+    "version": "151.0.7922.34",
+    "default": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0.12s",
+      "easing": "ease-out",
+      "delay": "0s"
+    },
+    "touchStart": {
+      "opacity": 0.76,
+      "property": "opacity",
+      "duration": "0s",
+      "easing": "linear",
+      "delay": "0s"
+    },
+    "touchCancel": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0.12s",
+      "easing": "ease-out",
+      "delay": "0s"
+    },
+    "systemReduced": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0s",
+      "easing": "linear",
+      "delay": "0s"
+    },
+    "preferenceAfterReload": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0s",
+      "easing": "linear",
+      "delay": "0s"
+    },
+    "reducedBusy": {
+      "label": "正在生成行程",
+      "spinnerCount": 0,
+      "ariaDisabled": true
+    },
+    "pageErrors": []
+  },
+  {
+    "engine": "webkit",
+    "version": "26.5",
+    "default": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0.12s",
+      "easing": "ease-out",
+      "delay": "0s"
+    },
+    "systemReduced": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0s",
+      "easing": "linear",
+      "delay": "0s"
+    },
+    "preferenceAfterReload": {
+      "opacity": 1,
+      "property": "opacity",
+      "duration": "0s",
+      "easing": "linear",
+      "delay": "0s"
+    },
+    "reducedBusy": {
+      "label": "正在生成行程",
+      "spinnerCount": 0,
+      "ariaDisabled": true
+    },
+    "pageErrors": []
+  }
+]

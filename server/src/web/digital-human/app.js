@@ -45,6 +45,7 @@ void XRTCPlayer;
  * @description 当前页面查询参数。
  * @type {URLSearchParams}
  */
+const { text: t, locale } = window.scenicStage;
 const runtimeQuery = new URLSearchParams(window.location.search);
 /**
  * @description 页面是否运行在应用 WebView 中。
@@ -182,6 +183,7 @@ let pendingExternalSpeech = [];
  * @type {QueuedSpeech|null}
  */
 let activeSpeech = null;
+let interruptPending = null;
 /**
  * @description 欢迎语是否已入队，防止重连重复播报。
  * @type {boolean}
@@ -220,10 +222,10 @@ if (embedMode) {
  * @example
  * window.scenicAvatarSpeak("欢迎来到灵山胜境");
  */
-window.scenicAvatarSpeak = (value) => {
+window.scenicAvatarSpeak = (value, requestId = 0) => {
   const text = normalizeExternalSpeech(value);
   if (!text) return false;
-  queueSpeech(text);
+  queueSpeech(text, { requestId });
   if (!ready || !platform) {
     elements.answer.textContent = text;
     setStatus("回答已收到，数字人就绪后将自动播报");
@@ -243,6 +245,7 @@ window.scenicAvatarSpeak = (value) => {
  * window.scenicAvatarInterrupt();
  */
 window.scenicAvatarInterrupt = () => {
+  const requestId = activeSpeech?.requestId ?? 0;
   pendingExternalSpeech.length = 0;
   activeSpeech = null;
   clearSpeechCompletionTimer();
@@ -260,10 +263,15 @@ window.scenicAvatarInterrupt = () => {
   } catch {
     interruptPromise = Promise.resolve();
   }
-  void Promise.resolve(interruptPromise).catch(() => {}).finally(() => {
+  const gate = Promise.resolve(interruptPromise).catch(() => {});
+  interruptPending = gate;
+  void gate.finally(() => {
+    if (gate !== interruptPending) return;
+    interruptPending = null;
     setRuntimeState("ready");
     setStatus("播报已停止");
-    notifyHost("idle", { reason: "interrupted" });
+    notifyHost("idle", { reason: "interrupted", requestId });
+    void flushPendingSpeech();
   });
   return true;
 };
@@ -400,7 +408,11 @@ async function fetchBootstrap() {
   );
   const payload = await response.json();
   if (!response.ok || !payload.success) {
-    throw new Error(payload?.error?.message || "数字人会话初始化失败");
+    const code = payload?.error?.code;
+    if (code === "DIGITAL_HUMAN_SESSION_INVALID" || code === "DIGITAL_HUMAN_SESSION_EXPIRED") {
+      throw new Error(t("会话已失效，请从应用重新打开导游。"));
+    }
+    throw new Error(t("此导游暂时无法连接，请返回应用重试。"));
   }
   return payload.data;
 }
@@ -411,9 +423,9 @@ async function fetchBootstrap() {
  * @returns {void}
  */
 function applyBootstrap(options) {
-  elements.guideName.textContent = options.digitalHuman.name || "灵山 AI 导游";
+  elements.guideName.textContent = options.digitalHuman.name || t("灵山 AI 导游");
   elements.welcome.textContent = options.digitalHuman.welcomeText
-    || "点击启动后，可以询问景点、路线和服务信息。";
+    || t("点击启动后，可以询问景点、路线和服务信息。");
 }
 
 /**
@@ -449,7 +461,7 @@ async function startAvatar(options) {
   setRuntimeState("starting");
   notifyHost("starting");
   elements.start.disabled = true;
-  elements.start.textContent = "正在连接讯飞数字人…";
+  elements.start.textContent = t("正在连接讯飞数字人…");
   setStatus("正在建立云端动态形象连接…");
 
   // Use the SDK's inline XRTC path. The explicit player import above preloads
@@ -475,24 +487,30 @@ async function startAvatar(options) {
     notifyHost("ready", { streamReady: true });
   });
   instance.on(SDKEvents.frame_start, () => {
-    if (platform !== instance) return;
+    if (platform !== instance || interruptPending || !activeSpeech) return;
+    activeSpeech.started = true;
     setRuntimeState("speaking");
     setStatus("数字人正在回答");
-    notifyHost("speaking", { speechId: activeSpeech?.id || 0 });
+    notifyHost("speaking", { speechId: activeSpeech.id, requestId: activeSpeech.requestId });
   });
   instance.on(SDKEvents.frame_stop, () => {
-    if (platform !== instance) return;
+    if (platform !== instance || interruptPending || !activeSpeech?.started) return;
+    const requestId = activeSpeech.requestId;
     activeSpeech = null;
     clearSpeechCompletionTimer();
     setRuntimeState("ready");
     setStatus("数字人在线，随时为你服务");
-    notifyHost("idle");
+    notifyHost("idle", { requestId });
     if (!speechWriteInFlight) void flushPendingSpeech();
   });
   instance.on(SDKEvents.subtitle_info, (payload) => {
     if (platform !== instance) return;
     const text = payload?.text || payload?.content || payload?.data?.text || payload?.data?.content;
-    if (text) elements.answer.textContent = text;
+    if (typeof text !== "string" || !text) return;
+    elements.answer.textContent = text;
+    if (!activeSpeech || interruptPending) return;
+    const start = activeSpeech.text.indexOf(text);
+    if (start >= 0) notifyHost("subtitle", { requestId: activeSpeech.requestId, start, length: text.length });
   });
   instance.on(SDKEvents.error, (error) => handleRuntimeFailure(error, instance));
   instance.on(SDKEvents.disconnected, (error) => {
@@ -550,7 +568,7 @@ async function startAvatar(options) {
 async function askGuide(question) {
   elements.ask.disabled = true;
   elements.input.disabled = true;
-  elements.answer.textContent = "AI 导游正在查找景区知识…";
+  elements.answer.textContent = t("AI 导游正在查找景区知识…");
   setStatus("正在思考你的问题…");
   try {
     const response = await fetch(bootstrap.endpoints.ask, {
@@ -561,14 +579,14 @@ async function askGuide(question) {
         question,
         sessionId: bootstrap.session.visitorSessionId,
         mode: "hybrid",
-        locale: "zh-CN"
+        locale
       })
     });
     const payload = await response.json();
     if (!response.ok || !payload.success) {
-      throw new Error(payload?.error?.message || "AI 导游回答失败");
+      throw new Error(payload?.error?.message || t("AI 导游回答失败"));
     }
-    const answer = String(payload?.data?.answer || "暂时没有找到合适的回答。").trim();
+    const answer = String(payload?.data?.answer || t("暂时没有找到合适的回答。")).trim();
     speakAvatarText(answer);
     elements.input.value = "";
   } catch (error) {
@@ -603,21 +621,21 @@ function speakAvatarText(text) {
  * @param {{front?: boolean}} [options={}] 入队选项。
  * @returns {QueuedSpeech} 新建或已存在的播报项。
  */
-function queueSpeech(text, { front = false } = {}) {
+function queueSpeech(text, { front = false, requestId = 0 } = {}) {
   // A host may deliver the same evalJS call twice while a WebView is being
   // replaced. Do not enqueue an identical utterance when it is already active
   // or waiting; this is also safe for repeated welcome retries.
-  const duplicate = pendingExternalSpeech.find((item) => item.text === text) ||
-    (activeSpeech?.text === text ? activeSpeech : null);
+  const duplicate = pendingExternalSpeech.find((item) => item.text === text && item.requestId === requestId) ||
+    (activeSpeech?.text === text && activeSpeech.requestId === requestId ? activeSpeech : null);
   if (duplicate) {
     elements.answer.textContent = text;
     return duplicate;
   }
-  const speech = { id: ++speechSequence, text };
+  const speech = { id: ++speechSequence, text, requestId, started: false };
   if (front) pendingExternalSpeech.unshift(speech);
   else pendingExternalSpeech.push(speech);
   elements.answer.textContent = text;
-  notifyHost("speech-accepted", { speechId: speech.id });
+  notifyHost("speech-accepted", { speechId: speech.id, requestId });
   return speech;
 }
 
@@ -626,14 +644,14 @@ function queueSpeech(text, { front = false } = {}) {
  * @returns {Promise<boolean>} 成功派发时为 `true`，条件不满足或调用失败时为 `false`。
  */
 async function flushPendingSpeech() {
-  if (!ready || !platform || speechWriteInFlight || activeSpeech || pendingExternalSpeech.length === 0) {
+  if (!ready || !platform || speechWriteInFlight || interruptPending || activeSpeech || pendingExternalSpeech.length === 0) {
     return false;
   }
   const instance = platform;
   const speech = pendingExternalSpeech.shift();
   activeSpeech = speech;
   speechWriteInFlight = true;
-  setRuntimeState("speaking");
+  setRuntimeState("ready");
   elements.answer.textContent = speech.text;
   setStatus("数字人正在为你讲解");
   try {
@@ -645,7 +663,7 @@ async function flushPendingSpeech() {
     if (platform === instance && activeSpeech?.id === speech.id) {
       scheduleSpeechCompletionFallback(instance, speech);
     }
-    notifyHost("speech-dispatched", { speechId: speech.id });
+    notifyHost("speech-dispatched", { speechId: speech.id, requestId: speech.requestId });
     return true;
   } catch (error) {
     if (platform === instance) handleRuntimeFailure(error, instance);
@@ -685,7 +703,7 @@ function setControls(enabled) {
  * @returns {void}
  */
 function setStatus(message) {
-  elements.status.textContent = message;
+  elements.status.textContent = t(message);
 }
 
 /**
@@ -698,7 +716,7 @@ function showFatal(message) {
   setRuntimeState("fatal");
   setStatus(message);
   elements.start.disabled = true;
-  elements.answer.textContent = message;
+  elements.answer.textContent = t(message);
   notifyHost("fatal", { message });
 }
 
@@ -747,16 +765,16 @@ function scheduleAutoRetry(message) {
   if (!sessionToken || retryCount >= MAX_AUTO_RETRIES) {
     recoveryExhausted = true;
     elements.start.disabled = false;
-    elements.start.textContent = "重新启动动态数字人";
-    setStatus(`${message}，自动重连已暂停，请点击重新启动`);
+    elements.start.textContent = t("重新启动动态数字人");
+    setStatus(message + " · " + t("自动重连已暂停，请点击重新启动"));
     notifyHost("error", { message, retrying: false, exhausted: true });
     return;
   }
   const attempt = ++retryCount;
   const delay = RETRY_BASE_DELAY_MS * (2 ** (attempt - 1));
   elements.start.disabled = true;
-  elements.start.textContent = `自动重连 ${attempt}/${MAX_AUTO_RETRIES}`;
-  setStatus(`${message}，${Math.ceil(delay / 1000)} 秒后自动重连（${attempt}/${MAX_AUTO_RETRIES}）`);
+  elements.start.textContent = `${t("自动重连")} ${attempt}/${MAX_AUTO_RETRIES}`;
+  setStatus(message + " · " + t("{seconds} 秒后自动重连").replace("{seconds}", String(Math.ceil(delay / 1000))) + ` (${attempt}/${MAX_AUTO_RETRIES})`);
   notifyHost("disconnected", {
     message,
     retrying: true,
@@ -822,7 +840,7 @@ function scheduleSpeechCompletionFallback(instance, speech) {
     activeSpeech = null;
     setRuntimeState("ready");
     setStatus("数字人在线，随时为你服务");
-    notifyHost("idle", { reason: "completion-timeout" });
+    notifyHost("speech-timeout", { requestId: speech.requestId });
     if (!speechWriteInFlight) void flushPendingSpeech();
   }, delay);
 }
@@ -860,8 +878,8 @@ function clearSpeechCompletionTimer() {
  * @returns {string} 用户可读错误说明。
  */
 function normalizeError(error) {
-  if (typeof error === "string") return error;
-  return error?.message || (error?.code ? `数字人服务错误（${error.code}）` : "数字人服务暂不可用");
+  if (typeof error === "string") return t(error);
+  return error?.message ? t(error.message) : error?.code ? t("数字人服务错误") + " (" + error.code + ")" : t("数字人服务暂不可用");
 }
 
 /**
@@ -883,6 +901,7 @@ function notifyHost(type, details = {}) {
   if (!embedMode) return;
   const packet = {
     source: "scenic-digital-human",
+    speechProtocol: 2,
     version: 1,
     type,
     state: runtimeState,

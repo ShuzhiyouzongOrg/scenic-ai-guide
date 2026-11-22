@@ -1,0 +1,9 @@
+{
+  "permissionPendingRelease": "all tracks ended; no upload",
+  "controlledNotAllowedErrorRecovery": "retry after granting starts real recorder",
+  "releaseAfterRecording": "exactly one additional upload",
+  "thinkingTap": "aborted request; no recording or TTS",
+  "micCalls": 4,
+  "uploads": 2,
+  "errors": []
+}

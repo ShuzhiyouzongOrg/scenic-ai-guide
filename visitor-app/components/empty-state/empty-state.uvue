@@ -1,7 +1,8 @@
 <template>
 	<view class="empty-state">
-		<view class="empty-icon">
-			<text class="empty-icon-text">{{ icon }}</text>
+    <image v-if="!imageFailed" class="illustration" :src="illustration" mode="aspectFit" aria-hidden="true" @error="imageFailed = true" />
+		<view v-else class="empty-icon">
+			<sg-icon :name="symbol" :size="24" />
 		</view>
 		<text class="empty-title">{{ title }}</text>
 		<text class="empty-description">{{ description }}</text>
@@ -15,47 +16,24 @@
 		description : string
 	}
 
-	withDefaults(defineProps<EmptyStateProps>(), {
+	const props = withDefaults(defineProps<EmptyStateProps>(), {
 		icon: '◎'
 	})
+  const symbol = computed<string>(() => {
+    if (props.icon == '☆' || props.icon == '♡') return 'star'
+    if (props.icon == '⌖' || props.icon == '景') return 'location'
+    if (props.icon == '↗') return 'calendar'
+    return 'info'
+  })
+  const illustration = computed<string>(() => props.icon == '!' ? '/static/editorial/state-error.webp' : '/static/editorial/state-empty.webp')
+  const imageFailed = ref(false)
+  watch(illustration, () => { imageFailed.value = false })
 </script>
 
-<style>
-	.empty-state {
-		align-items: center;
-		padding: 38px 22px;
-		background-color: #ffffff;
-		border-radius: 24px;
-		border: 1px solid #e1e8f2;
-		box-shadow: 0 8px 24px rgba(17,65,120,0.06);
-	}
-
-	.empty-icon {
-		width: 48px;
-		height: 48px;
-		border-radius: 24px;
-		background-color: #eaf3ff;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.empty-icon-text {
-		font-size: 25px;
-		color: #0b68d0;
-	}
-
-	.empty-title {
-		font-size: 17px;
-		font-weight: 700;
-		color: #24364d;
-		margin-top: 14px;
-	}
-
-	.empty-description {
-		font-size: 13px;
-		line-height: 20px;
-		color: #8291a5;
-		text-align: center;
-		margin-top: 7px;
-	}
+<style lang="scss">
+  .empty-state { align-items: center; padding: $sg-space-6 $sg-space-4; background-color: $sg-surface; border-radius: $sg-radius-md; border: 1px solid $sg-divider; }
+  .empty-icon { width: $sg-touch; height: $sg-touch; border-radius: $sg-radius-pill; background-color: $sg-inset; align-items: center; justify-content: center; }
+  .illustration { width: 108px; height: 72px; }
+  .empty-title { font-size: $sg-type-card; font-weight: 600; color: $sg-text; margin-top: $sg-space-3; text-align: center; }
+  .empty-description { font-size: $sg-type-label; color: $sg-muted; text-align: center; margin-top: $sg-space-1; }
 </style>

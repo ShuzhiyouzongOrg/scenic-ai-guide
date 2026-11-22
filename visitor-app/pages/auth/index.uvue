@@ -1,84 +1,123 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view class="hero">
-			<view class="avatar"><image class="avatar-image" src="/static/logo.png" mode="aspectFit" /></view>
-			<text class="hero-title">{{ mode == 'login' ? '欢迎回来' : '创建游客账号' }}</text>
-			<text class="hero-copy">登录用于识别游客身份；当前导览记录仍以本设备游客会话保存。</text>
-		</view>
-		<view class="form-card">
-			<view class="mode-row">
-				<view class="mode-item" :class="mode == 'login' ? 'mode-item-active' : ''" @click="setMode('login')"><text class="mode-text">登录</text></view>
-				<view class="mode-item" :class="mode == 'register' ? 'mode-item-active' : ''" @click="setMode('register')"><text class="mode-text">注册</text></view>
-			</view>
-			<text class="field-label">用户名</text>
-			<input class="field-input" v-model="username" placeholder="3-20 个字符" maxlength="20" />
-			<text class="field-label field-space">密码</text>
-			<input class="field-input" v-model="password" type="password" placeholder="至少 6 个字符" maxlength="128" confirm-type="done" @confirm="submit" />
-			<view class="submit-button">
-				<rice-button :text="submitting ? '处理中...' : (mode == 'login' ? '登录' : '注册并登录')" type="primary" shape="round" size="large" width="100%" :loading="submitting" @click="submit" />
-			</view>
-			<text class="form-tip">账号密码仅提交到当前项目后端，请勿与其他重要账号共用密码。</text>
-		</view>
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <sg-page-header :title="mode == 'login' ? t('欢迎回来','Welcome back','歡迎回來') : t('创建游客账号','Create an account','建立遊客帳號')" :subtitle="t('账号用于识别游客身份，导览记录仍保存在本设备。','Your account identifies you. Guide activity stays on this device.','帳號用於識別遊客身分，導覽記錄仍保存在本裝置。')" />
+      <view class="card">
+        <view class="choices">
+          <view class="choice-wrap"><sg-choice :label="t('登录','Sign in','登入')" :selected="mode == 'login'" @action="setMode('login')" /></view>
+          <view class="choice-wrap"><sg-choice :label="t('注册','Register','註冊')" :selected="mode == 'register'" @action="setMode('register')" /></view>
+        </view>
+        <!-- #ifdef APP-ANDROID -->
+        <view id="visitor-username-native-label" :flatten="false">
+        <!-- #endif -->
+        <label id="visitor-username-label" for="visitor-username"><text class="field-label">{{ t('用户名','Username','使用者名稱') }}</text></label>
+        <!-- #ifdef APP-ANDROID -->
+        </view>
+        <!-- #endif -->
+        <input id="visitor-username" class="field" v-model="username" :aria-label="t('用户名','Username','使用者名稱')" :placeholder="t('3–20 个字符','3–20 characters','3–20 個字元')" @input="clearError" :placeholder-style="placeholderStyle" :style="fieldStyle" :maxlength="20" :disabled="submitting" />
+        <!-- #ifdef APP-ANDROID -->
+        <view id="visitor-password-native-label" :flatten="false">
+        <!-- #endif -->
+        <label id="visitor-password-label" for="visitor-password"><text class="field-label">{{ t('密码','Password','密碼') }}</text></label>
+        <!-- #ifdef APP-ANDROID -->
+        </view>
+        <!-- #endif -->
+        <input id="visitor-password" class="field" v-model="password" :password="true" :aria-label="t('密码','Password','密碼')" :placeholder="t('至少 6 个字符','At least 6 characters','至少 6 個字元')" @input="clearError" :placeholder-style="placeholderStyle" :style="fieldStyle" :maxlength="128" :disabled="submitting" confirm-type="done" @confirm="submit" />
+        <text v-if="errorText.length > 0" class="error" role="alert">{{ errorText }}</text>
+        <sg-button :label="submitting ? t('处理中…','Working…','處理中…') : (mode == 'login' ? t('登录账号','Sign in to account','登入帳號') : t('注册并登录','Create account','註冊並登入'))" :loading="submitting" @action="submit" />
+        <text class="note">{{ t('请为游客账号设置独立密码。','Use a unique password for your visitor account.','請為遊客帳號設定獨立密碼。') }}</text>
+      </view>
+    </view>
+  </scroll-view>
 </template>
 
 <script setup lang="uts">
-	import { loginVisitor, registerVisitor } from '@/services/guide-api.uts'
-	import { saveAuthSession } from '@/stores/auth.uts'
+  import { loginVisitor, registerVisitor } from '@/services/guide-api.uts'
+  import { saveAuthSession } from '@/stores/auth.uts'
+  import { themeColor } from '@/design/theme.uts'
+  // #ifdef WEB
+  import { nameWebField } from '@/design/keyboard.uts'
+  onReady(() => {
+    nameWebField('visitor-username', t('用户名','Username','使用者名稱'))
+    nameWebField('visitor-password', t('密码','Password','密碼'))
+  })
+  // #endif
+  // #ifdef APP-ANDROID
+  import { bindFormLabel } from '@/uni_modules/scenic-form-label'
+  onReady(() => {
+    bindFormLabel('visitor-username', t('用户名','Username','使用者名稱'))
+    bindFormLabel('visitor-password', t('密码','Password','密碼'))
+  })
+  // #endif
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  const locale = ref<string>(getAppLocale())
+  function t(zh : string, en : string, traditional : string) : string {
+    return localize(locale.value, zh, en, traditional)
+  }
+  const mode = ref<string>('login')
+  const username = ref<string>('')
+  const password = ref<string>('')
+  const submitting = ref(false)
+  const errorText = ref<string>('')
+  const fieldStyle = computed<string>(() => 'color:' + themeColor('text'))
+  const placeholderStyle = computed<string>(() => 'color:' + themeColor('muted'))
+  function clearError() { errorText.value = '' }
+  let returnTimer = 0
+  let active = true
 
-	const mode = ref<string>('login')
-	const username = ref<string>('')
-	const password = ref<string>('')
-	const submitting = ref<boolean>(false)
+  function setMode(value : string) {
+    if (submitting.value) return
+    mode.value = value
+    errorText.value = ''
+  }
 
-	function setMode(value : string) {
-		if (submitting.value) return
-		mode.value = value
-	}
-
-	async function submit() {
-		const name = username.value.trim()
-		if (name.length < 3 || name.length > 20) {
-			uni.showToast({ title: '用户名需为 3-20 个字符', icon: 'none' })
-			return
-		}
-		if (password.value.length < 6) {
-			uni.showToast({ title: '密码至少需要 6 个字符', icon: 'none' })
-			return
-		}
-		submitting.value = true
-		try {
-			if (mode.value == 'register') await registerVisitor(name, password.value)
-			const result = await loginVisitor(name, password.value)
-			saveAuthSession(result.token, result.user)
-			uni.showToast({ title: mode.value == 'register' ? '注册成功' : '登录成功', icon: 'success' })
-			setTimeout(() => {
-				uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/profile/index' }) })
-			}, 350)
-		} catch (error) {
-			console.error('visitor auth failed', error)
-			uni.showToast({ title: mode.value == 'register' ? '注册失败，用户名可能已存在' : '用户名或密码错误', icon: 'none' })
-		} finally {
-			submitting.value = false
-		}
-	}
+  async function submit() {
+    if (submitting.value) return
+    const name = username.value.trim()
+    if (name.length < 3 || name.length > 20) {
+      errorText.value = t('用户名需要 3–20 个字符。','Enter a username with 3–20 characters.','使用者名稱需要 3–20 個字元。')
+      return
+    }
+    if (password.value.length < 6) {
+      errorText.value = t('密码至少需要 6 个字符。','Enter at least 6 characters for the password.','密碼至少需要 6 個字元。')
+      return
+    }
+    submitting.value = true
+    errorText.value = ''
+    try {
+      if (mode.value == 'register') await registerVisitor(name, password.value)
+      const result = await loginVisitor(name, password.value)
+      saveAuthSession(result.token, result.user)
+      if (!active) return
+      password.value = ''
+      uni.showToast({title: t('已登录','Signed in','已登入'), icon: 'success'})
+      returnTimer = setTimeout(() => {
+        uni.navigateBack({fail: () => uni.switchTab({url:'/pages/profile/index'})})
+      }, 350)
+    } catch (error) {
+      submitting.value = false
+      errorText.value = mode.value == 'register'
+        ? t('注册或登录失败。请检查网络，或用已有账号登录。','Check your connection or try signing in with an existing account.','註冊或登入失敗。請檢查網路，或用已有帳號登入。')
+        : t('登录失败。请检查网络、用户名和密码。','Check your connection, username and password, then try again.','登入失敗。請檢查網路、使用者名稱和密碼。')
+    }
+  }
+  onShow(() => {
+    locale.value = getAppLocale()
+    uni.setNavigationBarTitle({title: t('游客账号','Visitor account','遊客帳號')})
+  })
+  onUnload(() => { active = false; clearTimeout(returnTimer) })
 </script>
 
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.hero { padding: 44px 24px 72px; align-items: center; background: linear-gradient(to bottom right, #061f55, #0b68d0 62%, #0a9fc1); }
-	.avatar { width: 76px; height: 76px; border-radius: 25px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.96); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 12px 28px rgba(4,24,62,0.24); overflow: hidden; }
-	.avatar-image { width: 68px; height: 68px; }
-	.hero-title { font-size: 27px; font-weight: 800; color: #ffffff; margin-top: 15px; }
-	.hero-copy { font-size: 12px; line-height: 19px; color: #d9e9ff; text-align: center; margin-top: 8px; }
-	.form-card { margin: -32px 16px 30px; padding: 21px 18px 25px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 24px; box-shadow: 0 12px 30px rgba(17,65,120,0.11); }
-	.mode-row { flex-direction: row; padding: 4px; border-radius: 18px; background-color: #edf3fb; margin-bottom: 22px; }
-	.mode-item { flex: 1; padding: 10px; border-radius: 15px; align-items: center; }
-	.mode-item-active { background-color: #ffffff; box-shadow: 0 4px 12px rgba(26,75,133,0.10); }
-	.mode-text { font-size: 14px; font-weight: 600; color: #24517f; }
-	.field-label { font-size: 13px; font-weight: 600; color: #344861; }
-	.field-space { margin-top: 17px; }
-	.field-input { height: 48px; margin-top: 8px; padding: 0 14px; border-radius: 15px; background-color: #f5f8fc; border: 1px solid #dfe7f1; font-size: 14px; color: #15243c; }
-	.submit-button { margin-top: 24px; }
-	.form-tip { font-size: 10px; line-height: 16px; color: #8a98aa; text-align: center; margin-top: 13px; }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: $sg-space-4 $sg-space-4 $sg-space-8; }
+  .card { padding: $sg-space-4; border-radius: $sg-radius-lg; background-color: $sg-surface; border: 1px solid $sg-divider; }
+  .choices { flex-direction: row; flex-wrap: wrap; margin: 0 0 $sg-space-3; }
+  .choice-wrap { margin: 0 $sg-space-2 $sg-space-2 0; }
+  .field-label { color: $sg-text; font-size: $sg-type-body; font-weight: 600; }
+  .field { margin-top: $sg-space-2; margin-bottom: $sg-space-4; min-height: $sg-touch; padding: $sg-space-2 $sg-space-3; border-radius: $sg-radius-md; border: 1px solid $sg-border; background-color: $sg-background; color: $sg-text; font-size: $sg-type-body; }
+  .note { color: $sg-muted; font-size: $sg-type-label; margin-top: $sg-space-3; }
+  .error { margin: $sg-space-2 0; color: $sg-error; font-size: $sg-type-label; }
 </style>

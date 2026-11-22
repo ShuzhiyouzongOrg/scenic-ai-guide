@@ -43,6 +43,7 @@ import { createHmac, randomBytes } from "node:crypto";
 import { config } from "../config.mjs";
 import { answerQuestion, formatPublicAssistantText } from "./chat.mjs";
 import { getCachedAnswer, setCachedAnswer } from "./faqCache.mjs";
+import { normalizeLocale } from "./language.mjs";
 
 /**
  * @description 可通过临时 API URL 获取的合成音频片段。
@@ -71,13 +72,13 @@ function nowMs() {
 
 /**
  * @description 将音频转换为文字；显式 transcript 优先，其次使用讯飞，最后按配置使用模拟识别。
- * @param {{audioBase64?: string, mimeType?: string, transcript?: string, signal?: AbortSignal}} [input={}] 识别输入。
+ * @param {{audioBase64?: string, mimeType?: string, transcript?: string, locale?: string, signal?: AbortSignal}} [input={}] 识别输入。
  * @returns {Promise<TranscriptionResult>} 识别文本、供应商、置信度和耗时。
  * @throws {VoiceServiceError} 音频缺失/格式无效、密钥缺失、供应商未实现、请求中止或讯飞调用失败时抛出。
  * @example
  * const result = await transcribeAudio({ audioBase64, mimeType: "audio/wav" });
  */
-export async function transcribeAudio({ audioBase64 = "", mimeType = "", transcript = "", signal } = {}) {
+export async function transcribeAudio({ audioBase64 = "", mimeType = "", transcript = "", locale = "", signal } = {}) {
   const started = nowMs();
   const suppliedTranscript = String(transcript || "").trim();
   if (suppliedTranscript) {
@@ -91,7 +92,7 @@ export async function transcribeAudio({ audioBase64 = "", mimeType = "", transcr
   }
 
   if (config.providers.asr === "xfyun" && hasXfyunAsrConfig()) {
-    return transcribeXfyunAudio({ audioBase64, mimeType, signal, started });
+    return transcribeXfyunAudio({ audioBase64, mimeType, locale, signal, started });
   }
 
   const useMockAsr = config.providers.asr === "mock" || (config.demoMode && !hasXfyunAsrConfig());
@@ -226,11 +227,11 @@ function parsePcmWav(buffer) {
 /**
  * @description 通过讯飞 WebSocket 分片发送音频并按序组合识别片段。
  * @private
- * @param {{audioBase64: string, mimeType: string, signal?: AbortSignal, started: number}} input 识别参数。
+ * @param {{audioBase64: string, mimeType: string, locale: string, signal?: AbortSignal, started: number}} input 识别参数。
  * @returns {Promise<TranscriptionResult>} 讯飞识别结果。
  * @throws {VoiceServiceError|Error} 超时、上游错误、空结果、网络故障、中止或消息解析失败时拒绝。
  */
-function transcribeXfyunAudio({ audioBase64, mimeType, signal, started }) {
+function transcribeXfyunAudio({ audioBase64, mimeType, locale, signal, started }) {
   const prepared = prepareXfyunAsrAudio(audioBase64, mimeType);
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(xfyunAsrSignedUrl());
@@ -290,7 +291,8 @@ function transcribeXfyunAudio({ audioBase64, mimeType, signal, started }) {
         };
         if (status === 0) {
           payload.common = { app_id: config.xfyun.appId };
-          payload.business = { language: "zh_cn", domain: "iat", accent: "mandarin", eos: 5000, ptt: 1 };
+          const language = normalizeLocale(locale) === "en" ? "en_us" : "zh_cn";
+          payload.business = { language, domain: "iat", accent: "mandarin", eos: 5000, ptt: 1 };
         }
         ws.send(JSON.stringify(payload));
         offset = end;
@@ -440,6 +442,14 @@ export async function synthesizeSpeech({ text = "", voice = "guide_female", spee
   const audioSegments = segments.map((segment, index) => {
     const durationMs = Math.min(1200, Math.max(420, segment.length * 24));
     const buffer = createMockWav({ durationMs, frequency: 520 + index * 28 });
+    // This writer emits a 44-byte RIFF header then mono 8 kHz signed PCM16.
+    const levels80ms = [];
+    for (let start = 44; start < buffer.length; start += 1280) {
+      const end = Math.min(start + 1280, buffer.length);
+      let energy = 0;
+      for (let i = start; i < end; i += 2) energy += (buffer.readInt16LE(i) / 32768) ** 2;
+      levels80ms.push(Number(Math.sqrt(energy * 2 / (end - start)).toFixed(4)));
+    }
     const id = `tts_${Date.now()}_${randomBytes(4).toString("hex")}_${index}`;
     audioStore.set(id, {
       buffer,
@@ -452,7 +462,8 @@ export async function synthesizeSpeech({ text = "", voice = "guide_female", spee
       text: segment,
       audioUrl: `/api/voice/tts/audio/${id}`,
       mimeType: "audio/wav",
-      durationMs
+      durationMs,
+      levels80ms
     };
   });
 
@@ -621,7 +632,7 @@ export async function voiceAsk({ audioBase64 = "", mimeType = "", transcript = "
   const asrStart = nowMs();
   const asr = question
     ? { text: String(question).trim(), provider: "direct", confidence: 1, latencyMs: 0 }
-    : await transcribeAudio({ audioBase64, mimeType, transcript, signal });
+    : await transcribeAudio({ audioBase64, mimeType, transcript, locale, signal });
   const asrMs = nowMs() - asrStart;
 
   const cacheKey = `voice::${locale || "auto"}::${asr.text}::${mode || "auto"}`;

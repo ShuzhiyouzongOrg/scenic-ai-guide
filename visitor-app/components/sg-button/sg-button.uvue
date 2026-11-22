@@ -1,0 +1,45 @@
+<template>
+  <!-- #ifdef WEB -->
+  <view class="keyboard-button" role="button" :tabindex="disabled || loading ? -1 : 0"
+    :aria-label="label" :aria-disabled="disabled || loading" :aria-busy="loading"
+    @keydown="handleKeyDown" @keyup="handleKeyUp">
+  <!-- #endif -->
+  <rice-button :text="label" :text-size="largeText ? largeButtonTextSize : buttonTextSize" :height="touchSize" :plain="kind == 'secondary'"
+    :color="background" :text-color="foreground" :loading="loading && !reducedMotion" :disabled="disabled || (loading && reducedMotion)"
+    shape="round" @click="activate" />
+  <!-- #ifdef WEB -->
+  </view>
+  <!-- #endif -->
+</template>
+<script setup lang="uts">
+  import { largeText, themeColor } from '@/design/theme.uts'
+  import { reducedMotion } from '@/design/motion.uts'
+  import { buttonTextSize, largeButtonTextSize, touchSize } from '@/design/palette.uts'
+  const props = withDefaults(defineProps<{ label : string, kind ?: string, disabled ?: boolean, loading ?: boolean }>(),
+    { kind: 'primary', disabled: false, loading: false })
+  const emit = defineEmits(['action'])
+  const background = computed<string>(() => themeColor(props.kind == 'quiet' ? 'inset' : 'primary'))
+  const foreground = computed<string>(() => themeColor(props.kind == 'primary' ? 'on-primary' : 'primary'))
+  function activate() {
+    if (!props.disabled && !props.loading) emit('action')
+  }
+  // #ifdef WEB
+  function handleKeyDown(event : KeyboardEvent) {
+    if (event.key != 'Enter' && event.key != ' ') return
+    event.preventDefault()
+    if (event.key == 'Enter' && !event.repeat) activate()
+  }
+  function handleKeyUp(event : KeyboardEvent) {
+    if (event.key == ' ') {
+      event.preventDefault()
+      activate()
+    }
+  }
+  // #endif
+</script>
+<style lang="scss">
+  /* #ifdef WEB */
+  .keyboard-button { border-radius: $sg-radius-pill; }
+  .keyboard-button:focus-visible { outline: 2px solid $sg-primary; outline-offset: 2px; }
+  /* #endif */
+</style>

@@ -1,3 +1,5 @@
+@import '@/design/tokens.scss';
+
 /**
  * 这里是uni-app内置的常用样式变量
  *
@@ -15,62 +17,62 @@
 /* 颜色变量 */
 
 /* 行为相关颜色 */
-$uni-color-primary: #0b68d0;
-$uni-color-success: #16a6a2;
-$uni-color-warning: #f2a321;
-$uni-color-error: #d85b56;
+$uni-color-primary: $sg-base-primary;
+$uni-color-success: $sg-base-success;
+$uni-color-warning: $sg-base-warning;
+$uni-color-error: $sg-base-error;
 
 /* 文字基本颜色 */
-$uni-text-color:#15243c;//基本色
-$uni-text-color-inverse:#fff;//反色
-$uni-text-color-grey:#738198;//辅助灰色，如加载更多的提示信息
-$uni-text-color-placeholder: #808080;
-$uni-text-color-disable:#c0c0c0;
+$uni-text-color: $sg-base-text;//基本色
+$uni-text-color-inverse: $sg-base-on-primary;//反色
+$uni-text-color-grey: $sg-base-muted;//辅助灰色，如加载更多的提示信息
+$uni-text-color-placeholder: $sg-base-muted;
+$uni-text-color-disable: $sg-base-muted;
 
 /* 背景颜色 */
-$uni-bg-color:#ffffff;
-$uni-bg-color-grey:#f3f6fb;
-$uni-bg-color-hover:#f1f1f1;//点击状态颜色
+$uni-bg-color: $sg-base-surface;
+$uni-bg-color-grey: $sg-base-background;
+$uni-bg-color-hover: $sg-base-inset;//点击状态颜色
 $uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
 
 /* 边框颜色 */
-$uni-border-color:#e2e8f2;
+$uni-border-color: $sg-base-border;
 
 /* 尺寸变量 */
 
 /* 文字尺寸 */
-$uni-font-size-sm:12px;
-$uni-font-size-base:14px;
-$uni-font-size-lg:16px;
+$uni-font-size-sm: $sg-type-caption;
+$uni-font-size-base: $sg-type-label;
+$uni-font-size-lg: $sg-type-body;
 
 /* 图片尺寸 */
-$uni-img-size-sm:20px;
-$uni-img-size-base:26px;
-$uni-img-size-lg:40px;
+$uni-img-size-sm: $sg-space-5;
+$uni-img-size-base: $sg-space-6;
+$uni-img-size-lg: $sg-touch;
 
 /* Border Radius */
-$uni-border-radius-sm: 2px;
-$uni-border-radius-base: 10px;
-$uni-border-radius-lg: 18px;
+$uni-border-radius-sm: $sg-radius-sm;
+$uni-border-radius-base: $sg-radius-md;
+$uni-border-radius-lg: $sg-radius-lg;
 $uni-border-radius-circle: 50%;
 
 /* 水平间距 */
-$uni-spacing-row-sm: 5px;
-$uni-spacing-row-base: 10px;
-$uni-spacing-row-lg: 15px;
+$uni-spacing-row-sm: $sg-space-1;
+$uni-spacing-row-base: $sg-space-2;
+$uni-spacing-row-lg: $sg-space-4;
 
 /* 垂直间距 */
-$uni-spacing-col-sm: 4px;
-$uni-spacing-col-base: 8px;
-$uni-spacing-col-lg: 12px;
+$uni-spacing-col-sm: $sg-space-1;
+$uni-spacing-col-base: $sg-space-2;
+$uni-spacing-col-lg: $sg-space-4;
 
 /* 透明度 */
 $uni-opacity-disabled: 0.3; // 组件禁用态的透明度
 
 /* 文章场景相关 */
-$uni-color-title: #2C405A; // 文章标题颜色
-$uni-font-size-title:20px;
-$uni-color-subtitle: #555555; // 二级标题颜色
-$uni-font-size-subtitle:26px;
-$uni-color-paragraph: #3F536E; // 文章段落颜色
-$uni-font-size-paragraph:15px;
+$uni-color-title: $sg-base-text; // 文章标题颜色
+$uni-font-size-title: $sg-type-section;
+$uni-color-subtitle: $sg-base-secondary; // 二级标题颜色
+$uni-font-size-subtitle: $sg-type-card;
+$uni-color-paragraph: $sg-base-text; // 文章段落颜色
+$uni-font-size-paragraph: $sg-type-body;

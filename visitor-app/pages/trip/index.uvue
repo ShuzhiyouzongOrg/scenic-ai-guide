@@ -1,248 +1,308 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view class="header">
-			<view class="header-badge"><text class="header-badge-text">AI ROUTE PLANNER</text></view>
-			<text class="header-title">规划今天的{{ scenicAreaName }}行程</text>
-			<text class="header-copy">当前景区为 {{ scenicAreaName }}，选择游览时长与兴趣，使用现有路线推荐服务生成真实行程。</text>
-			<view class="header-summary">
-				<view class="header-summary-item"><text class="header-summary-value">3</text><text class="header-summary-label">种时长</text></view>
-				<view class="header-summary-divider"></view>
-				<view class="header-summary-item"><text class="header-summary-value">5</text><text class="header-summary-label">类兴趣</text></view>
-				<view class="header-summary-divider"></view>
-				<view class="header-summary-item"><text class="header-summary-value">AI</text><text class="header-summary-label">智能匹配</text></view>
-			</view>
-		</view>
-
-		<view class="content">
-			<view class="form-card">
-				<view class="field-heading"><text class="field-index">01</text><text class="field-title">预计游览时长</text></view>
-				<view class="option-row">
-					<view v-for="item in durations" :key="item.value" class="option-pill" :class="duration == item.value ? 'option-pill-active' : ''" @click="selectDuration(item.value)">
-						<text class="option-text" :class="duration == item.value ? 'option-text-active' : ''">{{ item.label }}</text>
-					</view>
-				</view>
-
-				<view class="field-heading field-title-space"><text class="field-index">02</text><text class="field-title">游览兴趣</text></view>
-				<view class="option-row option-row-wrap">
-					<view v-for="item in interestOptions" :key="item.value" class="option-pill" :class="interests.includes(item.value) ? 'option-pill-active' : ''" @click="toggleInterest(item.value)">
-						<text class="option-text" :class="interests.includes(item.value) ? 'option-text-active' : ''">{{ item.label }}</text>
-					</view>
-				</view>
-
-				<view class="generate-button">
-					<rice-button :text="generating ? '正在生成...' : '生成专属行程'" type="primary" shape="round" size="large" :loading="generating" width="100%" @click="generateRoute" />
-				</view>
-			</view>
-
-			<app-section title="推荐结果" subtitle="路线节点可继续进入地图与 AI 讲解">
-				<view v-if="recommendation != null" class="result-card">
-					<view class="result-header">
-						<view>
-							<text class="result-label">AI 推荐</text>
-							<text class="result-title">{{ recommendation!.name }}</text>
-						</view>
-						<text class="result-duration">{{ recommendation!.durationMinutes }} 分钟</text>
-					</view>
-					<text class="result-copy">{{ recommendation!.explanation }}</text>
-					<view class="timeline">
-						<view v-for="(node, index) in recommendation!.nodes" :key="node.id" class="timeline-item">
-							<view class="timeline-rail">
-								<view class="timeline-dot" :class="index == 0 ? 'timeline-dot-active' : ''"></view>
-								<view v-if="index < recommendation!.nodes.length - 1" class="timeline-line"></view>
-							</view>
-							<view class="timeline-content">
-								<text class="timeline-name">{{ index + 1 }}. {{ node.name }}</text>
-								<text class="timeline-time">建议停留 {{ node.stayMinutes ?? node.minutes ?? 10 }} 分钟</text>
-							</view>
-						</view>
-					</view>
-					<view class="result-actions">
-						<rice-button text="保存行程" type="primary" shape="round" @click="saveCurrentRoute" />
-						<rice-button text="在地图查看" shape="round" plain @click="openMap" />
-					</view>
-				</view>
-				<empty-state v-else icon="↗" title="还没有生成行程" description="选择时长和兴趣后，AI 会从现有路线图谱中推荐最适合你的路线。" />
-			</app-section>
-
-			<app-section title="已保存行程" :subtitle="savedRoutes.length.toString() + ' 条记录'">
-				<view v-if="savedRoutes.length > 0" class="saved-card">
-					<rice-cell v-for="item in savedRoutes" :key="item.id" :title="item.routeName" :label="item.durationMinutes.toString() + ' 分钟 · 点击在地图恢复'" arrow @click="openSavedRoute(item)" />
-				</view>
-				<empty-state v-else icon="☆" title="还没有保存行程" description="生成路线后点击“保存行程”，下次进入仍可恢复到地图。" />
-			</app-section>
-		</view>
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <view class="top" :style="headerStyle"><sg-page-header :title="t('行程规划', 'Plan a trip', '行程規劃')" :subtitle="areaName" /></view>
+      <view class="card">
+        <text class="field">{{ t('游览时长', 'Time available', '遊覽時長') }}</text>
+        <view class="choices"><view v-for="minutes in durations" :key="minutes" class="choice-space">
+          <sg-choice :label="durationLabel(minutes)" :selected="duration == minutes" @action="setDuration(minutes)" />
+        </view></view>
+        <view v-if="area == 'lingshan'" class="interest">
+          <text class="field">{{ t('游览兴趣', 'Interests', '遊覽興趣') }}</text>
+          <view class="choices"><view v-for="item in interestOptions" :key="item.value" class="choice-space">
+            <sg-choice :label="t(item.zh,item.en,item.hant)" :selected="interests.includes(item.value)" @action="toggleInterest(item.value)" />
+          </view></view>
+        </view>
+        <text v-else class="meta">{{ t('按游览时长匹配拈花湾官方路线。', 'Match an official Nianhua Bay route to your time.', '按遊覽時長匹配拈花灣官方路線。') }}</text>
+        <view class="submit"><sg-button :label="generating ? t('正在生成行程','Finding a route','正在產生行程') : t('生成行程','Find a route','產生行程')" :loading="generating" :disabled="saving" @action="generateRoute" /></view>
+        <text v-if="generateError" class="error">{{ t('路线未能加载，请重试。','Could not load a route. Try again.','路線未能載入，請重試。') }}</text>
+      </view>
+      <app-section :title="t('本次行程','Your itinerary','本次行程')">
+        <view v-if="recommendation != null" class="card">
+          <sg-badge :label="saved ? t('已保存','Saved','已儲存') : t('尚未保存','Unsaved','尚未儲存')" />
+          <text class="route-title">{{ recommendation!.name }}</text>
+          <text class="meta">{{ recommendation!.durationMinutes }} {{ t('分钟','min','分鐘') }} · {{ recommendation!.nodes.length }} {{ t('站','stops','站') }}</text>
+          <text v-if="summary.length > 0" class="description">{{ summary }}</text>
+          <text class="hint">{{ t('拖动把手调整顺序，也可点按把手选择上移或下移。','Drag a handle or tap it to move a stop up or down.','拖動把手調整順序，也可點按把手選擇上移或下移。') }}</text>
+          <view v-for="(node,index) in recommendation!.nodes" :key="node.id" ref="timelineRows" class="stop" :class="dragFrom >= 0 && dragTo == index ? 'drop-target' : ''">
+            <view class="ordinal"><text class="ordinal-label">{{ index + 1 }}</text></view>
+            <view class="stop-copy"><text class="stop-name">{{ node.name }}</text><text class="meta">{{ t('停留','Stay','停留') }} {{ node.stayMinutes ?? node.minutes ?? 10 }} {{ t('分钟','min','分鐘') }}</text></view>
+            <view class="handle" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="node.name + ' ' + t('调整顺序','Move stop','調整順序')" @click="chooseMove(index)" @touchstart.stop="startDrag(index,$event)" @touchmove.stop.prevent="moveDrag" @touchend.stop="finishDrag" @touchcancel.stop="cancelDrag">
+              <sg-icon name="sort-menu" tone="muted" :size="20" />
+            </view>
+          </view>
+          <view v-if="detailReason.length > 0" class="secondary">
+            <sg-button kind="quiet" :label="reasonOpen ? t('收起推荐说明','Hide route notes','收起推薦說明') : t('查看推荐说明','Show route notes','查看推薦說明')" @action="reasonOpen = !reasonOpen" />
+            <text v-if="reasonOpen" class="description">{{ detailReason }}</text>
+          </view>
+          <view class="submit"><sg-button :label="saving ? t('正在保存','Saving','正在儲存') : (saved ? t('行程已保存','Itinerary saved','行程已儲存') : t('保存行程','Save itinerary','儲存行程'))" :loading="saving" :disabled="saved || generating" @action="saveCurrent" /></view>
+          <view class="secondary"><sg-button :label="t('在地图查看','View on map','在地圖查看')" kind="secondary" :disabled="saving" @action="openMap" /></view>
+          <text v-if="saveError" class="error">{{ t('保存失败，已保留当前顺序。','Save failed. Your order is still here.','儲存失敗，已保留目前順序。') }}</text>
+        </view>
+        <empty-state v-else icon="↗" :title="t('还没有行程','No itinerary yet','還沒有行程')" :description="t('选择时长后生成路线。','Choose a duration to find a route.','選擇時長後產生路線。')" />
+      </app-section>
+      <app-section :title="t('已保存的行程','Saved itineraries','已儲存的行程')">
+        <sg-skeleton v-if="savedLoading && savedRoutes.length == 0" variant="row" />
+        <view v-if="savedRoutes.length > 0" class="group">
+          <view v-for="(item,index) in savedRoutes" :key="item.id"><sg-divider v-if="index > 0" /><sg-service-row icon="calendar" :title="item.routeName" :detail="item.durationMinutes.toString() + ' ' + t('分钟 · 地图查看','min · View on map','分鐘 · 地圖查看')" @action="openSaved(item)" /></view>
+        </view>
+        <view v-if="savedError" class="secondary"><text class="error">{{ t('保存记录加载失败','Could not load saved trips','儲存紀錄載入失敗') }}</text><sg-button :label="t('重试','Try again','重試')" kind="secondary" @action="loadSaved" /></view>
+        <empty-state v-if="!savedLoading && !savedError && savedRoutes.length == 0" icon="☆" :title="t('还没有保存记录','No saved itineraries','還沒有儲存紀錄')" :description="t('保存后可在地图上恢复路线。','Save an itinerary to reopen it on the map.','儲存後可在地圖上恢復路線。')" />
+      </app-section>
+    </view>
+  </scroll-view>
 </template>
-
 <script setup lang="uts">
-	import type { GuideRouteNode, RouteGraphNode, RouteRecommendation, SavedRouteSelection } from '@/domain/types.uts'
-	import { fetchRouteGraph, fetchSavedRoutes, recommendRoute, saveRoute } from '@/services/guide-api.uts'
-	import { getPreferredScenicArea } from '@/stores/guide-preferences.uts'
-	import { getActiveRoute, setActiveRoute } from '@/stores/navigation-context.uts'
-	import { ensureVisitorSession } from '@/stores/session.uts'
+  import type { GuideRoute, GuideRouteNode, RouteRecommendation, SavedRouteSelection, ScenicAreaId } from '@/domain/types.uts'
+  import { fetchGuideRoutes, fetchRouteGraph, fetchSavedRoutes, recommendRoute, saveRoute } from '@/services/guide-api.uts'
+  import { getPreferredScenicArea, setPreferredScenicArea } from '@/stores/guide-preferences.uts'
+  import { getActiveRoute, setActiveRoute } from '@/stores/navigation-context.uts'
+  import { ensureVisitorSession } from '@/stores/session.uts'
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  import { useScenicInsets } from '@/design/layout.uts'
+  const { headerStyle } = useScenicInsets()
 
-	type SelectOption = { label : string, value : number }
-	type InterestOption = { label : string, value : string }
+  type InterestOption = { value : string, zh : string, en : string, hant : string }
+  const durations = [60, 180, 360]
+  const interestOptions : InterestOption[] = [
+    { value:'history', zh:'历史文化', en:'History', hant:'歷史文化' }, { value:'family', zh:'亲子互动', en:'Family', hant:'親子互動' },
+    { value:'photo', zh:'摄影打卡', en:'Photography', hant:'攝影打卡' }, { value:'buddhist', zh:'佛教文化', en:'Buddhist culture', hant:'佛教文化' },
+    { value:'easy', zh:'轻松漫步', en:'Easy walks', hant:'輕鬆漫步' }
+  ]
+  const locale = ref('zh-Hans')
+  const area = ref<ScenicAreaId>('lingshan')
+  const duration = ref(180)
+  const interests = ref<string[]>(['history'])
+  const generating = ref(false)
+  const saving = ref(false)
+  const saved = ref(false)
+  const generateError = ref(false)
+  const saveError = ref(false)
+  const savedLoading = ref(false)
+  const savedError = ref(false)
+  const savedRoutes = ref<SavedRouteSelection[]>([])
+  const recommendation = ref<RouteRecommendation | null>(null)
+  const reasonOpen = ref(false)
+  const summary = computed<string>(() => (recommendation.value?.explanation ?? '').split('\n')[0])
+  const detailReason = computed<string>(() => (recommendation.value?.explanation ?? '').split('\n').slice(1).join('\n').trim())
+  const timelineRows = ref<UniElement[]>([])
+  const dragFrom = ref(-1)
+  const dragTo = ref(-1)
+  let centers : number[] = []
+  let startY = 0
+  let lastY = 0
+  let dragGeneration = 0
+  let suppressClickUntil = 0
+  let operation = 0
+  let listRequest = 0
+  let restoreRequest = 0
+  function t(zh : string,en : string,hant : string) : string { return localize(locale.value,zh,en,hant) }
+  const areaName = computed<string>(() => area.value == 'nianhuawan' ? t('拈花湾','Nianhua Bay','拈花灣') : t('灵山胜境','Lingshan','靈山勝境'))
+  function routeArea(id : string) : ScenicAreaId { return id.startsWith('nianhuawan-') ? 'nianhuawan' : 'lingshan' }
+  function durationLabel(value : number) : string { return value == 60 ? t('1 小时','1 hour','1 小時') : (value == 180 ? t('半日','Half day','半日') : t('一日','Full day','一日')) }
+  function matchesSaved(route : RouteRecommendation) : boolean {
+    const ids = route.nodes.map<string>((node : GuideRouteNode) : string => node.id)
+    return savedRoutes.value.some((item : SavedRouteSelection) : boolean =>
+      item.routeId == route.id && item.nodeIds.length == ids.length &&
+      item.nodeIds.every((id : string,index : number) : boolean => ids[index] == id))
+  }
+  function setDuration(minutes : number) { if (!generating.value) duration.value = minutes }
+  function toggleInterest(value : string) {
+    if (generating.value) return
+    const index = interests.value.indexOf(value)
+    if (index >= 0) interests.value.splice(index,1)
+    else interests.value.push(value)
+  }
 
-	const durations = ref<SelectOption[]>([
-		{ label: '1 小时', value: 60 },
-		{ label: '半日', value: 180 },
-		{ label: '一日', value: 360 }
-	])
-	const interestOptions = ref<InterestOption[]>([
-		{ label: '历史文化', value: 'history' },
-		{ label: '亲子互动', value: 'family' },
-		{ label: '摄影打卡', value: 'photo' },
-		{ label: '佛教文化', value: 'buddhist' },
-		{ label: '轻松漫步', value: 'easy' }
-	])
-	const duration = ref<number>(180)
-	const interests = ref<string[]>(['history'])
-	const generating = ref<boolean>(false)
-	const recommendation = ref<RouteRecommendation | null>(null)
-	const savedRoutes = ref<SavedRouteSelection[]>([])
-	const graphNodes = ref<RouteGraphNode[]>([])
-	const scenicArea = ref<string>('lingshan')
-	const scenicAreaName = computed<string>(() => scenicArea.value == 'nianhuawan' ? '拈花湾' : '灵山胜境')
-
-	function selectDuration(value : number) {
-		duration.value = value
-	}
-
-	function toggleInterest(value : string) {
-		const index = interests.value.indexOf(value)
-		if (index >= 0) interests.value.splice(index, 1)
-		else interests.value.push(value)
-	}
-
-	async function generateRoute() {
-		generating.value = true
-		try {
-			const result = await recommendRoute(duration.value, interests.value)
-			recommendation.value = result.recommendation
-		} catch (error) {
-			console.error('recommend route failed', error)
-			uni.showToast({ title: '路线服务连接失败', icon: 'none' })
-		} finally {
-			generating.value = false
-		}
-	}
-
-	async function saveCurrentRoute() {
-		if (recommendation.value == null) return
-		try {
-			const sessionId = await ensureVisitorSession()
-			await saveRoute(sessionId, recommendation.value!.id, recommendation.value)
-			setActiveRoute(recommendation.value!)
-			await loadSavedRoutes()
-			uni.showToast({ title: '行程已保存', icon: 'success' })
-		} catch (error) {
-			console.error('save route failed', error)
-			uni.showToast({ title: '保存失败，请稍后重试', icon: 'none' })
-		}
-	}
-
-	async function loadSavedRoutes() {
-		try {
-			const sessionId = await ensureVisitorSession()
-			savedRoutes.value = await fetchSavedRoutes(sessionId)
-			if (graphNodes.value.length == 0) {
-				const graph = await fetchRouteGraph()
-				graphNodes.value = graph.nodes
-			}
-		} catch (error) {
-			console.error('load saved routes failed', error)
-		}
-	}
-
-	function openSavedRoute(item : SavedRouteSelection) {
-		const nodes = item.nodeIds
-			.map<GuideRouteNode | null>((id : string) : GuideRouteNode | null => {
-				const source = graphNodes.value.find((node : RouteGraphNode) : boolean => node.id == id) ?? null
-				if (source == null) return null
-				return {
-					id: source.id,
-					order: source.order,
-					spotId: source.spotId,
-					name: source.name,
-					coordinateSystem: 'gcj02',
-					stayMinutes: source.minutes,
-					minutes: source.minutes
-				} as GuideRouteNode
-			})
-			.filter((node : GuideRouteNode | null) : boolean => node != null)
-			.map<GuideRouteNode>((node : GuideRouteNode | null) : GuideRouteNode => node!)
-		if (nodes.length == 0) {
-			uni.showToast({ title: '该行程节点暂时无法恢复', icon: 'none' })
-			return
-		}
-		const route = {
-			id: item.routeId,
-			name: item.routeName,
-			routeType: item.routeType,
-			durationMinutes: item.durationMinutes,
-			tags: item.tags,
-			suitableFor: [],
-			nodes,
-			explanation: '已从保存记录恢复，可在地图中继续查看路线和景点。'
-		} as RouteRecommendation
-		recommendation.value = route
-		setActiveRoute(route)
-		uni.switchTab({ url: '/pages/map/index' })
-	}
-
-	function openMap() {
-		if (recommendation.value != null) setActiveRoute(recommendation.value!)
-		uni.switchTab({ url: '/pages/map/index' })
-	}
-
-	onShow(() => {
-		scenicArea.value = getPreferredScenicArea()
-		if (recommendation.value == null) recommendation.value = getActiveRoute()
-		loadSavedRoutes()
-	})
+  async function nianhuaRoute() : Promise<RouteRecommendation> {
+    const routes = (await fetchGuideRoutes('nianhuawan')).filter((r : GuideRoute) : boolean => r.nodes.length > 0 && r.durationMinutes != null)
+    if (routes.length == 0) throw new Error('No available route')
+    const minutes = duration.value
+    routes.sort((a : GuideRoute,b : GuideRoute) : number => Math.abs(a.durationMinutes! - minutes) - Math.abs(b.durationMinutes! - minutes))
+    const route = routes[0]
+    return { id: route.id, name: route.name, routeType: 'official', durationMinutes: route.durationMinutes!, tags: route.tags, suitableFor: [], nodes: route.nodes,
+      explanation: t('按所选时长匹配的景区官方路线。','An official route matched to your available time.','按所選時長匹配的景區官方路線。') } as RouteRecommendation
+  }
+  async function generateRoute() {
+    if (saving.value || generating.value) return
+    const sequence = ++operation
+    restoreRequest++
+    generating.value = true
+    generateError.value = false
+    cancelDrag()
+    try {
+      const result = area.value == 'nianhuawan' ? await nianhuaRoute() : (await recommendRoute(duration.value, interests.value)).recommendation
+      if (sequence != operation) return
+      recommendation.value = result
+      reasonOpen.value = false
+      saved.value = matchesSaved(result)
+      saveError.value = false
+    } catch (error) { if (sequence == operation) generateError.value = true }
+    finally { if (sequence == operation) generating.value = false }
+  }
+  async function loadSaved() {
+    const sequence = ++listRequest
+    savedLoading.value = true
+    savedError.value = false
+    try {
+      const rows = await fetchSavedRoutes(await ensureVisitorSession())
+      if (sequence == listRequest) {
+        savedRoutes.value = rows.slice().reverse()
+        if (recommendation.value != null) saved.value = matchesSaved(recommendation.value!)
+      }
+    } catch (error) { if (sequence == listRequest) savedError.value = true }
+    finally { if (sequence == listRequest) savedLoading.value = false }
+  }
+  async function saveCurrent() {
+    const route = recommendation.value
+    if (route == null || saving.value || generating.value || saved.value) return
+    const sequence = operation
+    saving.value = true
+    saveError.value = false
+    try {
+      await saveRoute(await ensureVisitorSession(), route.id, route)
+      if (sequence == operation) {
+        saved.value = true
+        setActiveRoute(route)
+      }
+      loadSaved()
+    } catch (error) { if (sequence == operation) saveError.value = true }
+    finally { saving.value = false }
+  }
+  async function openSaved(item : SavedRouteSelection) {
+    if (saving.value || generating.value) return
+    const sequence = ++restoreRequest
+    try {
+      const targetArea = routeArea(item.routeId)
+      let candidates : GuideRouteNode[] = []
+      if (targetArea == 'nianhuawan') {
+        const routes = await fetchGuideRoutes(targetArea)
+        const source = routes.find((r : GuideRoute) : boolean => r.id == item.routeId)
+        if (source != null) candidates = source.nodes
+      } else {
+        const graph = await fetchRouteGraph()
+        candidates = graph.nodes.map<GuideRouteNode>((n) : GuideRouteNode => ({ id:n.id, order:n.order, spotId:n.spotId, name:n.name, coordinateSystem:'gcj02', minutes:n.minutes } as GuideRouteNode))
+      }
+      if (sequence != restoreRequest) return
+      const nodes : GuideRouteNode[] = []
+      item.nodeIds.forEach((id : string) => {
+        const n = candidates.find((candidate : GuideRouteNode) : boolean => candidate.id == id)
+        if (n != null) nodes.push(n)
+      })
+      if (nodes.length == 0 || nodes.length != item.nodeIds.length) throw new Error('Missing route nodes')
+      const route = { id:item.routeId, name:item.routeName, routeType:item.routeType, durationMinutes:item.durationMinutes, tags:item.tags, suitableFor:[], nodes, explanation:'' } as RouteRecommendation
+      area.value = targetArea
+      setPreferredScenicArea(targetArea)
+      recommendation.value = route
+      reasonOpen.value = false
+      saved.value = true
+      saveError.value = false
+      openMap()
+    } catch (error) { if (sequence == restoreRequest) uni.showToast({title:t('无法恢复完整路线，请重试','Could not restore this route','無法恢復完整路線，請重試'),icon:'none'}) }
+  }
+  function openMap() {
+    const route = recommendation.value
+    if (route == null) return
+    setActiveRoute(route)
+    uni.switchTab({url:'/pages/map/index'})
+  }
+  function reorder(from : number,to : number) {
+    const route = recommendation.value
+    if (route == null || saving.value || generating.value || from < 0 || to < 0 || from >= route.nodes.length || to >= route.nodes.length || from == to) return
+    const nodes = route.nodes
+    const moved = nodes.splice(from,1)[0]
+    nodes.splice(to,0,moved)
+    saved.value = matchesSaved(route)
+    saveError.value = false
+  }
+  function chooseMove(index : number) {
+    const route = recommendation.value
+    if (Date.now() < suppressClickUntil || route == null || saving.value || generating.value) return
+    const options : string[] = []
+    const targets : number[] = []
+    if (index > 0) { options.push(t('上移一站','Move up','上移一站')); targets.push(index - 1) }
+    if (index + 1 < route.nodes.length) { options.push(t('下移一站','Move down','下移一站')); targets.push(index + 1) }
+    if (options.length > 0) uni.showActionSheet({itemList:options,success:(result) => { reorder(index,targets[result.tapIndex]) }})
+  }
+  async function startDrag(index : number,event : UniTouchEvent) {
+    if (saving.value || generating.value || event.touches.length != 1) return
+    const generation = ++dragGeneration
+    dragFrom.value = index
+    dragTo.value = index
+    startY = event.touches[0].clientY
+    lastY = startY
+    centers = []
+    const result : number[] = []
+    try {
+      for (const row of timelineRows.value) {
+        const rect = await row.getBoundingClientRectAsync()
+        if (generation != dragGeneration || rect == null) return
+        result.push(rect.top + rect.height / 2)
+      }
+    } catch (error) {
+      // Some hosts can detach a row during measurement. A tap still opens the move menu.
+      return
+    }
+    centers = result.sort((a : number,b : number) : number => a-b)
+  }
+  function moveDrag(event : UniTouchEvent) {
+    if (dragFrom.value < 0 || event.touches.length != 1) return
+    lastY = event.touches[0].clientY
+    if (Math.abs(lastY-startY) < 6 || centers.length == 0) return
+    let target = 0
+    for (let i=1; i<centers.length; i++) { if (Math.abs(lastY-centers[i]) < Math.abs(lastY-centers[target])) target = i }
+    dragTo.value = target
+  }
+  function cancelDrag() { dragGeneration++; dragFrom.value = -1; dragTo.value = -1; centers=[] }
+  function finishDrag() {
+    if (dragFrom.value >= 0 && Math.abs(lastY-startY) >= 6) {
+      suppressClickUntil = Date.now() + 350
+      reorder(dragFrom.value,dragTo.value)
+    }
+    cancelDrag()
+  }
+  onShow(() => {
+    locale.value = getAppLocale()
+    const next = getPreferredScenicArea()
+    if (area.value != next) {
+      operation++
+      generating.value = false
+      recommendation.value = null
+      generateError.value = false
+      saveError.value = false
+      saved.value = false
+    }
+    area.value = next
+    if (recommendation.value == null) {
+      const active = getActiveRoute()
+      if (active != null && routeArea(active.id) == next) recommendation.value = active
+    }
+    loadSaved()
+  })
+  onHide(() => { cancelDrag(); restoreRequest++ })
 </script>
-
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.header { padding: 54px 20px 78px; background: linear-gradient(to bottom right, #061f55, #075eb8 58%, #0a9fc1); border-radius: 0 0 34px 34px; }
-	.header-badge { align-self: flex-start; padding: 5px 9px; border-radius: 10px; background-color: rgba(255,180,46,0.18); border: 1px solid rgba(255,208,121,0.32); }
-	.header-badge-text { font-size: 8px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
-	.header-title { font-size: 29px; font-weight: 800; color: #ffffff; line-height: 39px; margin-top: 12px; }
-	.header-copy { font-size: 13px; color: #d8efff; line-height: 20px; margin-top: 10px; }
-	.header-summary { flex-direction: row; align-items: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.12); }
-	.header-summary-item { flex: 1; align-items: center; }
-	.header-summary-value { font-size: 15px; color: #ffffff; font-weight: 700; }
-	.header-summary-label { font-size: 9px; color: #bddcf3; margin-top: 4px; }
-	.header-summary-divider { width: 1px; height: 24px; background-color: rgba(255,255,255,0.13); }
-	.content { position: relative; z-index: 2; margin-top: -34px; padding: 0 16px 38px; }
-	.form-card { padding: 21px 17px; background-color: #ffffff; border: 1px solid #e1e8f3; border-radius: 24px; box-shadow: 0 12px 30px rgba(18,63,120,0.11); }
-	.field-heading { flex-direction: row; align-items: center; }
-	.field-index { font-size: 10px; color: #0b68d0; background-color: #e7f1ff; padding: 4px 7px; border-radius: 8px; margin-right: 8px; }
-	.field-title { font-size: 15px; font-weight: 700; color: #26364f; }
-	.field-title-space { margin-top: 23px; }
-	.option-row { flex-direction: row; margin-top: 11px; }
-	.option-row-wrap { flex-wrap: wrap; }
-	.option-pill { padding: 10px 14px; margin-right: 8px; margin-bottom: 8px; background-color: #f2f5fa; border-radius: 16px; border: 1px solid #e2e8f1; }
-	.option-pill-active { background-color: #e7f1ff; border-color: #6aa5e5; }
-	.option-text { font-size: 13px; color: #6f7d92; }
-	.option-text-active { color: #0b68d0; font-weight: 700; }
-	.generate-button { margin-top: 23px; }
-	.result-card { padding: 20px 18px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 24px; box-shadow: 0 9px 26px rgba(18,61,114,0.07); }
-	.result-header { flex-direction: row; justify-content: space-between; align-items: flex-start; }
-	.result-label { font-size: 11px; color: #d17d00; }
-	.result-title { font-size: 20px; font-weight: 700; color: #1d2d46; margin-top: 5px; }
-	.result-duration { font-size: 11px; color: #087eb5; background-color: #e4f7fb; padding: 6px 9px; border-radius: 14px; }
-	.result-copy { font-size: 13px; color: #748198; line-height: 20px; margin-top: 12px; }
-	.timeline { margin-top: 18px; }
-	.timeline-item { flex-direction: row; min-height: 60px; }
-	.timeline-rail { width: 22px; align-items: center; }
-	.timeline-dot { width: 10px; height: 10px; border-radius: 5px; background-color: #b9c6d6; }
-	.timeline-dot-active { background-color: #ffad24; box-shadow: 0 0 0 4px rgba(255,173,36,0.16); }
-	.timeline-line { width: 2px; flex: 1; background-color: #dce4ef; }
-	.timeline-content { flex: 1; padding-left: 8px; }
-	.timeline-name { font-size: 14px; font-weight: 600; color: #2a3a53; }
-	.timeline-time { font-size: 11px; color: #8793a5; margin-top: 5px; }
-	.result-actions { flex-direction: row; justify-content: space-between; margin-top: 12px; }
-	.saved-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 4px 10px; overflow: hidden; }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: 0 $sg-space-5 $sg-space-8; }
+  .top { margin-bottom: $sg-space-4; }
+  .card, .group { border: 1px solid $sg-divider; border-radius: $sg-radius-md; background-color: $sg-surface; overflow: hidden; }
+  .card { padding: $sg-space-4; }
+  .field, .stop-name { font-size: $sg-type-body; color: $sg-text; font-weight: 600; }
+  .choices { flex-direction: row; flex-wrap: wrap; margin-top: $sg-space-2; }
+  .choice-space { margin: 0 $sg-space-2 $sg-space-2 0; }
+  .interest, .submit, .description { margin-top: $sg-space-3; }
+  .secondary, .error { margin-top: $sg-space-2; }
+  .meta, .hint { color: $sg-muted; font-size: $sg-type-label; margin-top: $sg-space-1; }
+  .hint { margin: $sg-space-4 0 $sg-space-2; }
+  .error { color: $sg-error; font-size: $sg-type-label; }
+  .description { color: $sg-secondary; font-size: $sg-type-body; }
+  .route-title { font-size: $sg-type-section; color: $sg-text; font-weight: 700; margin-top: $sg-space-2; }
+  .stop { flex-direction: row; align-items: center; min-height: $sg-touch; padding: $sg-space-2 0; border-bottom: 1px solid $sg-divider; }
+  .drop-target { background-color: $sg-inset; }
+  .stop-copy { flex: 1; margin: 0 $sg-space-2; }
+  .ordinal { width: $sg-space-7; height: $sg-space-7; border-radius: $sg-radius-pill; background-color: $sg-inset; align-items: center; justify-content: center; }
+  .ordinal-label { color: $sg-primary; font-size: $sg-type-label; font-weight: 600; }
+  .handle { min-height: $sg-touch; min-width: $sg-touch; align-items: center; justify-content: center; }
 </style>

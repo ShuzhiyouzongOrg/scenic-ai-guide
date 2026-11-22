@@ -1,82 +1,112 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view class="header">
-			<text class="header-eyebrow">服务反馈</text>
-			<text class="header-title">这次导览体验怎么样？</text>
-			<text class="header-copy">你的评分和建议会提交到现有服务质量后台，用于改进景区知识与导览流程。</text>
-		</view>
-		<view class="form-card">
-			<text class="field-title">整体评分</text>
-			<view class="rating-row">
-				<view v-for="value in ratings" :key="value" class="rating-item" :class="rating == value ? 'rating-item-active' : ''" @click="selectRating(value)">
-					<text class="rating-value">{{ value }}</text>
-					<text class="rating-label">{{ ratingLabel(value) }}</text>
-				</view>
-			</view>
-			<text class="field-title field-space">意见或建议</text>
-			<textarea class="comment-input" v-model="comment" placeholder="例如：路线说明是否清楚、AI 回答是否准确、希望增加哪些功能……" maxlength="500" :adjust-position="false" />
-			<text class="counter">{{ comment.length }}/500</text>
-			<view class="submit-button">
-				<rice-button :text="submitting ? '正在提交...' : '提交反馈'" type="primary" shape="round" size="large" width="100%" :loading="submitting" @click="submit" />
-			</view>
-		</view>
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <sg-page-header :title="t('这次导览体验怎么样？','How was your visit?','這次導覽體驗怎麼樣？')" :subtitle="t('你的反馈将帮助景区改进路线说明和导览内容。','Your feedback helps improve the routes and guide content.','你的回饋將幫助景區改善路線說明和導覽內容。')" />
+      <view class="card">
+        <text class="field-label">{{ t('整体评分','Overall rating','整體評分') }}</text>
+        <view class="choices rating-choices">
+          <view v-for="value in ratings" :key="value" class="choice-wrap">
+            <sg-choice :label="value.toString() + ' · ' + ratingLabel(value)" :selected="rating == value" @action="selectRating(value)" />
+          </view>
+        </view>
+        <!-- #ifdef APP-ANDROID -->
+        <view id="visitor-comment-native-label" :flatten="false">
+        <!-- #endif -->
+        <label id="visitor-comment-label" for="visitor-comment"><text class="field-label">{{ t('意见或建议','Comments','意見或建議') }}</text></label>
+        <!-- #ifdef APP-ANDROID -->
+        </view>
+        <!-- #endif -->
+        <textarea id="visitor-comment" class="field comment" v-model="comment" :aria-label="t('意见或建议','Comments','意見或建議')" :placeholder="t('哪些内容有帮助？哪里需要改进？','What worked well? What could be better?','哪些內容有幫助？哪裡需要改善？')" @input="clearError" :placeholder-style="placeholderStyle" :style="fieldStyle" :maxlength="500" :disabled="submitting" :adjust-position="true" />
+        <text class="counter">{{ comment.length }}/500</text>
+        <text v-if="errorText.length > 0" class="error" role="alert">{{ errorText }}</text>
+        <view class="action"><sg-button :label="submitting ? t('正在提交…','Submitting…','正在提交…') : t('提交反馈','Send feedback','送出回饋')" :loading="submitting" @action="submit" /></view>
+      </view>
+    </view>
+  </scroll-view>
 </template>
 
 <script setup lang="uts">
-	import { submitFeedback } from '@/services/guide-api.uts'
-	import { ensureVisitorSession } from '@/stores/session.uts'
+  import { submitFeedback } from '@/services/guide-api.uts'
+  import { ensureVisitorSession } from '@/stores/session.uts'
+  import { themeColor } from '@/design/theme.uts'
+  // #ifdef WEB
+  import { nameWebField } from '@/design/keyboard.uts'
+  onReady(() => { nameWebField('visitor-comment', t('意见或建议','Comments','意見或建議')) })
+  // #endif
+  // #ifdef APP-ANDROID
+  import { bindFormLabel } from '@/uni_modules/scenic-form-label'
+  onReady(() => { bindFormLabel('visitor-comment', t('意见或建议','Comments','意見或建議')) })
+  // #endif
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  const locale = ref<string>(getAppLocale())
+  function t(zh : string, en : string, traditional : string) : string {
+    return localize(locale.value, zh, en, traditional)
+  }
+  const ratings = [1, 2, 3, 4, 5]
+  const rating = ref<number>(5)
+  const comment = ref<string>('')
+  const submitting = ref(false)
+  const errorText = ref<string>('')
+  const fieldStyle = computed<string>(() => 'color:' + themeColor('text'))
+  const placeholderStyle = computed<string>(() => 'color:' + themeColor('muted'))
+  function clearError() { errorText.value = '' }
+  let returnTimer = 0
+  let active = true
 
-	const ratings = ref<number[]>([1, 2, 3, 4, 5])
-	const rating = ref<number>(5)
-	const comment = ref<string>('')
-	const submitting = ref<boolean>(false)
-
-	function selectRating(value : number) { rating.value = value }
-	function ratingLabel(value : number) : string {
-		if (value == 1) return '很差'
-		if (value == 2) return '较差'
-		if (value == 3) return '一般'
-		if (value == 4) return '满意'
-		return '很好'
-	}
-
-	async function submit() {
-		if (comment.value.trim().length == 0 && rating.value < 4) {
-			uni.showToast({ title: '请告诉我们哪里需要改进', icon: 'none' })
-			return
-		}
-		submitting.value = true
-		try {
-			const sessionId = await ensureVisitorSession()
-			await submitFeedback(sessionId, rating.value, comment.value.trim())
-			uni.showToast({ title: '感谢你的反馈', icon: 'success' })
-			comment.value = ''
-			setTimeout(() => { uni.navigateBack() }, 500)
-		} catch (error) {
-			console.error('submit feedback failed', error)
-			uni.showToast({ title: '反馈提交失败，请稍后重试', icon: 'none' })
-		} finally {
-			submitting.value = false
-		}
-	}
+  function selectRating(value : number) {
+    if (submitting.value) return
+    rating.value = value
+    errorText.value = ''
+  }
+  function ratingLabel(value : number) : string {
+    if (value == 1) return t('很差','Very poor','很差')
+    if (value == 2) return t('较差','Poor','較差')
+    if (value == 3) return t('一般','Fair','普通')
+    if (value == 4) return t('满意','Good','滿意')
+    return t('很好','Excellent','很好')
+  }
+  async function submit() {
+    if (submitting.value) return
+    if (comment.value.trim().length == 0 && rating.value < 4) {
+      errorText.value = t('请告诉我们哪里需要改进。','Tell us what could be improved.','請告訴我們哪裡需要改善。')
+      return
+    }
+    submitting.value = true
+    errorText.value = ''
+    try {
+      const sessionId = await ensureVisitorSession()
+      await submitFeedback(sessionId, rating.value, comment.value.trim())
+      if (!active) return
+      uni.showToast({ title:t('感谢你的反馈','Feedback received','感謝你的回饋'), icon:'success' })
+      comment.value = ''
+      returnTimer = setTimeout(() => {
+        uni.navigateBack({fail: () => uni.switchTab({url:'/pages/profile/index'})})
+      }, 500)
+    } catch (error) {
+      submitting.value = false
+      errorText.value = t('提交失败，意见已保留。请检查网络后重试。','Your feedback is still here. Check your connection and try again.','提交失敗，意見已保留。請檢查網路後重試。')
+    }
+  }
+  onShow(() => {
+    locale.value = getAppLocale()
+    uni.setNavigationBarTitle({title: t('意见反馈','Feedback','意見回饋')})
+  })
+  onUnload(() => { active = false; clearTimeout(returnTimer) })
 </script>
 
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.header { padding: 40px 20px 70px; background: linear-gradient(to bottom right, #061f55, #0b68d0 62%, #0a9fc1); }
-	.header-eyebrow { font-size: 9px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
-	.header-title { font-size: 28px; line-height: 38px; font-weight: 800; color: #ffffff; margin-top: 9px; }
-	.header-copy { font-size: 13px; color: #d9e9ff; line-height: 20px; margin-top: 9px; }
-	.form-card { margin: -31px 16px 32px; padding: 22px 17px 25px; background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 24px; box-shadow: 0 12px 30px rgba(17,65,120,0.11); }
-	.field-title { font-size: 15px; font-weight: 700; color: #24364d; }
-	.field-space { margin-top: 23px; }
-	.rating-row { flex-direction: row; justify-content: space-between; margin-top: 13px; }
-	.rating-item { width: 56px; padding: 10px 2px; align-items: center; border-radius: 15px; background-color: #f4f7fb; border: 1px solid #e1e8f2; }
-	.rating-item-active { background-color: #fff5df; border-color: #ffc55f; box-shadow: 0 5px 14px rgba(216,132,0,0.12); }
-	.rating-value { font-size: 18px; font-weight: 800; color: #d88400; }
-	.rating-label { font-size: 10px; color: #718197; margin-top: 3px; }
-	.comment-input { height: 154px; margin-top: 10px; padding: 14px; border-radius: 17px; background-color: #f5f8fc; border: 1px solid #dfe7f1; font-size: 14px; line-height: 21px; color: #24364d; }
-	.counter { font-size: 10px; color: #8a98aa; text-align: right; margin-top: 6px; }
-	.submit-button { margin-top: 20px; }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: $sg-space-4 $sg-space-4 $sg-space-8; }
+  .card { padding: $sg-space-4; border-radius: $sg-radius-lg; background-color: $sg-surface; border: 1px solid $sg-divider; }
+  .action { margin-top: $sg-space-4; }
+  .choices { flex-direction: row; flex-wrap: wrap; margin: 0 0 $sg-space-3; }
+  .choice-wrap { margin: 0 $sg-space-2 $sg-space-2 0; }
+  .field-label { color: $sg-text; font-size: $sg-type-body; font-weight: 600; }
+  .field { margin-top: $sg-space-2; margin-bottom: $sg-space-4; min-height: $sg-touch; padding: $sg-space-2 $sg-space-3; border-radius: $sg-radius-md; border: 1px solid $sg-border; background-color: $sg-background; color: $sg-text; font-size: $sg-type-body; }
+  .error { margin: $sg-space-2 0; color: $sg-error; font-size: $sg-type-label; }
+  .rating-choices { margin-top: $sg-space-2; }
+  .comment { width: auto; align-self: stretch; height: 128px; margin-bottom: $sg-space-1; }
+  .counter { color: $sg-muted; font-size: $sg-type-caption; text-align: right; }
 </style>

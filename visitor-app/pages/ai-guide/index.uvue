@@ -1,162 +1,138 @@
 <template>
-	<view class="page">
-		<view class="guide-header">
-			<view class="guide-avatar" @click="openLiveAvatar">
-				<image class="guide-avatar-image" :class="digitalHumanState == 'speaking' ? 'guide-avatar-image-speaking' : ''" :src="digitalHumanAvatarSource" mode="aspectFit" />
-			</view>
-			<view class="guide-heading">
-				<view class="guide-title-row">
-					<text class="guide-title">{{ digitalHumanTitle }}</text>
-					<!-- #ifdef MP-WEIXIN -->
-					<text class="guide-mode">Live2D 模型</text>
-					<!-- #endif -->
-					<!-- #ifndef MP-WEIXIN -->
-					<text class="guide-mode" @click="toggleDigitalHumanMode">{{ digitalHumanMode == 'xfyun' ? '讯飞 · 切换' : '本地形象 · 切换' }}</text>
-					<!-- #endif -->
-				</view>
-				<text class="guide-status">{{ digitalHumanProviderStatus }}</text>
-			</view>
-			<view class="voice-toggle" @click="toggleNarration">
-				<rice-icon :name="autoNarration ? 'volume-up-fill' : 'volume-mute-fill'" size="19" color="#0b68d0" />
-			</view>
-		</view>
+  <view class="page" :class="themeClass">
+    <view class="guide-header" :style="headerStyle">
+      <view class="guide-heading">
+        <view class="location" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="areaLabel + ' · ' + g('打开地图')" @click="openContextMap">
+          <sg-icon name="location" :size="14" /><text class="location-label">{{ locationLabel }}</text><sg-icon name="right" :size="12" />
+        </view>
+        <text class="guide-title">{{ g('AI 导游') }}</text>
+      </view>
+      <view class="round-action" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="g('对话记录')" @click="openPanel('history')"><sg-icon name="comments" :size="22" /></view>
+      <view class="round-action" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="g('导游设置')" @click="openPanel('settings')"><sg-icon name="set" :size="23" /></view>
+    </view>
 
-		<!-- #ifdef MP-WEIXIN -->
-		<view
-			class="wechat-live2d-overlay"
-			:class="wechatLive2dVisible ? '' : 'wechat-live2d-overlay-hidden'"
-			:style="wechatLive2dOverlayStyle"
-		>
-			<scenic-live2d
-				class="wechat-live2d-overlay-canvas"
-				model="Haru"
-				:speaking="digitalHumanState == 'speaking'"
-				:visible="wechatLive2dVisible"
-			/>
-		</view>
-		<!-- #endif -->
+    <!-- #ifdef MP-WEIXIN -->
+    <view class="wechat-live2d-overlay" :class="wechatLive2dVisible && !reducedMotion && panel.length == 0 ? '' : 'wechat-live2d-overlay-hidden'" :style="wechatLive2dOverlayStyle">
+      <scenic-live2d class="wechat-live2d-overlay-canvas" model="Haru"
+        :loading-label="g('正在加载 Live2D 模型')" :error-label="g('Live2D 模型暂不可用')"
+        :stage-width="wechatLive2dWidth" :stage-height="wechatLive2dHeight"
+        :speaking="digitalHumanState == 'speaking'" :level="amplitudeSource == 'playback' ? amplitude : -1"
+        :visible="wechatLive2dVisible && !reducedMotion && panel.length == 0" @modelready="onWechatModelReady" @modelerror="onWechatModelError" />
+    </view>
+    <!-- #endif -->
 
-		<scroll-view ref="messageScrollRef" class="message-scroll" direction="vertical" :show-scrollbar="false" :scroll-into-view="scrollTarget" @scroll="handleMessageScroll">
-			<view class="message-list">
-				<view class="welcome-card">
-					<view class="avatar-mode-header">
-						<view>
-							<text class="avatar-mode-kicker">DIGITAL GUIDE</text>
-							<text class="avatar-mode-title">选择陪伴形象</text>
-						</view>
-						<view class="avatar-mode-switch">
-							<!-- #ifndef MP-WEIXIN -->
-							<view class="avatar-mode-option" :class="digitalHumanMode == 'xfyun' ? 'avatar-mode-option-active' : ''" @click="selectDigitalHumanMode('xfyun')"><text class="avatar-mode-option-text" :class="digitalHumanMode == 'xfyun' ? 'avatar-mode-option-text-active' : ''">讯飞</text></view>
-							<!-- #endif -->
-							<view class="avatar-mode-option" :class="digitalHumanMode == 'live2d' ? 'avatar-mode-option-active' : ''" @click="selectDigitalHumanMode('live2d')"><text class="avatar-mode-option-text" :class="digitalHumanMode == 'live2d' ? 'avatar-mode-option-text-active' : ''">本地</text></view>
-						</view>
-					</view>
+    <scroll-view ref="messageScrollRef" class="scene-scroll" direction="vertical" :show-scrollbar="false" @scroll="onSceneScroll">
+      <view id="guide-welcome" class="scene-body">
+        <view class="stage-frame">
+          <sg-guide-stage :height="stageHeight" :photo="scenePhoto" :blend="0.20">
+            <view class="stage-layout">
+              <view class="stage-identity">
+                <view class="orb-space"><sg-ai-ambient-orb :state="interactionState" :level="amplitude" :size="orbDiameter" :active="orbPageActive && panel.length == 0 && stageInView" :reduced-motion="reducedMotion" /></view>
+                <text class="stage-kicker">{{ g('随行导游') }}</text>
+                <text class="guide-name">{{ stageName }}</text>
+                <view class="state-line"><view class="state-dot"></view><text class="state-label" role="status">{{ stateLabel }}</text><text v-if="recording" class="record-clock">{{ recordingClock }}</text></view>
+                <guide-level-meter v-if="interactionState == 'LISTENING' || interactionState == 'SPEAKING'" :level="amplitude" :sample-count="sampleCount" :label="g('声音电平')" />
+                <text v-if="(interactionState == 'LISTENING' || interactionState == 'SPEAKING') && amplitude < 0" class="meter-note">{{ g('未提供音量') }}</text>
+              </view>
+              <view id="wechat-live2d-slot" ref="wechatLive2dSlotRef" class="renderer" :class="panel.length > 0 ? 'renderer-covered' : ''">
+                <!-- #ifdef MP-WEIXIN -->
+                <image v-if="reducedMotion || !wechatLive2dVisible || !wechatLive2dReady" class="haru-portrait" :src="digitalHumanAvatarSource" mode="aspectFit" />
+                <!-- #endif -->
+                <!-- #ifndef MP-WEIXIN -->
+                <web-view v-if="!reducedMotion && digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length > 0 && !embeddedAvatarFailed" id="ai-avatar-webview" class="embedded-avatar-webview"
+                  :src="embeddedAvatarUrl" :ios-allows-inline-media-playback="true" @load="handleEmbeddedAvatarLoad" @error="handleEmbeddedAvatarError" @message="handleEmbeddedAvatarMessage" />
+                <web-view v-if="hasLive2dSurface" id="live2d-avatar-webview" class="embedded-avatar-webview"
+                  :src="live2dAvatarUrl" :ios-allows-inline-media-playback="true" @load="handleLive2dAvatarLoad" @error="handleLive2dAvatarError" @message="handleLive2dAvatarMessage" />
+                <image v-if="showStagePortrait"
+                  :class="digitalHumanMode == 'live2d' ? 'haru-portrait' : 'cloud-portrait'" :src="digitalHumanAvatarSource" :mode="digitalHumanMode == 'live2d' ? 'aspectFit' : 'aspectFill'" />
+                <!-- #endif -->
+              </view>
+            </view>
+          </sg-guide-stage>
+        </view>
+        <view class="story">
+          <guide-subtitle-panel :label="subtitleLabel" :text="displaySubtitle" :question="pendingQuestion" :welcome="isWelcome" :active="orbPageActive && panel.length == 0" :has-more="showFullAnswer" :more-label="g('查看完整回答')" :text-label="g('文字提问')" :short-text-label="g('打字')" @text="openPanel('text')" @history="openPanel('history')" />
+          <view v-if="recording || capturePending || finishingRecording || sending || playbackState != 'IDLE'" class="guide-tools">
+            <sg-button v-if="recording || capturePending || finishingRecording" :label="g('取消录音')" kind="quiet" @action="cancelRecording" />
+            <sg-button v-if="playbackOwner == 'host' && (playbackState == 'PLAYING' || playbackState == 'PAUSED')" :label="g(playbackState == 'PAUSED' ? '继续' : '暂停')" kind="quiet" @action="togglePlayback" />
+            <sg-button v-if="sending || playbackState == 'RESPONDING' || playbackState == 'PLAYING' || playbackState == 'PAUSED'" :label="g('停止')" kind="quiet" @action="interruptTurn" />
+          </view>
+          <voice-action-button v-if="guideBarFailed" :state="interactionState" :locale="locale" :level="amplitude" :elapsed="recordingClock" :pending="capturePending" :finishing="finishingRecording" :host="playbackOwner == 'host'" :disabled="!initialized || clearingHistory" :active="voiceButtonActive"
+            @record="toggleRecording" @finishhold="finishHeldRecording" @cancel="cancelRecording" @interrupt="interruptTurn" @resume="togglePlayback" @holdchange="setHolding" />
+          <view v-if="voiceError.length > 0" class="error-panel" role="alert">
+            <text class="error-text">{{ g(voiceError) }}</text><sg-button :label="g('文字提问')" kind="quiet" @action="openPanel('text')" />
+          </view>
+          <view v-if="isWelcome" class="ideas">
+            <view v-for="(item,index) in suggestions" :key="item" class="idea" role="button" tabindex="0" data-sg-keyboard="activate" @click="useSuggestion(g(item))">
+              <view class="idea-content"><sg-icon :name="index == 0 ? 'location' : (index == 1 ? 'headset' : (index == 2 ? 'peoples' : 'camera'))" :size="18" /><text class="idea-label">{{ g(largeText && item == '大佛有什么故事' ? '大佛的故事' : item) }}</text></view><sg-icon name="right" :size="14" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
 
-					<view id="wechat-live2d-slot" ref="wechatLive2dSlotRef" class="embedded-avatar-shell">
-						<!-- #ifdef MP-WEIXIN -->
-						<image class="embedded-avatar-placeholder" :src="digitalHumanAvatarSource" mode="aspectFit" />
-						<!-- #endif -->
-						<!-- #ifndef MP-WEIXIN -->
-						<web-view
-							v-if="digitalHumanMode == 'xfyun' && embeddedAvatarUrl.length > 0 && !embeddedAvatarFailed"
-							id="ai-avatar-webview"
-							class="embedded-avatar-webview"
-							:src="embeddedAvatarUrl"
-							:ios-allows-inline-media-playback="true"
-							@load="handleEmbeddedAvatarLoad"
-							@error="handleEmbeddedAvatarError"
-							@message="handleEmbeddedAvatarMessage"
-						/>
-						<web-view
-							v-if="digitalHumanMode == 'live2d' && live2dAvatarUrl.length > 0 && !live2dAvatarFailed"
-							id="live2d-avatar-webview"
-							class="embedded-avatar-webview"
-							:src="live2dAvatarUrl"
-							:ios-allows-inline-media-playback="true"
-							@load="handleLive2dAvatarLoad"
-							@error="handleLive2dAvatarError"
-							@message="handleLive2dAvatarMessage"
-						/>
-						<!-- #endif -->
-						<!-- #ifndef MP-WEIXIN -->
-						<view v-if="showLocalAvatarStage" class="local-avatar-stage">
-							<view class="local-avatar-halo" :class="digitalHumanState == 'speaking' ? 'local-avatar-halo-speaking' : ''"></view>
-									<image class="local-avatar-image" :class="mouthOpen ? 'local-avatar-image-speaking' : ''" :src="digitalHumanAvatarSource" mode="aspectFit" />
-							<view class="local-avatar-mouth" :class="mouthOpen ? 'local-avatar-mouth-open' : ''"><view class="local-avatar-mouth-core"></view></view>
-							<view v-if="digitalHumanState == 'speaking'" class="local-speaking-badge"><view class="local-speaking-dot"></view><text class="local-speaking-text">正在同步口型与讯飞音色</text></view>
-						</view>
-						<view v-if="digitalHumanMode == 'xfyun' && !embeddedAvatarLoaded && !embeddedAvatarFailed && !showLocalAvatarStage" class="avatar-stage-skeleton">
-							<view class="avatar-skeleton-content">
-								<view class="avatar-skeleton-portrait"><view class="avatar-skeleton-head"></view><view class="avatar-skeleton-body"></view></view>
-								<view class="avatar-skeleton-copy">
-									<view class="avatar-skeleton-line avatar-skeleton-line-title"></view>
-									<view class="avatar-skeleton-line avatar-skeleton-line-wide"></view>
-									<view class="avatar-skeleton-line avatar-skeleton-line-short"></view>
-									<view class="avatar-skeleton-actions"><view class="avatar-skeleton-pill"></view><view class="avatar-skeleton-pill avatar-skeleton-pill-short"></view></view>
-								</view>
-							</view>
-							<view class="avatar-skeleton-status-row"><view class="avatar-skeleton-status-dot"></view><text class="avatar-skeleton-status-text">{{ embeddedAvatarRuntimeStatus }}</text></view>
-							<view class="avatar-skeleton-shimmer" :style="avatarSkeletonShimmerStyle"></view>
-						</view>
-						<view v-if="digitalHumanMode == 'live2d' && live2dAvatarUrl.length == 0 && !live2dAvatarFailed && !showLocalAvatarStage" class="avatar-stage-loading">
-							<rice-loading mode="circle" color="#0b68d0" size="26" />
-							<text class="avatar-stage-loading-text">正在加载 Live2D 模型</text>
-						</view>
-						<view v-if="embeddedAvatarFailed && digitalHumanMode == 'xfyun'" class="avatar-stage-fallback" @click="initializeEmbeddedAvatar(true)"><text class="avatar-stage-fallback-text">云端舞台暂不可用，当前已切换本地口型 · 点击重试</text></view>
-						<!-- #endif -->
-					</view>
+    <guide-bottom-navigation v-if="guideBarReady" :locale="locale" :label="g('主导航')" :bottom-inset="bottomInset" @leaving="onNavigationLeave" @restored="leavingGuide = false">
+      <voice-action-button :state="interactionState" :locale="locale" :level="amplitude" :elapsed="recordingClock" :pending="capturePending" :finishing="finishingRecording" :host="playbackOwner == 'host'" :disabled="!initialized || clearingHistory" :active="voiceButtonActive"
+        @record="toggleRecording" @finishhold="finishHeldRecording" @cancel="cancelRecording" @interrupt="interruptTurn" @resume="togglePlayback" @holdchange="setHolding" />
+    </guide-bottom-navigation>
 
-					<view class="avatar-stage-meta">
-						<view><text class="avatar-stage-name">{{ digitalHumanTitle }}</text><text class="avatar-stage-status">{{ digitalHumanProviderStatus }}</text></view>
-						<text class="avatar-stage-action" @click="openLiveAvatar">{{ digitalHumanActionText }}</text>
-					</view>
-					<view class="welcome-top">
-						<text class="welcome-kicker">SMART GUIDE</text>
-						<text class="welcome-capability">知识库增强</text>
-					</view>
-					<text class="welcome-title">今天想怎么玩？</text>
-					<text class="welcome-copy">我可以介绍景点、查询开放信息、推荐路线，也能结合当前位置陪伴讲解。</text>
-					<view class="suggestion-grid">
-						<view v-for="item in suggestions" :key="item" class="suggestion-pill" @click="useSuggestion(item)"><text class="suggestion-pill-text">{{ item }}</text></view>
-					</view>
-				</view>
-
-				<view v-for="item in messages" :key="item.id" :id="'message-' + item.id" class="message-item" :class="item.role == 'user' ? 'message-item-user' : 'message-item-assistant'">
-					<view v-if="item.role == 'assistant'" class="message-mini-avatar"><image class="message-mini-avatar-image" :src="digitalHumanAvatarSource" mode="aspectFit" /></view>
-					<view class="message-bubble" :class="item.role == 'user' ? 'message-bubble-user' : 'message-bubble-assistant'">
-						<text class="message-text" :class="item.role == 'user' ? 'message-text-user' : ''">{{ item.content }}</text>
-						<view v-if="item.sources.length > 0" class="source-list">
-							<text v-for="source in item.sources" :key="source" class="source-chip">资料 · {{ source }}</text>
-						</view>
-					</view>
-				</view>
-				<view v-if="sending" class="thinking-row">
-					<rice-loading mode="circle" color="#0b68d0" size="20" />
-					<text class="thinking-text">正在检索景区知识...</text>
-				</view>
-				<view id="message-bottom" class="message-bottom"></view>
-			</view>
-		</scroll-view>
-
-		<view class="composer">
-			<view class="composer-main">
-				<textarea class="composer-input" v-model="input" :auto-height="true" :adjust-position="false" placeholder="问问景区、路线或服务信息" :maxlength="500" />
-				<view class="record-button" :class="recording ? 'record-button-active' : ''" @click="toggleRecording">
-					<rice-icon :name="recording ? 'pause-fill' : 'voice'" size="19" color="#ffffff" />
-				</view>
-				<view class="send-button" :class="input.trim().length > 0 ? 'send-button-active' : ''" @click="sendMessage">
-					<rice-icon name="arrow-up" size="18" color="#ffffff" />
-				</view>
-			</view>
-			<view class="composer-meta">
-				<text class="composer-tip">AI 内容仅供游览参考，请以景区现场公告为准</text>
-				<text class="clear-history-action" :class="canClearHistory ? '' : 'clear-history-action-disabled'" @click="requestClearHistory">{{ clearingHistory ? '清除中...' : '清除记录' }}</text>
-			</view>
-		</view>
-	</view>
+    <!-- #ifdef APP -->
+    <view v-if="sheetPresent" class="sheet-host" :style="nativeSheetStyle">
+    <!-- #endif -->
+    <!-- #ifndef APP -->
+    <view v-if="sheetPresent" class="sheet-host">
+    <!-- #endif -->
+    <guide-sheet class="sheet-component" :open="panel.length > 0" :title="panelTitle" :close-label="g('关闭')" :bottom-inset="bottomInset" @close="closePanel" @closed="releaseSheet">
+      <view v-if="panelBody == 'history'" class="sheet-content">
+        <text v-if="messages.length == 0" class="sheet-note">{{ g('这里会保留你的提问和导游讲解。') }}</text>
+        <guide-message-card v-for="item in messages" :key="item.id" :locale="locale" :kind="item.kind ?? ''" :user="item.role == 'user'" :content="item.content" :sources="item.sources" :busy="recording || sending || capturePending" @read="readFromHistory(item.content)" />
+        <sg-button v-if="messages.length > 0" :label="g('清除记录')" kind="secondary" :disabled="!canClearHistory" @action="requestClearHistory" />
+      </view>
+      <view v-if="panelBody == 'text'" class="sheet-content">
+        <textarea id="guide-question" class="question-input" v-model="input" :focus="focusQuestion" :adjust-position="true"
+          :style="questionTextStyle" :placeholder-style="questionPlaceholderStyle" :placeholder="g('问景点、路线或服务')" :aria-label="g('文字提问')" :maxlength="500" />
+        <sg-button :label="g('发送')" :disabled="input.trim().length == 0 || conversationBusy || !initialized" @action="sendFromSheet" />
+      </view>
+      <view v-if="panelBody == 'settings'" class="sheet-content">
+        <text class="setting-title">{{ digitalHumanTitle }}</text>
+        <text class="sheet-note">{{ digitalHumanProviderStatus }}</text>
+        <sg-choice :label="g('自动播报')" :selected="autoNarration" @action="toggleNarration" />
+        <view class="motion-setting">
+          <sg-choice v-if="!systemRequiresReducedMotion" :label="g('减少动态效果')" :selected="reduceMotionPreference" @action="toggleGuideMotion" />
+          <text v-else class="sheet-note">{{ g('系统已开启减少动态效果') }}</text>
+        </view>
+        <!-- #ifndef MP-WEIXIN -->
+        <text class="setting-title separated">{{ g('导游形象') }}</text>
+        <view class="choices"><sg-choice :label="g('讯飞')" :selected="digitalHumanMode == 'xfyun'" @action="selectDigitalHumanMode('xfyun')" /><sg-choice :label="g('Live2D模型')" :selected="digitalHumanMode == 'live2d'" @action="selectDigitalHumanMode('live2d')" /></view>
+        <sg-button v-if="embeddedAvatarFailed && digitalHumanMode == 'xfyun' && !reducedMotion" :label="g('重新连接云端形象')" kind="quiet" @action="initializeEmbeddedAvatar(true)" />
+        <sg-button v-if="live2dAvatarFailed && digitalHumanMode == 'live2d' && !reducedMotion" :label="g('重试')" kind="quiet" @action="initializeLive2dAvatar(true)" />
+        <!-- #endif -->
+        <text class="sheet-note separated">{{ g('当前录音使用普通话识别，播报使用已配置的导游音色。') }}</text>
+        <text class="sheet-note">{{ g('游览信息请以景区现场公告为准') }}</text>
+      </view>
+    </guide-sheet>
+    </view>
+  </view>
 </template>
 
 <script setup lang="uts">
+	import { stageUrl } from '@/design/stage-presentation.uts'
+	import { useGuideLanguage } from '@/design/guide-locale.uts'
+	const { locale, g } = useGuideLanguage()
+	let stageLocale = locale.value
+	import { useScenicInsets } from '@/design/layout.uts'
+	import { themeClass, themeColor, largeText } from '@/design/theme.uts'
+	import { reducedMotion, reduceMotionPreference, setReduceMotionPreference, systemRequiresReducedMotion } from '@/design/motion.uts'
+	import { GuideRequestScope, useGuideAudio } from '@/stores/guide-audio.uts'
+	// #ifdef MP-WEIXIN
+	import { createWechatRecorder, measureWechatSegment } from '@/services/wechat-audio.js'
+	let pcmCapture = true
+	let stopSegmentAnalysis : (() => void) | null = null
+	// #endif
+	// #ifdef WEB
+	import { createWebRecording } from '@/services/web-recording.js'
+	import { createWebNarrationPlayer } from '@/services/web-narration.js'
+	// #endif
 	import type { ConversationMessage, DigitalHumanConfig, TtsSegment } from '@/domain/types.uts'
 	import { askQuestion, askVoice, clearChatHistory, createDefaultDigitalHumanConfig, createDigitalHumanWebSession, fetchChatHistory, fetchDigitalHumanConfig, fetchDigitalHumanConfigs, synthesizeSpeech } from '@/services/guide-api.uts'
 	import { resolveAssetUrl } from '@/services/http.uts'
@@ -168,13 +144,47 @@
 		id : number,
 		role : string,
 		content : string,
+		kind ?: string,
 		sources : string[]
 	}
 
+	const { headerStyle, guideBarReady, guideBarFailed, bottomInset } = useScenicInsets(true)
+	const viewportWidth = ref(uni.getWindowInfo().windowWidth)
+	onResize(() => {
+		viewportWidth.value = uni.getWindowInfo().windowWidth
+		syncWeChatLive2dOverlay(true)
+	})
 	const input = ref<string>('')
-	const sending = ref<boolean>(false)
+	const guideAudio = useGuideAudio()
+	const { sending, recording, capturePending, finishingRecording, voiceError, playbackState, playbackOwner, interactionState, amplitude, amplitudeSource, sampleCount, activeSubtitle, orbPageActive } = guideAudio
 	const clearingHistory = ref<boolean>(false)
-	const recording = ref<boolean>(false)
+	const recordedSeconds = ref(0)
+	let clockTimer : number | null = null
+	const recordingClock = computed<string>(() => {
+		const seconds = recordedSeconds.value % 60
+		return Math.floor(recordedSeconds.value / 60).toString() + ':' + (seconds < 10 ? '0' : '') + seconds.toString()
+	})
+	function syncRecordingClock(active : boolean) {
+		if (clockTimer != null) clearInterval(clockTimer!)
+		clockTimer = null
+		recordedSeconds.value = 0
+		if (!active) return
+		const startedAt = Date.now()
+		clockTimer = setInterval(() => { recordedSeconds.value = Math.floor((Date.now() - startedAt) / 1000) }, 1000)
+	}
+	watch(recording, (active : boolean) => { syncRecordingClock(active) })
+	let captureCancelled = false
+	let captureRevision = 0
+	const questionRequest = new GuideRequestScope()
+	let meterTimer : number | null = null
+	let cloudProtocol = 0
+	let localProtocol = 0
+	let pageVisible = true
+	const speechRequest = new GuideRequestScope()
+	let destroyed = false
+	// #ifdef WEB
+	let browserRecording : ReturnType<typeof createWebRecording> | null = null
+	// #endif
 	const autoNarration = ref<boolean>(true)
 	const initialized = ref<boolean>(false)
 	const digitalHuman = ref<DigitalHumanConfig | null>(createDefaultDigitalHumanConfig())
@@ -187,44 +197,48 @@
 	const embeddedAvatarFailed = ref<boolean>(false)
 	const embeddedAvatarCreating = ref<boolean>(false)
 	const embeddedAvatarRuntimeStatus = ref<string>('正在连接讯飞动态形象')
-	const embeddedAvatarRuntimeObserved = ref<boolean>(false)
-	const avatarSkeletonShimmerProgress = ref<number>(0)
 	const live2dAvatarUrl = ref<string>('')
 	const live2dAvatarLoaded = ref<boolean>(false)
 	const live2dAvatarPageLoaded = ref<boolean>(false)
 	const live2dAvatarFailed = ref<boolean>(false)
 	const live2dAvatarCreating = ref<boolean>(false)
 	const live2dAvatarRuntimeStatus = ref<string>('正在加载 Live2D 模型')
-	const mouthOpen = ref<boolean>(false)
-	const scrollTarget = ref<string>('message-bottom')
+	// #ifdef APP-ANDROID
+	const androidStageReady = ref<boolean>(false)
+	let androidStageTimer : number | null = null
+	let androidAttachTimer : number | null = null
+	let androidPageLaidOut = false
+	let androidStageRetried = false
+	// #endif
 	const messageScrollRef = shallowRef<UniElement | null>(null)
 	const wechatLive2dSlotRef = shallowRef<UniElement | null>(null)
-	const wechatLive2dVisible = ref<boolean>(true)
-	const wechatLive2dLeft = ref<number>(31)
-	const wechatLive2dTop = ref<number>(195)
-	const wechatLive2dWidth = ref<number>(Math.max(1, uni.getWindowInfo().windowWidth - 62))
-	const wechatLive2dHeight = ref<number>(238)
+	const wechatLive2dVisible = ref<boolean>(false)
+	const wechatLive2dReady = ref(false)
+	const wechatLive2dFailed = ref(false)
+	const wechatLive2dLeft = ref<number>(0)
+	const wechatLive2dTop = ref<number>(0)
+	const wechatLive2dWidth = ref<number>(0)
+	const wechatLive2dHeight = ref<number>(0)
+	let wechatLayoutRevision = 0
 	const sessionId = ref<string>('')
-	const recorderManager = ref<RecorderManager | null>(null)
-	const audioContext = ref<InnerAudioContext | null>(null)
+	const recorderManager = shallowRef<RecorderManager | null>(null)
+	const audioContext = shallowRef<InnerAudioContext | null>(null)
 	const ttsQueue = ref<TtsSegment[]>([])
 	const pendingLive2dSpeechUrls = ref<string[]>([])
+	let live2dSpeechSegments : TtsSegment[] = []
 	const ttsQueueIndex = ref<number>(0)
 	const messages = ref<ChatMessageItem[]>([])
-	const suggestions = ref<string[]>(['第一次来怎么玩', '大佛有什么故事', '推荐亲子路线', '哪些地方适合拍照'])
 	const currentInstance = getCurrentInstance()
 	let avatarWebViewContext = null as WebviewContext | null
 	let live2dWebViewContext = null as WebviewContext | null
-	let mouthAnimationTimer : number | null = null
 	let embeddedSpeechResetTimer : number | null = null
 	let embeddedAvatarRevealTimer : number | null = null
-	let avatarSkeletonShimmerTimer : number | null = null
 	let wechatLive2dSettleTimer : number | null = null
 	let pendingEmbeddedSpeech = ''
 	let activeEmbeddedSpeech = ''
 	let embeddedAvatarGeneration = 0
-	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? '灵小游')
-	const digitalHumanAvatarSource = computed<string>(() => digitalHumanMode.value == 'xfyun' ? '/static/digital-human/guide-xfyun.webp' : '/static/digital-human/guide-haru-transparent.png')
+	const digitalHumanTitle = computed<string>(() => digitalHuman.value?.name ?? g('灵小游'))
+	const digitalHumanAvatarSource = computed<string>(() => digitalHumanMode.value == 'xfyun' ? '/static/digital-human/guide-xfyun.webp' : '/static/digital-human/guide-haru-transparent.webp')
 	const wechatLive2dOverlayStyle = computed<Map<string, string>>(() => {
 		const style = new Map<string, string>()
 		style.set('left', `${wechatLive2dLeft.value}px`)
@@ -233,40 +247,55 @@
 		style.set('height', `${wechatLive2dHeight.value}px`)
 		return style
 	})
-	const avatarSkeletonShimmerStyle = computed<Map<string, string>>(() => {
-		const style = new Map<string, string>()
-		style.set('transform', `translateX(${avatarSkeletonShimmerProgress.value}%) skewX(-14deg)`)
-		return style
+	const voiceState = computed<string>(() => {
+		if (recording.value) return 'RECORDING'
+		if (sending.value || capturePending.value || finishingRecording.value) return 'PROCESSING'
+		if (voiceError.value.length > 0) return 'ERROR'
+		return playbackState.value
 	})
-	const canClearHistory = computed<boolean>(() => messages.value.length > 0 && !sending.value && !clearingHistory.value)
-	const digitalHumanActionText = computed<string>(() => {
-		let text = digitalHumanMode.value == 'xfyun'
-			? (embeddedAvatarLoaded.value ? '舞台已连接' : '连接舞台')
-			: (live2dAvatarLoaded.value ? 'Live2D 已连接' : '连接 Live2D')
-		// #ifdef MP-WEIXIN
-		text = 'Live2D 模型'
-		// #endif
-		return text
+	const voiceStatusText = computed<string>(() => {
+		if (voiceState.value == 'ERROR') return g(voiceError.value)
+		if (capturePending.value) return g('正在等待麦克风')
+		if (voiceState.value == 'RECORDING') return g('正在录音 · 发送或取消')
+		if (voiceState.value == 'PROCESSING') return g('正在处理提问')
+		if (voiceState.value == 'RESPONDING') return g('正在准备播报')
+		if (voiceState.value == 'PLAYING') return g('正在播报')
+		if (voiceState.value == 'PAUSED') return g('播报已暂停')
+		return g('可以打字或录音提问')
 	})
-	const showLocalAvatarStage = computed<boolean>(() => {
-		let show = (digitalHumanMode.value == 'live2d' && live2dAvatarFailed.value) || (digitalHumanMode.value == 'xfyun' && embeddedAvatarFailed.value)
-		// #ifdef MP-WEIXIN
-		show = true
+	const canClearHistory = computed<boolean>(() => messages.value.length > 0 && !sending.value && !clearingHistory.value && !recording.value && !capturePending.value && !finishingRecording.value)
+	const hasLive2dSurface = computed<boolean>(() => {
+		// #ifdef APP-ANDROID
+		if (!androidStageReady.value) return false
 		// #endif
-		return show
+		return !reducedMotion.value && digitalHumanMode.value == 'live2d' &&
+			live2dAvatarUrl.value.length > 0 && !live2dAvatarFailed.value
+	})
+	const showStagePortrait = computed<boolean>(() => {
+		if (digitalHumanMode.value != 'live2d') return reducedMotion.value || embeddedAvatarFailed.value || !embeddedAvatarLoaded.value
+		// The Android WebView paints independently of its model-ready message.
+		// Its document owns loading as well as the first rendered character.
+		// #ifdef APP-ANDROID
+		return !hasLive2dSurface.value
+		// #endif
+		// #ifndef APP-ANDROID
+		return !hasLive2dSurface.value || !live2dAvatarLoaded.value
+		// #endif
 	})
 	const digitalHumanProviderStatus = computed<string>(() => {
-		if (digitalHuman.value == null) return '正在载入数字人配置'
-		if (digitalHuman.value!.serviceStatus != 'online') return '数字人服务降级 · 文字问答仍可使用'
-		const voice = digitalHuman.value!.vcn.length > 0 ? '专属音色已接入' : '默认音色'
+		if (reducedMotion.value) return g('静态形象 · 可使用语音朗读')
+		if (digitalHuman.value == null) return g('正在载入数字人配置')
+		if (digitalHuman.value!.serviceStatus != 'online') return g('数字人服务降级 · 文字问答仍可使用')
+		const voice = digitalHuman.value!.vcn.length > 0 ? g('专属音色已接入') : g('默认音色')
 		// #ifdef MP-WEIXIN
-		return 'Live2D 模型 · ' + voice
+		if (wechatLive2dFailed.value) return g('Live2D 模型暂不可用') + ' · ' + voice
+		return g(wechatLive2dReady.value ? 'Live2D 模型在线' : '正在加载 Live2D 模型') + ' · ' + voice
 		// #endif
-		if (digitalHumanMode.value == 'xfyun') return embeddedAvatarRuntimeStatus.value + ' · ' + voice
+		if (digitalHumanMode.value == 'xfyun') return g(embeddedAvatarRuntimeStatus.value) + ' · ' + voice
 		// #ifndef MP-WEIXIN
-		return live2dAvatarRuntimeStatus.value + ' · ' + voice
+		return g(live2dAvatarRuntimeStatus.value) + ' · ' + voice
 		// #endif
-		return 'Live2D 模型 · ' + voice
+		return g('Live2D 模型') + ' · ' + voice
 	})
 
 	async function loadDigitalHumanPreference() {
@@ -295,30 +324,31 @@
 		if (selected != null) digitalHuman.value = selected
 	}
 
-	function scrollToBottom() {
-		scrollTarget.value = ''
-		nextTick(() => { scrollTarget.value = 'message-bottom' })
-	}
-
 	async function syncWeChatLive2dOverlay(showWhenVisible : boolean) {
 		// #ifdef MP-WEIXIN
+		const revision = ++wechatLayoutRevision
 		await nextTick()
-		if (wechatLive2dSlotRef.value == null || messageScrollRef.value == null) return
+		if (!pageVisible || wechatLive2dSlotRef.value == null || messageScrollRef.value == null) return
 		const slotRect = await wechatLive2dSlotRef.value!.getBoundingClientRectAsync()
 		const scrollRect = await messageScrollRef.value!.getBoundingClientRectAsync()
-		if (slotRect == null || scrollRect == null) return
+		if (!pageVisible || revision != wechatLayoutRevision || slotRect == null || scrollRect == null) return
+		if (slotRect.width < 16 || slotRect.height < 16) { wechatLive2dVisible.value = false; return }
 		wechatLive2dLeft.value = slotRect.left
 		wechatLive2dTop.value = slotRect.top
-		wechatLive2dWidth.value = Math.max(1, slotRect.width)
-		wechatLive2dHeight.value = Math.max(1, slotRect.height)
+		wechatLive2dWidth.value = slotRect.width
+		wechatLive2dHeight.value = slotRect.height
 		wechatLive2dVisible.value = showWhenVisible &&
 			slotRect.top >= scrollRect.top &&
 			slotRect.bottom <= scrollRect.bottom
 		// #endif
 	}
 
+	function onWechatModelReady() { wechatLive2dReady.value = true; wechatLive2dFailed.value = false }
+	function onWechatModelError() { wechatLive2dReady.value = false; wechatLive2dFailed.value = true }
+
 	function handleMessageScroll(_event : UniScrollEvent) {
 		// #ifdef MP-WEIXIN
+		wechatLayoutRevision++
 		wechatLive2dVisible.value = false
 		if (wechatLive2dSettleTimer != null) clearTimeout(wechatLive2dSettleTimer!)
 		wechatLive2dSettleTimer = setTimeout(() => {
@@ -329,6 +359,7 @@
 	}
 
 	function useSuggestion(value : string) {
+		if (sending.value || recording.value || capturePending.value || finishingRecording.value || clearingHistory.value) return
 		input.value = value
 		sendMessage()
 	}
@@ -340,6 +371,7 @@
 		nextMode = 'live2d'
 		// #endif
 		if (digitalHumanMode.value != nextMode) {
+			stopNarration()
 			// Stop any local TTS before changing renderer. This prevents a queued
 			// segment from speaking underneath the newly mounted WebView.
 			audioContext.value?.stop()
@@ -355,27 +387,6 @@
 		else await initializeLive2dAvatar(false)
 	}
 
-	function toggleDigitalHumanMode() {
-		selectDigitalHumanMode(digitalHumanMode.value == 'xfyun' ? 'live2d' : 'xfyun')
-	}
-
-	function startAvatarSkeletonShimmer() {
-		if (avatarSkeletonShimmerTimer != null) return
-		avatarSkeletonShimmerProgress.value = 0
-		avatarSkeletonShimmerTimer = setInterval(() => {
-			const next = avatarSkeletonShimmerProgress.value + 12
-			avatarSkeletonShimmerProgress.value = next > 360 ? 0 : next
-		}, 40)
-	}
-
-	function stopAvatarSkeletonShimmer() {
-		if (avatarSkeletonShimmerTimer != null) {
-			clearInterval(avatarSkeletonShimmerTimer!)
-			avatarSkeletonShimmerTimer = null
-		}
-		avatarSkeletonShimmerProgress.value = 0
-	}
-
 	function clearEmbeddedAvatarRevealTimer() {
 		if (embeddedAvatarRevealTimer != null) {
 			clearTimeout(embeddedAvatarRevealTimer!)
@@ -388,35 +399,43 @@
 		embeddedAvatarRevealTimer = setTimeout(() => {
 			embeddedAvatarRevealTimer = null
 			if (digitalHumanMode.value != 'xfyun' || embeddedAvatarFailed.value || !embeddedAvatarPageLoaded.value) return
-			stopAvatarSkeletonShimmer()
+
 			embeddedAvatarLoaded.value = true
-			embeddedAvatarRuntimeStatus.value = '讯飞云动态形象在线'
+			embeddedAvatarRuntimeStatus.value = '舞台页面已载入，等待形象就绪'
 			flushPendingEmbeddedSpeech()
 		}, 9000)
 	}
 
-	function resetEmbeddedAvatar() {
-		stopAvatarSkeletonShimmer()
+	function resetEmbeddedAvatar(stopHost : boolean = true) {
+		cloudProtocol = 0
+		guideAudio.reconnecting.value = false
+
 		clearEmbeddedAvatarRevealTimer()
 		embeddedAvatarGeneration += 1
-		interruptEmbeddedAvatar()
+		disposeEmbeddedAvatar()
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
 		embeddedSpeechResetTimer = null
-		audioContext.value?.stop()
-		ttsQueue.value = []
-		ttsQueueIndex.value = 0
-		digitalHumanState.value = 'idle'
+		if (stopHost) {
+			audioContext.value?.stop()
+			ttsQueue.value = []
+			ttsQueueIndex.value = 0
+			digitalHumanState.value = 'idle'
+		}
 		embeddedAvatarUrl.value = ''
 		embeddedAvatarLoaded.value = false
 		embeddedAvatarPageLoaded.value = false
 		embeddedAvatarFailed.value = false
 		embeddedAvatarCreating.value = false
 		embeddedAvatarRuntimeStatus.value = '正在连接讯飞动态形象'
-		embeddedAvatarRuntimeObserved.value = false
 		avatarWebViewContext = null
 	}
 
 	function resetLive2dAvatar() {
+		// #ifdef APP-ANDROID
+		clearAndroidStageTimer()
+		androidStageRetried = false
+		// #endif
+		localProtocol = 0
 		interruptLive2dAvatar()
 		live2dAvatarUrl.value = ''
 		live2dAvatarLoaded.value = false
@@ -432,7 +451,7 @@
 		return
 		// #endif
 		// #ifndef MP-WEIXIN
-		if (digitalHumanMode.value != 'live2d' || live2dAvatarCreating.value) return
+		if (reducedMotion.value || digitalHumanMode.value != 'live2d' || live2dAvatarCreating.value) return
 		if (!force && live2dAvatarUrl.value.length > 0) return
 		live2dAvatarCreating.value = true
 		if (force) {
@@ -443,7 +462,7 @@
 		live2dAvatarRuntimeStatus.value = '正在创建 Live2D 模型舞台'
 		try {
 			const modelId = digitalHuman.value?.modelId ?? 'Haru'
-			live2dAvatarUrl.value = resolveAssetUrl('/live2d/?model=' + encodeURIComponent(modelId) + '&embed=1')
+			live2dAvatarUrl.value = stageUrl(resolveAssetUrl('/live2d/?model=' + encodeURIComponent(modelId) + '&embed=1'), locale.value)
 			live2dAvatarRuntimeStatus.value = 'Live2D 模型正在启动'
 		} catch (error) {
 			live2dAvatarFailed.value = true
@@ -460,7 +479,7 @@
 		return
 		// #endif
 		// #ifndef MP-WEIXIN
-		if (digitalHumanMode.value != 'xfyun' || embeddedAvatarCreating.value) return
+		if (reducedMotion.value || digitalHumanMode.value != 'xfyun' || embeddedAvatarCreating.value) return
 		if (!force && embeddedAvatarUrl.value.length > 0) return
 		const config = digitalHuman.value
 		if (config == null || config.engine != 'xfyun' || !config.assetAvailable) {
@@ -468,10 +487,10 @@
 			return
 		}
 		embeddedAvatarCreating.value = true
-		startAvatarSkeletonShimmer()
+
 		if (force) {
 			embeddedAvatarGeneration += 1
-			interruptEmbeddedAvatar()
+			disposeEmbeddedAvatar()
 			embeddedAvatarUrl.value = ''
 			embeddedAvatarLoaded.value = false
 			embeddedAvatarPageLoaded.value = false
@@ -485,10 +504,10 @@
 			if (generation != embeddedAvatarGeneration || digitalHumanMode.value != 'xfyun') return
 			const pageUrl = resolveAssetUrl(session.pageUrl)
 			const separator = pageUrl.indexOf('?') >= 0 ? '&' : '?'
-			embeddedAvatarUrl.value = pageUrl + separator + 'embed=1&autostart=1&welcome=0'
+			embeddedAvatarUrl.value = stageUrl(pageUrl + separator + 'embed=1&autostart=1&welcome=0', locale.value)
 		} catch (error) {
 			if (generation != embeddedAvatarGeneration || digitalHumanMode.value != 'xfyun') return
-			stopAvatarSkeletonShimmer()
+
 			embeddedAvatarFailed.value = true
 			embeddedAvatarRuntimeStatus.value = '讯飞动态形象暂不可用'
 			fallbackEmbeddedSpeech()
@@ -521,7 +540,7 @@
 		// ArkWeb also reports recoverable SDK sub-resource warnings through this
 		// event. Only a failure of the top-level document should replace the stage.
 		if (!embeddedAvatarPageLoaded.value && event.detail.url == embeddedAvatarUrl.value) {
-			stopAvatarSkeletonShimmer()
+
 			embeddedAvatarFailed.value = true
 			embeddedAvatarRuntimeStatus.value = '讯飞页面载入失败'
 			fallbackEmbeddedSpeech()
@@ -532,8 +551,15 @@
 		const packets = event.detail.data
 		packets.forEach((packet : UTSJSONObject) => {
 			if (packet.getString('source', '') != 'scenic-digital-human') return
-			embeddedAvatarRuntimeObserved.value = true
 			const type = packet.getString('type', '')
+			cloudProtocol = packet.getNumber('speechProtocol', 0)
+			if ((type == 'speaking' || type == 'idle' || type == 'subtitle' || type == 'speech-timeout' || type == 'speech-dispatched' || type == 'speech-accepted') && packet.getNumber('requestId', -1) != speechRequest.id) return
+			if (type == 'subtitle' && playbackOwner.value == 'cloud' && pageVisible) {
+				const start = packet.getNumber('start', -1)
+				const length = packet.getNumber('length', 0)
+				if (start >= 0 && length > 0 && start + length <= activeEmbeddedSpeech.length) activeSubtitle.value = activeEmbeddedSpeech.substring(start, start + length)
+				return
+			}
 			if (type == 'page-loaded') {
 				embeddedAvatarPageLoaded.value = true
 				embeddedAvatarRuntimeStatus.value = '讯飞页面已载入，正在启动形象'
@@ -547,8 +573,9 @@
 			}
 			if (type == 'ready' || (type == 'runtime-state' && packet.getBoolean('ready', false))) {
 				clearEmbeddedAvatarRevealTimer()
-				stopAvatarSkeletonShimmer()
+
 				embeddedAvatarLoaded.value = true
+				guideAudio.reconnecting.value = false
 				embeddedAvatarFailed.value = false
 				embeddedAvatarRuntimeStatus.value = '讯飞云动态形象在线'
 				flushPendingEmbeddedSpeech()
@@ -559,11 +586,15 @@
 				return
 			}
 			if (type == 'speaking') {
+				if (playbackOwner.value != 'cloud' || !pageVisible) return
+				playbackState.value = 'PLAYING'
 				digitalHumanState.value = 'speaking'
 				embeddedAvatarRuntimeStatus.value = '讯飞数字人正在讲解'
 				return
 			}
 			if (type == 'idle') {
+				if (playbackOwner.value != 'cloud' || packet.getString('reason', '') == 'interrupted') return
+				finishPlayback()
 				if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
 				embeddedSpeechResetTimer = null
 				digitalHumanState.value = 'idle'
@@ -574,21 +605,31 @@
 			if (type == 'disconnected') {
 				embeddedAvatarLoaded.value = false
 				const retrying = packet.getBoolean('retrying', false)
+				guideAudio.reconnecting.value = retrying
+				guideAudio.resetMeter()
 				embeddedAvatarRuntimeStatus.value = retrying ? '讯飞连接中断，正在自动重连' : '讯飞连接已中断'
 				if (!retrying) failEmbeddedAvatar()
 				return
 			}
 			if (type == 'error' || type == 'fatal') {
-				embeddedAvatarRuntimeStatus.value = packet.getString('message', '讯飞动态形象暂不可用')
+				guideAudio.reconnecting.value = false
+				embeddedAvatarRuntimeStatus.value = '讯飞动态形象暂不可用'
 				failEmbeddedAvatar()
+			}
+			if (type == 'speech-timeout' && playbackOwner.value == 'cloud') {
+				stopNarration()
+				voiceError.value = '语音暂不可用，可阅读回答或稍后重试'
 			}
 		})
 	}
 
 	function handleLive2dAvatarLoad() {
+		if (!hasLive2dSurface.value || destroyed) return
+		// #ifdef APP-ANDROID
+		clearAndroidStageTimer()
+		// #endif
 		live2dAvatarPageLoaded.value = true
-		live2dAvatarFailed.value = false
-		live2dAvatarRuntimeStatus.value = 'Live2D 页面已加载，正在启动模型'
+		if (!live2dAvatarLoaded.value) live2dAvatarRuntimeStatus.value = 'Live2D 页面已加载，正在启动模型'
 		// #ifdef APP
 		live2dWebViewContext = uni.createWebViewContext('live2d-avatar-webview', currentInstance?.proxy)
 		live2dWebViewContext?.evalJS('window.scenicLive2dPing && window.scenicLive2dPing()')
@@ -606,17 +647,31 @@
 	}
 
 	function handleLive2dAvatarMessage(event : UniWebViewMessageEvent) {
+		if (!hasLive2dSurface.value || destroyed) return
 		const packets = event.detail.data
 		packets.forEach((packet : UTSJSONObject) => {
-			if (packet.getString('source', '') != 'scenic-live2d') return
-			const type = packet.getString('type', '')
+			// Android Vapor delivers JSON fields without UTSJSONObject instance methods.
+			if (packet['source'] != 'scenic-live2d') return
+			// #ifdef APP-ANDROID
+			clearAndroidStageTimer()
+			// #endif
+			const type = packet['type'] as string | null
+			localProtocol = (packet['speechProtocol'] as number | null) ?? 0
+			if ((type == 'speaking' || type == 'idle' || type == 'level' || type == 'audio-blocked') && packet['requestId'] != speechRequest.id) return
+			if (type == 'level') {
+				if (playbackOwner.value != 'live2d' || !pageVisible) return
+				guideAudio.sample('playback', (packet['level'] as number | null) ?? -1)
+				const index = (packet['segment'] as number | null) ?? -1
+				if (index >= 0 && index < live2dSpeechSegments.length) activeSubtitle.value = live2dSpeechSegments[index].text
+				return
+			}
 			if (type == 'page-loaded') {
 				live2dAvatarPageLoaded.value = true
-				live2dAvatarRuntimeStatus.value = 'Live2D 页面已加载，正在启动模型'
+				if (!live2dAvatarLoaded.value) live2dAvatarRuntimeStatus.value = 'Live2D 页面已加载，正在启动模型'
 				flushPendingLive2dSpeech()
 				return
 			}
-			if (type == 'ready' || (type == 'runtime-state' && packet.getBoolean('ready', false))) {
+			if (type == 'ready' || (type == 'runtime-state' && packet['ready'] == true)) {
 				live2dAvatarLoaded.value = true
 				live2dAvatarFailed.value = false
 				live2dAvatarRuntimeStatus.value = 'Live2D 模型在线'
@@ -624,17 +679,21 @@
 				return
 			}
 			if (type == 'speaking') {
+				if (playbackOwner.value != 'live2d' || !pageVisible) return
+				playbackState.value = 'PLAYING'
 				digitalHumanState.value = 'speaking'
 				live2dAvatarRuntimeStatus.value = 'Live2D 正在同步口型'
 				return
 			}
 			if (type == 'idle') {
+				if (playbackOwner.value != 'live2d' || packet['interrupted'] == true) return
+				finishPlayback()
 				digitalHumanState.value = 'idle'
 				live2dAvatarRuntimeStatus.value = 'Live2D 模型在线'
 				return
 			}
 			if (type == 'error' || type == 'audio-blocked') {
-				live2dAvatarRuntimeStatus.value = packet.getString('message', 'Live2D 模型暂不可用')
+				live2dAvatarRuntimeStatus.value = 'Live2D 模型暂不可用'
 				live2dAvatarFailed.value = type == 'error'
 				fallbackLive2dSpeech()
 			}
@@ -642,7 +701,8 @@
 	}
 
 	function speakThroughEmbeddedAvatar(text : string) : boolean {
-		if (digitalHumanMode.value != 'xfyun' || embeddedAvatarFailed.value) return false
+		if (reducedMotion.value || digitalHumanMode.value != 'xfyun' || embeddedAvatarFailed.value) return false
+		if (cloudProtocol < 2) return false
 		const speechText = text.length > 1200 ? text.slice(0, 1200) : text
 		if (speechText.length == 0) return false
 		// A duplicated answer can be delivered by both the WebView ready event
@@ -677,19 +737,25 @@
 			pendingEmbeddedSpeech = ''
 			activeEmbeddedSpeech = ''
 		}
-		if (delegated) scheduleEmbeddedSpeechReset(text)
+		if (delegated) {
+			playbackOwner.value = 'cloud'
+			scheduleEmbeddedSpeechReset(text)
+		}
 		return delegated
 	}
 
-	function speakThroughLive2d(audioUrls : string[]) : boolean {
-		// #ifdef MP-WEIXIN
+	function speakThroughLive2d(segments : TtsSegment[]) : boolean {
+		// #ifndef APP
 		return false
 		// #endif
-		// #ifndef MP-WEIXIN
-		if (digitalHumanMode.value != 'live2d' || live2dAvatarFailed.value || audioUrls.length == 0) return false
+		// #ifdef APP
+		if (reducedMotion.value || digitalHumanMode.value != 'live2d' || live2dAvatarFailed.value || segments.length == 0 || localProtocol < 2) return false
+		live2dSpeechSegments = segments
+		const audioUrls = segments.map<string>((segment : TtsSegment) : string => resolveAssetUrl(segment.audioUrl))
+		playbackOwner.value = 'live2d'
 		if (live2dAvatarPageLoaded.value && live2dWebViewContext != null) {
 			const payload = JSON.stringify(audioUrls) as string
-			live2dWebViewContext!.evalJS('window.scenicLive2dSpeak && window.scenicLive2dSpeak(' + payload + ')')
+			live2dWebViewContext!.evalJS('window.scenicLive2dSpeak && window.scenicLive2dSpeak(' + payload + ',' + speechRequest.id.toString() + ')')
 			return true
 		}
 		// Keep one bounded batch until the model's page-loaded event arrives.
@@ -703,38 +769,45 @@
 		// #ifdef APP
 		if (!live2dAvatarPageLoaded.value || live2dWebViewContext == null || pendingLive2dSpeechUrls.value.length == 0) return
 		const payload = JSON.stringify(pendingLive2dSpeechUrls.value) as string
-		live2dWebViewContext!.evalJS('window.scenicLive2dSpeak && window.scenicLive2dSpeak(' + payload + ')')
+		live2dWebViewContext!.evalJS('window.scenicLive2dSpeak && window.scenicLive2dSpeak(' + payload + ',' + speechRequest.id.toString() + ')')
 		pendingLive2dSpeechUrls.value = []
 		// #endif
 	}
 
 	function fallbackLive2dSpeech() {
-		const urls = pendingLive2dSpeechUrls.value
+		const segments = live2dSpeechSegments
+		live2dSpeechSegments = []
 		pendingLive2dSpeechUrls.value = []
-		if (urls.length == 0 || !autoNarration.value) return
+		if (segments.length == 0 || playbackOwner.value != 'live2d' || !pageVisible) return
+		interruptLive2dAvatar()
+		playbackOwner.value = 'host'
 		// The URLs are already synthesized; play them through the normal host
 		// queue only when the real model cannot start.
-		ttsQueue.value = urls.map<TtsSegment>((url : string, index : number) => ({ id: 'live2d-fallback-' + index, text: '', audioUrl: url, mimeType: 'audio/mpeg', durationMs: 0 }))
-		ttsQueueIndex.value = 0
-		playNextTtsSegment()
+		startHostQueue(segments)
 	}
 
 	function flushPendingEmbeddedSpeech() {
 		// #ifdef APP
 		if (!embeddedAvatarPageLoaded.value || avatarWebViewContext == null || pendingEmbeddedSpeech.length == 0) return
 		const payload = JSON.stringify(pendingEmbeddedSpeech) as string
-		avatarWebViewContext!.evalJS('window.scenicAvatarSpeak && window.scenicAvatarSpeak(' + payload + ')')
+		avatarWebViewContext!.evalJS('window.scenicAvatarSpeak && window.scenicAvatarSpeak(' + payload + ',' + speechRequest.id.toString() + ')')
 		pendingEmbeddedSpeech = ''
 		// #endif
 	}
 
 	function interruptEmbeddedAvatar() {
 		// #ifdef APP
-		avatarWebViewContext?.evalJS('window.scenicAvatarDispose && window.scenicAvatarDispose()')
 		avatarWebViewContext?.evalJS('window.scenicAvatarInterrupt && window.scenicAvatarInterrupt()')
 		// #endif
 		activeEmbeddedSpeech = ''
 		pendingEmbeddedSpeech = ''
+	}
+
+	function disposeEmbeddedAvatar() {
+		interruptEmbeddedAvatar()
+		// #ifdef APP
+		avatarWebViewContext?.evalJS('window.scenicAvatarDispose && window.scenicAvatarDispose()')
+		// #endif
 	}
 
 	function interruptLive2dAvatar() {
@@ -746,7 +819,7 @@
 
 	function failEmbeddedAvatar() {
 		clearEmbeddedAvatarRevealTimer()
-		stopAvatarSkeletonShimmer()
+
 		fallbackEmbeddedSpeech()
 		interruptEmbeddedAvatar()
 		embeddedAvatarLoaded.value = false
@@ -757,171 +830,271 @@
 		const text = activeEmbeddedSpeech.length > 0 ? activeEmbeddedSpeech : pendingEmbeddedSpeech
 		activeEmbeddedSpeech = ''
 		pendingEmbeddedSpeech = ''
-		if (text.length > 0 && autoNarration.value) requestTts(text)
+		if (text.length > 0 && autoNarration.value && pageVisible) {
+			playbackOwner.value = ''
+			requestTts(text, speechRequest.id, true)
+		}
 	}
 
 	function scheduleEmbeddedSpeechReset(text : string) {
-		if (embeddedAvatarRuntimeObserved.value) return
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
-		const duration = Math.max(3200, Math.min(18000, text.length * 180))
 		embeddedSpeechResetTimer = setTimeout(() => {
-			digitalHumanState.value = 'idle'
 			embeddedSpeechResetTimer = null
-		}, duration)
+			if (playbackOwner.value != 'cloud' || playbackState.value != 'RESPONDING') return
+			interruptEmbeddedAvatar()
+			playbackOwner.value = ''
+			requestTts(text, speechRequest.id, true)
+		}, 18000)
 	}
 
-	function startMouthAnimation() {
-		if (mouthAnimationTimer != null) return
-		mouthOpen.value = true
-		mouthAnimationTimer = setInterval(() => { mouthOpen.value = !mouthOpen.value }, 180)
-	}
-
-	function stopMouthAnimation() {
-		if (mouthAnimationTimer != null) {
-			clearInterval(mouthAnimationTimer!)
-			mouthAnimationTimer = null
+	watch(reducedMotion, (reduce : boolean) => {
+		// #ifdef MP-WEIXIN
+		// Keep the loaded Cubism context. The native component pauses its RAF
+		// while invisible and first mounts only after a visible measurement.
+		if (!reduce) syncWeChatLive2dOverlay(true)
+		// #endif
+		if (reduce) {
+			// A running renderer has no speech-position transfer. Stop its utterance
+			// once; later answers can use host audio, including pause and resume.
+			if (playbackOwner.value == 'cloud' || playbackOwner.value == 'live2d') stopNarration()
+			resetEmbeddedAvatar(false)
+			resetLive2dAvatar()
+		} else if (pageVisible && initialized.value) {
+			if (digitalHumanMode.value == 'xfyun') initializeEmbeddedAvatar(false)
+			else initializeLive2dAvatar(false)
 		}
-		mouthOpen.value = false
-	}
-
-	watch(digitalHumanState, (state : string) => {
-		if (state == 'speaking') startMouthAnimation()
-		else stopMouthAnimation()
 	})
 
-	async function openLiveAvatar() {
+	function finishPlayback() {
 		// #ifdef MP-WEIXIN
-		uni.showModal({
-			title: '微信个人版动态数字人',
-			content: '当前使用本地动态形象与讯飞云音色。直接提问或录音后，形象会随讯飞播报进入讲解状态。',
-			showCancel: false
-		})
+		stopSegmentAnalysis?.()
+		stopSegmentAnalysis = null
 		// #endif
-		// #ifndef MP-WEIXIN
-		if (digitalHumanMode.value != 'xfyun') {
-			uni.showToast({ title: '当前为本地动态口型模式', icon: 'none' })
+		guideAudio.resetMeter()
+		activeSubtitle.value = ''
+		if (meterTimer != null) clearInterval(meterTimer!)
+		meterTimer = null
+		live2dSpeechSegments = []
+		playbackOwner.value = ''
+		playbackState.value = 'IDLE'
+		digitalHumanState.value = 'idle'
+		pendingLive2dSpeechUrls.value = []
+	}
+
+	function stopNarration() {
+		speechRequest.begin()
+		const owner = playbackOwner.value
+		finishPlayback()
+		if (owner == 'cloud') interruptEmbeddedAvatar()
+		if (owner == 'live2d') interruptLive2dAvatar()
+		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
+		embeddedSpeechResetTimer = null
+		const player = audioContext.value
+		audioContext.value = null
+		player?.destroy()
+		ttsQueue.value = []
+		ttsQueueIndex.value = 0
+	}
+
+	function startHostQueue(segments : TtsSegment[]) {
+		const generation = speechRequest.id
+		if (segments.length == 0) { finishPlayback(); voiceError.value = '暂无可播放的音频'; return }
+		playbackOwner.value = 'host'
+		playbackState.value = 'RESPONDING'
+		ttsQueue.value = segments
+		ttsQueueIndex.value = 0
+		// #ifdef WEB
+		const player = createWebNarrationPlayer((level : number) => { if (generation == speechRequest.id) guideAudio.sample('playback', level) }) as InnerAudioContext
+		// #endif
+		// #ifndef WEB
+		const player = uni.createInnerAudioContext()
+		// #endif
+		audioContext.value = player
+		player.onPlay(() => {
+			if (generation != speechRequest.id) return
+			playbackState.value = 'PLAYING'
+			digitalHumanState.value = 'speaking'
+			if (ttsQueueIndex.value < ttsQueue.value.length) activeSubtitle.value = ttsQueue.value[ttsQueueIndex.value].text
+			startSegmentMeter(player, generation)
+		})
+		player.onPause(() => {
+			if (generation != speechRequest.id) return
+			playbackState.value = 'PAUSED'
+			digitalHumanState.value = 'idle'
+			guideAudio.resetMeter()
+			if (meterTimer != null) clearInterval(meterTimer!)
+			meterTimer = null
+		})
+		player.onEnded(() => {
+			if (generation != speechRequest.id) return
+			ttsQueueIndex.value += 1
+			playNextTtsSegment()
+		})
+		player.onError(() => {
+			if (generation != speechRequest.id) return
+			stopNarration()
+			voiceError.value = '音频无法播放，可重试语音朗读'
+		})
+		playNextTtsSegment()
+	}
+
+	function startSegmentMeter(player : InnerAudioContext, generation : number) {
+		// #ifndef WEB
+		if (meterTimer != null) clearInterval(meterTimer!)
+		const index = ttsQueueIndex.value
+		if (index >= ttsQueue.value.length) return
+		const segment = ttsQueue.value[index]
+		let levels = segment.levels80ms ?? [] as number[]
+		// #ifdef MP-WEIXIN
+		stopSegmentAnalysis?.()
+		stopSegmentAnalysis = null
+		if (levels.length == 0) stopSegmentAnalysis = measureWechatSegment(resolveAssetUrl(segment.audioUrl), (found : number[]) => { levels = found })
+		// #endif
+		meterTimer = setInterval(() => {
+			if (speechRequest.id != generation || index != ttsQueueIndex.value || levels.length == 0) return
+			const frame = Math.floor(player.currentTime * 1000 / 80)
+			if (frame >= 0 && frame < levels.length) guideAudio.sample('playback', levels[frame])
+		}, 80)
+		// #endif
+	}
+
+	function interruptTurn() {
+		if (recording.value || capturePending.value || finishingRecording.value) { cancelRecording(); return }
+		questionRequest.begin()
+		sending.value = false
+		stopNarration()
+		guideAudio.cancelled.value = true
+	}
+
+	function playNextTtsSegment() {
+		if (audioContext.value == null || ttsQueueIndex.value >= ttsQueue.value.length) {
+			stopNarration()
 			return
 		}
-		await initializeEmbeddedAvatar(embeddedAvatarFailed.value)
-		uni.showToast({ title: embeddedAvatarLoaded.value ? '讯飞舞台已嵌入当前页面' : '讯飞舞台正在连接', icon: 'none' })
-		// #endif
+		guideAudio.resetMeter()
+		activeSubtitle.value = ''
+		playbackState.value = 'RESPONDING'
+		audioContext.value!.src = resolveAssetUrl(ttsQueue.value[ttsQueueIndex.value].audioUrl)
+		audioContext.value!.play()
 	}
 
-	async function sendMessage() {
-		const question = input.value.trim()
-		if (question.length == 0 || sending.value) return
-		input.value = ''
-		messages.value.push({ id: Date.now(), role: 'user', content: question, sources: [] })
-		sending.value = true
-		digitalHumanState.value = 'thinking'
-		scrollToBottom()
+	function togglePlayback() {
+		if (playbackOwner.value != 'host') return
+		if (playbackState.value == 'PAUSED') audioContext.value?.play()
+		else if (playbackState.value == 'PLAYING') audioContext.value?.pause()
+	}
+
+	function readAloud(text : string) {
+		if (!pageVisible || sending.value || recording.value || capturePending.value || finishingRecording.value) return
+		stopNarration()
+		guideAudio.beginAction()
+		requestTts(text, speechRequest.id, true)
+	}
+
+	async function requestTts(text : string, generation : number, hostOnly : boolean) {
+		if (generation != speechRequest.id || !pageVisible) return
+		playbackState.value = 'RESPONDING'
 		try {
-			if (sessionId.value.length == 0) sessionId.value = await ensureVisitorSession()
-			const result = await askQuestion(question, sessionId.value)
-			const sources = (result.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '景区知识库')
-			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer, sources })
-			digitalHumanState.value = 'idle'
-			if (autoNarration.value) {
-				const delegated = speakThroughEmbeddedAvatar(result.answer)
-				if (!delegated) requestTts(result.answer)
-			} else digitalHumanState.value = 'idle'
+			const result = await synthesizeSpeech(text, digitalHuman.value?.vcn ?? 'x6_jingqudaolannvsheng_mini', digitalHuman.value?.speechRate ?? 1, (abort : () => void) => { speechRequest.attach(generation, abort) })
+			if (generation != speechRequest.id || !pageVisible) return
+			speechRequest.complete(generation)
+			if (!hostOnly && speakThroughLive2d(result.segments)) return
+			startHostQueue(result.segments)
 		} catch (error) {
-			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: '暂时无法连接导游服务，请确认本地 Node 服务与 API 地址配置。', sources: [] })
-			digitalHumanState.value = 'idle'
-			console.error('ask guide failed', error)
-		} finally {
-			sending.value = false
-			if (!autoNarration.value) digitalHumanState.value = 'idle'
-			scrollToBottom()
+			if (generation != speechRequest.id) return
+			stopNarration()
+			voiceError.value = '语音暂不可用，可阅读回答或稍后重试'
 		}
 	}
 
-	async function requestTts(text : string) {
+	function narrateAnswer(answer : string, generation : number, segments : TtsSegment[]) {
+		if (!autoNarration.value || generation != speechRequest.id || !pageVisible) return
+		playbackState.value = 'RESPONDING'
+		if (speakThroughEmbeddedAvatar(answer)) return
+		if (segments.length == 0) { requestTts(answer, generation, false); return }
+		if (!speakThroughLive2d(segments)) startHostQueue(segments)
+	}
+
+	const conversationBusy = computed<boolean>(() => sending.value || recording.value || capturePending.value || finishingRecording.value || clearingHistory.value)
+
+	function sendMessage() {
+		submitQuestion(input.value.trim(), true)
+	}
+
+	async function submitQuestion(question : string, fromComposer : boolean) {
+		if (question.length == 0 || !pageVisible || destroyed || conversationBusy.value) return
+		const answerLocale = locale.value
+		stopNarration()
+		const generation = speechRequest.id
+		const request = questionRequest.begin()
+		guideAudio.beginAction()
+		if (fromComposer) input.value = ''
+		messages.value.push({ id: Date.now(), role: 'user', content: question, sources: [] })
+		sending.value = true
 		try {
-			const result = await synthesizeSpeech(text, digitalHuman.value?.vcn ?? 'x6_jingqudaolannvsheng_mini', digitalHuman.value?.speechRate ?? 1)
-			const audioUrls = result.segments.map<string>((segment : TtsSegment) : string => resolveAssetUrl(segment.audioUrl))
-			if (speakThroughLive2d(audioUrls)) {
-				digitalHumanState.value = 'speaking'
-				return
-			}
-			ttsQueue.value = result.segments
-			ttsQueueIndex.value = 0
-			playNextTtsSegment()
+			if (sessionId.value.length == 0) sessionId.value = await ensureVisitorSession()
+			if (!pageVisible || request != questionRequest.id || destroyed) return
+			const result = await askQuestion(question, sessionId.value, answerLocale, (abort : () => void) => { questionRequest.attach(request, abort) })
+			if (!pageVisible || destroyed || request != questionRequest.id) return
+			const sources = (result.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '')
+			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer, kind: result.label ?? result.scenario ?? '', sources })
+			narrateAnswer(result.answer, generation, [])
 		} catch (error) {
-			digitalHumanState.value = 'idle'
-			console.error('tts request failed', error)
+			if (!pageVisible || destroyed || request != questionRequest.id) return
+			voiceError.value = '暂时无法连接导游，检查网络后可重新发送'
+			if (input.value.length == 0) input.value = question
+		} finally {
+			if (request == questionRequest.id) { questionRequest.complete(request); sending.value = false }
 		}
 	}
 
 	async function submitRecordedVoice(filePath : string) {
-		if (filePath.length == 0 || sending.value) return
+		finishingRecording.value = false
+		if (filePath.length == 0 || sending.value || !pageVisible || captureCancelled) return
+		const answerLocale = locale.value
+		const generation = speechRequest.id
+		const request = questionRequest.begin()
 		sending.value = true
-		digitalHumanState.value = 'thinking'
-		uni.showLoading({ title: '识别并思考中' })
+		voiceError.value = ''
 		try {
 			if (sessionId.value.length == 0) sessionId.value = await ensureVisitorSession()
-			const result = await askVoice(filePath, sessionId.value)
+			if (captureCancelled || !pageVisible || request != questionRequest.id) return
+			const result = await askVoice(filePath, sessionId.value, answerLocale, (abort : () => void) => { questionRequest.attach(request, abort) })
+			if (!pageVisible || destroyed || request != questionRequest.id) return
 			messages.value.push({ id: Date.now(), role: 'user', content: result.transcript, sources: [] })
-			const sources = (result.answer.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '景区知识库')
-			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer.answer, sources })
-			if (autoNarration.value) {
-				digitalHumanState.value = 'idle'
-				const delegated = speakThroughEmbeddedAvatar(result.answer.answer)
-				if (!delegated) {
-					const preferredVoice = digitalHuman.value?.vcn ?? ''
-					const speech = preferredVoice.length == 0 || result.tts.voice == preferredVoice
-						? result.tts
-						: await synthesizeSpeech(result.answer.answer, preferredVoice, digitalHuman.value?.speechRate ?? 1)
-					const delegatedLive2d = speakThroughLive2d(speech.segments.map<string>((segment : TtsSegment) : string => resolveAssetUrl(segment.audioUrl)))
-					if (delegatedLive2d) digitalHumanState.value = 'speaking'
-					else {
-						ttsQueue.value = speech.segments
-						ttsQueueIndex.value = 0
-						playNextTtsSegment()
-					}
-				}
-			} else digitalHumanState.value = 'idle'
+			const sources = (result.answer.sources ?? []).map<string>((source) : string => source.scenicSpotName ?? source.sectionTitle ?? source.documentName ?? '')
+			messages.value.push({ id: Date.now() + 1, role: 'assistant', content: result.answer.answer, kind: result.answer.label ?? result.answer.scenario ?? '', sources })
+			const preferredVoice = digitalHuman.value?.vcn ?? ''
+			narrateAnswer(result.answer.answer, generation, preferredVoice.length == 0 || result.tts.voice == preferredVoice ? result.tts.segments : [])
 		} catch (error) {
-			digitalHumanState.value = 'idle'
-			console.error('voice ask failed', error)
-			uni.showToast({ title: '语音提问失败，请改用文字输入', icon: 'none' })
+			if (pageVisible && !destroyed && request == questionRequest.id) voiceError.value = '语音提问失败，可重新录音或使用文字'
 		} finally {
-			sending.value = false
-			uni.hideLoading()
-			scrollToBottom()
+			if (request == questionRequest.id) { questionRequest.complete(request); sending.value = false }
 		}
-	}
-
-	function playNextTtsSegment() {
-		if (!autoNarration.value || audioContext.value == null || ttsQueueIndex.value >= ttsQueue.value.length) {
-			digitalHumanState.value = 'idle'
-			return
-		}
-		const segment = ttsQueue.value[ttsQueueIndex.value]
-		audioContext.value!.src = resolveAssetUrl(segment.audioUrl)
-		audioContext.value!.play()
 	}
 
 	async function restoreHistory() {
+		const initialRequest = questionRequest.id
 		if (sessionId.value.length == 0) sessionId.value = await ensureVisitorSession()
 		const history = await fetchChatHistory(sessionId.value)
+		if (destroyed || initialRequest != questionRequest.id || sending.value || messages.value.length > 0 || history.length == 0) return
 		messages.value = history.map<ChatMessageItem>((item : ConversationMessage, index : number) : ChatMessageItem => ({
 			id: Date.now() + index,
 			role: item.role,
 			content: item.content,
+			kind: item.intentLabel ?? '',
 			sources: []
 		}))
-		scrollToBottom()
 	}
 
 	function requestClearHistory() {
 		if (!canClearHistory.value) return
 		uni.showModal({
-			title: '清除对话记录',
-			content: '将永久删除当前会话中的全部问答记录，此操作无法撤销。',
-			confirmText: '确认清除',
-			confirmColor: '#c44747',
-			cancelText: '取消',
+			title: g('清除对话记录'),
+			content: g('将永久删除当前会话中的全部问答记录，此操作无法撤销。'),
+			confirmText: g('确认清除'),
+			confirmColor: themeColor('error'),
+			cancelText: g('取消'),
 			success: (result) => {
 				if (result.confirm) clearConversationHistory()
 			}
@@ -933,50 +1106,104 @@
 		clearingHistory.value = true
 		try {
 			await clearChatHistory(sessionId.value)
-			interruptEmbeddedAvatar()
-			interruptLive2dAvatar()
-			audioContext.value?.stop()
-			ttsQueue.value = []
-			ttsQueueIndex.value = 0
-			digitalHumanState.value = 'idle'
+			stopNarration()
 			messages.value = []
-			scrollToBottom()
-			uni.showToast({ title: '对话记录已清除', icon: 'success' })
+			uni.showToast({ title: g('对话记录已清除'), icon: 'success' })
 		} catch (error) {
 			console.error('clear chat history failed', error)
-			uni.showToast({ title: '清除失败，请稍后重试', icon: 'none' })
+			uni.showToast({ title: g('清除失败，请稍后重试'), icon: 'none' })
 		} finally {
 			clearingHistory.value = false
 		}
 	}
 
 	function applyPendingPrompt() {
+		if (!initialized.value || !pageVisible || destroyed || conversationBusy.value) return
 		const prompt = consumeGuidePrompt()
 		if (prompt.length == 0) return
-		input.value = prompt
-		sendMessage()
+		submitQuestion(prompt, false)
 	}
+
+	watch(conversationBusy, (busy : boolean) => {
+		if (!busy) applyPendingPrompt()
+	})
 
 	function toggleNarration() {
 		autoNarration.value = !autoNarration.value
-		if (!autoNarration.value) {
-			interruptEmbeddedAvatar()
-			interruptLive2dAvatar()
-			audioContext.value?.stop()
-			ttsQueue.value = []
-			ttsQueueIndex.value = 0
-			digitalHumanState.value = 'idle'
+		if (!autoNarration.value) stopNarration()
+	}
+
+	function resetCaptureFlags() {
+		guideAudio.resetMeter()
+		recording.value = false
+		capturePending.value = false
+		finishingRecording.value = false
+	}
+
+	function cancelRecording() {
+		if ((capturePending.value || recording.value || finishingRecording.value) && pageVisible) guideAudio.cancelled.value = true
+		captureCancelled = true
+		captureRevision++
+		// #ifdef WEB
+		browserRecording?.stop(true)
+		browserRecording = null
+		resetCaptureFlags()
+		// #endif
+		// #ifndef WEB
+		if (recording.value || capturePending.value || finishingRecording.value) {
+			finishingRecording.value = true
+			recorderManager.value?.stop()
+		}
+		// #endif
+	}
+
+	function captureError(message : string, unavailable : boolean = false) {
+		resetCaptureFlags()
+		if (!captureCancelled && pageVisible) {
+			guideAudio.unavailable.value = unavailable
+			voiceError.value = message
 		}
 	}
 
+	function finishHeldRecording() {
+		if (capturePending.value) { cancelRecording(); return }
+		if (recording.value && !finishingRecording.value) toggleRecording()
+	}
+
 	function toggleRecording() {
+		if (!initialized.value || sending.value || capturePending.value || finishingRecording.value || clearingHistory.value) return
+		if (recording.value) {
+			finishingRecording.value = true
+			// #ifdef WEB
+			browserRecording?.stop()
+			// #endif
+			// #ifndef WEB
+			recorderManager.value?.stop()
+			// #endif
+			return
+		}
+		stopNarration()
+		guideAudio.beginAction()
+		const captureId = ++captureRevision
+		captureCancelled = false
+		capturePending.value = true
 		// #ifdef WEB
-		uni.showToast({ title: 'Web 端语音将使用 MediaRecorder 适配器', icon: 'none' })
-		return
+		browserRecording = createWebRecording(() => { if (captureRevision == captureId) { capturePending.value = false; recording.value = true } }, () => {
+			if (captureRevision != captureId) return
+			recording.value = false
+			finishingRecording.value = true
+			guideAudio.resetMeter()
+		}, async (url : string) => { if (captureRevision == captureId) await submitRecordedVoice(url) }, (message : string, unavailable : boolean) => { if (captureRevision == captureId) captureError(message, unavailable) }, (level : number) => { if (captureRevision == captureId) guideAudio.sample('microphone', level) })
+		browserRecording!.start()
+		// #endif
+		// #ifdef MP-WEIXIN
+		if (pcmCapture) {
+			recorderManager.value?.start({ duration: 60000, format: 'PCM', sampleRate: 16000, numberOfChannels: 1, frameSize: 2 })
+			return
+		}
 		// #endif
 		// #ifndef WEB
-		if (recording.value) recorderManager.value?.stop()
-		else recorderManager.value?.start({ format: 'mp3', sampleRate: 16000, numberOfChannels: 1, encodeBitRate: 48000 })
+		recorderManager.value?.start({ duration: 60000, format: 'mp3', sampleRate: 16000, numberOfChannels: 1, encodeBitRate: 48000 })
 		// #endif
 	}
 
@@ -985,45 +1212,123 @@
 		digitalHumanMode.value = 'live2d'
 		setDigitalHumanRenderMode('live2d')
 		// #endif
-		await loadDigitalHumanPreference()
-		if (digitalHumanMode.value == 'xfyun') await initializeEmbeddedAvatar(false)
-		else await initializeLive2dAvatar(false)
-		try { await restoreHistory() } catch (error) { console.error('restore chat history failed', error) }
 		// #ifndef WEB
+		// #ifdef MP-WEIXIN
+		recorderManager.value = createWechatRecorder() as RecorderManager
+		// #endif
+		// #ifndef MP-WEIXIN
 		recorderManager.value = uni.getRecorderManager()
-		recorderManager.value?.onStart(() => { recording.value = true })
+		// #endif
+		recorderManager.value?.onStart(() => {
+			capturePending.value = false
+			if (captureCancelled || !pageVisible) { recorderManager.value?.stop(); return }
+			recording.value = true
+		})
 		recorderManager.value?.onStop((result) => {
-			recording.value = false
-			submitRecordedVoice(result.tempFilePath)
+			resetCaptureFlags()
+			if (!captureCancelled && pageVisible) submitRecordedVoice(result.tempFilePath)
 		})
 		recorderManager.value?.onError((error) => {
-			recording.value = false
-			uni.showToast({ title: error.errMsg, icon: 'none' })
+			const reason = error.errMsg.toLowerCase()
+			// #ifdef MP-WEIXIN
+			if (pcmCapture && capturePending.value && !captureCancelled && (reason.indexOf('format') >= 0 || reason.indexOf('pcm') >= 0)) {
+				pcmCapture = false
+				recorderManager.value?.start({ duration: 60000, format: 'mp3', sampleRate: 16000, numberOfChannels: 1, encodeBitRate: 48000 })
+				return
+			}
+			// #endif
+			captureError('麦克风无法使用，请检查录音权限')
+			if (!captureCancelled && (reason.indexOf('auth') >= 0 || reason.indexOf('permission') >= 0 || reason.indexOf('denied') >= 0)) guideAudio.unavailable.value = true
 		})
+		// #ifdef MP-WEIXIN
+		recorderManager.value?.onFrameRecorded((level) => {
+			if (pcmCapture && !captureCancelled) guideAudio.sample('microphone', level as number)
+		})
+		recorderManager.value?.onInterruptionBegin(() => { cancelRecording() })
 		// #endif
-		audioContext.value = uni.createInnerAudioContext()
-		audioContext.value?.onPlay(() => { digitalHumanState.value = 'speaking' })
-		audioContext.value?.onPause(() => { digitalHumanState.value = 'idle' })
-		audioContext.value?.onStop(() => { digitalHumanState.value = 'idle' })
-		audioContext.value?.onEnded(() => {
-			ttsQueueIndex.value += 1
-			playNextTtsSegment()
-		})
-		audioContext.value?.onError((error) => {
-			digitalHumanState.value = 'idle'
-			console.error('audio failed', error)
-		})
+		// #endif
 		initialized.value = true
-		applyPendingPrompt()
+		loadDigitalHumanPreference().then(() => {
+			if (destroyed) return
+			if (digitalHumanMode.value == 'xfyun') initializeEmbeddedAvatar(false)
+			else initializeLive2dAvatar(false)
+		})
+		try { await restoreHistory() } catch (error) { console.error('restore chat history failed', error) }
+		if (!destroyed && pageVisible) applyPendingPrompt()
 	})
 
+	// #ifdef APP-ANDROID
+	function clearAndroidStageTimer() {
+		if (androidStageTimer != null) clearTimeout(androidStageTimer!)
+		androidStageTimer = null
+	}
+
+	function clearAndroidAttachTimer() {
+		if (androidAttachTimer != null) clearTimeout(androidAttachTimer!)
+		androidAttachTimer = null
+	}
+
+	function attachAndroidStage() {
+		if (!androidPageLaidOut || !pageVisible || destroyed || androidStageReady.value || androidAttachTimer != null) return
+		// A JS nextTick can precede the native view commit. Keep one full
+		// native update between removing the old surface and attaching its URL.
+		androidAttachTimer = setTimeout(() => {
+			androidAttachTimer = null
+			if (!pageVisible || destroyed) return
+			androidStageReady.value = true
+			if (androidStageRetried && live2dAvatarUrl.value.length == 0) initializeLive2dAvatar(false)
+		}, 250)
+	}
+
+	function watchAndroidStageStart() {
+		clearAndroidStageTimer()
+		if (!pageVisible || !hasLive2dSurface.value || live2dAvatarPageLoaded.value || live2dAvatarLoaded.value) return
+		// A cold Vapor tab can miss its initial WebView attachment. Retry the
+		// view once if neither the document nor its native bridge ever answers.
+		const url = live2dAvatarUrl.value
+		androidStageTimer = setTimeout(() => {
+			androidStageTimer = null
+			if (destroyed || !pageVisible || !hasLive2dSurface.value || url != live2dAvatarUrl.value ||
+				live2dAvatarPageLoaded.value || live2dAvatarLoaded.value) return
+			if (androidStageRetried) {
+				live2dAvatarFailed.value = true
+				live2dAvatarRuntimeStatus.value = 'Live2D 页面加载失败'
+				fallbackLive2dSpeech()
+				return
+			}
+			androidStageRetried = true
+			androidStageReady.value = false
+			live2dAvatarUrl.value = ''
+			live2dWebViewContext = null
+			attachAndroidStage()
+		}, androidStageRetried ? 20000 : 6000)
+	}
+
+	watch(hasLive2dSurface, () => { watchAndroidStageStart() })
+	// #endif
+
 	onShow(async () => {
+		pageVisible = true
+		orbPageActive.value = true
+		if (stageLocale != locale.value) {
+			stageLocale = locale.value
+			resetEmbeddedAvatar(false)
+			resetLive2dAvatar()
+		}
+		// #ifdef APP-ANDROID
+		attachAndroidStage()
+		if (hasLive2dSurface.value && live2dAvatarPageLoaded.value) {
+			live2dWebViewContext?.evalJS('window.scenicLive2dPing && window.scenicLive2dPing()')
+		}
+		watchAndroidStageStart()
+		// #endif
 		if (initialized.value) {
 			// #ifdef MP-WEIXIN
 			digitalHumanMode.value = 'live2d'
 			setDigitalHumanRenderMode('live2d')
 			// #endif
 			await loadDigitalHumanPreference()
+			if (!pageVisible || destroyed) return
 			if (digitalHumanMode.value == 'xfyun') await initializeEmbeddedAvatar(false)
 			else await initializeLive2dAvatar(false)
 			applyPendingPrompt()
@@ -1032,17 +1337,57 @@
 	})
 
 	onReady(() => {
+		// #ifdef APP-ANDROID
+		androidPageLaidOut = true
+		attachAndroidStage()
+		// #endif
 		syncWeChatLive2dOverlay(true)
 	})
 
+	onHide(() => {
+		// #ifdef APP-ANDROID
+		clearAndroidStageTimer()
+		clearAndroidAttachTimer()
+		// #endif
+		pageVisible = false
+		orbPageActive.value = false
+		if (sending.value) {
+			questionRequest.begin()
+			sending.value = false
+		}
+		// #ifdef MP-WEIXIN
+		wechatLayoutRevision++
+		wechatLive2dVisible.value = false
+		// #endif
+		cancelRecording()
+		stopNarration()
+	})
+
 	onUnload(() => {
-		recorderManager.value?.stop()
-		audioContext.value?.destroy()
+		destroyed = true
+		// #ifdef APP-ANDROID
+		clearAndroidStageTimer()
+		clearAndroidAttachTimer()
+		// #endif
+		orbPageActive.value = false
+		questionRequest.begin()
+		syncRecordingClock(false)
+		pageVisible = false
+		cancelRecording()
+		stopNarration()
+		// #ifndef WEB
+		recorderManager.value?.offStart()
+		recorderManager.value?.offStop()
+		recorderManager.value?.offError()
+		// #ifdef MP-WEIXIN
+		recorderManager.value?.offFrameRecorded()
+		recorderManager.value?.offInterruptionBegin()
+		// #endif
+		// #endif
 		embeddedAvatarGeneration += 1
-		interruptEmbeddedAvatar()
+		disposeEmbeddedAvatar()
 		interruptLive2dAvatar()
-		stopMouthAnimation()
-		stopAvatarSkeletonShimmer()
+
 		clearEmbeddedAvatarRevealTimer()
 		if (embeddedSpeechResetTimer != null) clearTimeout(embeddedSpeechResetTimer!)
 		embeddedSpeechResetTimer = null
@@ -1050,111 +1395,208 @@
 		wechatLive2dSettleTimer = null
 		avatarWebViewContext = null
 	})
-</script>
 
-<style>
-	.page { position: relative; flex: 1; overflow: hidden; background-color: #f3f6fb; }
-	.guide-header { position: relative; z-index: 6; padding: 48px 16px 14px; flex-direction: row; align-items: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f2; }
-	.guide-avatar { position: relative; flex-shrink: 0; width: 48px; height: 48px; border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom right, #0656ae, #10afc1); align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(11,104,208,0.22); }
-	.guide-avatar-image { width: 54px; height: 54px; margin-top: 0; }
-	.guide-avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.035); }
-	.guide-heading { flex: 1; min-width: 0; margin-left: 11px; }
-	.guide-title-row { flex: 1; min-width: 0; flex-direction: row; align-items: center; }
-	.guide-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; font-weight: 800; color: #172741; }
-	.guide-mode { flex-shrink: 0; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; color: #d17d00; background-color: #fff2d8; padding: 4px 7px; border-radius: 9px; margin-left: 8px; }
-	.guide-status { font-size: 11px; color: #738198; margin-top: 4px; }
-	.voice-toggle { flex-shrink: 0; width: 40px; height: 40px; border-radius: 14px; background-color: #e7f1ff; align-items: center; justify-content: center; }
-	.message-scroll { position: relative; z-index: 1; flex: 1; }
-	.message-list { padding: 17px 14px 28px; }
-	.welcome-card { padding: 17px; border-radius: 24px; background-color: #ffffff; border: 1px solid #dce8f6; margin-bottom: 22px; box-shadow: 0 12px 30px rgba(38,79,124,0.08); }
-	.avatar-mode-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 13px; }
-	.avatar-mode-kicker { font-size: 8px; color: #d17d00; font-weight: 800; letter-spacing: 1px; }
-	.avatar-mode-title { margin-top: 3px; font-size: 16px; color: #163d67; font-weight: 800; }
-	.avatar-mode-switch { flex-direction: row; padding: 3px; border-radius: 14px; background-color: #eef3f9; }
-	.avatar-mode-option { min-width: 58px; height: 31px; border-radius: 11px; align-items: center; justify-content: center; }
-	.avatar-mode-option-active { background-color: #ffffff; box-shadow: 0 4px 10px rgba(28,70,116,0.10); }
-	.avatar-mode-option-text { font-size: 11px; color: #7a899c; font-weight: 700; }
-	.avatar-mode-option-text-active { color: #0b68d0; }
-	.embedded-avatar-shell { position: relative; height: 238px; overflow: hidden; border-radius: 21px; background-color: #ffffff; border: 1px solid #e1e9f2; }
-	.embedded-avatar-webview { width: 100%; height: 238px; background-color: #ffffff; }
-	.embedded-avatar-placeholder { width: 100%; height: 238px; background-color: #ffffff; }
-	.wechat-live2d-overlay { position: absolute; z-index: 4; overflow: hidden; border-radius: 21px; background-color: #ffffff; }
-	.wechat-live2d-overlay-hidden { opacity: 0; pointer-events: none; }
-	.wechat-live2d-overlay-canvas { width: 100%; height: 100%; background-color: #ffffff; }
-	.local-avatar-stage { position: relative; width: 100%; height: 238px; overflow: hidden; align-items: center; justify-content: flex-end; background: linear-gradient(to bottom, #ffffff, #f3f9ff); }
-	.local-avatar-halo { position: absolute; width: 190px; height: 190px; left: 25%; top: 27px; border-radius: 96px; background-color: rgba(52,157,213,0.08); }
-	.local-avatar-halo-speaking { background-color: rgba(255,208,103,0.16); }
-	.local-avatar-image { position: absolute; width: 216px; height: 248px; bottom: -24px; transform-origin: 50% 100%; }
-	.local-avatar-image-speaking { transform: translateY(-2px) scale(1.012); }
-	.local-avatar-mouth { position: absolute; left: 49%; top: 65px; width: 12px; height: 4px; border-radius: 6px; align-items: center; justify-content: center; background-color: #6f3042; }
-	.local-avatar-mouth-open { height: 10px; top: 62px; border-radius: 6px; }
-	.local-avatar-mouth-core { width: 6px; height: 2px; border-radius: 2px; background-color: #f5a9ae; }
-	.local-speaking-badge { position: absolute; left: 12px; bottom: 12px; flex-direction: row; align-items: center; padding: 7px 10px; border-radius: 13px; background-color: rgba(8,63,119,0.88); }
-	.local-speaking-dot { width: 7px; height: 7px; border-radius: 4px; background-color: #67e1ca; margin-right: 6px; }
-	.local-speaking-text { font-size: 9px; color: #ffffff; }
-	.avatar-stage-loading { width: 100%; height: 238px; align-items: center; justify-content: center; background-color: #ffffff; }
-	.avatar-stage-loading-text { margin-top: 11px; color: #718299; font-size: 11px; }
-	.avatar-stage-skeleton { position: absolute; z-index: 5; left: 0; right: 0; top: 0; bottom: 0; overflow: hidden; padding: 25px 24px 18px; justify-content: space-between; background: linear-gradient(to bottom right, #f8fbff, #edf5fb); }
-	.avatar-skeleton-content { flex-direction: row; align-items: center; }
-	.avatar-skeleton-portrait { position: relative; flex-shrink: 0; width: 92px; height: 126px; overflow: hidden; border-radius: 30px; align-items: center; justify-content: flex-end; background-color: #dce8f3; }
-	.avatar-skeleton-head { position: absolute; top: 20px; width: 48px; height: 48px; border-radius: 24px; background-color: #c6d7e7; }
-	.avatar-skeleton-body { width: 76px; height: 62px; margin-bottom: -15px; border-radius: 38px 38px 16px 16px; background-color: #c6d7e7; }
-	.avatar-skeleton-copy { flex: 1; min-width: 0; margin-left: 20px; }
-	.avatar-skeleton-line { height: 12px; margin-bottom: 12px; border-radius: 6px; background-color: #d4e1ed; }
-	.avatar-skeleton-line-title { width: 62%; height: 17px; border-radius: 9px; background-color: #c5d6e6; }
-	.avatar-skeleton-line-wide { width: 92%; }
-	.avatar-skeleton-line-short { width: 72%; }
-	.avatar-skeleton-actions { flex-direction: row; margin-top: 6px; }
-	.avatar-skeleton-pill { width: 76px; height: 25px; margin-right: 10px; border-radius: 13px; background-color: #d3e2ef; }
-	.avatar-skeleton-pill-short { width: 54px; }
-	.avatar-skeleton-status-row { height: 28px; flex-direction: row; align-items: center; justify-content: center; }
-	.avatar-skeleton-status-dot { width: 7px; height: 7px; margin-right: 7px; border-radius: 4px; background-color: #26a7a0; }
-	.avatar-skeleton-status-text { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #60778f; font-size: 10px; }
-	.avatar-skeleton-shimmer { position: absolute; left: -55%; top: 0; width: 45%; height: 100%; transform: skewX(-14deg); background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.76), rgba(255,255,255,0)); }
-	.avatar-stage-fallback { position: absolute; left: 12px; right: 12px; bottom: 12px; min-height: 34px; padding: 8px 11px; border-radius: 13px; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.92); border: 1px solid #dce5ef; }
-	.avatar-stage-fallback-text { color: #557089; font-size: 10px; text-align: center; }
-	.avatar-stage-meta { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 11px; padding: 0 2px 2px; }
-	.avatar-stage-name { color: #173c65; font-size: 14px; font-weight: 800; }
-	.avatar-stage-status { margin-top: 3px; color: #74869b; font-size: 9px; }
-	.avatar-stage-action { color: #0b68d0; font-size: 10px; font-weight: 800; padding: 7px 10px; border-radius: 12px; background-color: #e9f3ff; }
-	.welcome-top { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 18px; }
-	.welcome-kicker { font-size: 8px; color: #d17d00; font-weight: 700; letter-spacing: 1px; }
-	.welcome-capability { font-size: 9px; color: #0b68d0; background-color: rgba(255,255,255,0.78); padding: 5px 8px; border-radius: 10px; }
-	.welcome-title { font-size: 21px; font-weight: 800; color: #174a7e; margin-top: 12px; }
-	.welcome-copy { font-size: 13px; line-height: 20px; color: #5d718c; margin-top: 7px; }
-	.suggestion-grid { flex-direction: row; flex-wrap: wrap; justify-content: space-between; margin-top: 14px; }
-	.suggestion-pill { width: 48%; min-height: 38px; margin-bottom: 9px; padding: 8px 9px; border-radius: 19px; align-items: center; justify-content: center; background-color: #eef6ff; border: 1px solid #cfe2f8; }
-	.suggestion-pill-text { color: #1768b8; font-size: 11px; font-weight: 700; text-align: center; }
-	.message-item { flex-direction: row; margin-bottom: 14px; align-items: flex-start; }
-	.message-item-user { justify-content: flex-end; }
-	.message-item-assistant { justify-content: flex-start; }
-	.message-mini-avatar { width: 31px; height: 31px; border-radius: 11px; overflow: hidden; background-color: #0b68d0; align-items: center; justify-content: center; margin-right: 8px; }
-	.message-mini-avatar-image { width: 44px; height: 34px; margin-top: 5px; }
-	.message-bubble { max-width: 270px; padding: 13px 15px; border-radius: 19px; }
-	.message-bubble-user { background: linear-gradient(to bottom right, #0b68d0, #087fb4); border-bottom-right-radius: 6px; box-shadow: 0 7px 18px rgba(11,104,208,0.18); }
-	.message-bubble-assistant { background-color: #ffffff; border: 1px solid #e1e8f2; border-bottom-left-radius: 6px; box-shadow: 0 5px 14px rgba(30,65,110,0.04); }
-	.message-text { font-size: 14px; line-height: 22px; color: #26364f; }
-	.message-text-user { color: #ffffff; }
-	.source-list { flex-direction: row; flex-wrap: wrap; margin-top: 9px; }
-	.source-chip { font-size: 10px; color: #41698d; background-color: #edf5fc; padding: 5px 7px; margin-right: 5px; margin-bottom: 5px; border-radius: 9px; }
-	.thinking-row { flex-direction: row; align-items: center; padding: 10px 0 16px 36px; }
-	.thinking-text { font-size: 12px; color: #77849a; margin-left: 8px; }
-	.message-bottom { height: 4px; }
-	.composer { position: relative; z-index: 6; background-color: #ffffff; padding: 10px 12px 12px; border-top: 1px solid #e2e8f2; }
-	.composer-main { flex-direction: row; align-items: flex-end; }
-	.composer-input { flex: 1; min-height: 44px; max-height: 112px; padding: 11px 13px; border-radius: 17px; background-color: #f0f4fa; border: 1px solid #e0e7f1; font-size: 14px; }
-	.record-button, .send-button { width: 42px; height: 42px; margin-left: 8px; border-radius: 15px; align-items: center; justify-content: center; background-color: #c8d3e1; }
-	.record-button-active { background-color: #c45750; }
-	.send-button-active { background: linear-gradient(to bottom right, #0b68d0, #099fbd); }
-	.composer-meta { flex-direction: row; align-items: center; margin-top: 7px; padding: 0 2px; }
-	.composer-tip { flex: 1; min-width: 0; font-size: 10px; color: #99a4b4; text-align: left; }
-	.clear-history-action { flex-shrink: 0; margin-left: 10px; padding: 3px 2px; font-size: 10px; color: #b54747; font-weight: 700; }
-	.clear-history-action-disabled { color: #bdc5d0; }
-	/* #ifdef MP-WEIXIN || WEB */
-	.guide-avatar-image-speaking { animation: guide-avatar-speak 0.62s ease-in-out infinite; }
-	.welcome-copy, .message-text { user-select: text; }
-	.local-avatar-halo-speaking { animation: local-avatar-pulse 1.2s ease-in-out infinite; }
-	@keyframes guide-avatar-speak { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.035); } }
-	@keyframes local-avatar-pulse { 0%, 100% { transform: scale(0.96); opacity: 0.7; } 50% { transform: scale(1.04); opacity: 1; } }
-	/* #endif */
+  import { getPreferredScenicArea } from '@/stores/guide-preferences.uts'
+  import { consumeHistoryIntent, currentGuidePlace, queueMapSpot } from '@/stores/navigation-context.uts'
+  import { spotPhoto } from '@/design/scenic-media.uts'
+  import { guideStageMinHeight, guideStageMaxHeight, guideStageWindowFraction } from '@/design/palette.uts'
+  const panel = ref('')
+  const leavingGuide = ref(false)
+  const holdingMic = ref(false)
+  function setHolding(holding : boolean) { holdingMic.value = holding }
+  const sheetPresent = ref(false)
+  // Native EditText needs resolved theme colours for both the draft and its hint.
+  const questionTextStyle = computed<string>(() => 'color:' + themeColor('text'))
+  const questionPlaceholderStyle = computed<string>(() => 'color:' + themeColor('muted'))
+  // #ifdef APP
+  const nativeSheetStyle = ref('bottom:0px;')
+  let keyboardListener : number | null = null
+  let keyboardHeight = 0
+  let unobstructedBottom = 0
+  let initialScreenHeight = 0
+  function nativePageBottom() : number {
+    const page = messageScrollRef.value?.parentElement
+    return page?.getBoundingClientRect().bottom ?? uni.getWindowInfo().windowHeight
+  }
+  function fitNativeKeyboard() {
+    if (keyboardHeight <= 0) { nativeSheetStyle.value = 'bottom:0px;'; return }
+    const rotatedBottom = unobstructedBottom + uni.getWindowInfo().screenHeight - initialScreenHeight
+    const alreadyMoved = Math.max(0, rotatedBottom - nativePageBottom())
+    nativeSheetStyle.value = 'bottom:' + Math.max(0, keyboardHeight - alreadyMoved) + 'px;'
+  }
+  function detachKeyboard() {
+    if (keyboardListener != null) uni.offKeyboardHeightChange(keyboardListener!)
+    keyboardListener = null
+    keyboardHeight = 0
+    nativeSheetStyle.value = 'bottom:0px;'
+  }
+  function observeTextKeyboard() {
+    detachKeyboard()
+    unobstructedBottom = nativePageBottom()
+    initialScreenHeight = uni.getWindowInfo().screenHeight
+    keyboardListener = uni.onKeyboardHeightChange((event) => {
+      keyboardHeight = Math.max(0, event.height)
+      fitNativeKeyboard()
+    })
+  }
+  watch(panel, (name : string) => { if (name != 'text') detachKeyboard() })
+  onResize(fitNativeKeyboard)
+  onUnload(detachKeyboard)
+  // #endif
+  const voiceButtonActive = computed<boolean>(() => orbPageActive.value && !sheetPresent.value && !leavingGuide.value)
+  const focusQuestion = computed<boolean>(() => {
+    // H5 focuses the inner textarea after saving the trigger for keyboard return.
+    // #ifdef WEB
+    return false
+    // #endif
+    // #ifndef WEB
+    return panel.value == 'text'
+    // #endif
+  })
+  const panelBody = ref('')
+  const areaId = ref<string>(getPreferredScenicArea())
+  const suggestions = computed<string[]>(()=>['第一次来怎么玩', areaId.value == 'nianhuawan' ? '拈花塔有什么看点' : '大佛有什么故事', '推荐亲子路线', '哪些地方适合拍照'])
+  const placeName = ref('')
+  const placeId = ref('')
+  const stageInView = ref(true)
+  const viewportHeight = ref(uni.getWindowInfo().windowHeight)
+  const stageHeight = computed<number>(()=>Math.max(guideStageMinHeight, Math.min(guideStageMaxHeight, Math.round(viewportHeight.value * guideStageWindowFraction))))
+  watch(guideBarReady, (ready : boolean) => {
+    if (ready) viewportHeight.value = uni.getWindowInfo().windowHeight
+  })
+  const orbDiameter = computed<number>(()=>viewportWidth.value < 350 ? 62 : 76)
+  const areaLabel = computed<string>(()=>g(areaId.value == 'nianhuawan' ? '拈花湾' : '灵山胜境'))
+  const locationLabel = computed<string>(()=>placeName.value.length > 0 ? areaLabel.value + ' · ' + placeName.value : areaLabel.value)
+  const scenePhoto = computed<string>(()=>{
+    const placePhoto=spotPhoto(placeId.value)
+    return placePhoto.length>0 ? placePhoto : '/static/destinations/'+areaId.value+'.webp'
+  })
+  const stageName = computed<string>(()=>{
+    if(digitalHuman.value?.engine != digitalHumanMode.value) return g('景区导游')
+    const name=digitalHumanTitle.value.split('·')[0].split('（')[0].trim()
+    return name.length>0 ? name : g('灵小游')
+  })
+  const stateLabel=computed<string>(()=>{
+    switch(interactionState.value) {
+      case 'LISTENING': return g('正在聆听')
+      case 'THINKING': return voiceStatusText.value
+      case 'SPEAKING': return g('正在讲解')
+      case 'PAUSED': return g('播报已暂停')
+      case 'RECONNECTING': return g('重新连接中')
+      case 'DISABLED': return g('麦克风不可用')
+      case 'CANCELLED': return g('已取消')
+      case 'ERROR': return g('需要处理')
+      default: return g('待机')
+    }
+  })
+  const currentAnswer=computed<string>(()=>{
+    for(let i=messages.value.length-1;i>=0;i--) {
+      if(messages.value[i].role=='assistant') return messages.value[i].content
+    }
+    return ''
+  })
+  const pendingQuestion=computed<string>(()=>{
+    const n=messages.value.length
+    return sending.value && n>0 && messages.value[n-1].role=='user' ? messages.value[n-1].content : ''
+  })
+  const isWelcome=computed<boolean>(()=>currentAnswer.value.length==0 && !sending.value && !recording.value && !capturePending.value && voiceError.value.length==0 && activeSubtitle.value.length==0)
+  const subtitleLabel=computed<string>(()=>g(isWelcome.value ? '点击或按住说话' : '导游字幕'))
+  const subtitleBody=computed<string>(()=>{
+    if(recording.value) return g(holdingMic.value ? '松开发送，上滑取消' : '再点一次发送录音')
+    if(capturePending.value) return voiceStatusText.value
+    if(sending.value && activeSubtitle.value.length==0) return voiceStatusText.value
+    if(activeSubtitle.value.length>0) return activeSubtitle.value
+    if(currentAnswer.value.length>0) return currentAnswer.value
+    if(voiceError.value.length>0) return g('可以继续文字提问')
+    return g('今天想怎么玩？')
+  })
+  const displaySubtitle=computed<string>(()=>{
+    if(activeSubtitle.value.length>0) return subtitleBody.value
+    const limit=locale.value=='en' ? 180 : 72
+    return subtitleBody.value.length>limit ? subtitleBody.value.substring(0,limit)+'…' : subtitleBody.value
+  })
+  const showFullAnswer=computed<boolean>(()=>currentAnswer.value.length>0 && !sending.value && !recording.value)
+  const panelTitle=computed<string>(()=>g(panelBody.value=='history' ? '对话记录' : (panelBody.value=='settings' ? '导游设置' : '文字提问')))
+  function openPanel(next:string) {
+    if(recording.value || capturePending.value) cancelRecording()
+    // #ifdef APP
+    if (next == 'text' && panel.value != 'text') observeTextKeyboard()
+    // #endif
+    sheetPresent.value=true
+    panelBody.value=next
+    panel.value=next
+  }
+  function closePanel() { panel.value=''; nextTick(()=>syncWeChatLive2dOverlay(true)) }
+  function onNavigationLeave() {
+    leavingGuide.value = true
+    if (recording.value || capturePending.value || finishingRecording.value || sending.value || playbackState.value != 'IDLE') interruptTurn()
+  }
+  function toggleGuideMotion() { setReduceMotionPreference(!reduceMotionPreference.value) }
+  function releaseSheet() { if(panel.value.length==0) sheetPresent.value=false }
+  function readFromHistory(content:string) { closePanel(); readAloud(content) }
+  function sendFromSheet() { if(input.value.trim().length==0 || conversationBusy.value) return; closePanel(); sendMessage() }
+  function openContextMap() { if(placeId.value.length>0) queueMapSpot(placeId.value); uni.switchTab({url:'/pages/map/index'}) }
+  function onSceneScroll(event:UniScrollEvent) { stageInView.value=event.detail.scrollTop<stageHeight.value; handleMessageScroll(event) }
+  onShow(()=>{
+    leavingGuide.value = false
+    areaId.value=getPreferredScenicArea()
+    const place=currentGuidePlace(areaId.value)
+    placeId.value=place[0];placeName.value=place[1]
+    if(consumeHistoryIntent()) openPanel('history')
+  })
+  onHide(()=>{ panel.value='' })
+  onResize(()=>{viewportHeight.value=uni.getWindowInfo().windowHeight})
+  // #ifdef APP
+  onBackPress((_event):boolean=>{ if(panel.value.length==0) return false;closePanel();return true })
+  // #endif
+
+
+</script>
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; height: 100%; position: relative; overflow: hidden; background-color: $sg-background; }
+  .sheet-host { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 30; }
+  .sheet-component { flex: 1; height: 100%; }
+  .guide-header { flex-direction: row; align-items: center; padding-left: $sg-space-5; padding-right: $sg-space-5; padding-bottom: $sg-space-3; }
+  .guide-heading { flex: 1; min-width: 0; }
+  .guide-title { color: $sg-text; font-size: $sg-type-title; font-weight: 700; }
+  .location, .idea-content, .choices, .state-line { flex-direction: row; align-items: center; }
+  .location { align-self: flex-start; max-width: 100%; min-height: $sg-touch; }
+  .location-label { flex-shrink: 1; font-size: $sg-type-label; font-weight: 600; color: $sg-secondary; margin: 0 $sg-space-1; }
+  .round-action { width: $sg-touch; height: $sg-touch; border: 1px solid $sg-border; border-radius: $sg-radius-pill; align-items: center; justify-content: center; background-color: $sg-surface; margin-left: $sg-space-2; }
+  .scene-scroll { flex: 1; min-height: 0; position: relative; }
+  .scene-body { padding: 0 $sg-space-4 $sg-space-5; }
+  .stage-frame { overflow: hidden; border-radius: $sg-radius-lg; }
+  .stage-layout { flex: 1; height: 100%; width: 100%; flex-direction: row; align-items: stretch; }
+  .stage-identity { width: 44%; justify-content: flex-end; padding: $sg-space-3 0 $sg-space-5 $sg-space-5; }
+  .orb-space { align-self: flex-start; margin-bottom: $sg-space-3; }
+  .stage-kicker { color: $sg-secondary; font-size: $sg-type-caption; font-weight: 600; }
+  .guide-name { margin-top: $sg-space-1; color: $sg-text; font-size: $sg-type-title; font-weight: 700; }
+  .state-line { margin-top: $sg-space-2; }
+  .state-dot { width: $sg-space-2; height: $sg-space-2; border-radius: $sg-radius-pill; background-color: $sg-primary; margin-right: $sg-space-2; }
+  .state-label { flex: 1; font-size: $sg-type-label; color: $sg-text; }
+  .meter-note { color: $sg-muted; font-size: $sg-type-caption; margin-top: $sg-space-1; }
+  .renderer { flex: 1; position: relative; overflow: hidden; justify-content: center; }
+  .renderer-covered { opacity: 0; }
+  .embedded-avatar-webview, .haru-portrait, .cloud-portrait { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+  .haru-portrait { height: 138%; top: 5%; }
+  .cloud-portrait { top: 9%; height: 91%; border-top-left-radius: $sg-radius-pill; border-top-right-radius: $sg-radius-pill; }
+  .wechat-live2d-overlay { position: absolute; z-index: 4; overflow: hidden; }
+  .wechat-live2d-overlay-canvas { width: 100%; height: 100%; }
+  .wechat-live2d-overlay-hidden { opacity: 0; pointer-events: none; }
+  .story { padding: $sg-space-5 $sg-space-1 0; }
+  .guide-tools { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .record-clock { font-size: $sg-type-label; color: $sg-secondary; margin-left: $sg-space-1; }
+  .ideas { margin-top: $sg-space-4; border-top: 1px solid $sg-divider; }
+  .idea { flex-direction: row; align-items: center; justify-content: space-between; min-height: $sg-touch; padding: $sg-space-2 0; border-bottom: 1px solid $sg-divider; }
+  .idea-content { flex: 1; }
+  .idea-label { flex: 1; font-size: $sg-type-body; color: $sg-text; margin: 0 $sg-space-3; }
+  .sheet-content { padding-bottom: $sg-space-4; }
+  .setting-title { color: $sg-text; font-size: $sg-type-card; font-weight: 600; margin-bottom: $sg-space-2; }
+  .sheet-note { color: $sg-muted; font-size: $sg-type-label; margin-bottom: $sg-space-3; }
+  .separated { margin-top: $sg-space-5; }
+  .motion-setting { margin-top: $sg-space-2; }
+  .question-input { min-height: $sg-touch * 2; width: 100%; color: $sg-text; background-color: $sg-inset; font-size: $sg-type-body; border-radius: $sg-radius-md; padding: $sg-space-3; margin-bottom: $sg-space-3; }
+  .error-panel { margin-top: $sg-space-3; }
+  .error-text { color: $sg-error; font-size: $sg-type-body; margin-bottom: $sg-space-2; }
 </style>

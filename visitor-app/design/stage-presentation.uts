@@ -1,0 +1,15 @@
+import { themeClass } from '@/design/theme.uts'
+import { reducedMotion } from '@/design/motion.uts'
+
+// Presentation options accompany the signed session or model URL. The original
+// query values, including the credential, are never parsed or re-encoded.
+export function stageUrl(url : string, locale : string) : string {
+  const separator = url.indexOf('?') >= 0 ? '&' : '?'
+  let options = 'locale=' + encodeURIComponent(locale)
+  // Native apps may override the WebView's system appearance.
+  // #ifdef APP
+  options += '&theme=' + (themeClass.value.startsWith('sg-dark') ? 'dark' : 'light')
+  // #endif
+  if (reducedMotion.value) options += '&motion=reduce'
+  return url + separator + options
+}

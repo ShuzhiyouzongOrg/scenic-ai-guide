@@ -1,0 +1,27 @@
+<template>
+  <view v-if="level >= 0" class="meter" :aria-label="label">
+    <view v-for="n in steps" :key="n" class="bar" :style="barStyle(n)"></view>
+  </view>
+</template>
+<script setup lang="uts">
+  import { reducedMotion, voiceDisplayLevel } from '@/design/motion.uts'
+  const props = defineProps<{ level: number, sampleCount: number, label: string }>()
+  const steps = [1,2,3,4,5,6,7]
+  const baseline : number[] = [0,0,0,0,0,0,0]
+  const samples = ref<number[]>(baseline)
+  // Consecutive frames of silence must advance the history too.
+  watch(() : number => props.sampleCount, () => {
+    if (props.level < 0 || reducedMotion.value) {
+      samples.value = baseline
+      return
+    }
+    const tail = samples.value.slice(1)
+    tail.push(samples.value[6] * 0.4 + voiceDisplayLevel(props.level) * 0.6)
+    samples.value = tail
+  }, { immediate: true })
+  function barStyle(n:number):string { return 'height:'+Math.round(3+(reducedMotion.value ? 0 : samples.value[n-1])*17)+'px;' }
+</script>
+<style lang="scss">
+  .meter { height: $sg-space-5; flex-direction: row; align-items: center; }
+  .bar { width: $sg-space-1; margin-right: $sg-space-1; border-radius: $sg-radius-pill; background-color: $sg-primary; }
+</style>

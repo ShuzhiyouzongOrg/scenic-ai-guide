@@ -1,68 +1,99 @@
 <template>
-	<scroll-view class="page" direction="vertical" :show-scrollbar="false">
-		<view class="header">
-			<text class="header-eyebrow">本设备记录</text>
-			<text class="header-title">收藏与游览足迹</text>
-			<text class="header-copy">收藏便于稍后查看；足迹会按最近打开景点的顺序保存。</text>
-		</view>
-		<view class="content">
-			<app-section title="我的收藏" :subtitle="favorites.length.toString() + ' 个景点'">
-				<view v-if="favorites.length > 0" class="list-card">
-					<rice-cell v-for="item in favorites" :key="item.id" :title="item.name" :label="item.categoryName" arrow @click="openSpot(item.id)" />
-				</view>
-				<empty-state v-else icon="♡" title="还没有收藏" description="进入景点详情，点击收藏即可添加到这里。" />
-			</app-section>
-
-			<app-section title="最近足迹" :subtitle="footprints.length.toString() + ' 个景点'">
-				<view v-if="footprints.length > 0" class="list-card">
-					<rice-cell v-for="item in footprints" :key="item.id" :title="item.name" :label="item.categoryName" arrow @click="openSpot(item.id)" />
-				</view>
-				<empty-state v-else icon="⌖" title="还没有足迹" description="打开任一景点详情后会自动记录在本设备。" />
-			</app-section>
-		</view>
-	</scroll-view>
+  <scroll-view class="page" :class="themeClass" direction="vertical" :show-scrollbar="false">
+    <view class="content">
+      <sg-page-header :title="t('收藏与足迹','Saved places & history','收藏與足跡')" :subtitle="t('手动标记的到访与最近浏览分开保存在本设备。','Visits you mark and places you browse are saved separately on this device.','手動標記的到訪與最近瀏覽分開保存在本裝置。')" />
+      <view v-if="failed">
+        <empty-state icon="!" :title="t('景点资料未能更新','Couldn’t refresh places','景點資料未能更新')" :description="t('本机记录已保留，请联网后重试。','Your saved records are safe. Reconnect and try again.','本機記錄已保留，請連網後重試。')" />
+        <view class="action"><sg-button :label="t('重试','Try again','重試')" @action="loadActivity" /></view>
+      </view>
+      <view v-else-if="loading"><sg-skeleton variant="row" /><text class="status" role="status">{{ t('正在载入记录…','Loading places…','正在載入記錄…') }}</text></view>
+      <view v-else>
+        <app-section v-for="group in groups" :key="group.id" :title="group.title" :subtitle="countLabel(group.items.length)">
+          <view v-if="group.items.length > 0" class="list-card">
+            <view v-for="(item, index) in group.items" :key="item.id">
+              <sg-divider v-if="index > 0" />
+              <spot-card :spot="item" :detail="guideText(locale, item.categoryName)" :area="areaFor(item.id)" />
+            </view>
+          </view>
+          <empty-state v-else-if="group.id == 'favorites'" :icon="group.icon" :title="group.emptyTitle" :description="group.hint" />
+          <view v-else class="list-card compact-empty"><text class="empty-label">{{ group.emptyTitle }}</text><text class="status">{{ group.hint }}</text></view>
+        </app-section>
+      </view>
+    </view>
+  </scroll-view>
 </template>
 
 <script setup lang="uts">
-	import type { ScenicSpot } from '@/domain/types.uts'
-	import { fetchScenicSpots } from '@/services/guide-api.uts'
-	import { getFavoriteSpotIds, getFootprintSpotIds } from '@/stores/visitor-activity.uts'
-
-	const favorites = ref<ScenicSpot[]>([])
-	const footprints = ref<ScenicSpot[]>([])
-
-	async function loadActivity() {
-		try {
-			const spots = await fetchScenicSpots()
-			const favoriteIds = getFavoriteSpotIds()
-			const footprintIds = getFootprintSpotIds()
-			favorites.value = favoriteIds
-				.map<ScenicSpot | null>((id : string) : ScenicSpot | null => spots.find((spot : ScenicSpot) : boolean => spot.id == id) ?? null)
-				.filter((spot : ScenicSpot | null) : boolean => spot != null)
-				.map<ScenicSpot>((spot : ScenicSpot | null) : ScenicSpot => spot!)
-			footprints.value = footprintIds
-				.map<ScenicSpot | null>((id : string) : ScenicSpot | null => spots.find((spot : ScenicSpot) : boolean => spot.id == id) ?? null)
-				.filter((spot : ScenicSpot | null) : boolean => spot != null)
-				.map<ScenicSpot>((spot : ScenicSpot | null) : ScenicSpot => spot!)
-		} catch (error) {
-			console.error('load favorites failed', error)
-			uni.showToast({ title: '景点数据连接失败', icon: 'none' })
-		}
-	}
-
-	function openSpot(id : string) {
-		uni.navigateTo({ url: '/pages/spot/detail?id=' + encodeURIComponent(id) })
-	}
-
-	onShow(() => { loadActivity() })
+  import type { ScenicAreaId, ScenicSpot } from '@/domain/types.uts'
+  import { guideText } from '@/design/guide-locale.uts'
+  import { fetchScenicSpots } from '@/services/guide-api.uts'
+  import { getFavoriteSpotIds, getFootprintSpotIds, getVisitedSpotIds } from '@/stores/visitor-activity.uts'
+  import { getAppLocale, localize } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  const locale = ref<string>(getAppLocale())
+  function t(zh : string, en : string, traditional : string) : string {
+    return localize(locale.value, zh, en, traditional)
+  }
+  const favorites = ref<ScenicSpot[]>([])
+  const footprints = ref<ScenicSpot[]>([])
+  const visited = ref<ScenicSpot[]>([])
+  type ActivityGroup = { id : string, title : string, icon : string, items : ScenicSpot[], emptyTitle : string, hint : string }
+  const groups = computed<ActivityGroup[]>(() => [
+    { id:'favorites', title:t('我的收藏','Favorites','我的收藏'), icon:'♡', items:favorites.value,
+      emptyTitle:t('还没有收藏','No favorites yet','還沒有收藏'), hint:t('打开景点详情，点击收藏即可加入。','Open a place and save it to keep it here.','開啟景點詳情，點選收藏即可加入。') },
+    { id:'visits', title:t('游览足迹','Visited places','遊覽足跡'), icon:'⌖', items:visited.value,
+      emptyTitle:t('还没有到访标记','No places marked as visited','還沒有到訪標記'), hint:t('在景点详情中点“标记我已到访”。','Choose “Mark as visited” on a place’s detail page.','在景點詳情中點選「標記我已到訪」。') },
+    { id:'history', title:t('最近浏览','Recently viewed','最近瀏覽'), icon:'⌖', items:footprints.value,
+      emptyTitle:t('还没有浏览足迹','No viewing history','還沒有瀏覽足跡'), hint:t('打开景点后可在这里找到它。','Places appear here after you open them.','開啟景點後可在這裡找到它。') }
+  ])
+  const loading = ref(false)
+  const failed = ref(false)
+  function areaFor(id : string) : ScenicAreaId {
+    return id.startsWith('nianhuawan-') ? 'nianhuawan' : 'lingshan'
+  }
+  function countLabel(count : number) : string {
+    return count.toString() + t(' 个景点',count == 1 ? ' place' : ' places',' 個景點')
+  }
+  function orderedSpots(ids : string[], spots : ScenicSpot[]) : ScenicSpot[] {
+    const list : ScenicSpot[] = []
+    ids.forEach((id : string) => {
+      const item = spots.find((spot : ScenicSpot) : boolean => spot.id == id)
+      if (item != null) list.push(item)
+    })
+    return list
+  }
+  async function loadActivity() {
+    if (loading.value) return
+    loading.value = true
+    failed.value = false
+    try {
+      const favoriteIds = getFavoriteSpotIds()
+      const footprintIds = getFootprintSpotIds()
+      const visitIds = getVisitedSpotIds()
+      const ids = favoriteIds.concat(footprintIds).concat(visitIds)
+      let spots : ScenicSpot[] = []
+      if (ids.some((id : string) : boolean => areaFor(id) == 'lingshan')) spots = await fetchScenicSpots('lingshan')
+      if (ids.some((id : string) : boolean => areaFor(id) == 'nianhuawan')) spots = spots.concat(await fetchScenicSpots('nianhuawan'))
+      favorites.value = orderedSpots(favoriteIds, spots)
+      footprints.value = orderedSpots(footprintIds, spots)
+      visited.value = orderedSpots(visitIds, spots)
+    } catch (error) { failed.value = true }
+    finally { loading.value = false }
+  }
+  onShow(() => {
+    locale.value = getAppLocale()
+    uni.setNavigationBarTitle({title:t('收藏与足迹','Saved places','收藏與足跡')})
+    loadActivity()
+  })
 </script>
 
-<style>
-	.page { flex: 1; background-color: #f3f6fb; }
-	.header { padding: 40px 20px 52px; background: linear-gradient(to bottom right, #061f55, #0b68d0 62%, #0a9fc1); border-radius: 0 0 34px 34px; }
-	.header-eyebrow { font-size: 9px; color: #ffd279; letter-spacing: 1px; font-weight: 700; }
-	.header-title { font-size: 28px; font-weight: 800; color: #ffffff; margin-top: 9px; }
-	.header-copy { font-size: 13px; color: #d9e9ff; line-height: 20px; margin-top: 9px; }
-	.content { padding: 0 16px 36px; }
-	.list-card { background-color: #ffffff; border: 1px solid #e1e8f2; border-radius: 22px; padding: 4px 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(17,65,120,0.07); }
+<style lang="scss">
+  @include sg-themes;
+  .page { flex: 1; background-color: $sg-background; }
+  .content { padding: $sg-space-4 $sg-space-4 $sg-space-8; }
+  .list-card { background-color: $sg-surface; border-radius: $sg-radius-md; border: 1px solid $sg-divider; overflow: hidden; }
+  .action { margin-top: $sg-space-4; }
+  .compact-empty { padding: $sg-space-4; }
+  .empty-label { color: $sg-text; font-size: $sg-type-body; }
+  .status { color: $sg-muted; font-size: $sg-type-label; margin-top: $sg-space-2; }
 </style>

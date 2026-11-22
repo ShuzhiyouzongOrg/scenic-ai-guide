@@ -1,0 +1,25 @@
+<template>
+  <view class="service-row" :class="pressFeedbackClass" role="button" tabindex="0" data-sg-keyboard="activate" :aria-label="title + ' ' + detail" hover-class="pressed" :hover-start-time="feedbackDelay" :hover-stay-time="feedbackDelay" @click="emit('action')">
+    <view class="icon-box"><sg-icon :name="icon" :tone="tone" :size="20" /></view>
+    <view class="copy">
+      <text class="title">{{ title }}</text>
+      <text v-if="detail.length > 0" class="detail">{{ detail }}</text>
+    </view>
+    <sg-icon name="right" tone="muted" :size="16" />
+  </view>
+</template>
+<script setup lang="uts">
+  import { pressFeedbackClass } from '@/design/motion.uts'
+  import { feedbackDelay } from '@/design/palette.uts'
+  withDefaults(defineProps<{ icon : string, title : string, detail ?: string, tone ?: string }>(), { detail: '', tone: 'primary' })
+  const emit = defineEmits(['action'])
+</script>
+<style lang="scss">
+  @import '@/design/press.scss';
+  .service-row { flex-direction: row; align-items: center; min-height: $sg-touch; padding: $sg-space-3 $sg-space-4; background-color: $sg-surface; }
+  .copy { flex: 1; margin: 0 $sg-space-3; }
+  .icon-box { justify-content: center; align-items: center; width: $sg-space-8; height: $sg-space-8; border-radius: $sg-radius-sm; background-color: $sg-inset; }
+  .title { color: $sg-text; font-size: $sg-type-body; font-weight: 600; }
+  .detail { color: $sg-muted; font-size: $sg-type-label; margin-top: $sg-space-1; }
+  @include sg-press-feedback;
+</style>

@@ -1,0 +1,115 @@
+<template>
+  <view class="nav-shell">
+    <view class="guide-tabbar" role="navigation" :aria-label="label" :style="insetStyle">
+      <view class="nav-track"></view>
+      <view class="nav-items">
+        <view v-for="(icon, index) in icons" :key="icon" class="nav-cell">
+          <view v-if="index != 2" class="tab-item" role="button" tabindex="0" data-sg-keyboard="activate"
+            :aria-label="labels[index]" @click="leave(index)">
+            <image class="tab-image" :src="imagePath(icon)" mode="aspectFit" aria-hidden="true" />
+            <text class="tab-label">{{ labels[index] }}</text>
+          </view>
+          <view v-else class="center-cell">
+            <view class="tab-item center-tab" :class="[engaged ? 'tab-faded' : '', motionClass]" aria-hidden="true">
+              <image class="tab-image" :src="imagePath('ai')" mode="aspectFit" /><text class="tab-label">{{ labels[2] }}</text>
+            </view>
+            <view class="voice-face" :class="[engaged ? 'voice-shown' : '', motionClass]"><slot /></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+  import { tabLabels, tabRoutes } from '@/stores/locale.uts'
+  import { themeClass } from '@/design/theme.uts'
+  import { reducedMotion } from '@/design/motion.uts'
+  import { tabTransitionDuration } from '@/design/palette.uts'
+
+  const props = defineProps<{ locale: string, label: string, bottomInset: number }>()
+  const emit = defineEmits(['leaving', 'restored'])
+  const icons = ['home', 'map', 'ai', 'trip', 'profile']
+  const labels = computed<string[]>(() => tabLabels(props.locale))
+  const insetStyle = computed<string>(() => {
+    // #ifdef WEB
+    return 'padding-bottom:env(safe-area-inset-bottom,0px);'
+    // #endif
+    // #ifndef WEB
+    return 'padding-bottom:' + Math.max(0, props.bottomInset) + 'px;'
+    // #endif
+  })
+  const engaged = ref(reducedMotion.value)
+  const motionClass = computed<string>(() => reducedMotion.value ? 'immediate' : '')
+  let timer : number | null = null
+  let navigating = false
+
+  function clearTimer() {
+    if (timer != null) clearTimeout(timer!)
+    timer = null
+  }
+  function imagePath(icon : string) : string {
+    return '/static/tabbar/' + icon + (themeClass.value.startsWith('sg-dark') ? '-dark.png' : '.png')
+  }
+  function leave(index : number) {
+    if (navigating || index == 2) return
+    navigating = true
+    emit('leaving')
+    clearTimer()
+    engaged.value = false
+    const switchPage = () => {
+      timer = null
+      // H5 can lazy-load an unvisited tab. Hand the rail back before that load.
+      // #ifdef WEB
+      uni.showTabBar({ animation: false })
+      // #endif
+      uni.switchTab({
+        url: '/' + tabRoutes[index],
+        fail: () => {
+          // #ifdef WEB
+          uni.hideTabBar({ animation: false })
+          // #endif
+          navigating = false
+          engaged.value = true
+          emit('restored')
+        }
+      })
+    }
+    if (reducedMotion.value) switchPage()
+    else timer = setTimeout(switchPage, tabTransitionDuration)
+  }
+  onMounted(() => {
+    if (!reducedMotion.value) timer = setTimeout(() => { timer = null; engaged.value = true }, 20)
+  })
+  onUnmounted(clearTimer)
+</script>
+
+<style lang="scss">
+  .nav-shell { flex-shrink: 0; }
+  .guide-tabbar { position: relative; }
+  /* The transparent lip contains the whole raised hit target. Only the surface
+     below it belongs to the tab bar, at the same baseline as the system bar. */
+  .nav-track { position: absolute; top: $sg-space-2; bottom: 0; left: 0; right: 0; background-color: $sg-surface; border-top: 1px solid $sg-divider; }
+  .nav-items { flex-direction: row; height: $sg-tab-height + $sg-space-2; }
+  /* #ifdef MP-WEIXIN */
+  .nav-items { height: $sg-tab-wechatHeight + $sg-space-2; }
+  /* #endif */
+  .nav-cell { flex: 1; min-width: 0; align-items: stretch; }
+  .center-cell { flex: 1; position: relative; }
+  .tab-item { position: absolute; top: $sg-space-2; left: 0; right: 0; bottom: 0; align-items: center; justify-content: center; }
+  .nav-cell { position: relative; }
+  .tab-image { width: $sg-tab-icon; height: $sg-tab-icon; }
+  /* #ifdef MP-WEIXIN */
+  .tab-image { width: $sg-tab-wechatIcon; height: $sg-tab-wechatIcon; }
+  .tab-item { padding-top: $sg-space-2; }
+  /* #endif */
+  .tab-label { margin-top: $sg-tab-gap; font-size: $sg-tab-label; color: $sg-muted; line-height: 14px; }
+  /* #ifdef WEB */
+  .tab-label { font-family: -apple-system, HelveticaNeue; line-height: normal; }
+  /* #endif */
+  .center-tab, .voice-face { transition-property: opacity, transform; transition-duration: $sg-duration-normal; transition-timing-function: $sg-ease-arrive; }
+  .tab-faded { opacity: 0; transform: scale(.93); }
+  .voice-face { position: absolute; top: 0; bottom: 0; left: 0; right: 0; align-items: center; justify-content: center; opacity: 0; transform: scale(.9); }
+  .voice-shown { opacity: 1; transform: scale(1); }
+  .immediate { transition-duration: $sg-duration-immediate; }
+</style>

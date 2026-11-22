@@ -1,0 +1,12 @@
+<template>
+  <image :src="source" :style="dimensions" :aria-label="label" mode="aspectFill" @error="useFallback" />
+</template>
+<script setup lang="uts">
+  const props = withDefaults(defineProps<{src : string, fallback ?: string, size ?: number, label ?: string}>(),
+    { fallback: '/static/logo.png', size: 64, label: '' })
+  const failed = ref(false)
+  watch(() : string => props.src, () => { failed.value = false })
+  const source = computed<string>(() => !failed.value && props.src.length > 0 ? props.src : props.fallback)
+  const dimensions = computed<string>(() => 'width:' + props.size + 'px;height:' + props.size + 'px;border-radius:' + (props.size / 2) + 'px;')
+  function useFallback() { failed.value = true }
+</script>

@@ -1,0 +1,142 @@
+<template>
+  <view class="ambient-orb" :style="frameStyle" aria-hidden="true">
+    <view class="orb-halo" :style="haloStyle"><sg-guide-glow :size="diameter" :strength="glow" /></view>
+    <image v-if="showSignal" class="orb-layer orb-signal" :style="signalStyle" src="/static/guide-stage/orb-signal.webp" mode="aspectFit" />
+    <view class="orb-material" :style="bodyStyle">
+      <image class="orb-layer" :src="bodyImage" mode="aspectFit" />
+      <image class="orb-layer orb-sheen" :style="sheenStyle" src="/static/guide-stage/orb-sheen.webp" mode="aspectFit" />
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+  import { reducedMotion as systemReducedMotion, voiceDisplayLevel } from '@/design/motion.uts'
+  import { orbSize, orbTickMs, orbAttackMs, orbReleaseMs, orbListenCycleMs, orbSpeakCycleMs } from '@/design/orb-tokens.uts'
+
+  const props = defineProps<{ state ?: string, level ?: number, active ?: boolean, size ?: number, reducedMotion ?: boolean }>()
+  const state = computed<string>(() => props.state ?? 'IDLE')
+  const diameter = computed<number>(() => Math.max(1, props.size ?? orbSize))
+  const reduced = computed<boolean>(() => systemReducedMotion.value || props.reducedMotion == true)
+  const held = ref(false)
+  const hidden = ref(false)
+  const animated = computed<boolean>(() => {
+    if (props.active == false || reduced.value || held.value || hidden.value) return false
+    return state.value == 'IDLE' || state.value == 'LISTENING' || state.value == 'THINKING' ||
+      state.value == 'RECONNECTING' || state.value == 'SPEAKING'
+  })
+  const phase = ref(0.0)
+  const envelope = ref(0.0)
+  const voice = computed<boolean>(() => state.value == 'LISTENING' || state.value == 'SPEAKING')
+  let timer : number | null = null
+  let lastTick = 0
+
+  function tick() {
+    const now = Date.now()
+    const dt = Math.min(250, Math.max(0, now - lastTick))
+    lastTick = now
+    const input = props.level ?? -1
+    // A normal voice seldom produces full-scale PCM. Map only the visual
+    // envelope so quiet speech is still distinguishable on a 62px surface.
+    const target = voice.value ? voiceDisplayLevel(input) : 0
+    const time = target > envelope.value ? orbAttackMs : orbReleaseMs
+    const gain = 1.0 - Math.exp(-dt / time)
+    envelope.value += (target - envelope.value) * gain
+    let period = 7600.0
+    if (state.value == 'LISTENING') period = orbListenCycleMs
+    if (state.value == 'THINKING') period = 4200.0
+    if (state.value == 'RECONNECTING') period = 9600.0
+    if (state.value == 'SPEAKING') period = orbSpeakCycleMs
+    if (voice.value && input < 0) period *= 1.22
+    phase.value = (phase.value + dt * Math.PI * 2.0 / period) % (Math.PI * 2.0)
+  }
+  function stopClock() {
+    if (timer != null) { clearInterval(timer!); timer = null }
+    envelope.value = 0.0
+    phase.value = 0.0
+  }
+  function refreshClock() {
+    if (!animated.value) { stopClock(); return }
+    if (timer == null) {
+      lastTick = Date.now()
+      timer = setInterval(() => { tick() }, orbTickMs)
+    }
+  }
+  // reset clears the envelope without changing the caller's visibility policy.
+  function reset() { stopClock(); refreshClock() }
+  function pause() { held.value = true; stopClock() }
+  function resume() { held.value = false; refreshClock() }
+  defineExpose({ reset, pause, resume })
+  // #ifdef WEB
+  function syncVisibility() { hidden.value = document.hidden }
+  // #endif
+  onMounted(() => {
+    // #ifdef WEB
+    syncVisibility()
+    document.addEventListener('visibilitychange', syncVisibility)
+    // #endif
+    refreshClock()
+  })
+  watch(animated, () => { refreshClock() })
+  // The microphone and the playback channel never share their last sample.
+  watch(state, () => { envelope.value = 0.0 })
+  onUnmounted(() => {
+    stopClock()
+    // #ifdef WEB
+    document.removeEventListener('visibilitychange', syncVisibility)
+    // #endif
+  })
+
+  const wave = computed<number>(() => animated.value ? Math.sin(phase.value) : 0)
+  // Unknown metering gets one regular, visibly slower state gesture. Actual
+  // digital silence keeps only a tiny drift; neither draws a volume ring.
+  const movement = computed<number>(() => {
+    if (!animated.value) return 0
+    if (!voice.value) return state.value == 'IDLE' ? 0.07 : 0.22
+    if ((props.level ?? -1) < 0) return 0.57
+    return 0.055 + 0.945 * envelope.value
+  })
+  const frameStyle = computed<string>(() => 'width:' + diameter.value + 'px;height:' + diameter.value + 'px;')
+  const glow = computed<number>(() => {
+    if (state.value == 'DISABLED' || state.value == 'CANCELLED') return 0.1
+    if (state.value == 'ERROR' || state.value == 'PAUSED') return 0.21
+    return 0.38 + (wave.value + 1) * movement.value * 0.16 + envelope.value * 0.23
+  })
+  const bodyImage = computed<string>(() => state.value == 'THINKING' || state.value == 'RECONNECTING'
+    ? '/static/guide-stage/orb-thought.webp' : '/static/guide-stage/orb-body.webp')
+  const showSignal = computed<boolean>(() => animated.value && voice.value && (props.level ?? -1) > 0 && envelope.value > 0.025)
+  const transition = computed<string>(() => animated.value ? 'transition-duration:' + orbTickMs + 'ms;' : 'transition-duration:0ms;')
+  const haloStyle = computed<string>(() => transition.value + 'transform:scale(' + (1.10 + 0.085 * wave.value * movement.value + envelope.value * 0.12) + ');')
+  const signalStyle = computed<string>(() => {
+    const outward = (1.0 - Math.cos(phase.value)) * 0.5
+    const scale = 0.91 + envelope.value * 0.18 + outward * (0.10 + envelope.value * 0.25)
+    const opacity = (0.35 + envelope.value * 0.59) * (1.0 - outward * 0.58)
+    return transition.value + 'opacity:' + opacity + ';transform:scale(' + scale + ');'
+  })
+  const bodyStyle = computed<string>(() => {
+    let opacity = 1.0
+    let scale = 0.90
+    if (state.value == 'DISABLED') { opacity = 0.44; scale = 0.77 }
+    if (state.value == 'CANCELLED') { opacity = 0.65; scale = 0.81 }
+    if (state.value == 'ERROR') { opacity = 0.83; scale = 0.85 }
+    if (state.value == 'PAUSED') { opacity = 0.90; scale = 0.87 }
+    if (voice.value) scale = 0.88
+    if (state.value == 'THINKING' || state.value == 'RECONNECTING') scale = 0.87
+    const drift = wave.value * movement.value
+    const size = scale + envelope.value * 0.115
+    const angle = drift * 21.0
+    const width = size + drift * 0.085
+    const height = size - drift * 0.055
+    return transition.value + 'opacity:' + opacity + ';transform:rotate(' + angle + 'deg) scale(' + width + ',' + height + ');'
+  })
+  const sheenStyle = computed<string>(() => {
+    const dx = wave.value * movement.value * diameter.value * 0.085
+    const angle = wave.value * movement.value * -17.0
+    const opacity = state.value == 'ERROR' || state.value == 'DISABLED' ? 0.34 : 0.77 + envelope.value * 0.22
+    return transition.value + 'opacity:' + opacity + ';transform:translateX(' + dx + 'px) rotate(' + angle + 'deg);'
+  })
+</script>
+
+<style lang="scss">
+  .ambient-orb { position: relative; flex-shrink: 0; }
+  .orb-halo, .orb-material, .orb-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition-property: transform; transition-timing-function: linear; }
+</style>

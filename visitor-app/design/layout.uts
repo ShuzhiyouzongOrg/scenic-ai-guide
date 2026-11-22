@@ -1,0 +1,68 @@
+import { computed, ref } from 'vue'
+import { headerGap, mapHeaderGap } from './palette.uts'
+// #ifndef WEB
+import { restoreNativeTabLocale } from '@/stores/locale.uts'
+// #endif
+
+// Custom root tabs draw behind the system bar. Native Vapor 5.24 can discard
+// calc(var(--status-bar-height) + gap), so resolve the inset numerically.
+let guideRequestedTabBar = false
+let barRevision = 0
+export function useScenicInsets(guide : boolean = false) {
+  const top = ref(0)
+  const guideBarReady = ref(false)
+  const guideBarFailed = ref(false)
+  const bottomInset = ref(0)
+  let visible = true
+  let hideAttempt = 0
+  function syncTabBar() {
+    if (!visible) return
+    if (!guide) {
+      if (guideRequestedTabBar) {
+        const revision = ++barRevision
+        guideRequestedTabBar = false
+        uni.showTabBar({ animation: false, fail: () => { if (barRevision == revision) guideRequestedTabBar = true } })
+      }
+      return
+    }
+    if (hideAttempt != 0 || guideBarReady.value) return
+    const revision = ++barRevision
+    guideRequestedTabBar = true
+    hideAttempt = revision
+    uni.hideTabBar({
+      animation: false,
+      success: () => {
+        if (visible && revision == barRevision) { guideBarReady.value = true; guideBarFailed.value = false; measure() }
+      },
+      fail: () => { if (visible && revision == barRevision) { guideBarFailed.value = true; guideBarReady.value = false } },
+      complete: () => { if (hideAttempt == revision) hideAttempt = 0 }
+    })
+  }
+  function measure() {
+    const info = uni.getWindowInfo()
+    let inset = Math.max(info.statusBarHeight, info.safeAreaInsets?.top ?? 0)
+    // #ifdef MP-WEIXIN
+    const capsule = uni.getMenuButtonBoundingClientRect()
+    inset = Math.max(inset, capsule.bottom)
+    // #endif
+    top.value = inset
+    if (guide) bottomInset.value = info.safeAreaInsets?.bottom ?? 0
+  }
+  measure()
+  onReady(() => { measure(); syncTabBar() })
+  onShow(() => { visible = true; measure(); syncTabBar() })
+  onHide(() => {
+    visible = false
+    hideAttempt = 0
+    guideBarReady.value = false
+    guideBarFailed.value = false
+  })
+  // #ifndef WEB
+  onReady(() => { restoreNativeTabLocale() })
+  onShow(() => { nextTick(() => { restoreNativeTabLocale() }) })
+  // #endif
+  onResize(() => { measure() })
+  const headerStyle = computed<string>(() => 'padding-top:' + (top.value + headerGap) + 'px;')
+  const mapTopStyle = computed<string>(() => 'top:' + (top.value + mapHeaderGap) + 'px;')
+  return { headerStyle, mapTopStyle, guideBarReady, guideBarFailed, bottomInset }
+}

@@ -3,11 +3,18 @@ import App from './App.uvue'
 // RiceUI 在 Web + 样式隔离 2.0 下要求从 main.uts 引入基础样式。
 // #ifdef WEB
 import '@/uni_modules/rice-ui/libs/style/index.css'
+import { installActionKeys } from '@/design/keyboard.uts'
+import { syncWebTabLocale } from '@/stores/locale.uts'
 // #endif
 
 import { createSSRApp } from 'vue'
 export function createApp() {
 	const app = createSSRApp(App)
+	// #ifdef WEB
+	// H5 accepts tab updates after a tab page has mounted, including on cold deep links.
+	installActionKeys()
+	app.mixin({ onReady() { syncWebTabLocale() } })
+	// #endif
 	return {
 		app
 	}

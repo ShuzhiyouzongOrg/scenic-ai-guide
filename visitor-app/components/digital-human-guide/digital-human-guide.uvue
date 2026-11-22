@@ -1,30 +1,34 @@
 <template>
 	<view class="digital-human" :class="compact ? 'digital-human-compact' : ''" @click="handleClick">
 		<view class="avatar-shell" :class="compact ? 'avatar-shell-compact' : ''">
-			<view class="avatar-glow" :class="state == 'speaking' ? 'avatar-glow-speaking' : ''"></view>
+
 			<image class="avatar-image" :class="avatarImageClass" :src="avatarSource" mode="aspectFit" />
-			<view v-if="state == 'speaking'" class="avatar-mouth" :class="mouthClass"><view class="avatar-mouth-core"></view></view>
-			<view v-if="state == 'speaking'" class="voice-wave">
+			<view v-if="state == 'speaking' && !reducedMotion" class="avatar-mouth" :class="mouthClass"><view class="avatar-mouth-core"></view></view>
+			<view v-if="state == 'speaking' && !reducedMotion" class="voice-wave">
 				<view class="voice-wave-bar voice-wave-bar-one"></view>
 				<view class="voice-wave-bar voice-wave-bar-two"></view>
 				<view class="voice-wave-bar voice-wave-bar-three"></view>
 			</view>
-			<view class="avatar-online"></view>
+
 		</view>
 		<view class="digital-copy">
 			<view class="digital-title-row">
-				<text class="digital-name" :class="compact ? 'digital-name-compact' : ''">{{ title }}</text>
+				<text class="digital-name" :class="compact ? 'digital-name-compact' : ''">{{ title.length > 0 ? title : g('灵小游') }}</text>
 				<text class="digital-badge">{{ engineBadge }}</text>
 			</view>
 			<text class="digital-status">{{ statusText }}</text>
-			<text v-if="!compact" class="digital-message">{{ message }}</text>
+			<text v-if="!compact" class="digital-message">{{ message.length > 0 ? message : g('我可以为你讲解景点、规划路线，也能跟随当前位置提供导览。') }}</text>
 		</view>
-		<view v-if="compact" class="digital-action"><text class="digital-action-text">{{ actionText }}</text><text class="digital-action-arrow">›</text></view>
+		<view v-if="compact" class="digital-action"><text class="digital-action-text">{{ actionText.length > 0 ? actionText : g('动态形象') }}</text><text class="digital-action-arrow">›</text></view>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { guideText } from '@/design/guide-locale.uts'
+	function g(key : string) : string { return guideText(props.locale, key) }
+	import { reducedMotion } from '@/design/motion.uts'
 	type DigitalHumanGuideProps = {
+		locale ?: string,
 		title ?: string,
 		message ?: string,
 		state ?: string,
@@ -39,31 +43,32 @@
 	let mouthTimer : number | null = null
 
 	const props = withDefaults(defineProps<DigitalHumanGuideProps>(), {
-		title: '灵小游',
-		message: '我可以为你讲解景点、规划路线，也能跟随当前位置提供导览。',
+		locale: 'zh-Hans',
+		title: '',
+		message: '',
 		state: 'idle',
 		compact: false,
 		engine: 'xfyun',
 		serviceStatus: 'online',
-		actionText: '动态形象',
-		avatarSource: '/static/digital-human/guide-haru-transparent.png'
+		actionText: '',
+		avatarSource: '/static/digital-human/guide-haru-transparent.webp'
 	})
-	const avatarSource = computed<string>(() => props.avatarSource ?? '/static/digital-human/guide-haru-transparent.png')
+	const avatarSource = computed<string>(() => props.avatarSource ?? '/static/digital-human/guide-haru-transparent.webp')
 
 	const engineBadge = computed<string>(() => {
-		if (props.engine == 'xfyun') return '讯飞云'
-		if (props.engine == 'local-xfyun') return '讯飞音色'
-		if (props.engine == 'live2d') return '本地形象'
-		return '数字人'
+		if (props.engine == 'xfyun') return g('讯飞云')
+		if (props.engine == 'local-xfyun') return g('讯飞音色')
+		if (props.engine == 'live2d') return g('本地形象')
+		return g('数字人')
 	})
 
 	const statusText = computed<string>(() => {
-		const provider = props.engine == 'xfyun' ? '讯飞数字人' : (props.engine == 'local-xfyun' ? '本地动态形象' : '本地数字人')
-		if (props.state == 'thinking') return provider + ' · 正在检索景区知识'
-		if (props.state == 'speaking') return provider + ' · 正在为你讲解'
-		if (props.state == 'guiding') return provider + ' · 正在进行景区导览'
-		if (props.serviceStatus != 'online') return provider + ' · 当前使用降级模式'
-		return provider + ' · 服务已接入'
+		const provider = props.engine == 'xfyun' ? g('讯飞数字人') : (props.engine == 'local-xfyun' ? g('本地动态形象') : g('本地数字人'))
+		if (props.state == 'thinking') return provider + ' · ' + g('正在检索景区知识')
+		if (props.state == 'speaking') return provider + ' · ' + g('正在为你讲解')
+		if (props.state == 'guiding') return provider + ' · ' + g('正在进行景区导览')
+		if (props.serviceStatus != 'online') return provider + ' · ' + g('当前使用降级模式')
+		return provider + ' · ' + g('服务已接入')
 	})
 
 	const avatarImageClass = computed<string>(() => {
@@ -89,11 +94,13 @@
 
 	watch(() : string => props.state, (state : string) => {
 		stopMouthAnimation()
-		if (state == 'speaking') {
+		if (state == 'speaking' && !reducedMotion.value) {
 			mouthOpen.value = true
 			mouthTimer = setInterval(() => { mouthOpen.value = !mouthOpen.value }, 170)
 		}
 	})
+
+	watch(reducedMotion, (reduce : boolean) => { if (reduce) stopMouthAnimation() })
 
 	onUnmounted(() => { stopMouthAnimation() })
 
@@ -102,44 +109,26 @@
 	}
 </script>
 
-<style>
-	.digital-human { width: 100%; min-height: 154px; flex-direction: row; align-items: center; overflow: hidden; padding: 13px 15px 13px 8px; border-radius: 24px; background: linear-gradient(to bottom right, #083f82, #087eaa 62%, #12a8aa); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 12px 28px rgba(8,70,132,0.20); }
-	.digital-human-compact { min-height: 76px; padding: 7px 11px 7px 5px; border-radius: 20px; background: linear-gradient(to right, rgba(5,54,110,0.97), rgba(7,128,159,0.97)); }
-	.avatar-shell { position: relative; width: 116px; height: 132px; flex-shrink: 0; align-items: center; justify-content: flex-end; overflow: hidden; }
-	.avatar-shell-compact { width: 62px; height: 62px; border-radius: 18px; background-color: rgba(255,255,255,0.10); }
-	.avatar-glow { position: absolute; left: 8px; right: 8px; bottom: 0; height: 86px; border-radius: 48px; background-color: rgba(109,235,230,0.22); }
-	.avatar-glow-speaking { background-color: rgba(255,205,105,0.34); }
-	.avatar-image { position: absolute; width: 174px; height: 132px; bottom: -1px; }
-	.avatar-image-compact { width: 92px; height: 70px; bottom: -7px; }
-	.avatar-image-breathing { transform-origin: 50% 100%; }
-	.avatar-image-speaking { transform-origin: 50% 100%; transform: translateY(-2px) scale(1.025); }
-	.avatar-mouth { position: absolute; left: 54px; top: 28px; width: 10px; height: 6px; border-radius: 5px; align-items: center; justify-content: center; background-color: rgba(87,34,48,0.78); }
-	.avatar-mouth-open { top: 26px; height: 10px; }
-	.avatar-mouth-core { width: 5px; height: 2px; border-radius: 2px; background-color: #f3a7ad; }
-	.avatar-mouth-compact { left: 27px; top: 14px; width: 7px; height: 4px; }
-	.avatar-mouth-compact.avatar-mouth-open { top: 12px; height: 7px; }
-	.voice-wave { position: absolute; left: 8px; bottom: 8px; height: 22px; padding: 4px 6px; flex-direction: row; align-items: center; border-radius: 11px; background-color: rgba(4,44,92,0.78); }
-	.voice-wave-bar { width: 3px; height: 8px; margin: 0 1px; border-radius: 2px; background-color: #ffd885; }
-	.voice-wave-bar-two { height: 15px; }
-	.voice-wave-bar-three { height: 11px; }
-	.digital-copy { flex: 1; min-width: 0; overflow: hidden; margin-left: 8px; }
-	.digital-title-row { width: 100%; min-width: 0; flex-direction: row; align-items: center; }
-	.digital-name { font-size: 19px; font-weight: 800; color: #ffffff; }
-	.digital-name-compact { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
-	.digital-badge { flex-shrink: 0; font-size: 9px; color: #704900; padding: 4px 7px; border-radius: 9px; margin-left: 7px; background-color: #ffd885; }
-	.digital-status { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; color: #bdeff2; margin-top: 5px; }
-	.digital-message { font-size: 12px; line-height: 19px; color: #e8f7ff; margin-top: 9px; }
-	.digital-action { flex-shrink: 0; flex-direction: row; align-items: center; margin-left: 8px; padding-left: 9px; border-left: 1px solid rgba(255,255,255,0.18); }
-	.digital-action-text { white-space: nowrap; font-size: 11px; color: #ffffff; font-weight: 700; }
-	.digital-action-arrow { font-size: 19px; color: #ffd885; margin-left: 3px; }
-	/* #ifdef MP-WEIXIN || WEB */
-	.avatar-image-breathing { animation: avatar-breathe 2.8s ease-in-out infinite; }
-	.avatar-image-speaking { animation: avatar-speak 0.62s ease-in-out infinite; }
-	.voice-wave-bar { animation: voice-wave 0.72s ease-in-out infinite; }
-	.voice-wave-bar-two { animation-delay: 0.16s; }
-	.voice-wave-bar-three { animation-delay: 0.32s; }
-	@keyframes avatar-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.015); } }
-	@keyframes avatar-speak { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.025); } }
-	@keyframes voice-wave { 0%, 100% { height: 6px; opacity: 0.65; } 50% { height: 15px; opacity: 1; } }
-	/* #endif */
+<style lang="scss">
+	.digital-human { width: 100%; padding: $sg-space-4; flex-direction: row; align-items: center; overflow: hidden; border-radius: $sg-radius-lg; background-color: $sg-hero; }
+	.digital-human-compact { padding: $sg-space-2; border-radius: $sg-radius-md; }
+	.avatar-shell { position: relative; width: 88px; height: 104px; flex-shrink: 0; align-items: center; justify-content: center; overflow: hidden; }
+	.avatar-shell-compact { width: $sg-touch; height: $sg-touch; }
+	.avatar-image { width: 100%; height: 100%; }
+	.avatar-mouth { position: absolute; left: 48%; top: 30%; width: 4px; height: 2px; background-color: $sg-accent; }
+	.avatar-mouth-open { height: 4px; }
+	.voice-wave { position: absolute; bottom: 0; height: 12px; flex-direction: row; align-items: center; }
+	.voice-wave-bar { width: 3px; height: 6px; margin-right: 2px; background-color: $sg-on-hero; }
+	.voice-wave-bar-two { height: 12px; }
+	.voice-wave-bar-three { height: 8px; }
+	.digital-copy { flex: 1; min-width: 0; margin-left: $sg-space-2; }
+	.digital-title-row { flex-direction: row; align-items: center; flex-wrap: wrap; }
+	.digital-name { font-size: $sg-type-card; font-weight: 700; color: $sg-on-hero; }
+	.digital-name-compact { font-size: $sg-type-button; }
+	.digital-badge, .digital-status, .digital-action-text { font-size: $sg-type-caption; color: $sg-on-hero; }
+	.digital-badge { margin-left: $sg-space-2; }
+	.digital-status, .digital-message { margin-top: $sg-space-1; color: $sg-on-hero; }
+	.digital-message { font-size: $sg-type-label; }
+	.digital-action { flex-direction: row; align-items: center; padding-left: $sg-space-2; }
+	.digital-action-arrow { font-size: $sg-type-card; color: $sg-on-hero; margin-left: $sg-space-1; }
 </style>

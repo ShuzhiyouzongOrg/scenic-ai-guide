@@ -1,0 +1,16 @@
+<template>
+	<view class="target" :style="'transform:rotate(' + (-rotation) + 'deg);'" role="button" :aria-label="label" :aria-pressed="selected">
+		<view class="pin" :class="selected ? 'pin-selected' : ''"><text v-if="order > 0" class="number">{{ order }}</text></view>
+		<text v-if="selected" class="name">{{ label }}</text>
+	</view>
+</template>
+<script setup lang="uts">
+	defineProps<{ label : string, order : number, selected : boolean, rotation : number }>()
+</script>
+<style lang="scss">
+	.target { position: relative; overflow: visible; width: $sg-touch; height: $sg-touch; align-items: center; justify-content: center; }
+	.pin { min-width: 20px; height: 20px; border-radius: $sg-radius-pill; padding: 0 3px; border: 2px solid $sg-surface; background-color: $sg-primary; justify-content: center; align-items: center; }
+	.pin-selected { min-width: 24px; height: 24px; background-color: $sg-ai; }
+	.number { font-size: $sg-type-caption; font-weight: 700; color: $sg-on-primary; }
+	.name { position: absolute; left: -24px; top: 33px; width: 92px; color: $sg-text; text-align: center; font-size: $sg-type-caption; background-color: $sg-surface; border-radius: $sg-radius-sm; }
+</style>

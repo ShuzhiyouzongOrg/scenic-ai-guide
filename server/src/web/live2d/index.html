@@ -4,21 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="referrer" content="no-referrer" />
-    <title>Live2D 本地数字人</title>
+    <title data-stage-text>Live2D 本地数字人</title>
+    <link rel="stylesheet" href="../digital-human/stage-tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="live2d-stage" aria-label="Live2D 本地数字人">
+    <main class="live2d-stage" data-stage-attr="aria-label" aria-label="Live2D 本地数字人">
       <canvas id="live2dCanvas"></canvas>
       <div id="loading" class="stage-notice">
         <span class="loading-ring" aria-hidden="true"></span>
-        <span id="status-text">正在加载 Live2D 模型</span>
+        <span id="status-text" data-stage-text>正在加载 Live2D 模型</span>
       </div>
-      <button id="audio-unlock" class="audio-unlock" type="button" hidden>
+      <button id="audio-unlock" class="audio-unlock" type="button" hidden data-stage-text>
         轻触启用数字人声音
       </button>
     </main>
 
+    <script src="../digital-human/stage-ui.js"></script>
     <script src="./core/live2dcubismcore.min.js"></script>
     <script src="./webgl-compat.js"></script>
     <script type="module" src="./runtime.js"></script>

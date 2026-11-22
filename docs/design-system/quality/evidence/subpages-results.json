@@ -1,0 +1,266 @@
+{
+  "chromium": {
+    "events": [
+      "auth: blank/short validation, keyboard mode, failed login, local SQLite register and login, back to profile",
+      "feedback: low-rating validation, retained text after 503, successful local POST, returned",
+      "spot/favorites: empty → saved and manually marked visited → remove both → viewing history retained",
+      "saved list and spot retry after 503, map action, unknown ID handling",
+      "digital-human: invalid-link recovery and expected local iframe fixture mounted"
+    ],
+    "measurements": [
+      {
+        "page": "auth",
+        "canvas": "rgb(17, 26, 22)",
+        "width": 320,
+        "undersized_actions": []
+      },
+      {
+        "page": "feedback",
+        "canvas": "rgb(17, 26, 22)",
+        "width": 320,
+        "undersized_actions": []
+      },
+      {
+        "page": "spot",
+        "canvas": "rgb(17, 26, 22)",
+        "width": 320,
+        "undersized_actions": []
+      },
+      {
+        "page": "favorites",
+        "canvas": "rgb(17, 26, 22)",
+        "width": 320,
+        "undersized_actions": []
+      },
+      {
+        "page": "digital-human",
+        "canvas": "rgb(17, 26, 22)",
+        "width": 320,
+        "undersized_actions": []
+      }
+    ],
+    "http": [
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "POST",
+        "/api/visitor/session",
+        201
+      ],
+      [
+        "GET",
+        "/api/routes/saved",
+        200
+      ],
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "GET",
+        "/api/routes/saved",
+        200
+      ],
+      [
+        "POST",
+        "/api/auth/login",
+        503
+      ],
+      [
+        "POST",
+        "/api/auth/register",
+        201
+      ],
+      [
+        "POST",
+        "/api/auth/login",
+        200
+      ],
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "GET",
+        "/api/routes/saved",
+        200
+      ],
+      [
+        "GET",
+        "/api/auth/me",
+        200
+      ],
+      [
+        "POST",
+        "/api/feedback",
+        503
+      ],
+      [
+        "POST",
+        "/api/feedback",
+        201
+      ],
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "GET",
+        "/api/routes/saved",
+        200
+      ],
+      [
+        "GET",
+        "/api/auth/me",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "GET",
+        "/api/routes/saved",
+        200
+      ],
+      [
+        "GET",
+        "/api/auth/me",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        503
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        503
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/bootstrap",
+        200
+      ],
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "document",
+        "controlled-fixture",
+        200
+      ]
+    ],
+    "uncaught": []
+  },
+  "webkit": {
+    "events": [
+      "Traditional Chinese visitor chrome and native page titles for all five pages"
+    ],
+    "measurements": [
+      {
+        "page": "auth",
+        "canvas": "rgb(245, 246, 241)",
+        "width": 390,
+        "undersized_actions": []
+      },
+      {
+        "page": "feedback",
+        "canvas": "rgb(245, 246, 241)",
+        "width": 390,
+        "undersized_actions": []
+      },
+      {
+        "page": "spot",
+        "canvas": "rgb(245, 246, 241)",
+        "width": 390,
+        "undersized_actions": []
+      },
+      {
+        "page": "favorites",
+        "canvas": "rgb(245, 246, 241)",
+        "width": 390,
+        "undersized_actions": []
+      },
+      {
+        "page": "digital-human",
+        "canvas": "rgb(245, 246, 241)",
+        "width": 390,
+        "undersized_actions": []
+      }
+    ],
+    "http": [
+      [
+        "GET",
+        "/api/digital-human/configs",
+        200
+      ],
+      [
+        "POST",
+        "/api/visitor/session",
+        201
+      ],
+      [
+        "GET",
+        "/api/routes/saved",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ],
+      [
+        "GET",
+        "/api/map-guide/spots",
+        200
+      ]
+    ],
+    "uncaught": []
+  }
+}

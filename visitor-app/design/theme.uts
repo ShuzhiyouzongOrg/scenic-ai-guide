@@ -1,0 +1,50 @@
+import { computed, ref } from 'vue'
+import { setTheme } from '@/uni_modules/rice-ui/libs/store/useConfig.uts'
+import { lightPalette, darkPalette } from './palette.uts'
+
+const dark = ref(false)
+const textPreferenceKey = 'scenic-guide-large-text'
+export const largeText = ref(false)
+export const themeClass = computed<string>(() => (dark.value ? 'sg-dark' : 'sg-light') + (largeText.value ? ' sg-large-type' : ''))
+
+export function toggleLargeText() {
+  largeText.value = !largeText.value
+  try { uni.setStorageSync(textPreferenceKey, largeText.value ? 'large' : 'standard') } catch (error) { }
+}
+
+function applyTheme(value : string) {
+  dark.value = value == 'dark'
+  setTheme(dark.value ? 'dark' : 'light')
+}
+
+// #ifdef APP
+function resolveAppTheme(value : string) : string {
+  if (value == 'dark' || value == 'light') return value
+  return uni.getDeviceInfo().osTheme ?? 'light'
+}
+export function refreshAppTheme() {
+  applyTheme(resolveAppTheme(uni.getAppBaseInfo().appTheme ?? 'auto'))
+}
+// #endif
+
+export function themeColor(name : string) : string {
+  const palette = dark.value ? darkPalette : lightPalette
+  return palette.getString(name, palette.getString('text', ''))
+}
+
+export function initializeDesignTheme() {
+  try { largeText.value = uni.getStorageSync(textPreferenceKey) == 'large' } catch (error) { }
+  // #ifdef APP
+  refreshAppTheme()
+  uni.onAppThemeChange((event) => { applyTheme(resolveAppTheme(event.appTheme)) })
+  // #endif
+  // #ifdef WEB
+  const scheme = window.matchMedia('(prefers-color-scheme: dark)')
+  applyTheme(scheme.matches ? 'dark' : 'light')
+  scheme.addEventListener('change', () => { applyTheme(scheme.matches ? 'dark' : 'light') })
+  // #endif
+  // #ifdef MP-WEIXIN
+  applyTheme(uni.getAppBaseInfo().hostTheme ?? 'light')
+  uni.onHostThemeChange((event) => { applyTheme(event.hostTheme) })
+  // #endif
+}
